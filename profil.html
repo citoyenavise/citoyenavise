@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profil citoyen — Citoyen Avisé</title>
+  <meta name="description" content="Votre profil citoyen sur Citoyen Avisé : suivez votre engagement civique, vos groupes et votre activité sur la carte citoyenne.">
+  <link rel="canonical" href="https://citoyenavise.org/profil.html">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    .profil-page-wrapper { padding: 40px 0 64px; }
+    .profil-page-header { margin-bottom: 36px; }
+    .profil-page-header h1 { font-size: 1.6rem; font-weight: 800; color: var(--noir-doux); margin-bottom: 6px; }
+    .profil-page-header p { color: var(--gris-texte); font-size: .93rem; }
+
+    /* Onglets */
+    .profil-onglets { display: flex; gap: 6px; margin-bottom: 28px; flex-wrap: wrap; }
+    .profil-onglet {
+      padding: 7px 18px; border-radius: 20px; font-size: .82rem; font-weight: 700;
+      border: 1.5px solid var(--gris-clair); background: var(--blanc);
+      color: var(--gris-texte); cursor: pointer; transition: var(--transition);
+    }
+    .profil-onglet.actif, .profil-onglet:hover { background: var(--rouge); color: #fff; border-color: var(--rouge); }
+
+    /* Section titre */
+    .profil-section-titre {
+      font-size: .72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .1em; color: var(--gris); margin-bottom: 14px;
+    }
+
+    /* Badge niveau */
+    .profil-niv-badge { background: var(--rouge); color: #fff; font-size: .7rem; font-weight: 800; }
+
+    /* Carte de partage */
+    .profil-share {
+      display: flex; align-items: center; gap: 10px; margin-top: 18px;
+      padding-top: 18px; border-top: 1px solid var(--gris-clair);
+      justify-content: center;
+    }
+    .profil-share-btn {
+      padding: 7px 16px; border-radius: 20px; font-size: .78rem; font-weight: 700;
+      border: 1.5px solid var(--gris-clair); background: var(--blanc);
+      color: var(--gris-texte); cursor: pointer; transition: var(--transition);
+    }
+    .profil-share-btn:hover { background: var(--rouge-clair); color: var(--rouge); border-color: var(--rouge); }
+
+    /* Badge démo */
+    .demo-notice {
+      background: #fff8e1; border: 1.5px solid #FFB300; border-radius: 10px;
+      padding: 12px 18px; font-size: .82rem; color: #795548;
+      margin-bottom: 28px; display: flex; align-items: center; gap: 8px;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      .profil-layout { grid-template-columns: 1fr !important; }
+    }
+    @media (max-width: 600px) {
+      .profil-page-wrapper { padding: 24px 0 40px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">🍁 Citoyen <span>Avisé</span></a>
+    <ul class="nav-liens">
+      <li><a href="index.html">Accueil</a></li>
+      <li><a href="elections.html">Élections</a></li>
+      <li><a href="gouvernement.html">Gouvernement</a></li>
+      <li><a href="droits.html">Droits</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="participer.html">Participer</a></li>
+      <li class="nav-dropdown">
+        <a href="#" class="nav-dropdown-toggle">Ressources</a>
+        <div class="nav-dropdown-menu">
+          <a href="carte.html">🗺️ Carte citoyenne</a>
+          <a href="actualites.html">📰 Actualités</a>
+          <a href="glossaire.html">📖 Glossaire</a>
+          <a href="calendrier.html">📅 Calendrier</a>
+        </div>
+      </li>
+      <li><a href="a-propos.html">À propos</a></li>
+      <li><a href="index.html#infolettre" class="nav-cta">S'inscrire</a></li>
+    </ul>
+    <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+  <div class="menu-mobile">
+    <a href="index.html">🏠 Accueil</a>
+    <a href="elections.html">🗳️ Élections</a>
+    <a href="gouvernement.html">🏛️ Gouvernement</a>
+    <a href="droits.html">⚖️ Droits</a>
+    <a href="services.html">🛎️ Services</a>
+    <a href="participer.html">🤝 Participer</a>
+    <a href="carte.html">🗺️ Carte citoyenne</a>
+    <a href="actualites.html">📰 Actualités</a>
+    <a href="glossaire.html">📖 Glossaire</a>
+    <a href="calendrier.html">📅 Calendrier</a>
+    <a href="a-propos.html">ℹ️ À propos</a>
+    <a href="index.html#infolettre" class="nav-cta-mobile">S'inscrire</a>
+  </div>
+</nav>
+
+<main>
+  <section class="section profil-page-wrapper">
+    <div class="conteneur">
+
+      <!-- Avis démo -->
+      <div class="demo-notice">
+        <span>🔒</span>
+        <span><strong>Aperçu — Version démo.</strong> Le profil citoyen sera disponible lors du lancement de la plateforme communautaire. Les données ci-dessous sont simulées.</span>
+      </div>
+
+      <!-- En-tête de page -->
+      <div class="profil-page-header">
+        <p class="fil-ariane"><a href="index.html">Accueil</a> › Profil citoyen</p>
+        <h1>Mon profil citoyen</h1>
+        <p>Suivez votre engagement, visualisez votre position sur la carte et rejoignez des groupes thématiques.</p>
+      </div>
+
+      <!-- Onglets -->
+      <div class="profil-onglets">
+        <button class="profil-onglet actif">Profil</button>
+        <button class="profil-onglet">Activité</button>
+        <button class="profil-onglet">Groupes</button>
+        <button class="profil-onglet">Carte</button>
+      </div>
+
+      <!-- Layout 2 colonnes -->
+      <div class="profil-layout">
+
+        <!-- Colonne gauche — Carte profil -->
+        <div>
+          <div class="profil-card fade-in">
+            <div class="profil-card-bandeau"></div>
+            <div class="profil-card-corps">
+
+              <!-- Avatar -->
+              <div style="position:relative; display:inline-block; margin-top:-40px; margin-bottom:12px;">
+                <div class="profil-avatar" style="font-size:2.2rem; display:flex; align-items:center; justify-content:center; margin:0 auto;">🙋</div>
+                <div class="profil-niv-badge" style="position:absolute;bottom:2px;right:2px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;background:var(--rouge);color:#fff;border:2px solid #fff;">3</div>
+              </div>
+
+              <div class="profil-pseudo">@CitoyenMontréal</div>
+              <div class="profil-ville">📍 Montréal, Québec</div>
+
+              <!-- Intérêts -->
+              <div class="profil-interets">
+                <span class="profil-tag">Logement</span>
+                <span class="profil-tag bleu">Droits civiques</span>
+                <span class="profil-tag vert">Réconciliation</span>
+                <span class="profil-tag">Élections</span>
+              </div>
+
+              <!-- Statistiques -->
+              <p class="profil-section-titre">Statistiques</p>
+              <div class="profil-stats-grille">
+                <div class="profil-stat">
+                  <span class="profil-stat-nb">24</span>
+                  <span class="profil-stat-label">Actions</span>
+                </div>
+                <div class="profil-stat">
+                  <span class="profil-stat-nb">5</span>
+                  <span class="profil-stat-label">Groupes</span>
+                </div>
+                <div class="profil-stat">
+                  <span class="profil-stat-nb">142</span>
+                  <span class="profil-stat-label">Jours actif</span>
+                </div>
+              </div>
+
+              <!-- Barres d'engagement -->
+              <p class="profil-section-titre">Engagement par thème</p>
+              <div class="profil-engagement">
+                <div>
+                  <div class="profil-eng-label"><span>Logement</span><span>87%</span></div>
+                  <div class="profil-eng-barre"><div class="profil-eng-fill" style="width:87%"></div></div>
+                </div>
+                <div>
+                  <div class="profil-eng-label"><span>Droits civiques</span><span>74%</span></div>
+                  <div class="profil-eng-barre"><div class="profil-eng-fill" style="width:74%"></div></div>
+                </div>
+                <div>
+                  <div class="profil-eng-label"><span>Élections</span><span>61%</span></div>
+                  <div class="profil-eng-barre"><div class="profil-eng-fill" style="width:61%"></div></div>
+                </div>
+                <div>
+                  <div class="profil-eng-label"><span>Réconciliation</span><span>45%</span></div>
+                  <div class="profil-eng-barre"><div class="profil-eng-fill" style="width:45%"></div></div>
+                </div>
+              </div>
+
+              <!-- Niveau -->
+              <p class="profil-section-titre">Niveau citoyen</p>
+              <div style="background:var(--gris-pale);border-radius:10px;padding:14px;text-align:left;margin-bottom:18px;">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:8px;">
+                  <span style="font-size:1.3rem;">🏆</span>
+                  <div>
+                    <div style="font-size:.85rem;font-weight:800;color:var(--rouge);">Niveau 3 — Citoyen engagé</div>
+                    <div style="font-size:.74rem;color:var(--gris);">Prochain niveau : 26 actions restantes</div>
+                  </div>
+                </div>
+                <div class="profil-eng-barre">
+                  <div class="profil-eng-fill" style="width:48%;background:linear-gradient(90deg,var(--rouge),var(--rouge-fonce))"></div>
+                </div>
+              </div>
+
+              <!-- Boutons de partage -->
+              <div class="profil-share">
+                <button class="profil-share-btn">🔗 Partager</button>
+                <button class="profil-share-btn">✏️ Modifier</button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- Colonne droite -->
+        <div class="profil-droite">
+
+          <!-- Mini carte Leaflet -->
+          <div>
+            <p class="profil-section-titre">Ma position sur la carte citoyenne</p>
+            <div id="profil-mini-carte"></div>
+            <a href="carte.html" class="reseau-carte-lien" style="margin-top:10px;">
+              Voir la carte complète du réseau citoyen →
+            </a>
+          </div>
+
+          <!-- Activité récente -->
+          <div class="profil-activite fade-in">
+            <p class="profil-section-titre">Activité récente</p>
+
+            <div class="profil-act-item">
+              <div class="profil-act-icone">📢</div>
+              <div class="profil-act-texte">
+                <span class="profil-act-action">A commenté une actualité sur le Budget 2026</span>
+                <span class="profil-act-temps">Il y a 2 heures</span>
+              </div>
+            </div>
+
+            <div class="profil-act-item">
+              <div class="profil-act-icone">🗳️</div>
+              <div class="profil-act-texte">
+                <span class="profil-act-action">A consulté le guide « Comment voter »</span>
+                <span class="profil-act-temps">Hier à 19h12</span>
+              </div>
+            </div>
+
+            <div class="profil-act-item">
+              <div class="profil-act-icone">🤝</div>
+              <div class="profil-act-texte">
+                <span class="profil-act-action">A rejoint le groupe « Locataires MTL »</span>
+                <span class="profil-act-temps">Il y a 3 jours</span>
+              </div>
+            </div>
+
+            <div class="profil-act-item">
+              <div class="profil-act-icone">📍</div>
+              <div class="profil-act-texte">
+                <span class="profil-act-action">A mis à jour sa position sur la carte citoyenne</span>
+                <span class="profil-act-temps">Il y a 5 jours</span>
+              </div>
+            </div>
+
+            <div class="profil-act-item">
+              <div class="profil-act-icone">⚖️</div>
+              <div class="profil-act-texte">
+                <span class="profil-act-action">A lu « Vos droits face à l'expulsion locative »</span>
+                <span class="profil-act-temps">Il y a 1 semaine</span>
+              </div>
+            </div>
+
+            <div class="profil-act-item">
+              <div class="profil-act-icone">🏆</div>
+              <div class="profil-act-texte">
+                <span class="profil-act-action">A atteint le niveau 3 — Citoyen engagé</span>
+                <span class="profil-act-temps">Il y a 2 semaines</span>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Groupes -->
+          <div class="profil-groupes fade-in">
+            <p class="profil-section-titre">Mes groupes civiques</p>
+
+            <div class="profil-groupe-item">
+              <div class="profil-groupe-dot" style="background:var(--rouge);"></div>
+              <div class="profil-groupe-nom">Locataires MTL</div>
+              <div class="profil-groupe-membres">342 membres</div>
+            </div>
+
+            <div class="profil-groupe-item">
+              <div class="profil-groupe-dot" style="background:#1565C0;"></div>
+              <div class="profil-groupe-nom">Droits numériques Québec</div>
+              <div class="profil-groupe-membres">218 membres</div>
+            </div>
+
+            <div class="profil-groupe-item">
+              <div class="profil-groupe-dot" style="background:#2E7D32;"></div>
+              <div class="profil-groupe-nom">Réconciliation — réseau civil</div>
+              <div class="profil-groupe-membres">97 membres</div>
+            </div>
+
+            <div class="profil-groupe-item">
+              <div class="profil-groupe-dot" style="background:#E65100;"></div>
+              <div class="profil-groupe-nom">Observateurs électoraux 2025</div>
+              <div class="profil-groupe-membres">561 membres</div>
+            </div>
+
+            <div class="profil-groupe-item">
+              <div class="profil-groupe-dot" style="background:#6A1B9A;"></div>
+              <div class="profil-groupe-nom">Budget citoyen — analyse participative</div>
+              <div class="profil-groupe-membres">183 membres</div>
+            </div>
+
+            <div style="margin-top:18px;padding-top:18px;border-top:1px solid var(--gris-clair);text-align:center;">
+              <a href="carte.html" class="btn btn-rouge" style="font-size:.82rem;padding:9px 22px;">Découvrir d'autres groupes →</a>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+
+    </div>
+  </section>
+</main>
+
+<footer class="pied-page">
+  <div class="conteneur">
+    <div class="pied-grille">
+      <div><a href="index.html" class="pied-logo">🍁 Citoyen Avisé</a><p>L'information civique canadienne, accessible à tous.</p></div>
+      <div><p class="pied-titre">Sections</p><ul class="pied-liens"><li><a href="elections.html">Élections</a></li><li><a href="gouvernement.html">Gouvernement</a></li><li><a href="droits.html">Droits</a></li><li><a href="services.html">Services</a></li><li><a href="participer.html">Participer</a></li><li><a href="actualites.html">Actualités</a></li><li><a href="glossaire.html">Glossaire</a></li><li><a href="calendrier.html">Calendrier</a></li></ul></div>
+      <div><p class="pied-titre">Organisation</p><ul class="pied-liens"><li><a href="a-propos.html">À propos</a></li><li><a href="a-propos.html#contact">Contact</a></li></ul></div>
+      <div>
+        <p class="pied-titre">Contact</p>
+        <ul class="pied-liens"><li><a href="mailto:infocitoyenavise@gmail.com">infocitoyenavise@gmail.com</a></li></ul>
+        <div class="pied-social" style="margin-top:16px;">
+          <a href="https://www.facebook.com/citoyenavise" title="Facebook" aria-label="Facebook">f</a>
+          <a href="https://www.instagram.com/citoyenavise" title="Instagram" aria-label="Instagram">📷</a>
+          <a href="https://x.com/citoyenavise" title="X / Twitter" aria-label="X Twitter">𝕏</a>
+          <a href="https://www.youtube.com/@citoyenavise" title="YouTube" aria-label="YouTube">▶</a>
+          <a href="https://www.linkedin.com/company/citoyenavise" title="LinkedIn" aria-label="LinkedIn">in</a>
+          <a href="https://www.threads.net/@citoyenavise" title="Threads" aria-label="Threads">T</a>
+          <a href="https://bsky.app/profile/citoyenavise.bsky.social" title="Bluesky" aria-label="Bluesky">🦋</a>
+        </div>
+      </div>
+    </div>
+    <div class="pied-bas"><p>© 2025 Citoyen Avisé · citoyenavise.org</p><div class="pied-valeurs"><span>Indépendant</span><span>Non partisan</span><span>Gratuit</span></div></div>
+  </div>
+</footer>
+
+<button class="retour-haut" aria-label="Retour en haut">↑</button>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/main.js"></script>
+<script>
+(function() {
+  // Mini-carte profil centrée sur Montréal
+  const carte = L.map('profil-mini-carte', {
+    center: [45.508, -73.587],
+    zoom: 11,
+    zoomControl: true,
+    scrollWheelZoom: false,
+    attributionControl: false
+  });
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    subdomains: 'abcd',
+    maxZoom: 19
+  }).addTo(carte);
+
+  // Point de l'utilisateur principal
+  const iconPrincipal = L.divIcon({
+    className: 'dot-citoyen',
+    html: '<div class="dot-inner niv-3" style="width:15px;height:15px;box-shadow:0 0 12px rgba(193,39,45,.7);"></div>',
+    iconSize: [15, 15],
+    iconAnchor: [7, 7],
+    popupAnchor: [0, -12]
+  });
+
+  L.marker([45.510, -73.557], { icon: iconPrincipal })
+    .addTo(carte)
+    .bindPopup(
+      '<div style="background:rgba(18,18,35,.97);color:#fff;padding:10px 14px;border-radius:10px;min-width:140px;">' +
+      '<span style="font-weight:800;display:block;margin-bottom:4px;">@CitoyenMontréal</span>' +
+      '<span style="font-size:.78rem;color:#aaa;">📍 Montréal</span>' +
+      '</div>',
+      { className: 'popup-citoyen' }
+    )
+    .openPopup();
+
+  // Zone d'influence
+  L.circle([45.510, -73.557], {
+    radius: 3500,
+    color: '#C1272D',
+    fillColor: '#C1272D',
+    fillOpacity: 0.07,
+    weight: 1
+  }).addTo(carte);
+
+  // Citoyens proches simulés
+  const proches = [
+    { lat: 45.520, lng: -73.580, pseudo: 'Sophie_Plateau', niv: 2 },
+    { lat: 45.495, lng: -73.570, pseudo: 'AlexRDP', niv: 1 },
+    { lat: 45.532, lng: -73.545, pseudo: 'NathMTL', niv: 2 },
+    { lat: 45.480, lng: -73.600, pseudo: 'JulienVerdun', niv: 1 },
+    { lat: 45.518, lng: -73.610, pseudo: 'ChloeNDG', niv: 3 },
+    { lat: 45.545, lng: -73.565, pseudo: 'MarcRosemont', niv: 1 },
+    { lat: 45.468, lng: -73.545, pasta: 'LaurentVStL', niv: 2 }
+  ];
+
+  proches.forEach(function(c) {
+    const ico = L.divIcon({
+      className: 'dot-citoyen',
+      html: '<div class="dot-inner niv-' + c.niv + '"></div>',
+      iconSize: [13, 13],
+      iconAnchor: [6, 6],
+      popupAnchor: [0, -10]
+    });
+    L.marker([c.lat, c.lng], { icon: ico })
+      .addTo(carte)
+      .bindPopup(
+        '<div style="background:rgba(18,18,35,.97);color:#fff;padding:8px 12px;border-radius:8px;">' +
+        '<span style="font-weight:700;font-size:.85rem;">' + (c.pseudo || 'Citoyen') + '</span>' +
+        '</div>',
+        { className: 'popup-citoyen' }
+      );
+  });
+})();
+</script>
+</body>
+</html>

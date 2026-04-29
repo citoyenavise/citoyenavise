@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Citoyen Avisé — Information civique canadienne, gratuite et indépendante</title>
+  <meta name="description" content="Plateforme civique canadienne indépendante. Élections, gouvernement, droits et services publics — centralisés, accessibles et gratuits pour tous les Canadiens.">
+  <meta name="keywords" content="information civique canada, élections canada, gouvernement canadien, droits citoyens, services publics canada">
+  <meta property="og:title" content="Citoyen Avisé — L'info civique canadienne, centralisée et gratuite">
+  <meta property="og:description" content="Accédez à l'information publique canadienne en un seul endroit. Non partisan, indépendant, gratuit.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://citoyenavise.org">
+  <link rel="canonical" href="https://citoyenavise.org">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body>
+
+<!-- ── Navigation ─────────────────────────────────────────── -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">🍁 Citoyen <span>Avisé</span></a>
+    <ul class="nav-liens">
+      <li><a href="index.html">Accueil</a></li>
+      <li><a href="elections.html">Élections</a></li>
+      <li><a href="gouvernement.html">Gouvernement</a></li>
+      <li><a href="droits.html">Droits</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="participer.html">Participer</a></li>
+      <li class="nav-dropdown"><a href="#" class="nav-dropdown-toggle">Ressources</a><div class="nav-dropdown-menu"><a href="carte.html">🗺️ Carte citoyenne</a>
+    <a href="actualites.html">📰 Actualités</a><a href="glossaire.html">📖 Glossaire</a><a href="calendrier.html">📅 Calendrier</a></div></li><li><a href="a-propos.html">À propos</a></li>
+      <li><a href="#infolettre" class="nav-cta">S'inscrire</a></li>
+    </ul>
+    <button class="hamburger" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+  <div class="menu-mobile">
+    <a href="index.html">🏠 Accueil</a>
+    <a href="elections.html">🗳️ Élections</a>
+    <a href="gouvernement.html">🏛️ Gouvernement</a>
+    <a href="droits.html">⚖️ Droits & Libertés</a>
+    <a href="services.html">🛎️ Services publics</a>
+    <a href="participer.html">🤝 Participer</a>
+    <a href="carte.html">🗺️ Carte citoyenne</a>
+    <a href="actualites.html">📰 Actualités</a><a href="glossaire.html">📖 Glossaire</a><a href="calendrier.html">📅 Calendrier</a><a href="a-propos.html">ℹ️ À propos</a>
+    <a href="#infolettre" class="nav-cta-mobile">S'inscrire à l'infolettre</a>
+  </div>
+</nav>
+
+<!-- ── Héros ───────────────────────────────────────────────── -->
+<section class="hero">
+  <div class="conteneur">
+    <div class="hero-contenu">
+      <div class="hero-badges">
+        <span class="badge">🇨🇦 Canadien</span>
+        <span class="badge">✅ Gratuit</span>
+        <span class="badge">🚫 Non partisan</span>
+        <span class="badge">🔒 Indépendant</span>
+        <span class="badge">📢 Sans publicité</span>
+      </div>
+      <h1>L'information civique canadienne, centralisée et gratuite.</h1>
+      <p class="lead">Citoyen Avisé rassemble l'essentiel de l'information publique canadienne en un seul endroit — accessible à tous, en français et en anglais, sans publicité ni partisanerie.</p>
+      <div class="hero-boutons">
+        <a href="elections.html" class="btn btn-blanc btn-lg">🗳️ Prochaines élections</a>
+        <a href="#sections" class="btn btn-contour btn-lg">Explorer le site ↓</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── 3 Piliers ───────────────────────────────────────────── -->
+<section class="section">
+  <div class="conteneur">
+    <div class="centrer">
+      <span class="tag-rouge">Notre approche</span>
+      <h2 style="margin-top:12px;">Trois piliers, une mission</h2>
+      <div class="separateur"></div>
+    </div>
+    <div class="grille-3">
+      <div class="carte fade-in" style="text-align:center;">
+        <div class="pilier-icone" style="margin:0 auto 20px;">🔍</div>
+        <h3>Transparence</h3>
+        <p>Nous rendons l'information publique véritablement accessible. Sources officielles citées, aucun contenu sponsorisé, aucune affiliation politique.</p>
+      </div>
+      <div class="carte fade-in" style="text-align:center;">
+        <div class="pilier-icone" style="margin:0 auto 20px;">🤝</div>
+        <h3>Participation</h3>
+        <p>Un citoyen informé est un citoyen engagé. Nous facilitons l'accès aux outils démocratiques : pétitions, consultation de vos élus, suivi des enjeux.</p>
+      </div>
+      <div class="carte fade-in" style="text-align:center;">
+        <div class="pilier-icone" style="margin:0 auto 20px;">📚</div>
+        <h3>Éducation</h3>
+        <p>L'information civique ne devrait pas être réservée aux spécialistes. Nous expliquons simplement vos droits et le fonctionnement de votre gouvernement.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Sections du site ─────────────────────────────────────── -->
+<section class="section-pale" id="sections">
+  <div class="conteneur">
+    <div class="centrer">
+      <span class="tag-rouge">Contenu</span>
+      <h2 style="margin-top:12px;">Ce que vous trouverez ici</h2>
+      <div class="separateur"></div>
+    </div>
+    <div class="grille-3">
+      <a href="elections.html" class="carte fade-in" style="text-decoration:none;">
+        <span class="carte-icone">🗳️</span>
+        <h3>Élections & Vote</h3>
+        <p>Prochains scrutins, inscription au vote, carte des circonscriptions et procédures pour exercer votre droit démocratique.</p>
+        <span class="carte-lien">Voir les élections →</span>
+      </a>
+      <a href="gouvernement.html" class="carte fade-in" style="text-decoration:none;">
+        <span class="carte-icone">🏛️</span>
+        <h3>Gouvernement canadien</h3>
+        <p>Qui fait quoi : fédéral, provincial, municipal. Structure du Parlement, rôles des élus et comment les rejoindre.</p>
+        <span class="carte-lien">Comprendre le gouvernement →</span>
+      </a>
+      <a href="droits.html" class="carte fade-in" style="text-decoration:none;">
+        <span class="carte-icone">⚖️</span>
+        <h3>Droits & Libertés</h3>
+        <p>Vos droits fondamentaux selon la Charte canadienne, en langage clair. Liberté d'expression, droits juridiques, égalité.</p>
+        <span class="carte-lien">Connaître vos droits →</span>
+      </a>
+      <a href="services.html" class="carte fade-in" style="text-decoration:none;">
+        <span class="carte-icone">🛎️</span>
+        <h3>Services publics</h3>
+        <p>Santé, immigration, assurance-emploi, impôts — les formulaires et liens officiels pour accéder aux services dont vous avez besoin.</p>
+        <span class="carte-lien">Accéder aux services →</span>
+      </a>
+      <a href="participer.html" class="carte fade-in" style="text-decoration:none;">
+        <span class="carte-icone">🤝</span>
+        <h3>Participer</h3>
+        <p>Pétitions officielles, modèles pour contacter vos élus, organismes communautaires et outils d'engagement civique.</p>
+        <span class="carte-lien">S'engager →</span>
+      </a>
+      <a href="a-propos.html" class="carte fade-in" style="text-decoration:none;">
+        <span class="carte-icone">ℹ️</span>
+        <h3>À propos</h3>
+        <p>Notre mission, notre équipe, notre charte d'indépendance et nos engagements envers les citoyens canadiens.</p>
+        <span class="carte-lien">Découvrir →</span>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Statistiques ─────────────────────────────────────────── -->
+<section class="section">
+  <div class="conteneur">
+    <div class="stats-grille">
+      <div class="stat-item fade-in">
+        <span class="stat-nombre" data-cible="34" data-suffixe="">0</span>
+        <span class="stat-label">Sections planifiées sur 4 phases</span>
+      </div>
+      <div class="stat-item fade-in">
+        <span class="stat-nombre" data-cible="7" data-suffixe="">0</span>
+        <span class="stat-label">Langues prévues d'ici 2027</span>
+      </div>
+      <div class="stat-item fade-in">
+        <span class="stat-nombre" data-cible="100" data-suffixe=" %">0 %</span>
+        <span class="stat-label">Gratuit, pour toujours</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Pourquoi nous faire confiance ───────────────────────── -->
+<section class="section-pale">
+  <div class="conteneur">
+    <div class="grille-2" style="align-items:center; gap:60px;">
+      <div class="fade-in">
+        <span class="tag-rouge">Nos engagements</span>
+        <h2 style="margin-top:12px;">Pourquoi nous faire confiance ?</h2>
+        <div class="separateur separateur-g"></div>
+        <p style="margin-bottom:20px;">Citoyen Avisé est un organisme sans but lucratif canadien fondé sur des principes clairs et non négociables.</p>
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="flex"><span style="font-size:1.4rem;">🚫</span><div><strong>Aucune publicité</strong> — jamais de bannières ni de contenus sponsorisés.</div></div>
+          <div class="flex"><span style="font-size:1.4rem;">🏳️</span><div><strong>Non partisan</strong> — nous ne favorisons aucun parti ni candidat.</div></div>
+          <div class="flex"><span style="font-size:1.4rem;">🔓</span><div><strong>Sources ouvertes</strong> — toutes nos sources sont citées et vérifiables.</div></div>
+          <div class="flex"><span style="font-size:1.4rem;">🆓</span><div><strong>Gratuit pour toujours</strong> — l'accès à l'information civique est un droit.</div></div>
+          <div class="flex"><span style="font-size:1.4rem;">🤝</span><div><strong>Financé par dons</strong> — aucun parti politique, aucune vente de données.</div></div>
+        </div>
+        <a href="a-propos.html" class="btn btn-contour-rouge" style="margin-top:28px;">Voir notre charte →</a>
+      </div>
+      <div class="fade-in">
+        <div class="carte" style="background: linear-gradient(135deg, #fff 0%, #fdeaea 100%); border: 2px solid #f0c4c4;">
+          <h3 style="color:var(--rouge); margin-bottom:20px;">🍁 Nos 7 valeurs</h3>
+          <div style="display:flex;flex-direction:column;gap:12px;">
+            <div class="flex"><span style="font-size:1.1rem;">🛡️</span><strong>Indépendance</strong></div>
+            <div class="flex"><span style="font-size:1.1rem;">⚖️</span><strong>Non-partisanisme</strong></div>
+            <div class="flex"><span style="font-size:1.1rem;">🔍</span><strong>Transparence</strong></div>
+            <div class="flex"><span style="font-size:1.1rem;">🌐</span><strong>Accessibilité</strong></div>
+            <div class="flex"><span style="font-size:1.1rem;">📋</span><strong>Rigueur</strong></div>
+            <div class="flex"><span style="font-size:1.1rem;">🤗</span><strong>Respect</strong></div>
+            <div class="flex"><span style="font-size:1.1rem;">🆓</span><strong>Gratuité</strong></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Réseau citoyen ─────────────────────────────────────── -->
+<section class="section" id="reseau">
+  <div class="conteneur">
+    <div class="titre-section" style="margin-bottom:32px;">
+      <span class="surtitre">Communauté</span>
+      <h2>Le réseau citoyen</h2>
+      <p class="lead" style="max-width:600px;margin:0 auto;">Des Canadiens partout au pays s'informent, s'engagent et agissent. Rejoignez le mouvement.</p>
+    </div>
+    <div class="reseau-layout">
+
+      <!-- Feed activité -->
+      <div class="reseau-feed fade-in">
+        <p class="reseau-feed-titre">Activité récente</p>
+
+        <div class="reseau-item">
+          <div class="reseau-dot rouge"></div>
+          <div>
+            <span class="reseau-pseudo">MarieC_MTL</span>
+            <span class="reseau-action"> a lu « Budget 2026 : ce que ça change »</span>
+            <span class="reseau-temps">Il y a 3 min · Montréal</span>
+          </div>
+        </div>
+
+        <div class="reseau-item">
+          <div class="reseau-dot bleu"></div>
+          <div>
+            <span class="reseau-pseudo">AlexOttawa</span>
+            <span class="reseau-action"> a consulté le guide « Droit au logement »</span>
+            <span class="reseau-temps">Il y a 7 min · Ottawa</span>
+          </div>
+        </div>
+
+        <div class="reseau-item">
+          <div class="reseau-dot orange"></div>
+          <div>
+            <span class="reseau-pseudo">SophieVancouver</span>
+            <span class="reseau-action"> a rejoint le groupe « Droits numériques »</span>
+            <span class="reseau-temps">Il y a 12 min · Vancouver</span>
+          </div>
+        </div>
+
+        <div class="reseau-item">
+          <div class="reseau-dot rouge"></div>
+          <div>
+            <span class="reseau-pseudo">JeanCalgary</span>
+            <span class="reseau-action"> a complété « Comment voter » — niveau 2 atteint</span>
+            <span class="reseau-temps">Il y a 18 min · Calgary</span>
+          </div>
+        </div>
+
+        <div class="reseau-item">
+          <div class="reseau-dot bleu"></div>
+          <div>
+            <span class="reseau-pseudo">NathToronto</span>
+            <span class="reseau-action"> a partagé « Loi 25 et vie privée »</span>
+            <span class="reseau-temps">Il y a 24 min · Toronto</span>
+          </div>
+        </div>
+
+        <div class="reseau-item">
+          <div class="reseau-dot orange"></div>
+          <div>
+            <span class="reseau-pseudo">LucWinnipeg</span>
+            <span class="reseau-action"> a rejoint le réseau citoyen</span>
+            <span class="reseau-temps">Il y a 31 min · Winnipeg</span>
+          </div>
+        </div>
+
+        <div class="reseau-item">
+          <div class="reseau-dot rouge"></div>
+          <div>
+            <span class="reseau-pseudo">ChloeQuebec</span>
+            <span class="reseau-action"> a consulté « Élections provinciales 2026 »</span>
+            <span class="reseau-temps">Il y a 38 min · Québec</span>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="reseau-stats-preview">
+          <div>
+            <span class="reseau-stat-nb">4 312</span>
+            <span class="reseau-stat-label">Citoyens actifs</span>
+          </div>
+          <div>
+            <span class="reseau-stat-nb">127</span>
+            <span class="reseau-stat-label">Groupes civiques</span>
+          </div>
+          <div>
+            <span class="reseau-stat-nb">38</span>
+            <span class="reseau-stat-label">Villes représentées</span>
+          </div>
+        </div>
+
+        <div style="margin-top:20px; text-align:center;">
+          <a href="carte.html" class="btn btn-rouge" style="font-size:.84rem;padding:10px 24px;">Voir la carte citoyenne →</a>
+        </div>
+      </div>
+
+      <!-- Mini carte Leaflet -->
+      <div class="fade-in">
+        <div id="reseau-mini-carte"></div>
+        <a href="carte.html" class="reseau-carte-lien">
+          🗺️ Explorer la carte interactive complète →
+        </a>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ── Infolettre ───────────────────────────────────────────── -->
+<section class="section-newsletter" id="infolettre">
+  <div class="conteneur">
+    <h2>Restez informé. Restez citoyen.</h2>
+    <p class="lead">Recevez l'essentiel de l'actualité civique canadienne directement dans votre boîte courriel — sans bruit, sans partisanerie, sans publicité.</p>
+    <form class="form-infolettre">
+      <input type="email" placeholder="Votre adresse courriel" required>
+      <button type="submit" class="btn btn-blanc">S'inscrire gratuitement →</button>
+    </form>
+    <p class="note-confidentialite">🔒 Aucun spam. Désinscription en un clic. Vos données ne sont jamais vendues.</p>
+  </div>
+</section>
+
+<!-- ── Pied de page ─────────────────────────────────────────── -->
+<footer class="pied-page">
+  <div class="conteneur">
+    <div class="pied-grille">
+      <div>
+        <a href="index.html" class="pied-logo">🍁 Citoyen Avisé</a>
+        <p>L'information civique canadienne, centralisée et accessible à tous les Canadiens, gratuitement.</p>
+        <div class="pied-social">
+          <a href="https://www.facebook.com/citoyenavise" title="Facebook" aria-label="Facebook">f</a>
+          <a href="https://www.instagram.com/citoyenavise" title="Instagram" aria-label="Instagram">📷</a>
+          <a href="https://x.com/citoyenavise" title="X / Twitter" aria-label="X Twitter">𝕏</a>
+          <a href="https://www.youtube.com/@citoyenavise" title="YouTube" aria-label="YouTube">▶</a>
+          <a href="https://www.linkedin.com/company/citoyenavise" title="LinkedIn" aria-label="LinkedIn">in</a>
+          <a href="https://www.threads.net/@citoyenavise" title="Threads" aria-label="Threads">T</a>
+          <a href="https://bsky.app/profile/citoyenavise.bsky.social" title="Bluesky" aria-label="Bluesky">🦋</a>
+        </div>
+      </div>
+      <div>
+        <p class="pied-titre">Sections</p>
+        <ul class="pied-liens">
+          <li><a href="elections.html">Élections & Vote</a></li>
+          <li><a href="gouvernement.html">Gouvernement</a></li>
+          <li><a href="droits.html">Droits & Libertés</a></li>
+          <li><a href="services.html">Services publics</a></li>
+          <li><a href="participer.html">Participer</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="pied-titre">Organisation</p>
+        <ul class="pied-liens">
+          <li class="nav-dropdown"><a href="#" class="nav-dropdown-toggle">Ressources</a><div class="nav-dropdown-menu"><a href="carte.html">🗺️ Carte citoyenne</a>
+    <a href="actualites.html">📰 Actualités</a><a href="glossaire.html">📖 Glossaire</a><a href="calendrier.html">📅 Calendrier</a></div></li><li><a href="a-propos.html">À propos</a></li>
+          <li><a href="a-propos.html#equipe">Notre équipe</a></li>
+          <li><a href="a-propos.html#charte">Notre charte</a></li>
+          <li><a href="a-propos.html#contact">Contactez-nous</a></li>
+          <li><a href="https://github.com/citoyenavise-ca/documents-fondateurs">GitHub</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="pied-titre">Légal</p>
+        <ul class="pied-liens">
+          <li><a href="#">Politique de confidentialité</a></li>
+          <li><a href="#">Conditions d'utilisation</a></li>
+          <li><a href="#">Accessibilité</a></li>
+        </ul>
+        <div class="encadre" style="margin-top:20px; font-size:.82rem;">
+          <p>📧 <a href="mailto:infocitoyenavise@gmail.com" style="color:var(--rouge);">infocitoyenavise@gmail.com</a></p>
+        </div>
+      </div>
+    </div>
+    <div class="pied-bas">
+      <p>© 2025 Citoyen Avisé · OSBL canadien indépendant · citoyenavise.org</p>
+      <div class="pied-valeurs">
+        <span>Indépendant</span><span>Non partisan</span>
+        <span>Gratuit</span><span>Sans publicité</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<button class="retour-haut" aria-label="Retour en haut">↑</button>
+<script src="js/main.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+(function() {
+  var el = document.getElementById('reseau-mini-carte');
+  if (!el) return;
+
+  var carte = L.map('reseau-mini-carte', {
+    center: [56.5, -95.0],
+    zoom: 3,
+    zoomControl: false,
+    scrollWheelZoom: false,
+    attributionControl: false,
+    dragging: false,
+    touchZoom: false,
+    doubleClickZoom: false,
+    boxZoom: false,
+    keyboard: false
+  });
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    subdomains: 'abcd', maxZoom: 19
+  }).addTo(carte);
+
+  var pts = [
+    {lat:45.510,lng:-73.557,niv:3},{lat:43.651,lng:-79.347,niv:2},
+    {lat:45.421,lng:-75.697,niv:2},{lat:51.045,lng:-114.057,niv:1},
+    {lat:49.282,lng:-123.120,niv:3},{lat:49.895,lng:-97.138,niv:1},
+    {lat:46.814,lng:-71.208,niv:2},{lat:44.648,lng:-63.586,niv:1},
+    {lat:53.546,lng:-113.491,niv:2},{lat:46.238,lng:-63.131,niv:1},
+    {lat:47.561,lng:-52.712,niv:1},{lat:45.940,lng:-66.641,niv:2},
+    {lat:52.133,lng:-106.669,niv:1},{lat:60.721,lng:-135.055,niv:1},
+    {lat:46.493,lng:-80.993,niv:2},{lat:43.255,lng:-79.844,niv:1},
+    {lat:42.984,lng:-81.245,niv:1},{lat:50.452,lng:-104.609,niv:2},
+    {lat:48.387,lng:-89.247,niv:1},{lat:45.300,lng:-73.900,niv:3}
+  ];
+
+  pts.forEach(function(c) {
+    var ico = L.divIcon({
+      className: 'dot-citoyen',
+      html: '<div class="dot-inner niv-' + c.niv + '"></div>',
+      iconSize: [13,13], iconAnchor: [6,6]
+    });
+    L.marker([c.lat, c.lng], { icon: ico }).addTo(carte);
+  });
+})();
+</script>
+</body>
+</html>

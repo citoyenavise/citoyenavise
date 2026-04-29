@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carte citoyenne — Citoyen Avisé</title>
+  <meta name="description" content="Visualisez le réseau citoyen canadien en temps réel. Rejoignez les communautés locales et participez à la démocratie de votre région.">
+  <link rel="canonical" href="https://citoyenavise.org/carte.html">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+</head>
+<body class="carte-page">
+
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">🍁 Citoyen <span>Avisé</span></a>
+    <ul class="nav-liens">
+      <li><a href="index.html">Accueil</a></li>
+      <li><a href="elections.html">Élections</a></li>
+      <li><a href="gouvernement.html">Gouvernement</a></li>
+      <li><a href="droits.html">Droits</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="participer.html">Participer</a></li>
+      <li class="nav-dropdown">
+        <a href="#" class="nav-dropdown-toggle">Ressources</a>
+        <div class="nav-dropdown-menu">
+          <a href="carte.html">🗺 Carte citoyenne</a>
+          <a href="actualites.html">📰 Actualités</a>
+          <a href="glossaire.html">📖 Glossaire</a>
+          <a href="calendrier.html">📅 Calendrier</a>
+        </div>
+      </li>
+      <li><a href="a-propos.html">À propos</a></li>
+      <li><a href="index.html#infolettre" class="nav-cta">S'inscrire</a></li>
+    </ul>
+    <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+  <div class="menu-mobile">
+    <a href="index.html">🏠 Accueil</a>
+    <a href="elections.html">🗳️ Élections</a>
+    <a href="gouvernement.html">🏛️ Gouvernement</a>
+    <a href="droits.html">⚖️ Droits</a>
+    <a href="services.html">🛎️ Services</a>
+    <a href="participer.html">🤝 Participer</a>
+    <a href="carte.html">🗺 Carte citoyenne</a>
+    <a href="actualites.html">📰 Actualités</a>
+    <a href="glossaire.html">📖 Glossaire</a>
+    <a href="calendrier.html">📅 Calendrier</a>
+    <a href="a-propos.html">ℹ️ À propos</a>
+    <a href="index.html#infolettre" class="nav-cta-mobile">S'inscrire</a>
+  </div>
+</nav>
+
+<!-- Carte plein écran -->
+<div id="carte-conteneur">
+  <div id="carte"></div>
+</div>
+
+<!-- Badge démo -->
+<div class="carte-badge-demo">Aperçu — Version démo</div>
+
+<!-- Panneau gauche -->
+<aside class="carte-panel" id="cartePanel">
+  <p class="carte-panel-logo">Citoyen Avisé · Réseau</p>
+
+  <div class="carte-compteur">
+    <span class="carte-nb" id="carteNbCitoyens">247</span>
+    <span class="carte-nb-label">citoyens dans le réseau</span>
+  </div>
+
+  <div class="carte-mini-stats">
+    <div class="carte-mini-stat">
+      <span class="carte-mini-stat-nb">18</span>
+      <span class="carte-mini-stat-label">groupes actifs</span>
+    </div>
+    <div class="carte-mini-stat">
+      <span class="carte-mini-stat-nb">10</span>
+      <span class="carte-mini-stat-label">provinces</span>
+    </div>
+    <div class="carte-mini-stat">
+      <span class="carte-mini-stat-nb">41</span>
+      <span class="carte-mini-stat-label">villes</span>
+    </div>
+    <div class="carte-mini-stat">
+      <span class="carte-mini-stat-nb">6</span>
+      <span class="carte-mini-stat-label">enjeux</span>
+    </div>
+  </div>
+
+  <p class="carte-section-titre">Filtrer par enjeu</p>
+  <div class="carte-filtres">
+    <button class="carte-filtre actif" data-filtre="tous">Tous</button>
+    <button class="carte-filtre" data-filtre="Logement">Logement</button>
+    <button class="carte-filtre" data-filtre="Santé">Santé</button>
+    <button class="carte-filtre" data-filtre="Élections">Élections</button>
+    <button class="carte-filtre" data-filtre="Droits">Droits</button>
+    <button class="carte-filtre" data-filtre="Environnement">Enviro.</button>
+    <button class="carte-filtre" data-filtre="Immigration">Immig.</button>
+    <button class="carte-filtre" data-filtre="Éducation">Éduc.</button>
+  </div>
+
+  <p class="carte-section-titre">Activité en direct</p>
+  <div class="carte-activite" id="carteActivite"></div>
+
+  <div style="margin-top:18px; padding-top:14px; border-top:1px solid rgba(255,255,255,.1);">
+    <a href="profil.html" class="btn btn-rouge btn-sm" style="width:100%; text-align:center; display:block; margin-bottom:8px;">Voir mon profil →</a>
+    <a href="index.html#infolettre" style="display:block; text-align:center; font-size:.75rem; color:rgba(255,255,255,.4); margin-top:6px;">Rejoindre le réseau</a>
+  </div>
+</aside>
+
+<!-- Légende -->
+<div class="carte-legende">
+  <p class="carte-legende-titre">Niveau d'engagement</p>
+  <div class="legende-item"><span class="legende-dot" style="background:var(--rouge);"></span> Très actif</div>
+  <div class="legende-item"><span class="legende-dot" style="background:#E65100;"></span> Actif</div>
+  <div class="legende-item"><span class="legende-dot" style="background:#1565C0;"></span> Participant</div>
+  <div style="margin-top:10px; padding-top:10px; border-top:1px solid rgba(255,255,255,.1);">
+    <div class="legende-item"><span style="width:14px;height:14px;border-radius:50%;background:rgba(193,39,45,.15);border:1px solid rgba(193,39,45,.4);flex-shrink:0;"></span> Zone d'influence</div>
+  </div>
+</div>
+
+<!-- Bouton mobile toggle panneau -->
+<button class="carte-panel-toggle" id="cartePanelToggle" style="display:flex;">☰</button>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/main.js"></script>
+<script>
+// ── Données citoyens ──────────────────────────────────────
+const CITOYENS = [
+  // Montréal
+  {lat:45.510,lng:-73.557,pseudo:'MarieC_MTL',ville:'Montréal',interet:'Logement',niv:3},
+  {lat:45.497,lng:-73.580,pseudo:'JFDupont',ville:'Montréal',interet:'Santé',niv:2},
+  {lat:45.525,lng:-73.594,pseudo:'AnniePleau',ville:'Montréal',interet:'Éducation',niv:3},
+  {lat:45.533,lng:-73.558,pseudo:'ClaudeRiv',ville:'Montréal',interet:'Droits',niv:1},
+  {lat:45.487,lng:-73.562,pseudo:'SophieMTL',ville:'Montréal',interet:'Élections',niv:2},
+  {lat:45.516,lng:-73.604,pseudo:'PierreLem',ville:'Montréal',interet:'Logement',niv:3},
+  {lat:45.549,lng:-73.577,pseudo:'NathBP',ville:'Laval',interet:'Environnement',niv:2},
+  {lat:45.473,lng:-73.571,pseudo:'ChristineLD',ville:'Longueuil',interet:'Santé',niv:1},
+  {lat:45.541,lng:-73.534,pseudo:'RobertMTL',ville:'Montréal-Nord',interet:'Immigration',niv:2},
+  {lat:45.461,lng:-73.588,pseudo:'IsabelleSL',ville:'Saint-Lambert',interet:'Retraite',niv:1},
+  {lat:45.503,lng:-73.614,pseudo:'MarcVD',ville:'Verdun',interet:'Logement',niv:2},
+  // Québec
+  {lat:46.825,lng:-71.218,pseudo:'FrancoisTQ',ville:'Québec',interet:'Retraite',niv:2},
+  {lat:46.810,lng:-71.197,pseudo:'IsabelleQC',ville:'Québec',interet:'Fiscalité',niv:3},
+  {lat:46.840,lng:-71.235,pseudo:'MarcAQ',ville:'Québec',interet:'Logement',niv:1},
+  {lat:46.803,lng:-71.241,pseudo:'LucBQ',ville:'Lévis',interet:'Santé',niv:2},
+  // Ottawa / Gatineau
+  {lat:45.432,lng:-75.693,pseudo:'ClaudinGat',ville:'Gatineau',interet:'Droits',niv:2},
+  {lat:45.414,lng:-75.701,pseudo:'PatMcOtt',ville:'Ottawa',interet:'Immigration',niv:3},
+  {lat:45.426,lng:-75.715,pseudo:'JulieHOtt',ville:'Ottawa',interet:'Élections',niv:2},
+  // Toronto
+  {lat:43.661,lng:-79.382,pseudo:'TorontoAct',ville:'Toronto',interet:'Immigration',niv:3},
+  {lat:43.650,lng:-79.398,pseudo:'LindaONT',ville:'Toronto',interet:'Logement',niv:2},
+  {lat:43.675,lng:-79.368,pseudo:'MikeTOR',ville:'Toronto',interet:'Droits',niv:1},
+  {lat:43.642,lng:-79.373,pseudo:'SarahTO',ville:'Toronto',interet:'Éducation',niv:3},
+  {lat:43.668,lng:-79.405,pseudo:'DavidETO',ville:'Etobicoke',interet:'Santé',niv:2},
+  // Vancouver
+  {lat:49.283,lng:-123.119,pseudo:'PierreBC',ville:'Vancouver',interet:'Environnement',niv:3},
+  {lat:49.272,lng:-123.133,pseudo:'SarahVAN',ville:'Vancouver',interet:'Logement',niv:2},
+  {lat:49.296,lng:-123.108,pseudo:'AlexNV',ville:'North Van',interet:'Élections',niv:1},
+  // Calgary
+  {lat:51.047,lng:-114.067,pseudo:'JohnAB',ville:'Calgary',interet:'Fiscalité',niv:2},
+  {lat:51.037,lng:-114.081,pseudo:'LisaCAL',ville:'Calgary',interet:'Élections',niv:1},
+  // Edmonton
+  {lat:53.548,lng:-113.491,pseudo:'MarcEDM',ville:'Edmonton',interet:'Environnement',niv:2},
+  {lat:53.540,lng:-113.508,pseudo:'JennyEDM',ville:'Edmonton',interet:'Santé',niv:3},
+  // Winnipeg
+  {lat:49.897,lng:-97.140,pseudo:'AnnaWIN',ville:'Winnipeg',interet:'Droits',niv:1},
+  {lat:49.883,lng:-97.152,pseudo:'TomWIN',ville:'Winnipeg',interet:'Retraite',niv:2},
+  // Halifax
+  {lat:44.651,lng:-63.582,pseudo:'PierreNS',ville:'Halifax',interet:'Retraite',niv:2},
+  {lat:44.641,lng:-63.571,pseudo:'MarieNS',ville:'Halifax',interet:'Éducation',niv:1},
+  // Sherbrooke
+  {lat:45.407,lng:-71.895,pseudo:'RobertSHB',ville:'Sherbrooke',interet:'Éducation',niv:2},
+  {lat:45.398,lng:-71.883,pseudo:'LouiseSHB',ville:'Sherbrooke',interet:'Santé',niv:1},
+  // Trois-Rivières
+  {lat:46.347,lng:-72.548,pseudo:'GuyTR',ville:'Trois-Rivières',interet:'Santé',niv:1},
+  {lat:46.354,lng:-72.560,pseudo:'CathTR',ville:'Trois-Rivières',interet:'Logement',niv:2},
+  // Saguenay
+  {lat:48.430,lng:-71.062,pseudo:'DenisSAG',ville:'Saguenay',interet:'Logement',niv:1},
+  // Victoria
+  {lat:48.432,lng:-123.370,pseudo:'SuzVIC',ville:'Victoria',interet:'Environnement',niv:3},
+  // Kelowna
+  {lat:49.887,lng:-119.497,pseudo:'DavKEL',ville:'Kelowna',interet:'Logement',niv:2},
+  // Saskatoon
+  {lat:52.133,lng:-106.670,pseudo:'PamSASK',ville:'Saskatoon',interet:'Immigration',niv:2},
+  // Régina
+  {lat:50.447,lng:-104.620,pseudo:'TomREG',ville:'Régina',interet:'Droits',niv:1},
+];
+
+const ACTIVITES = [
+  {pseudo:'MarieC_MTL',action:'a rejoint le Groupe Logement Montréal',temps:'2 min',niv:'rouge'},
+  {pseudo:'PierreBC',action:'a signé la pétition Environnement Côte-Ouest',temps:'5 min',niv:'rouge'},
+  {pseudo:'IsabelleQC',action:'a créé le groupe Fiscalité Québec',temps:'12 min',niv:'rouge'},
+  {pseudo:'SarahTO',action:'a rejoint la discussion Éducation Ontario',temps:'18 min',niv:'orange'},
+  {pseudo:'AnnaWIN',action:'a participé à un sondage citoyen',temps:'25 min',niv:'bleu'},
+  {pseudo:'MarcEDM',action:'a commenté sur l\'environnement en Alberta',temps:'31 min',niv:'orange'},
+  {pseudo:'PatMcOtt',action:'a rejoint le réseau Ottawa-Gatineau',temps:'44 min',niv:'rouge'},
+  {pseudo:'JohnAB',action:'a commenté le budget fédéral 2026',temps:'52 min',niv:'orange'},
+  {pseudo:'DenisSAG',action:'vient de rejoindre Citoyen Avisé',temps:'1h 5',niv:'bleu'},
+  {pseudo:'LindaONT',action:'a partagé un article sur le logement',temps:'1h 18',niv:'orange'},
+];
+
+// ── Zones d'influence (cercles par ville) ─────────────────
+const ZONES = [
+  {lat:45.510,lng:-73.570,r:12000,label:'Montréal'},
+  {lat:43.655,lng:-79.388,r:9000,label:'Toronto'},
+  {lat:49.283,lng:-123.122,r:7000,label:'Vancouver'},
+  {lat:45.421,lng:-75.697,r:6000,label:'Ottawa-Gatineau'},
+  {lat:46.820,lng:-71.215,r:5500,label:'Québec'},
+  {lat:51.042,lng:-114.073,r:5000,label:'Calgary'},
+  {lat:53.544,lng:-113.498,r:4500,label:'Edmonton'},
+];
+
+// ── Init carte ────────────────────────────────────────────
+const map = L.map('carte', {
+  center: [56.5, -95.0],
+  zoom: 4,
+  zoomControl: false,
+  attributionControl: true,
+});
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
+  subdomains: 'abcd',
+  maxZoom: 19
+}).addTo(map);
+
+L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+// ── Cercles d'influence ───────────────────────────────────
+ZONES.forEach(z => {
+  L.circle([z.lat, z.lng], {
+    radius: z.r,
+    color: '#C1272D',
+    fillColor: '#C1272D',
+    fillOpacity: 0.07,
+    weight: 1,
+    opacity: 0.35,
+  }).addTo(map);
+});
+
+// ── Marqueurs citoyens ────────────────────────────────────
+const couleurs = { 1: '#1565C0', 2: '#E65100', 3: '#C1272D' };
+let marqueurs = [];
+
+function creerMarqueur(c) {
+  const icon = L.divIcon({
+    className: 'dot-citoyen',
+    html: `<div class="dot-inner niv-${c.niv}" title="${c.pseudo}"></div>`,
+    iconSize: [c.niv === 3 ? 13 : c.niv === 2 ? 11 : 9, c.niv === 3 ? 13 : c.niv === 2 ? 11 : 9],
+    iconAnchor: [c.niv === 3 ? 6 : c.niv === 2 ? 5 : 4, c.niv === 3 ? 6 : c.niv === 2 ? 5 : 4],
+    popupAnchor: [0, -10],
+  });
+  const niveaux = ['', 'Participant', 'Actif', 'Très actif'];
+  const m = L.marker([c.lat, c.lng], { icon })
+    .bindPopup(`
+      <span class="popup-pseudo">${c.pseudo}</span>
+      <span class="popup-ville">📍 ${c.ville}</span>
+      <span class="popup-interet">${c.interet}</span>
+      <div style="margin-top:8px;font-size:.72rem;color:rgba(255,255,255,.45);">${niveaux[c.niv]}</div>
+    `, { className: '' });
+  m._enjeu = c.interet;
+  return m;
+}
+
+CITOYENS.forEach(c => {
+  const m = creerMarqueur(c);
+  m.addTo(map);
+  marqueurs.push(m);
+});
+
+// ── Filtres ───────────────────────────────────────────────
+document.querySelectorAll('.carte-filtre').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.carte-filtre').forEach(b => b.classList.remove('actif'));
+    btn.classList.add('actif');
+    const filtre = btn.dataset.filtre;
+    marqueurs.forEach((m, i) => {
+      if (filtre === 'tous' || CITOYENS[i].interet === filtre) {
+        if (!map.hasLayer(m)) m.addTo(map);
+      } else {
+        if (map.hasLayer(m)) map.removeLayer(m);
+      }
+    });
+  });
+});
+
+// ── Fil d'activité ────────────────────────────────────────
+const feed = document.getElementById('carteActivite');
+ACTIVITES.forEach(a => {
+  feed.innerHTML += `
+    <div class="carte-act-item">
+      <span class="carte-act-dot ${a.niv}"></span>
+      <div>
+        <span class="carte-act-pseudo">${a.pseudo}</span>
+        <span class="carte-act-desc">${a.action}</span>
+        <span class="carte-act-temps">il y a ${a.temps}</span>
+      </div>
+    </div>`;
+});
+
+// ── Toggle panneau mobile ─────────────────────────────────
+const panel = document.getElementById('cartePanel');
+const toggleBtn = document.getElementById('cartePanelToggle');
+let panelVisible = true;
+toggleBtn.addEventListener('click', () => {
+  panelVisible = !panelVisible;
+  panel.style.display = panelVisible ? 'block' : 'none';
+  toggleBtn.textContent = panelVisible ? '✕' : '☰';
+});
+
+// Sur mobile, masquer par défaut
+if (window.innerWidth < 768) {
+  panel.style.display = 'none';
+  panelVisible = false;
+  toggleBtn.style.display = 'flex';
+}
+</script>
+</body>
+</html>

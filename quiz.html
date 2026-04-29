@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz civique canadien — Citoyen Avisé</title>
+  <meta name="description" content="Testez vos connaissances sur la démocratie, la Constitution, les droits et les services du Canada.">
+  <link rel="canonical" href="https://citoyenavise.org/quiz.html">
+  <link rel="stylesheet" href="css/style.css">
+
+<style>
+.quiz-conteneur { max-width: 720px; margin: 0 auto; }
+.quiz-question { background: var(--blanc); border: 1.5px solid var(--gris-clair); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; transition: var(--transition); }
+.quiz-question.correcte { border-color: #2E7D32; background: #f1f8e9; }
+.quiz-question.incorrecte { border-color: var(--rouge); background: var(--rouge-clair); }
+.quiz-q { font-weight: 700; font-size: 1rem; color: var(--noir-doux); margin-bottom: 16px; }
+.quiz-options { display: flex; flex-direction: column; gap: 8px; }
+.quiz-opt { padding: 10px 16px; border-radius: 8px; border: 1.5px solid var(--gris-clair); background: var(--blanc); cursor: pointer; font-size: .9rem; text-align: left; transition: var(--transition); }
+.quiz-opt:hover { border-color: var(--rouge); background: var(--rouge-clair); }
+.quiz-opt.bonne { background: #e8f5e9; border-color: #2E7D32; color: #1B5E20; font-weight: 700; }
+.quiz-opt.mauvaise { background: var(--rouge-clair); border-color: var(--rouge); color: var(--rouge-fonce); }
+.quiz-explication { margin-top: 12px; font-size: .84rem; color: var(--gris-texte); padding: 10px 14px; background: rgba(255,255,255,.7); border-radius: 8px; display: none; }
+.quiz-score { text-align: center; padding: 32px; background: var(--blanc); border-radius: var(--radius-lg); border: 2px solid var(--gris-clair); display: none; }
+.quiz-score-nb { font-size: 3rem; font-weight: 900; color: var(--rouge); }
+#quiz-btn-reset { display: none; }
+</style>
+<script>
+var QUIZ = [
+  {q:"Combien de sénateurs compte le Sénat canadien ?",opts:["90","105","120","75"],r:1,x:"Le Sénat est composé de 105 sénateurs nommés par le Gouverneur général, représentant 4 divisions régionales."},
+  {q:"Quelle loi constitutionnelle a introduit la Charte canadienne des droits et libertés ?",opts:["Loi de 1867","Loi de 1982","Loi sur les langues officielles","Loi sur la Cour suprême"],r:1,x:"La Charte fait partie de la Loi constitutionnelle de 1982, qui a rapatrié la Constitution du Royaume-Uni."},
+  {q:"Quel est le taux de remplacement de l'assurance-emploi régulière ?",opts:["40%","55%","65%","70%"],r:1,x:"L'AE verse 55% de votre rémunération hebdomadaire assurable, jusqu'au maximum annuel assurable."},
+  {q:"Combien d'heures de présence physique sont requises pour la citoyenneté canadienne ?",opts:["730 jours","1095 jours","1460 jours","500 jours"],r:1,x:"1 095 jours de présence physique sur les 5 années précédant la demande de citoyenneté."},
+  {q:"Quel article de la Constitution définit les compétences exclusives fédérales ?",opts:["Article 36","Article 91","Article 15","Article 33"],r:1,x:"L'article 91 de la Loi constitutionnelle de 1867 énumère les 29 chefs de compétence fédérale exclusive."},
+  {q:"Quel principe de la Loi canadienne sur la santé garantit que tous les résidents sont couverts ?",opts:["Accessibilité","Intégralité","Universalité","Transférabilité"],r:2,x:"L'universalité garantit que tous les résidents d'une province ont droit à la couverture d'assurance-santé."},
+  {q:"Combien d'appels à l'action la Commission de vérité et réconciliation a-t-elle formulés ?",opts:["46","94","231","150"],r:1,x:"La CVR a formulé 94 appels à l'action dans son rapport final de 2015 sur les séquelles des pensionnats autochtones."},
+  {q:"Quelle est la clause dérogatoire dans la Charte canadienne ?",opts:["Article 1","Article 15","Article 24","Article 33"],r:3,x:"L'article 33 permet à un parlement de déclarer qu'une loi s'applique nonobstant certains droits de la Charte. Valable 5 ans, renouvelable."},
+  {q:"Quel est le plafond de cotisation au CELI en 2025 ?",opts:["5 000 $","6 500 $","7 000 $","8 000 $"],r:2,x:"Le plafond annuel de cotisation au CELI est de 7 000 $ en 2025. Les droits inutilisés sont cumulatifs."},
+  {q:"Quel est le taux d'imposition fédéral sur les revenus au-delà de 220 000 $ en 2025 ?",opts:["29%","26%","33%","39%"],r:2,x:"La tranche la plus élevée du barème fédéral 2025 est de 33% pour les revenus imposables supérieurs à 220 000 $."},
+  {q:"Combien de juges siègent à la Cour suprême du Canada ?",opts:["7","9","11","13"],r:1,x:"La Cour suprême compte 9 juges, dont 3 doivent provenir du Québec par convention constitutionnelle."},
+  {q:"Quelle organisation nationale représente les peuples inuits du Canada ?",opts:["APN","ITK","MNC","AFAC"],r:1,x:"Inuit Tapiriit Kanatami (ITK) représente les ~70 000 Inuits du Canada dans les 4 régions de l'Inuit Nunangat."}
+];
+
+var score = 0;
+var total = QUIZ.length;
+
+function buildQuiz() {
+  var c = document.getElementById('quiz-zone');
+  if (!c) return;
+  c.innerHTML = '';
+  QUIZ.forEach(function(item, i) {
+    var div = document.createElement('div');
+    div.className = 'quiz-question';
+    div.innerHTML = '<div class="quiz-q">Q' + (i+1) + '. ' + item.q + '</div>' +
+      '<div class="quiz-options" id="opts-' + i + '">' +
+      item.opts.map(function(o,j) {
+        return '<button class="quiz-opt" onclick="repondre(' + i + ',' + j + ')">' + o + '</button>';
+      }).join('') +
+      '</div>' +
+      '<div class="quiz-explication" id="expl-' + i + '">' + item.x + '</div>';
+    c.appendChild(div);
+  });
+}
+
+function repondre(qi, oi) {
+  var opts = document.querySelectorAll('#opts-' + qi + ' .quiz-opt');
+  opts.forEach(function(btn) { btn.disabled = true; });
+  var correct = QUIZ[qi].r;
+  opts[correct].classList.add('bonne');
+  if (oi !== correct) { opts[oi].classList.add('mauvaise'); } else { score++; }
+  var expl = document.getElementById('expl-' + qi);
+  expl.style.display = 'block';
+
+  var answered = document.querySelectorAll('.quiz-opt:disabled').length / QUIZ[0].opts.length;
+  if (Math.floor(answered) === total) { showScore(); }
+}
+
+function showScore() {
+  var s = document.getElementById('quiz-score');
+  var pct = Math.round(score/total*100);
+  var msg = pct >= 80 ? '🏆 Excellent !' : pct >= 60 ? '👍 Bon résultat !' : '📚 Continuez à apprendre !';
+  s.innerHTML = '<div class="quiz-score-nb">' + score + ' / ' + total + '</div>' +
+    '<div style="font-size:1.1rem;font-weight:700;margin:10px 0;">' + msg + '</div>' +
+    '<div style="color:var(--gris-texte);font-size:.9rem;">Vous avez répondu correctement à ' + pct + '% des questions.</div>' +
+    '<button class="btn btn-rouge" style="margin-top:20px;" onclick="resetQuiz()">Recommencer →</button>';
+  s.style.display = 'block';
+}
+
+function resetQuiz() {
+  score = 0;
+  document.getElementById('quiz-score').style.display = 'none';
+  buildQuiz();
+}
+
+document.addEventListener('DOMContentLoaded', buildQuiz);
+</script></head>
+<body>
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">🍁 Citoyen <span>Avisé</span></a>
+    <ul class="nav-liens">
+      <li><a href="index.html">Accueil</a></li>
+      <li><a href="elections.html">Élections</a></li>
+      <li><a href="gouvernement.html">Gouvernement</a></li>
+      <li><a href="droits.html">Droits</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="participer.html">Participer</a></li>
+      <li class="nav-dropdown">
+        <a href="#" class="nav-dropdown-toggle">Ressources</a>
+        <div class="nav-dropdown-menu">
+          <a href="carte.html">🗺️ Carte citoyenne</a>
+          <a href="actualites.html">📰 Actualités</a>
+          <a href="glossaire.html">📖 Glossaire</a>
+          <a href="calendrier.html">📅 Calendrier</a>
+        </div>
+      </li>
+      <li><a href="a-propos.html">À propos</a></li>
+      <li><a href="index.html#infolettre" class="nav-cta">S'inscrire</a></li>
+    </ul>
+    <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+  <div class="menu-mobile">
+    <a href="index.html">🏠 Accueil</a>
+    <a href="elections.html">🗳️ Élections</a>
+    <a href="gouvernement.html">🏛️ Gouvernement</a>
+    <a href="droits.html">⚖️ Droits</a>
+    <a href="services.html">🛎️ Services</a>
+    <a href="participer.html">🤝 Participer</a>
+    <a href="carte.html">🗺️ Carte citoyenne</a>
+    <a href="actualites.html">📰 Actualités</a>
+    <a href="glossaire.html">📖 Glossaire</a>
+    <a href="calendrier.html">📅 Calendrier</a>
+    <a href="a-propos.html">ℹ️ À propos</a>
+    <a href="index.html#infolettre" class="nav-cta-mobile">S'inscrire</a>
+  </div>
+</nav>
+<header class="entete-page">
+  <div class="conteneur">
+    <p class="fil-ariane"><a href="index.html">Accueil</a> › Ressources › Quiz</p>
+    <h1>🎯 Quiz civique canadien</h1>
+    <p class="lead">12 questions pour tester vos connaissances sur la démocratie, la Constitution, vos droits et les services publics du Canada.</p>
+  </div>
+</header>
+<main>
+<section class="section"><div class="conteneur">
+<div class="quiz-conteneur">
+  <div class="encadre fade-in" style="margin-bottom:28px;text-align:center;">
+    <p>📋 <strong>12 questions</strong> · Toutes sources officielles · Pas de jugement — juste l'apprentissage</p>
+  </div>
+  <div id="quiz-zone"></div>
+  <div class="quiz-score" id="quiz-score"></div>
+</div>
+</div></section>
+</main>
+<footer class="pied-page">
+  <div class="conteneur">
+    <div class="pied-grille">
+      <div><a href="index.html" class="pied-logo">🍁 Citoyen Avisé</a><p>L'information civique canadienne, accessible à tous.</p></div>
+      <div><p class="pied-titre">Sections</p><ul class="pied-liens"><li><a href="elections.html">Élections</a></li><li><a href="gouvernement.html">Gouvernement</a></li><li><a href="droits.html">Droits</a></li><li><a href="services.html">Services</a></li><li><a href="participer.html">Participer</a></li><li><a href="actualites.html">Actualités</a></li><li><a href="glossaire.html">Glossaire</a></li><li><a href="calendrier.html">Calendrier</a></li></ul></div>
+      <div><p class="pied-titre">Organisation</p><ul class="pied-liens"><li><a href="a-propos.html">À propos</a></li><li><a href="a-propos.html#contact">Contact</a></li></ul></div>
+      <div>
+        <p class="pied-titre">Contact</p>
+        <ul class="pied-liens"><li><a href="mailto:infocitoyenavise@gmail.com">infocitoyenavise@gmail.com</a></li></ul>
+        <div class="pied-social" style="margin-top:16px;">
+          <a href="https://www.facebook.com/citoyenavise" title="Facebook" aria-label="Facebook">f</a>
+          <a href="https://www.instagram.com/citoyenavise" title="Instagram" aria-label="Instagram">📷</a>
+          <a href="https://x.com/citoyenavise" title="X" aria-label="X">𝕏</a>
+          <a href="https://www.youtube.com/@citoyenavise" title="YouTube" aria-label="YouTube">▶</a>
+          <a href="https://www.linkedin.com/company/citoyenavise" title="LinkedIn" aria-label="LinkedIn">in</a>
+          <a href="https://www.threads.net/@citoyenavise" title="Threads" aria-label="Threads">T</a>
+          <a href="https://bsky.app/profile/citoyenavise.bsky.social" title="Bluesky" aria-label="Bluesky">🦋</a>
+        </div>
+      </div>
+    </div>
+    <div class="pied-bas"><p>© 2025 Citoyen Avisé · citoyenavise.org</p><div class="pied-valeurs"><span>Indépendant</span><span>Non partisan</span><span>Gratuit</span></div></div>
+  </div>
+</footer>
+<button class="retour-haut" aria-label="Retour en haut">↑</button>
+<script src="js/main.js"></script>
+</body>
+</html>
