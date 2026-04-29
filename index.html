@@ -325,13 +325,31 @@
   <div class="conteneur">
     <h2>Restez informé. Restez citoyen.</h2>
     <p class="lead">Recevez l'essentiel de l'actualité civique canadienne directement dans votre boîte courriel — sans bruit, sans partisanerie, sans publicité.</p>
-    <form class="form-infolettre">
-      <input type="email" placeholder="Votre adresse courriel" required>
-      <button type="submit" class="btn btn-blanc">S'inscrire gratuitement →</button>
+    <iframe name="brevo-hidden" style="display:none;" aria-hidden="true"></iframe>
+    <form class="form-infolettre" id="formInfolettre"
+      method="POST"
+      action="https://3c94400c.sibforms.com/serve/MUIFAANPi6itp2hjoSCoGC7u03RPQy56kVMPjU5xUlkHpzDrgdgjr-EXzPAH-AjGW-caB1cMGm09CJp-Azet8yDJ3AKdPMDAa_ADafusegBUUFob8qD8tyI1jDcXp3AICvWtWLsbm-xa1LW7ZYZC2McHJ6agusvADM2E7Li4PKSwYfCU6OqgTsyvPp7rR_JieFrVx5hYZtGN_rTYkw=="
+      target="brevo-hidden">
+      <input type="email" name="EMAIL" id="emailInscription" placeholder="Votre adresse courriel" required autocomplete="email">
+      <input type="text" name="email_address_check" value="" style="display:none;" aria-hidden="true">
+      <input type="hidden" name="locale" value="fr">
+      <button type="submit" class="btn btn-blanc" id="btnInscription">S'inscrire gratuitement →</button>
     </form>
-    <p class="note-confidentialite">🔒 Aucun spam. Désinscription en un clic. Vos données ne sont jamais vendues.</p>
+    <p class="note-confidentialite" id="msgInscription">🔒 Aucun spam. Désinscription en un clic. Vos données ne sont jamais vendues.</p>
   </div>
 </section>
+<script>
+document.getElementById('formInfolettre').addEventListener('submit', function() {
+  const btn = document.getElementById('btnInscription');
+  const msg = document.getElementById('msgInscription');
+  const input = document.getElementById('emailInscription');
+  btn.textContent = '✓ Inscription confirmée !';
+  btn.disabled = true;
+  btn.style.opacity = '0.8';
+  input.value = '';
+  msg.textContent = '🎉 Merci ! Vérifiez votre boîte courriel pour confirmer votre inscription.';
+});
+</script>
 
 <!-- ── Pied de page ─────────────────────────────────────────── -->
 <footer class="pied-page">
