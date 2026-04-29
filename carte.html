@@ -508,12 +508,12 @@ function afficherToast(msg) {
 
 // ── Écoute Firestore en temps réel ───────────────────────
 let nbReels = 0;
+let initialLoadDone = false;
 db.collection('citoyens').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
   snapshot.docChanges().forEach(change => {
     const doc = change.doc;
     const data = doc.data();
     if (change.type === 'added') {
-      // Ajouter marqueur
       const c = {
         lat: data.lat, lng: data.lng,
         pseudo: data.pseudo, ville: data.ville,
@@ -525,8 +525,8 @@ db.collection('citoyens').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
       if (visible) m.addTo(map);
       marqueursReels[doc.id] = { m, enjeu: data.enjeu };
       nbReels++;
-      // Activité si nouveau (pas au chargement initial)
-      if (!snapshot.metadata.hasPendingWrites && change.newIndex === 0) {
+      // Toast seulement pour les nouveaux arrivants (pas au chargement initial)
+      if (initialLoadDone) {
         ajouterActiviteFeed(data.pseudo, 'vient de rejoindre Citoyen Avisé', 'rouge', true);
         afficherToast(`🍁 ${data.pseudo} (${data.ville}) vient de rejoindre le réseau !`);
       }
@@ -539,6 +539,7 @@ db.collection('citoyens').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
       }
     }
   });
+  initialLoadDone = true;
   // Mettre à jour compteur
   const total = CITOYENS_SIM.length + nbReels;
   document.getElementById('carteNbCitoyens').textContent = total;
