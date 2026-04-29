@@ -8,9 +8,13 @@ document.addEventListener('DOMContentLoaded', function () {
   const hamburger = document.querySelector('.hamburger');
   const menuMobile = document.querySelector('.menu-mobile');
   if (hamburger && menuMobile) {
+    menuMobile.setAttribute('aria-hidden', 'true');
+    hamburger.setAttribute('aria-expanded', 'false');
     hamburger.addEventListener('click', () => {
-      menuMobile.classList.toggle('ouvert');
+      const isOuvert = menuMobile.classList.toggle('ouvert');
       hamburger.classList.toggle('ouvert');
+      menuMobile.setAttribute('aria-hidden', isOuvert ? 'false' : 'true');
+      hamburger.setAttribute('aria-expanded', isOuvert ? 'true' : 'false');
     });
   }
 
