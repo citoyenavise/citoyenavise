@@ -115,17 +115,17 @@
   <section class="section profil-page-wrapper">
     <div class="conteneur">
 
-      <!-- Avis démo -->
-      <div class="demo-notice">
-        <span>🔒</span>
-        <span><strong>Aperçu — Version démo.</strong> Le profil citoyen sera disponible lors du lancement de la plateforme communautaire. Les données ci-dessous sont simulées.</span>
+      <!-- Avis non connecté (affiché si pas de session) -->
+      <div class="demo-notice" id="avisNonConnecte" style="display:none;">
+        <span>🍁</span>
+        <span><strong>Vous n'êtes pas encore sur la carte.</strong> <a href="carte.html" style="color:var(--rouge);font-weight:700;">Rejoignez le réseau citoyen →</a></span>
       </div>
 
       <!-- En-tête de page -->
       <div class="profil-page-header">
         <p class="fil-ariane"><a href="index.html">Accueil</a> › Profil citoyen</p>
         <h1>Mon profil citoyen</h1>
-        <p>Suivez votre engagement, visualisez votre position sur la carte et rejoignez des groupes thématiques.</p>
+        <p>Votre engagement civique, votre position sur la carte et vos centres d'intérêt.</p>
       </div>
 
       <!-- Onglets -->
@@ -151,15 +151,13 @@
                 <div class="profil-niv-badge" style="position:absolute;bottom:2px;right:2px;width:22px;height:22px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;background:var(--rouge);color:#fff;border:2px solid #fff;">3</div>
               </div>
 
-              <div class="profil-pseudo">@CitoyenMontréal</div>
-              <div class="profil-ville">📍 Montréal, Québec</div>
+              <div class="profil-pseudo" id="profilPseudo">@CitoyenMontréal</div>
+              <div class="profil-ville" id="profilVille">📍 Montréal, Québec</div>
 
               <!-- Intérêts -->
               <div class="profil-interets">
-                <span class="profil-tag">Logement</span>
-                <span class="profil-tag bleu">Droits civiques</span>
-                <span class="profil-tag vert">Réconciliation</span>
-                <span class="profil-tag">Élections</span>
+                <span class="profil-tag" id="profilEnjeu">Logement</span>
+                <span class="profil-tag bleu">Civic</span>
               </div>
 
               <!-- Statistiques -->
@@ -366,10 +364,29 @@
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="js/main.js"></script>
 <script>
+// ── Charger session Firebase (localStorage) ──────────────
+const SESSION_KEY = 'ca_citoyen_v1';
+let session = null;
+try { session = JSON.parse(localStorage.getItem(SESSION_KEY)); } catch(e) {}
+
+if (session && session.pseudo) {
+  // Mettre à jour les éléments du profil avec les vraies données
+  document.getElementById('profilPseudo').textContent = '@' + session.pseudo;
+  document.getElementById('profilVille').textContent = '📍 ' + session.ville;
+  document.getElementById('profilEnjeu').textContent = session.enjeu;
+} else {
+  // Pas de session — afficher l'avis
+  document.getElementById('avisNonConnecte').style.display = 'flex';
+}
+
+// ── Mini-carte profil ─────────────────────────────────────
 (function() {
-  // Mini-carte profil centrée sur Montréal
+  const lat = session ? session.lat : 45.508;
+  const lng = session ? session.lng : -73.587;
+  const pseudo = session ? session.pseudo : 'Citoyen';
+
   const carte = L.map('profil-mini-carte', {
-    center: [45.508, -73.587],
+    center: [lat, lng],
     zoom: 11,
     zoomControl: true,
     scrollWheelZoom: false,
@@ -377,68 +394,30 @@
   });
 
   L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-    subdomains: 'abcd',
-    maxZoom: 19
+    subdomains: 'abcd', maxZoom: 19
   }).addTo(carte);
 
-  // Point de l'utilisateur principal
   const iconPrincipal = L.divIcon({
     className: 'dot-citoyen',
     html: '<div class="dot-inner niv-3" style="width:15px;height:15px;box-shadow:0 0 12px rgba(193,39,45,.7);"></div>',
-    iconSize: [15, 15],
-    iconAnchor: [7, 7],
-    popupAnchor: [0, -12]
+    iconSize: [15, 15], iconAnchor: [7, 7], popupAnchor: [0, -12]
   });
 
-  L.marker([45.510, -73.557], { icon: iconPrincipal })
+  L.marker([lat, lng], { icon: iconPrincipal })
     .addTo(carte)
     .bindPopup(
       '<div style="background:rgba(18,18,35,.97);color:#fff;padding:10px 14px;border-radius:10px;min-width:140px;">' +
-      '<span style="font-weight:800;display:block;margin-bottom:4px;">@CitoyenMontréal</span>' +
-      '<span style="font-size:.78rem;color:#aaa;">📍 Montréal</span>' +
+      '<span style="font-weight:800;display:block;margin-bottom:4px;">@' + pseudo + '</span>' +
+      (session ? '<span style="font-size:.78rem;color:#aaa;">📍 ' + session.ville.split(',')[0] + '</span>' : '') +
       '</div>',
       { className: 'popup-citoyen' }
     )
     .openPopup();
 
-  // Zone d'influence
-  L.circle([45.510, -73.557], {
-    radius: 3500,
-    color: '#C1272D',
-    fillColor: '#C1272D',
-    fillOpacity: 0.07,
-    weight: 1
+  L.circle([lat, lng], {
+    radius: 3500, color: '#C1272D', fillColor: '#C1272D',
+    fillOpacity: 0.07, weight: 1
   }).addTo(carte);
-
-  // Citoyens proches simulés
-  const proches = [
-    { lat: 45.520, lng: -73.580, pseudo: 'Sophie_Plateau', niv: 2 },
-    { lat: 45.495, lng: -73.570, pseudo: 'AlexRDP', niv: 1 },
-    { lat: 45.532, lng: -73.545, pseudo: 'NathMTL', niv: 2 },
-    { lat: 45.480, lng: -73.600, pseudo: 'JulienVerdun', niv: 1 },
-    { lat: 45.518, lng: -73.610, pseudo: 'ChloeNDG', niv: 3 },
-    { lat: 45.545, lng: -73.565, pseudo: 'MarcRosemont', niv: 1 },
-    { lat: 45.468, lng: -73.545, pasta: 'LaurentVStL', niv: 2 }
-  ];
-
-  proches.forEach(function(c) {
-    const ico = L.divIcon({
-      className: 'dot-citoyen',
-      html: '<div class="dot-inner niv-' + c.niv + '"></div>',
-      iconSize: [13, 13],
-      iconAnchor: [6, 6],
-      popupAnchor: [0, -10]
-    });
-    L.marker([c.lat, c.lng], { icon: ico })
-      .addTo(carte)
-      .bindPopup(
-        '<div style="background:rgba(18,18,35,.97);color:#fff;padding:8px 12px;border-radius:8px;">' +
-        '<span style="font-weight:700;font-size:.85rem;">' + (c.pseudo || 'Citoyen') + '</span>' +
-        '</div>',
-        { className: 'popup-citoyen' }
-      );
-  });
 })();
 </script>
 </body>
