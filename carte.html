@@ -8,6 +8,86 @@
   <link rel="canonical" href="https://citoyenavise.org/carte.html">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    /* ── Modal inscription ────────────────────────────────── */
+    .modal-overlay {
+      display: none; position: fixed; inset: 0;
+      background: rgba(0,0,0,.78); z-index: 3000;
+      align-items: center; justify-content: center;
+    }
+    .modal-overlay.ouvert { display: flex; }
+    .modal-box {
+      background: #12122a; border: 1px solid rgba(193,39,45,.45);
+      border-radius: 14px; padding: 36px 32px;
+      width: 100%; max-width: 420px; color: #fff;
+      box-shadow: 0 20px 60px rgba(0,0,0,.6);
+    }
+    .modal-box h2 { color: #fff; margin: 0 0 6px; font-size: 1.25rem; }
+    .modal-box .modal-sous { color: rgba(255,255,255,.55); font-size: .85rem; margin-bottom: 24px; }
+    .modal-champ { margin-bottom: 15px; }
+    .modal-champ label { display:block; font-size:.78rem; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:rgba(255,255,255,.55); margin-bottom:6px; }
+    .modal-champ input, .modal-champ select {
+      width:100%; padding:10px 13px; border-radius:7px;
+      border:1px solid rgba(255,255,255,.14);
+      background:rgba(255,255,255,.06); color:#fff;
+      font-size:.92rem; box-sizing:border-box; outline:none;
+    }
+    .modal-champ input:focus, .modal-champ select:focus { border-color: rgba(193,39,45,.6); }
+    .modal-champ select option { background:#12122a; color:#fff; }
+    .modal-erreur { color:#ff6b6b; font-size:.82rem; margin-bottom:10px; display:none; }
+    .modal-actions { display:flex; gap:10px; margin-top:22px; }
+    .btn-modal-annuler {
+      background:transparent; border:1px solid rgba(255,255,255,.18);
+      color:rgba(255,255,255,.55); padding:10px 18px; border-radius:7px;
+      cursor:pointer; font-size:.87rem;
+    }
+    .btn-modal-rejoindre {
+      flex:1; background:#C1272D; color:#fff; border:none;
+      padding:10px 18px; border-radius:7px; cursor:pointer;
+      font-weight:700; font-size:.93rem; transition:.2s;
+    }
+    .btn-modal-rejoindre:hover { background:#a01e23; }
+    .btn-modal-rejoindre:disabled { opacity:.5; cursor:not-allowed; }
+    /* Succès */
+    .modal-succes { text-align:center; padding:12px 0; display:none; }
+    .modal-succes .s-icone { font-size:2.8rem; margin-bottom:10px; }
+    .modal-succes h3 { color:#fff; margin-bottom:8px; font-size:1.1rem; }
+    .modal-succes p { color:rgba(255,255,255,.55); font-size:.85rem; }
+    /* Profil utilisateur dans le panel */
+    .carte-profil-user {
+      background: rgba(193,39,45,.12); border:1px solid rgba(193,39,45,.3);
+      border-radius:8px; padding:12px; margin-bottom:14px; display:none;
+    }
+    .carte-profil-user.visible { display:block; }
+    .carte-profil-pseudo { font-weight:700; color:#fff; font-size:.95rem; }
+    .carte-profil-info { color:rgba(255,255,255,.55); font-size:.78rem; margin-top:3px; }
+    .carte-profil-badge {
+      display:inline-block; background:#C1272D; color:#fff;
+      font-size:.68rem; font-weight:700; padding:2px 8px;
+      border-radius:20px; margin-top:6px; letter-spacing:.04em;
+    }
+    /* Badge EN DIRECT */
+    .carte-badge-live {
+      position:fixed; top:72px; right:16px; z-index:1100;
+      background:#C1272D; color:#fff; font-size:.72rem; font-weight:700;
+      padding:5px 12px; border-radius:20px; letter-spacing:.06em;
+      display:flex; align-items:center; gap:6px;
+    }
+    .live-dot {
+      width:7px; height:7px; border-radius:50%; background:#fff;
+      animation: pulse-live 1.2s ease-in-out infinite;
+    }
+    @keyframes pulse-live { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(1.4)} }
+    /* Notification toast */
+    .carte-toast {
+      position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+      background:#12122a; border:1px solid rgba(193,39,45,.4); color:#fff;
+      padding:12px 22px; border-radius:10px; font-size:.88rem;
+      z-index:4000; opacity:0; transition:opacity .3s;
+      pointer-events:none; white-space:nowrap;
+    }
+    .carte-toast.visible { opacity:1; }
+  </style>
 </head>
 <body class="carte-page">
 
@@ -24,7 +104,7 @@
       <li class="nav-dropdown">
         <a href="#" class="nav-dropdown-toggle">Ressources</a>
         <div class="nav-dropdown-menu">
-          <a href="carte.html">🗺 Carte citoyenne</a>
+          <a href="carte.html">🗺️ Carte citoyenne</a>
           <a href="actualites.html">📰 Actualités</a>
           <a href="glossaire.html">📖 Glossaire</a>
           <a href="calendrier.html">📅 Calendrier</a>
@@ -42,7 +122,7 @@
     <a href="droits.html">⚖️ Droits</a>
     <a href="services.html">🛎️ Services</a>
     <a href="participer.html">🤝 Participer</a>
-    <a href="carte.html">🗺 Carte citoyenne</a>
+    <a href="carte.html">🗺️ Carte citoyenne</a>
     <a href="actualites.html">📰 Actualités</a>
     <a href="glossaire.html">📖 Glossaire</a>
     <a href="calendrier.html">📅 Calendrier</a>
@@ -51,17 +131,108 @@
   </div>
 </nav>
 
-<!-- Carte plein écran -->
+<!-- ── Modal inscription ──────────────────────────────────── -->
+<div class="modal-overlay" id="modalInscription">
+  <div class="modal-box">
+    <div id="modalFormulaire">
+      <h2>🍁 Rejoindre le réseau</h2>
+      <p class="modal-sous">Créez votre profil citoyen et apparaissez sur la carte. Gratuit, sans compte, sans publicité.</p>
+      <div class="modal-champ">
+        <label>Votre pseudo</label>
+        <input type="text" id="champPseudo" placeholder="ex : MarieQC, JeanMTL…" maxlength="20" autocomplete="off">
+      </div>
+      <div class="modal-champ">
+        <label>Votre ville</label>
+        <select id="champVille">
+          <option value="">— Choisir votre ville —</option>
+          <optgroup label="Québec">
+            <option value="Montréal, QC">Montréal</option>
+            <option value="Québec, QC">Québec (ville)</option>
+            <option value="Laval, QC">Laval</option>
+            <option value="Longueuil, QC">Longueuil</option>
+            <option value="Gatineau, QC">Gatineau</option>
+            <option value="Sherbrooke, QC">Sherbrooke</option>
+            <option value="Trois-Rivières, QC">Trois-Rivières</option>
+            <option value="Saguenay, QC">Saguenay</option>
+            <option value="Lévis, QC">Lévis</option>
+          </optgroup>
+          <optgroup label="Ontario">
+            <option value="Toronto, ON">Toronto</option>
+            <option value="Ottawa, ON">Ottawa</option>
+            <option value="Mississauga, ON">Mississauga</option>
+            <option value="Brampton, ON">Brampton</option>
+            <option value="Hamilton, ON">Hamilton</option>
+            <option value="London, ON">London</option>
+          </optgroup>
+          <optgroup label="Colombie-Britannique">
+            <option value="Vancouver, BC">Vancouver</option>
+            <option value="Surrey, BC">Surrey</option>
+            <option value="Victoria, BC">Victoria</option>
+            <option value="Kelowna, BC">Kelowna</option>
+          </optgroup>
+          <optgroup label="Alberta">
+            <option value="Calgary, AB">Calgary</option>
+            <option value="Edmonton, AB">Edmonton</option>
+          </optgroup>
+          <optgroup label="Autres provinces">
+            <option value="Winnipeg, MB">Winnipeg (MB)</option>
+            <option value="Saskatoon, SK">Saskatoon (SK)</option>
+            <option value="Regina, SK">Regina (SK)</option>
+            <option value="Halifax, NS">Halifax (NS)</option>
+            <option value="Moncton, NB">Moncton (NB)</option>
+            <option value="Fredericton, NB">Fredericton (NB)</option>
+            <option value="Charlottetown, PE">Charlottetown (PE)</option>
+            <option value="St. John's, NL">St. John's (NL)</option>
+            <option value="Whitehorse, YT">Whitehorse (YT)</option>
+            <option value="Yellowknife, NT">Yellowknife (NT)</option>
+          </optgroup>
+        </select>
+      </div>
+      <div class="modal-champ">
+        <label>Enjeu principal</label>
+        <select id="champEnjeu">
+          <option value="Logement">🏠 Logement</option>
+          <option value="Santé">🏥 Santé</option>
+          <option value="Élections">🗳️ Élections</option>
+          <option value="Droits">⚖️ Droits</option>
+          <option value="Environnement">🌿 Environnement</option>
+          <option value="Immigration">✈️ Immigration</option>
+          <option value="Éducation">🎓 Éducation</option>
+          <option value="Fiscalité">💰 Fiscalité</option>
+        </select>
+      </div>
+      <div class="modal-erreur" id="modalErreur">Veuillez remplir tous les champs.</div>
+      <div class="modal-actions">
+        <button class="btn-modal-annuler" id="btnAnnuler">Annuler</button>
+        <button class="btn-modal-rejoindre" id="btnRejoindre">Rejoindre le réseau →</button>
+      </div>
+    </div>
+    <div class="modal-succes" id="modalSucces">
+      <div class="s-icone">🎉</div>
+      <h3>Bienvenue dans le réseau !</h3>
+      <p>Vous apparaissez maintenant sur la carte citoyenne canadienne. Votre point s'affiche en rouge — niveau Participant.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── Carte plein écran ──────────────────────────────────── -->
 <div id="carte-conteneur">
   <div id="carte"></div>
 </div>
 
-<!-- Badge démo -->
-<div class="carte-badge-demo">Aperçu — Version démo</div>
+<!-- Badge EN DIRECT -->
+<div class="carte-badge-live"><span class="live-dot"></span> EN DIRECT</div>
 
 <!-- Panneau gauche -->
 <aside class="carte-panel" id="cartePanel">
   <p class="carte-panel-logo">Citoyen Avisé · Réseau</p>
+
+  <!-- Profil utilisateur connecté -->
+  <div class="carte-profil-user" id="carteProfilUser">
+    <div class="carte-profil-pseudo" id="profilPseudo">—</div>
+    <div class="carte-profil-info" id="profilInfo">—</div>
+    <span class="carte-profil-badge">Citoyen actif</span>
+  </div>
 
   <div class="carte-compteur">
     <span class="carte-nb" id="carteNbCitoyens">247</span>
@@ -70,7 +241,7 @@
 
   <div class="carte-mini-stats">
     <div class="carte-mini-stat">
-      <span class="carte-mini-stat-nb">18</span>
+      <span class="carte-mini-stat-nb" id="nbGroupes">18</span>
       <span class="carte-mini-stat-label">groupes actifs</span>
     </div>
     <div class="carte-mini-stat">
@@ -78,11 +249,11 @@
       <span class="carte-mini-stat-label">provinces</span>
     </div>
     <div class="carte-mini-stat">
-      <span class="carte-mini-stat-nb">41</span>
+      <span class="carte-mini-stat-nb" id="nbVilles">41</span>
       <span class="carte-mini-stat-label">villes</span>
     </div>
     <div class="carte-mini-stat">
-      <span class="carte-mini-stat-nb">6</span>
+      <span class="carte-mini-stat-nb">8</span>
       <span class="carte-mini-stat-label">enjeux</span>
     </div>
   </div>
@@ -103,8 +274,12 @@
   <div class="carte-activite" id="carteActivite"></div>
 
   <div style="margin-top:18px; padding-top:14px; border-top:1px solid rgba(255,255,255,.1);">
-    <a href="profil.html" class="btn btn-rouge btn-sm" style="width:100%; text-align:center; display:block; margin-bottom:8px;">Voir mon profil →</a>
-    <a href="index.html#infolettre" style="display:block; text-align:center; font-size:.75rem; color:rgba(255,255,255,.4); margin-top:6px;">Rejoindre le réseau</a>
+    <button id="btnOuvrirInscription" class="btn btn-rouge btn-sm" style="width:100%;text-align:center;display:block;margin-bottom:8px;border:none;cursor:pointer;">
+      🍁 Rejoindre le réseau
+    </button>
+    <div id="btnDejaInscrit" style="display:none; text-align:center; font-size:.75rem; color:rgba(255,255,255,.5); padding:4px 0;">
+      Vous êtes sur la carte ✓
+    </div>
   </div>
 </aside>
 
@@ -119,15 +294,66 @@
   </div>
 </div>
 
-<!-- Bouton mobile toggle panneau -->
+<!-- Toggle mobile -->
 <button class="carte-panel-toggle" id="cartePanelToggle" style="display:flex;">☰</button>
 
+<!-- Toast notification -->
+<div class="carte-toast" id="carteToast"></div>
+
+<!-- ── Scripts ──────────────────────────────────────────────── -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="js/main.js"></script>
 <script>
-// ── Données citoyens ──────────────────────────────────────
-const CITOYENS = [
-  // Montréal
+// ── Firebase ──────────────────────────────────────────────
+firebase.initializeApp({
+  apiKey: "AIzaSyBhV5WhiErMwF3WnDUwPBgfjEDJS-PzZ9I",
+  authDomain: "citoyenavise.firebaseapp.com",
+  projectId: "citoyenavise",
+  storageBucket: "citoyenavise.firebasestorage.app",
+  messagingSenderId: "682604041638",
+  appId: "1:682604041638:web:d25f5fbd21a8cb7171eb67"
+});
+const db = firebase.firestore();
+
+// ── Coordonnées des villes ────────────────────────────────
+const COORDS_VILLES = {
+  'Montréal, QC':    {lat:45.5017, lng:-73.5673},
+  'Québec, QC':      {lat:46.8139, lng:-71.2080},
+  'Laval, QC':       {lat:45.5817, lng:-73.7429},
+  'Longueuil, QC':   {lat:45.5315, lng:-73.5186},
+  'Gatineau, QC':    {lat:45.4765, lng:-75.7013},
+  'Sherbrooke, QC':  {lat:45.4042, lng:-71.8929},
+  'Trois-Rivières, QC':{lat:46.3432, lng:-72.5432},
+  'Saguenay, QC':    {lat:48.4284, lng:-71.0741},
+  'Lévis, QC':       {lat:46.8033, lng:-71.1756},
+  'Toronto, ON':     {lat:43.6532, lng:-79.3832},
+  'Ottawa, ON':      {lat:45.4215, lng:-75.6972},
+  'Mississauga, ON': {lat:43.5890, lng:-79.6441},
+  'Brampton, ON':    {lat:43.7315, lng:-79.7624},
+  'Hamilton, ON':    {lat:43.2557, lng:-79.8711},
+  'London, ON':      {lat:42.9849, lng:-81.2453},
+  'Vancouver, BC':   {lat:49.2827, lng:-123.1207},
+  'Surrey, BC':      {lat:49.1913, lng:-122.8490},
+  'Victoria, BC':    {lat:48.4284, lng:-123.3656},
+  'Kelowna, BC':     {lat:49.8880, lng:-119.4960},
+  'Calgary, AB':     {lat:51.0447, lng:-114.0719},
+  'Edmonton, AB':    {lat:53.5461, lng:-113.4938},
+  'Winnipeg, MB':    {lat:49.8951, lng:-97.1384},
+  'Saskatoon, SK':   {lat:52.1332, lng:-106.6700},
+  'Regina, SK':      {lat:50.4452, lng:-104.6189},
+  'Halifax, NS':     {lat:44.6488, lng:-63.5752},
+  'Moncton, NB':     {lat:46.0878, lng:-64.7782},
+  'Fredericton, NB': {lat:45.9636, lng:-66.6431},
+  'Charlottetown, PE':{lat:46.2382, lng:-63.1311},
+  "St. John's, NL":  {lat:47.5605, lng:-52.7126},
+  'Whitehorse, YT':  {lat:60.7212, lng:-135.0568},
+  'Yellowknife, NT': {lat:62.4540, lng:-114.3718},
+};
+
+// ── Données simulées (fond de carte) ─────────────────────
+const CITOYENS_SIM = [
   {lat:45.510,lng:-73.557,pseudo:'MarieC_MTL',ville:'Montréal',interet:'Logement',niv:3},
   {lat:45.497,lng:-73.580,pseudo:'JFDupont',ville:'Montréal',interet:'Santé',niv:2},
   {lat:45.525,lng:-73.594,pseudo:'AnniePleau',ville:'Montréal',interet:'Éducation',niv:3},
@@ -137,58 +363,35 @@ const CITOYENS = [
   {lat:45.549,lng:-73.577,pseudo:'NathBP',ville:'Laval',interet:'Environnement',niv:2},
   {lat:45.473,lng:-73.571,pseudo:'ChristineLD',ville:'Longueuil',interet:'Santé',niv:1},
   {lat:45.541,lng:-73.534,pseudo:'RobertMTL',ville:'Montréal-Nord',interet:'Immigration',niv:2},
-  {lat:45.461,lng:-73.588,pseudo:'IsabelleSL',ville:'Saint-Lambert',interet:'Retraite',niv:1},
   {lat:45.503,lng:-73.614,pseudo:'MarcVD',ville:'Verdun',interet:'Logement',niv:2},
-  // Québec
   {lat:46.825,lng:-71.218,pseudo:'FrancoisTQ',ville:'Québec',interet:'Retraite',niv:2},
   {lat:46.810,lng:-71.197,pseudo:'IsabelleQC',ville:'Québec',interet:'Fiscalité',niv:3},
   {lat:46.840,lng:-71.235,pseudo:'MarcAQ',ville:'Québec',interet:'Logement',niv:1},
   {lat:46.803,lng:-71.241,pseudo:'LucBQ',ville:'Lévis',interet:'Santé',niv:2},
-  // Ottawa / Gatineau
   {lat:45.432,lng:-75.693,pseudo:'ClaudinGat',ville:'Gatineau',interet:'Droits',niv:2},
   {lat:45.414,lng:-75.701,pseudo:'PatMcOtt',ville:'Ottawa',interet:'Immigration',niv:3},
   {lat:45.426,lng:-75.715,pseudo:'JulieHOtt',ville:'Ottawa',interet:'Élections',niv:2},
-  // Toronto
   {lat:43.661,lng:-79.382,pseudo:'TorontoAct',ville:'Toronto',interet:'Immigration',niv:3},
   {lat:43.650,lng:-79.398,pseudo:'LindaONT',ville:'Toronto',interet:'Logement',niv:2},
   {lat:43.675,lng:-79.368,pseudo:'MikeTOR',ville:'Toronto',interet:'Droits',niv:1},
   {lat:43.642,lng:-79.373,pseudo:'SarahTO',ville:'Toronto',interet:'Éducation',niv:3},
-  {lat:43.668,lng:-79.405,pseudo:'DavidETO',ville:'Etobicoke',interet:'Santé',niv:2},
-  // Vancouver
   {lat:49.283,lng:-123.119,pseudo:'PierreBC',ville:'Vancouver',interet:'Environnement',niv:3},
   {lat:49.272,lng:-123.133,pseudo:'SarahVAN',ville:'Vancouver',interet:'Logement',niv:2},
   {lat:49.296,lng:-123.108,pseudo:'AlexNV',ville:'North Van',interet:'Élections',niv:1},
-  // Calgary
   {lat:51.047,lng:-114.067,pseudo:'JohnAB',ville:'Calgary',interet:'Fiscalité',niv:2},
-  {lat:51.037,lng:-114.081,pseudo:'LisaCAL',ville:'Calgary',interet:'Élections',niv:1},
-  // Edmonton
   {lat:53.548,lng:-113.491,pseudo:'MarcEDM',ville:'Edmonton',interet:'Environnement',niv:2},
   {lat:53.540,lng:-113.508,pseudo:'JennyEDM',ville:'Edmonton',interet:'Santé',niv:3},
-  // Winnipeg
   {lat:49.897,lng:-97.140,pseudo:'AnnaWIN',ville:'Winnipeg',interet:'Droits',niv:1},
-  {lat:49.883,lng:-97.152,pseudo:'TomWIN',ville:'Winnipeg',interet:'Retraite',niv:2},
-  // Halifax
   {lat:44.651,lng:-63.582,pseudo:'PierreNS',ville:'Halifax',interet:'Retraite',niv:2},
-  {lat:44.641,lng:-63.571,pseudo:'MarieNS',ville:'Halifax',interet:'Éducation',niv:1},
-  // Sherbrooke
   {lat:45.407,lng:-71.895,pseudo:'RobertSHB',ville:'Sherbrooke',interet:'Éducation',niv:2},
-  {lat:45.398,lng:-71.883,pseudo:'LouiseSHB',ville:'Sherbrooke',interet:'Santé',niv:1},
-  // Trois-Rivières
   {lat:46.347,lng:-72.548,pseudo:'GuyTR',ville:'Trois-Rivières',interet:'Santé',niv:1},
-  {lat:46.354,lng:-72.560,pseudo:'CathTR',ville:'Trois-Rivières',interet:'Logement',niv:2},
-  // Saguenay
   {lat:48.430,lng:-71.062,pseudo:'DenisSAG',ville:'Saguenay',interet:'Logement',niv:1},
-  // Victoria
   {lat:48.432,lng:-123.370,pseudo:'SuzVIC',ville:'Victoria',interet:'Environnement',niv:3},
-  // Kelowna
-  {lat:49.887,lng:-119.497,pseudo:'DavKEL',ville:'Kelowna',interet:'Logement',niv:2},
-  // Saskatoon
   {lat:52.133,lng:-106.670,pseudo:'PamSASK',ville:'Saskatoon',interet:'Immigration',niv:2},
-  // Régina
   {lat:50.447,lng:-104.620,pseudo:'TomREG',ville:'Régina',interet:'Droits',niv:1},
 ];
 
-const ACTIVITES = [
+const ACTIVITES_SIM = [
   {pseudo:'MarieC_MTL',action:'a rejoint le Groupe Logement Montréal',temps:'2 min',niv:'rouge'},
   {pseudo:'PierreBC',action:'a signé la pétition Environnement Côte-Ouest',temps:'5 min',niv:'rouge'},
   {pseudo:'IsabelleQC',action:'a créé le groupe Fiscalité Québec',temps:'12 min',niv:'rouge'},
@@ -196,111 +399,152 @@ const ACTIVITES = [
   {pseudo:'AnnaWIN',action:'a participé à un sondage citoyen',temps:'25 min',niv:'bleu'},
   {pseudo:'MarcEDM',action:'a commenté sur l\'environnement en Alberta',temps:'31 min',niv:'orange'},
   {pseudo:'PatMcOtt',action:'a rejoint le réseau Ottawa-Gatineau',temps:'44 min',niv:'rouge'},
-  {pseudo:'JohnAB',action:'a commenté le budget fédéral 2026',temps:'52 min',niv:'orange'},
-  {pseudo:'DenisSAG',action:'vient de rejoindre Citoyen Avisé',temps:'1h 5',niv:'bleu'},
-  {pseudo:'LindaONT',action:'a partagé un article sur le logement',temps:'1h 18',niv:'orange'},
 ];
 
-// ── Zones d'influence (cercles par ville) ─────────────────
 const ZONES = [
-  {lat:45.510,lng:-73.570,r:12000,label:'Montréal'},
-  {lat:43.655,lng:-79.388,r:9000,label:'Toronto'},
-  {lat:49.283,lng:-123.122,r:7000,label:'Vancouver'},
-  {lat:45.421,lng:-75.697,r:6000,label:'Ottawa-Gatineau'},
-  {lat:46.820,lng:-71.215,r:5500,label:'Québec'},
-  {lat:51.042,lng:-114.073,r:5000,label:'Calgary'},
-  {lat:53.544,lng:-113.498,r:4500,label:'Edmonton'},
+  {lat:45.510,lng:-73.570,r:12000},{lat:43.655,lng:-79.388,r:9000},
+  {lat:49.283,lng:-123.122,r:7000},{lat:45.421,lng:-75.697,r:6000},
+  {lat:46.820,lng:-71.215,r:5500},{lat:51.042,lng:-114.073,r:5000},
+  {lat:53.544,lng:-113.498,r:4500},
 ];
 
-// ── Init carte ────────────────────────────────────────────
+// ── Init carte Leaflet ────────────────────────────────────
 const map = L.map('carte', {
-  center: [56.5, -95.0],
-  zoom: 4,
-  zoomControl: false,
-  attributionControl: true,
+  center: [56.5, -95.0], zoom: 4,
+  zoomControl: false, attributionControl: true,
 });
-
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
-  subdomains: 'abcd',
-  maxZoom: 19
+  subdomains: 'abcd', maxZoom: 19
 }).addTo(map);
-
 L.control.zoom({ position: 'bottomright' }).addTo(map);
 
-// ── Cercles d'influence ───────────────────────────────────
-ZONES.forEach(z => {
-  L.circle([z.lat, z.lng], {
-    radius: z.r,
-    color: '#C1272D',
-    fillColor: '#C1272D',
-    fillOpacity: 0.07,
-    weight: 1,
-    opacity: 0.35,
-  }).addTo(map);
-});
+ZONES.forEach(z => L.circle([z.lat, z.lng], {
+  radius: z.r, color:'#C1272D', fillColor:'#C1272D',
+  fillOpacity:.07, weight:1, opacity:.35,
+}).addTo(map));
 
-// ── Marqueurs citoyens ────────────────────────────────────
-const couleurs = { 1: '#1565C0', 2: '#E65100', 3: '#C1272D' };
-let marqueurs = [];
+// ── Marqueurs ─────────────────────────────────────────────
+let marqueursSim = [];
+let marqueursReels = {};   // id Firestore → marqueur Leaflet
+let filtreCourant = 'tous';
 
-function creerMarqueur(c) {
+function creerMarqueur(c, estReel) {
+  const niv = c.niv || 1;
+  const sz = niv === 3 ? 13 : niv === 2 ? 11 : 9;
+  const cls = estReel ? `dot-inner niv-${niv} niv-reel` : `dot-inner niv-${niv}`;
   const icon = L.divIcon({
     className: 'dot-citoyen',
-    html: `<div class="dot-inner niv-${c.niv}" title="${c.pseudo}"></div>`,
-    iconSize: [c.niv === 3 ? 13 : c.niv === 2 ? 11 : 9, c.niv === 3 ? 13 : c.niv === 2 ? 11 : 9],
-    iconAnchor: [c.niv === 3 ? 6 : c.niv === 2 ? 5 : 4, c.niv === 3 ? 6 : c.niv === 2 ? 5 : 4],
-    popupAnchor: [0, -10],
+    html: `<div class="${cls}" title="${c.pseudo}"></div>`,
+    iconSize: [sz, sz], iconAnchor: [sz/2, sz/2], popupAnchor: [0, -10],
   });
-  const niveaux = ['', 'Participant', 'Actif', 'Très actif'];
-  const m = L.marker([c.lat, c.lng], { icon })
-    .bindPopup(`
-      <span class="popup-pseudo">${c.pseudo}</span>
-      <span class="popup-ville">📍 ${c.ville}</span>
-      <span class="popup-interet">${c.interet}</span>
-      <div style="margin-top:8px;font-size:.72rem;color:rgba(255,255,255,.45);">${niveaux[c.niv]}</div>
-    `, { className: '' });
-  m._enjeu = c.interet;
-  return m;
+  const niveaux = ['','Participant','Actif','Très actif'];
+  const badge = estReel ? '<div style="color:#C1272D;font-size:.7rem;font-weight:700;margin-top:4px;">🍁 Citoyen réel</div>' : '';
+  return L.marker([c.lat, c.lng], { icon }).bindPopup(`
+    <span class="popup-pseudo">${c.pseudo}</span>
+    <span class="popup-ville">📍 ${c.ville}</span>
+    <span class="popup-interet">${c.interet}</span>
+    <div style="margin-top:6px;font-size:.72rem;color:rgba(255,255,255,.45);">${niveaux[niv]}</div>
+    ${badge}
+  `);
 }
 
-CITOYENS.forEach(c => {
-  const m = creerMarqueur(c);
+// Charger citoyens simulés
+CITOYENS_SIM.forEach(c => {
+  const m = creerMarqueur(c, false);
+  m._enjeu = c.interet;
   m.addTo(map);
-  marqueurs.push(m);
+  marqueursSim.push(m);
 });
+
+// ── Feed d'activité ───────────────────────────────────────
+const feed = document.getElementById('carteActivite');
+
+function ajouterActiviteFeed(pseudo, action, niv, prepend) {
+  const item = document.createElement('div');
+  item.className = 'carte-act-item';
+  item.innerHTML = `
+    <span class="carte-act-dot ${niv}"></span>
+    <div>
+      <span class="carte-act-pseudo">${pseudo}</span>
+      <span class="carte-act-desc"> ${action}</span>
+      <span class="carte-act-temps">à l'instant</span>
+    </div>`;
+  if (prepend && feed.firstChild) {
+    feed.insertBefore(item, feed.firstChild);
+    if (feed.children.length > 10) feed.removeChild(feed.lastChild);
+  } else {
+    feed.appendChild(item);
+  }
+}
+
+ACTIVITES_SIM.forEach(a => ajouterActiviteFeed(a.pseudo, a.action, a.niv, false));
 
 // ── Filtres ───────────────────────────────────────────────
 document.querySelectorAll('.carte-filtre').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.carte-filtre').forEach(b => b.classList.remove('actif'));
     btn.classList.add('actif');
-    const filtre = btn.dataset.filtre;
-    marqueurs.forEach((m, i) => {
-      if (filtre === 'tous' || CITOYENS[i].interet === filtre) {
-        if (!map.hasLayer(m)) m.addTo(map);
-      } else {
-        if (map.hasLayer(m)) map.removeLayer(m);
-      }
+    filtreCourant = btn.dataset.filtre;
+    // Simulés
+    marqueursSim.forEach((m, i) => {
+      const visible = filtreCourant === 'tous' || CITOYENS_SIM[i].interet === filtreCourant;
+      visible ? (!map.hasLayer(m) && m.addTo(map)) : (map.hasLayer(m) && map.removeLayer(m));
+    });
+    // Réels
+    Object.entries(marqueursReels).forEach(([id, obj]) => {
+      const visible = filtreCourant === 'tous' || obj.enjeu === filtreCourant;
+      visible ? (!map.hasLayer(obj.m) && obj.m.addTo(map)) : (map.hasLayer(obj.m) && map.removeLayer(obj.m));
     });
   });
 });
 
-// ── Fil d'activité ────────────────────────────────────────
-const feed = document.getElementById('carteActivite');
-ACTIVITES.forEach(a => {
-  feed.innerHTML += `
-    <div class="carte-act-item">
-      <span class="carte-act-dot ${a.niv}"></span>
-      <div>
-        <span class="carte-act-pseudo">${a.pseudo}</span>
-        <span class="carte-act-desc">${a.action}</span>
-        <span class="carte-act-temps">il y a ${a.temps}</span>
-      </div>
-    </div>`;
+// ── Toast ─────────────────────────────────────────────────
+function afficherToast(msg) {
+  const t = document.getElementById('carteToast');
+  t.textContent = msg; t.classList.add('visible');
+  setTimeout(() => t.classList.remove('visible'), 3500);
+}
+
+// ── Écoute Firestore en temps réel ───────────────────────
+let nbReels = 0;
+db.collection('citoyens').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
+  snapshot.docChanges().forEach(change => {
+    const doc = change.doc;
+    const data = doc.data();
+    if (change.type === 'added') {
+      // Ajouter marqueur
+      const c = {
+        lat: data.lat, lng: data.lng,
+        pseudo: data.pseudo, ville: data.ville,
+        interet: data.enjeu, niv: 1,
+      };
+      const m = creerMarqueur(c, true);
+      m._enjeu = data.enjeu;
+      const visible = filtreCourant === 'tous' || data.enjeu === filtreCourant;
+      if (visible) m.addTo(map);
+      marqueursReels[doc.id] = { m, enjeu: data.enjeu };
+      nbReels++;
+      // Activité si nouveau (pas au chargement initial)
+      if (!snapshot.metadata.hasPendingWrites && change.newIndex === 0) {
+        ajouterActiviteFeed(data.pseudo, 'vient de rejoindre Citoyen Avisé', 'rouge', true);
+        afficherToast(`🍁 ${data.pseudo} (${data.ville}) vient de rejoindre le réseau !`);
+      }
+    }
+    if (change.type === 'removed') {
+      if (marqueursReels[doc.id]) {
+        map.removeLayer(marqueursReels[doc.id].m);
+        delete marqueursReels[doc.id];
+        nbReels--;
+      }
+    }
+  });
+  // Mettre à jour compteur
+  const total = CITOYENS_SIM.length + nbReels;
+  document.getElementById('carteNbCitoyens').textContent = total;
 });
 
-// ── Toggle panneau mobile ─────────────────────────────────
+// ── Toggle mobile panneau ─────────────────────────────────
 const panel = document.getElementById('cartePanel');
 const toggleBtn = document.getElementById('cartePanelToggle');
 let panelVisible = true;
@@ -309,13 +553,100 @@ toggleBtn.addEventListener('click', () => {
   panel.style.display = panelVisible ? 'block' : 'none';
   toggleBtn.textContent = panelVisible ? '✕' : '☰';
 });
-
-// Sur mobile, masquer par défaut
 if (window.innerWidth < 768) {
   panel.style.display = 'none';
   panelVisible = false;
-  toggleBtn.style.display = 'flex';
 }
+
+// ── Gestion session localStorage ─────────────────────────
+const SESSION_KEY = 'ca_citoyen_v1';
+
+function chargerSession() {
+  try {
+    const s = JSON.parse(localStorage.getItem(SESSION_KEY));
+    if (s && s.pseudo) {
+      document.getElementById('profilPseudo').textContent = s.pseudo;
+      document.getElementById('profilInfo').textContent = s.ville + ' · ' + s.enjeu;
+      document.getElementById('carteProfilUser').classList.add('visible');
+      document.getElementById('btnOuvrirInscription').style.display = 'none';
+      document.getElementById('btnDejaInscrit').style.display = 'block';
+      // Zoomer sur leur position
+      setTimeout(() => map.setView([s.lat, s.lng], 9), 1500);
+    }
+  } catch(e) {}
+}
+chargerSession();
+
+// ── Modal inscription ─────────────────────────────────────
+const modal = document.getElementById('modalInscription');
+const formulaire = document.getElementById('modalFormulaire');
+const succes = document.getElementById('modalSucces');
+const erreur = document.getElementById('modalErreur');
+const btnRejoindre = document.getElementById('btnRejoindre');
+
+document.getElementById('btnOuvrirInscription').addEventListener('click', () => {
+  modal.classList.add('ouvert');
+  formulaire.style.display = 'block';
+  succes.style.display = 'none';
+});
+document.getElementById('btnAnnuler').addEventListener('click', () => {
+  modal.classList.remove('ouvert');
+});
+modal.addEventListener('click', e => {
+  if (e.target === modal) modal.classList.remove('ouvert');
+});
+
+btnRejoindre.addEventListener('click', async () => {
+  const pseudo = document.getElementById('champPseudo').value.trim();
+  const villeVal = document.getElementById('champVille').value;
+  const enjeu = document.getElementById('champEnjeu').value;
+
+  erreur.style.display = 'none';
+  if (!pseudo || !villeVal) { erreur.style.display = 'block'; return; }
+  if (pseudo.length < 3) {
+    erreur.textContent = 'Le pseudo doit avoir au moins 3 caractères.';
+    erreur.style.display = 'block'; return;
+  }
+
+  const coords = COORDS_VILLES[villeVal];
+  if (!coords) { erreur.textContent = 'Ville introuvable.'; erreur.style.display = 'block'; return; }
+
+  // Légère dispersion pour ne pas superposer les points
+  const lat = coords.lat + (Math.random() - 0.5) * 0.06;
+  const lng = coords.lng + (Math.random() - 0.5) * 0.06;
+  const ville = villeVal.split(',')[0];
+
+  btnRejoindre.disabled = true;
+  btnRejoindre.textContent = 'Enregistrement…';
+
+  try {
+    await db.collection('citoyens').add({
+      pseudo, ville, lat, lng, enjeu,
+      timestamp: firebase.firestore.FieldValue.serverTimestamp()
+    });
+    // Sauvegarder session
+    localStorage.setItem(SESSION_KEY, JSON.stringify({ pseudo, ville: villeVal, enjeu, lat, lng }));
+    // Mettre à jour le panel
+    document.getElementById('profilPseudo').textContent = pseudo;
+    document.getElementById('profilInfo').textContent = villeVal + ' · ' + enjeu;
+    document.getElementById('carteProfilUser').classList.add('visible');
+    document.getElementById('btnOuvrirInscription').style.display = 'none';
+    document.getElementById('btnDejaInscrit').style.display = 'block';
+    // Afficher succès
+    formulaire.style.display = 'none';
+    succes.style.display = 'block';
+    // Zoomer sur la ville après fermeture
+    setTimeout(() => {
+      modal.classList.remove('ouvert');
+      map.setView([lat, lng], 10);
+    }, 2200);
+  } catch(e) {
+    erreur.textContent = 'Erreur de connexion. Vérifiez Firestore.';
+    erreur.style.display = 'block';
+    btnRejoindre.disabled = false;
+    btnRejoindre.textContent = 'Rejoindre le réseau →';
+  }
+});
 </script>
 </body>
 </html>
