@@ -1,0 +1,8 @@
+__pycache__/
+*.pyc
+*.pyo
+fix_site.py
+gen1.py
+gen2.py
+gen3.py
+generate_pages.py
