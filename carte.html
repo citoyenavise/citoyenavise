@@ -87,6 +87,49 @@
       pointer-events:none; white-space:nowrap;
     }
     .carte-toast.visible { opacity:1; }
+    /* ── Lieux établis ── */
+    .lieu-marker {
+      border-radius: 50%; border: 2px solid rgba(255,255,255,.8);
+      box-shadow: 0 2px 6px rgba(0,0,0,.5);
+      cursor: pointer;
+    }
+    .carte-lieux-section { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.1); }
+    .carte-lieux-toggle {
+      width: 100%; background: rgba(255,255,255,.1); color: #fff;
+      border: 1px solid rgba(255,255,255,.2); border-radius: 7px;
+      padding: 8px 12px; font-size: .78rem; font-weight: 700;
+      cursor: pointer; text-align: left; transition: .2s;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .carte-lieux-toggle:hover { background: rgba(255,255,255,.18); }
+    .carte-lieux-toggle.actif { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.4); }
+    .carte-lieux-filtres { display: none; margin-top: 10px; }
+    .carte-lieux-filtres.visible { display: block; }
+    .lieux-filtre-btn {
+      display: flex; align-items: center; gap: 6px;
+      width: 100%; padding: 6px 10px; margin-bottom: 4px;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
+      border-radius: 6px; color: rgba(255,255,255,.75); font-size: .77rem;
+      cursor: pointer; transition: .15s; text-align: left;
+    }
+    .lieux-filtre-btn:hover { background: rgba(255,255,255,.12); color: #fff; }
+    .lieux-filtre-btn.actif { background: rgba(255,255,255,.15); color: #fff; border-color: rgba(255,255,255,.35); }
+    .lieux-filtre-dot {
+      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    }
+    .lieux-filtre-count {
+      margin-left: auto; font-size: .7rem; opacity: .55;
+    }
+    .leaflet-popup-content-wrapper {
+      background: #1a1a35 !important; color: #fff !important;
+      border: 1px solid rgba(255,255,255,.15) !important;
+      border-radius: 10px !important; box-shadow: 0 4px 20px rgba(0,0,0,.5) !important;
+    }
+    .leaflet-popup-tip { background: #1a1a35 !important; }
+    .popup-lieu-nom { display:block; font-weight:800; font-size:.95rem; color:#fff; margin-bottom:3px; }
+    .popup-lieu-cat { display:inline-block; font-size:.72rem; font-weight:700; padding:2px 8px; border-radius:10px; margin-bottom:5px; color:#fff; }
+    .popup-lieu-adresse { display:block; font-size:.78rem; color:rgba(255,255,255,.5); }
+    .popup-lieu-sous { display:block; font-size:.73rem; color:rgba(255,255,255,.35); margin-top:2px; }
   </style>
   <!-- Google Analytics 4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-RDFSPWC9R2"></script>
@@ -116,10 +159,10 @@
           <a href="actualites.html">📰 Actualités</a>
           <a href="glossaire.html">📖 Glossaire</a>
           <a href="calendrier.html">📅 Calendrier</a>
+          <a href="profil.html">👤 Mon profil</a>
         </div>
       </li>
-      <li class="nav-dropdown"><a href="#" class="nav-dropdown-toggle">Ressources</a><div class="nav-dropdown-menu"><a href="carte.html">🗺️ Carte citoyenne</a>
-    <a href="actualites.html">📰 Actualités</a><a href="glossaire.html">📖 Glossaire</a><a href="calendrier.html">📅 Calendrier</a></div></li><li><a href="a-propos.html">À propos</a></li>
+      <li><a href="a-propos.html">À propos</a></li>
       <li><a href="en/map.html" class="nav-lang" title="English version">🇨🇦 EN</a></li>
       <li><a href="index.html#infolettre" class="nav-cta">S'inscrire</a></li>
     </ul>
@@ -285,6 +328,22 @@
     <button class="carte-filtre" data-filtre="Éducation">Éduc.</button>
   </div>
 
+  <!-- Lieux établis -->
+  <div class="carte-lieux-section">
+    <button class="carte-lieux-toggle" id="btnToggleLieux">
+      <span>📍 Lieux établis — MTL</span>
+      <span id="lieuxToggleIcon">▶</span>
+    </button>
+    <div class="carte-lieux-filtres" id="lieuxFiltres">
+      <button class="lieux-filtre-btn actif" data-cat="tous" style="margin-top:4px;">
+        <span class="lieux-filtre-dot" style="background:#aaa;"></span>
+        Tous les lieux
+        <span class="lieux-filtre-count" id="lieux-count-tous"></span>
+      </button>
+      <!-- boutons par catégorie générés par JS -->
+    </div>
+  </div>
+
   <p class="carte-section-titre">Activité en direct</p>
   <div class="carte-activite" id="carteActivite"></div>
 
@@ -321,6 +380,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/lieux-montreal.js"></script>
 <script src="js/main.js"></script>
 <script>
 // ── Firebase ──────────────────────────────────────────────
@@ -664,6 +724,101 @@ btnRejoindre.addEventListener('click', async () => {
     btnRejoindre.disabled = false;
     btnRejoindre.textContent = 'Rejoindre le réseau →';
   }
+});
+
+// ══════════════════════════════════════════════════════════════
+// LIEUX ÉTABLIS — couche Montréal
+// ══════════════════════════════════════════════════════════════
+
+// Groupes de couches par catégorie
+const lieuxGroupes = {};
+let lieuxVisibles = false;
+let lieuxCatActive = 'tous';
+
+function creerIconLieu(cat) {
+  const cfg = LIEUX_CAT[cat] || { couleur: '#aaa', rayon: 8 };
+  const size = cfg.rayon * 2 + 4;
+  return L.divIcon({
+    className: '',
+    html: `<div class="lieu-marker" style="width:${size}px;height:${size}px;background:${cfg.couleur};"></div>`,
+    iconSize: [size, size],
+    iconAnchor: [size / 2, size / 2],
+    popupAnchor: [0, -size / 2 - 2],
+  });
+}
+
+function creerMarqueurLieu(lieu) {
+  const cfg = LIEUX_CAT[lieu.cat] || { couleur: '#aaa', label: lieu.cat };
+  return L.marker([lieu.lat, lieu.lng], { icon: creerIconLieu(lieu.cat) })
+    .bindPopup(`
+      <span class="popup-lieu-nom">${lieu.nom}</span>
+      <span class="popup-lieu-cat" style="background:${cfg.couleur};">${cfg.label}</span>
+      <span class="popup-lieu-adresse">📍 ${lieu.adresse}</span>
+      <span class="popup-lieu-sous">${lieu.sousCat}</span>
+    `);
+}
+
+// Construire les groupes
+Object.keys(LIEUX_CAT).forEach(cat => {
+  lieuxGroupes[cat] = L.layerGroup();
+});
+LIEUX_MTL.forEach(lieu => {
+  const m = creerMarqueurLieu(lieu);
+  lieuxGroupes[lieu.cat].addLayer(m);
+});
+
+// Générer les boutons de filtre dans le panel
+const conteneurFiltres = document.getElementById('lieuxFiltres');
+// Compte total pour le bouton "Tous"
+document.getElementById('lieux-count-tous').textContent = LIEUX_MTL.length;
+
+Object.entries(LIEUX_CAT).forEach(([cat, cfg]) => {
+  const nb = LIEUX_MTL.filter(l => l.cat === cat).length;
+  if (nb === 0) return;
+  const btn = document.createElement('button');
+  btn.className = 'lieux-filtre-btn';
+  btn.dataset.cat = cat;
+  btn.innerHTML = `
+    <span class="lieux-filtre-dot" style="background:${cfg.couleur};"></span>
+    ${cfg.label}
+    <span class="lieux-filtre-count">${nb}</span>
+  `;
+  conteneurFiltres.appendChild(btn);
+});
+
+// Toggle afficher / masquer les lieux
+document.getElementById('btnToggleLieux').addEventListener('click', () => {
+  lieuxVisibles = !lieuxVisibles;
+  const icon = document.getElementById('lieuxToggleIcon');
+  const filtresEl = document.getElementById('lieuxFiltres');
+  document.getElementById('btnToggleLieux').classList.toggle('actif', lieuxVisibles);
+  icon.textContent = lieuxVisibles ? '▼' : '▶';
+  filtresEl.classList.toggle('visible', lieuxVisibles);
+
+  if (lieuxVisibles) {
+    appliquerFiltreLieux(lieuxCatActive);
+  } else {
+    Object.values(lieuxGroupes).forEach(g => { if (map.hasLayer(g)) map.removeLayer(g); });
+  }
+});
+
+// Filtrer par catégorie
+function appliquerFiltreLieux(cat) {
+  lieuxCatActive = cat;
+  Object.entries(lieuxGroupes).forEach(([c, g]) => {
+    const show = lieuxVisibles && (cat === 'tous' || cat === c);
+    if (show && !map.hasLayer(g)) g.addTo(map);
+    if (!show && map.hasLayer(g)) map.removeLayer(g);
+  });
+}
+
+// Délégation d'événements pour les boutons de filtre
+conteneurFiltres.addEventListener('click', e => {
+  const btn = e.target.closest('.lieux-filtre-btn');
+  if (!btn) return;
+  conteneurFiltres.querySelectorAll('.lieux-filtre-btn').forEach(b => b.classList.remove('actif'));
+  btn.classList.add('actif');
+  appliquerFiltreLieux(btn.dataset.cat);
 });
 </script>
 
