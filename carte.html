@@ -120,6 +120,29 @@
     .lieux-filtre-count {
       margin-left: auto; font-size: .7rem; opacity: .55;
     }
+    /* ── Grand Montréal — Navigation quartiers ── */
+    .gmo-groupe-titre {
+      font-size: .65rem; font-weight: 800; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(255,255,255,.35);
+      margin: 10px 0 4px; padding: 0 2px;
+    }
+    .gmo-arrond-btn {
+      display: flex; align-items: center; gap: 6px;
+      width: 100%; padding: 6px 10px; margin-bottom: 3px;
+      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 6px; color: rgba(255,255,255,.75); font-size: .76rem;
+      cursor: pointer; transition: .15s; text-align: left;
+    }
+    .gmo-arrond-btn:hover { background: rgba(255,255,255,.13); color: #fff; border-color: rgba(255,255,255,.22); }
+    .gmo-arrond-btn.actif  { background: rgba(193,39,45,.18); color: #fff; border-color: rgba(193,39,45,.45); }
+    .gmo-nb { margin-left: auto; font-size: .68rem; opacity: .5; background: rgba(255,255,255,.1); padding: 1px 6px; border-radius: 8px; }
+    .gmo-back-btn {
+      display: none; width: 100%; margin-bottom: 8px;
+      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
+      border-radius: 6px; color: rgba(255,255,255,.7); font-size: .76rem;
+      padding: 6px 10px; cursor: pointer; text-align: left;
+    }
+    .gmo-back-btn.visible { display: block; }
     .popup-lieu-nom { display:block; font-weight:800; font-size:.95rem; color:#fff; margin-bottom:3px; }
     .popup-lieu-cat { display:inline-block; font-size:.72rem; font-weight:700; padding:2px 8px; border-radius:10px; margin-bottom:5px; color:#fff; }
     .popup-lieu-adresse { display:block; font-size:.78rem; color:rgba(255,255,255,.5); }
@@ -326,6 +349,18 @@
     </div>
   </div>
 
+  <!-- Grand Montréal — Navigation par quartier -->
+  <div class="carte-lieux-section">
+    <button class="carte-lieux-toggle" id="btnToggleGMO">
+      <span>🗺️ Grand Montréal</span>
+      <span id="gmoToggleIcon">▶</span>
+    </button>
+    <div class="carte-lieux-filtres" id="gmoPanel">
+      <button class="gmo-back-btn" id="gmoBackBtn">← Tous les quartiers</button>
+      <div id="gmoListe"></div>
+    </div>
+  </div>
+
   <p class="carte-section-titre">Filtrer par enjeu</p>
   <div class="carte-filtres">
     <button class="carte-filtre actif" data-filtre="tous">Tous</button>
@@ -375,6 +410,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="js/lieux-montreal.js"></script>
+<script src="js/lieux-grand-montreal.js"></script>
 <script src="js/main.js"></script>
 <script>
 // ── Firebase ──────────────────────────────────────────────
@@ -745,6 +781,85 @@ conteneurFiltres.addEventListener('click', e => {
   conteneurFiltres.querySelectorAll('.lieux-filtre-btn').forEach(b => b.classList.remove('actif'));
   btn.classList.add('actif');
   appliquerFiltreLieux(btn.dataset.cat);
+});
+
+// ══════════════════════════════════════════════════════════════
+// GRAND MONTRÉAL — Navigation par arrondissement
+// ══════════════════════════════════════════════════════════════
+
+const gmoGroupes = {};   // arrond id → L.layerGroup
+let gmoVisibles = false;
+let gmoArrondActif = null;
+
+// Construire les groupes de marqueurs par arrondissement
+ARRONDISSEMENTS_GMO.forEach(a => { gmoGroupes[a.id] = L.layerGroup(); });
+LIEUX_GMO.forEach(lieu => {
+  if (!gmoGroupes[lieu.arrond]) return;
+  const m = creerMarqueurLieu(lieu);
+  gmoGroupes[lieu.arrond].addLayer(m);
+});
+
+// Compter les lieux par arrondissement
+const gmoNbParArrond = {};
+LIEUX_GMO.forEach(l => { gmoNbParArrond[l.arrond] = (gmoNbParArrond[l.arrond] || 0) + 1; });
+
+// Générer la liste des arrondissements dans le panel
+const gmoListe = document.getElementById('gmoListe');
+const gmoBackBtn = document.getElementById('gmoBackBtn');
+const groupesLabels = { ile: '🏙️ Île de Montréal', couronne: '🌆 Couronnes' };
+
+['ile', 'couronne'].forEach(groupe => {
+  const titre = document.createElement('p');
+  titre.className = 'gmo-groupe-titre';
+  titre.textContent = groupesLabels[groupe];
+  gmoListe.appendChild(titre);
+
+  ARRONDISSEMENTS_GMO.filter(a => a.groupe === groupe).forEach(a => {
+    const btn = document.createElement('button');
+    btn.className = 'gmo-arrond-btn';
+    btn.dataset.id = a.id;
+    btn.innerHTML = `${a.nom}<span class="gmo-nb">${gmoNbParArrond[a.id] || 0}</span>`;
+    btn.addEventListener('click', () => zoomerArrond(a));
+    gmoListe.appendChild(btn);
+  });
+});
+
+function zoomerArrond(arrond) {
+  // Zoom sur le centre
+  map.setView(arrond.centre, arrond.zoom, { animate: true });
+  // Retirer tous les groupes GMO puis n'afficher que celui-là
+  Object.entries(gmoGroupes).forEach(([id, g]) => {
+    if (map.hasLayer(g)) map.removeLayer(g);
+  });
+  gmoGroupes[arrond.id].addTo(map);
+  // État actif
+  gmoListe.querySelectorAll('.gmo-arrond-btn').forEach(b => b.classList.remove('actif'));
+  gmoListe.querySelector(`[data-id="${arrond.id}"]`).classList.add('actif');
+  gmoArrondActif = arrond.id;
+  gmoBackBtn.classList.add('visible');
+}
+
+function afficherTousGMO() {
+  Object.values(gmoGroupes).forEach(g => { if (!map.hasLayer(g)) g.addTo(map); });
+  gmoListe.querySelectorAll('.gmo-arrond-btn').forEach(b => b.classList.remove('actif'));
+  gmoArrondActif = null;
+  gmoBackBtn.classList.remove('visible');
+}
+
+gmoBackBtn.addEventListener('click', afficherTousGMO);
+
+// Toggle Grand Montréal
+document.getElementById('btnToggleGMO').addEventListener('click', () => {
+  gmoVisibles = !gmoVisibles;
+  document.getElementById('btnToggleGMO').classList.toggle('actif', gmoVisibles);
+  document.getElementById('gmoToggleIcon').textContent = gmoVisibles ? '▼' : '▶';
+  document.getElementById('gmoPanel').classList.toggle('visible', gmoVisibles);
+  if (gmoVisibles) {
+    afficherTousGMO();
+    map.setView([45.55, -73.62], 11, { animate: true });
+  } else {
+    Object.values(gmoGroupes).forEach(g => { if (map.hasLayer(g)) map.removeLayer(g); });
+  }
 });
 
 // ── Activation automatique au chargement ──────────────────
