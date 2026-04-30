@@ -120,12 +120,6 @@
     .lieux-filtre-count {
       margin-left: auto; font-size: .7rem; opacity: .55;
     }
-    .leaflet-popup-content-wrapper {
-      background: #1a1a35 !important; color: #fff !important;
-      border: 1px solid rgba(255,255,255,.15) !important;
-      border-radius: 10px !important; box-shadow: 0 4px 20px rgba(0,0,0,.5) !important;
-    }
-    .leaflet-popup-tip { background: #1a1a35 !important; }
     .popup-lieu-nom { display:block; font-weight:800; font-size:.95rem; color:#fff; margin-bottom:3px; }
     .popup-lieu-cat { display:inline-block; font-size:.72rem; font-weight:700; padding:2px 8px; border-radius:10px; margin-bottom:5px; color:#fff; }
     .popup-lieu-adresse { display:block; font-size:.78rem; color:rgba(255,255,255,.5); }
@@ -316,6 +310,22 @@
     </div>
   </div>
 
+  <!-- Lieux établis — affiché en premier, actif par défaut -->
+  <div class="carte-lieux-section">
+    <button class="carte-lieux-toggle actif" id="btnToggleLieux">
+      <span>📍 Lieux établis — MTL</span>
+      <span id="lieuxToggleIcon">▼</span>
+    </button>
+    <div class="carte-lieux-filtres visible" id="lieuxFiltres">
+      <button class="lieux-filtre-btn actif" data-cat="tous" style="margin-top:4px;">
+        <span class="lieux-filtre-dot" style="background:#aaa;"></span>
+        Tous les lieux
+        <span class="lieux-filtre-count" id="lieux-count-tous"></span>
+      </button>
+      <!-- boutons par catégorie générés par JS -->
+    </div>
+  </div>
+
   <p class="carte-section-titre">Filtrer par enjeu</p>
   <div class="carte-filtres">
     <button class="carte-filtre actif" data-filtre="tous">Tous</button>
@@ -326,22 +336,6 @@
     <button class="carte-filtre" data-filtre="Environnement">Enviro.</button>
     <button class="carte-filtre" data-filtre="Immigration">Immig.</button>
     <button class="carte-filtre" data-filtre="Éducation">Éduc.</button>
-  </div>
-
-  <!-- Lieux établis -->
-  <div class="carte-lieux-section">
-    <button class="carte-lieux-toggle" id="btnToggleLieux">
-      <span>📍 Lieux établis — MTL</span>
-      <span id="lieuxToggleIcon">▶</span>
-    </button>
-    <div class="carte-lieux-filtres" id="lieuxFiltres">
-      <button class="lieux-filtre-btn actif" data-cat="tous" style="margin-top:4px;">
-        <span class="lieux-filtre-dot" style="background:#aaa;"></span>
-        Tous les lieux
-        <span class="lieux-filtre-count" id="lieux-count-tous"></span>
-      </button>
-      <!-- boutons par catégorie générés par JS -->
-    </div>
   </div>
 
   <p class="carte-section-titre">Activité en direct</p>
@@ -820,6 +814,19 @@ conteneurFiltres.addEventListener('click', e => {
   btn.classList.add('actif');
   appliquerFiltreLieux(btn.dataset.cat);
 });
+
+// ── Activation automatique au chargement ──────────────────
+lieuxVisibles = true;
+document.getElementById('btnToggleLieux').classList.add('actif');
+document.getElementById('lieuxToggleIcon').textContent = '▼';
+document.getElementById('lieuxFiltres').classList.add('visible');
+Object.values(lieuxGroupes).forEach(g => g.addTo(map));
+
+// Zoom sur Montréal si aucune session utilisateur (pour voir les lieux)
+try {
+  const sess = JSON.parse(localStorage.getItem('ca_citoyen_v1') || 'null');
+  if (!sess) setTimeout(() => map.setView([45.521, -73.598], 13), 800);
+} catch(e) {}
 </script>
 
 <footer class="pied-page">
