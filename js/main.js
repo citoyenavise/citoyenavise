@@ -151,6 +151,37 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   });
 
+  /* ── Profil citoyen — pill nav + lien réseau ────────────── */
+  try {
+    const s = JSON.parse(localStorage.getItem('ca_citoyen_v1') || 'null');
+    if (s && s.pseudo) {
+      const initiales = s.pseudo.replace(/[^a-zA-ZÀ-ÿ0-9]/g, '').slice(0, 2).toUpperCase() || '?';
+      const isEnPage = window.location.pathname.includes('/en/');
+      const profilPath = isEnPage ? '../profil.html' : 'profil.html';
+      // Nav desktop : insérer avant le bouton EN
+      const navLiens = document.querySelector('.nav-liens');
+      if (navLiens) {
+        const liProfil = document.createElement('li');
+        liProfil.innerHTML = `<a href="${profilPath}" class="nav-profil-pill"><span class="nav-profil-av">${initiales}</span><span>${s.pseudo}</span></a>`;
+        const enLi = Array.from(navLiens.querySelectorAll('li')).find(li => li.querySelector('.nav-lang'));
+        navLiens.insertBefore(liProfil, enLi || null);
+      }
+      // Menu mobile
+      const menuMob = document.querySelector('.menu-mobile');
+      if (menuMob) {
+        const aPropos = Array.from(menuMob.querySelectorAll('a')).find(a => (a.getAttribute('href') || '').includes('a-propos'));
+        const aProfil = document.createElement('a');
+        aProfil.href = profilPath;
+        aProfil.textContent = '👤 Mon profil citoyen';
+        if (aPropos) menuMob.insertBefore(aProfil, aPropos);
+        else menuMob.appendChild(aProfil);
+      }
+      // Accueil — afficher CTA secondaire "Voir mon profil"
+      const btnVoirProfil = document.getElementById('btnVoirProfil');
+      if (btnVoirProfil) btnVoirProfil.style.display = '';
+    }
+  } catch(e) {}
+
   /* ── Compteur animé (stats) ─────────────────────────────── */
   function animerCompteur(el) {
     const cible = parseInt(el.dataset.cible, 10);

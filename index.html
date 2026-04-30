@@ -36,7 +36,7 @@
       <li><a href="services.html">Services</a></li>
       <li><a href="participer.html">Participer</a></li>
       <li class="nav-dropdown"><a href="#" class="nav-dropdown-toggle">Ressources</a><div class="nav-dropdown-menu"><a href="carte.html">🗺️ Carte citoyenne</a>
-    <a href="actualites.html">📰 Actualités</a><a href="glossaire.html">📖 Glossaire</a><a href="calendrier.html">📅 Calendrier</a></div></li><li><a href="a-propos.html">À propos</a></li>
+    <a href="actualites.html">📰 Actualités</a><a href="glossaire.html">📖 Glossaire</a><a href="calendrier.html">📅 Calendrier</a><a href="profil.html">👤 Mon profil</a></div></li><li><a href="a-propos.html">À propos</a></li>
       <li><a href="en/index.html" class="nav-lang" title="English version">🇨🇦 EN</a></li>
       <li><a href="#infolettre" class="nav-cta">S'inscrire</a></li>
     </ul>
@@ -227,7 +227,10 @@
           <div class="flex"><span style="font-size:1.4rem;">🗺️</span><div>Visible en temps réel sur la carte interactive</div></div>
           <div class="flex"><span style="font-size:1.4rem;">🆓</span><div>Gratuit, sans inscription obligatoire</div></div>
         </div>
-        <a href="carte.html" class="btn btn-rouge btn-lg">📍 Rejoindre la carte →</a>
+        <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:center;">
+          <a href="carte.html" class="btn btn-rouge btn-lg">📍 Rejoindre la carte →</a>
+          <a href="profil.html" id="btnVoirProfil" class="btn btn-contour-rouge btn-lg" style="display:none;">👤 Mon profil citoyen →</a>
+        </div>
       </div>
 
       <!-- Mini carte Leaflet -->

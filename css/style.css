@@ -96,6 +96,23 @@ p  { color: var(--gris-texte); line-height: 1.75; }
   letter-spacing: .04em; transition: var(--transition);
 }
 .nav-lang:hover { background: rgba(255,255,255,.12) !important; color: #fff !important; }
+.nav-profil-pill {
+  display: flex !important; align-items: center; gap: 7px;
+  background: rgba(255,255,255,.13) !important;
+  padding: 4px 12px 4px 4px !important;
+  border-radius: 20px !important;
+  margin-left: 4px; color: #fff !important;
+  font-size: .83rem !important; font-weight: 600 !important;
+  transition: var(--transition);
+}
+.nav-profil-pill:hover { background: rgba(255,255,255,.23) !important; }
+.nav-profil-av {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--rouge);
+  display: flex; align-items: center; justify-content: center;
+  font-size: .65rem; font-weight: 900; color: #fff;
+  flex-shrink: 0; letter-spacing: -.01em;
+}
 .hamburger { display: none; flex-direction: column; gap: 5px; cursor: pointer; padding: 8px; }
 .hamburger span { width: 24px; height: 2px; background: var(--blanc); border-radius: 2px; transition: var(--transition); }
 .menu-mobile { display: none; background: var(--rouge-fonce); padding: 16px 24px; }
