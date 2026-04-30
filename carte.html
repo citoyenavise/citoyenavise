@@ -87,12 +87,7 @@
       pointer-events:none; white-space:nowrap;
     }
     .carte-toast.visible { opacity:1; }
-    /* ── Lieux établis ── */
-    .lieu-marker {
-      border-radius: 50%; border: 2px solid rgba(255,255,255,.8);
-      box-shadow: 0 2px 6px rgba(0,0,0,.5);
-      cursor: pointer;
-    }
+    /* ── Province de Québec — Navigation hiérarchique ── */
     .carte-lieux-section { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.1); }
     .carte-lieux-toggle {
       width: 100%; background: rgba(255,255,255,.1); color: #fff;
@@ -105,48 +100,58 @@
     .carte-lieux-toggle.actif { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.4); }
     .carte-lieux-filtres { display: none; margin-top: 10px; }
     .carte-lieux-filtres.visible { display: block; }
-    .lieux-filtre-btn {
-      display: flex; align-items: center; gap: 6px;
-      width: 100%; padding: 6px 10px; margin-bottom: 4px;
-      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
-      border-radius: 6px; color: rgba(255,255,255,.75); font-size: .77rem;
-      cursor: pointer; transition: .15s; text-align: left;
+    .hdv-marker {
+      width: 10px; height: 10px;
+      background: #1976D2;
+      border: 2px solid rgba(255,255,255,.88);
+      box-shadow: 0 1px 4px rgba(0,0,0,.55);
+      transform: rotate(45deg);
+      cursor: pointer;
     }
-    .lieux-filtre-btn:hover { background: rgba(255,255,255,.12); color: #fff; }
-    .lieux-filtre-btn.actif { background: rgba(255,255,255,.15); color: #fff; border-color: rgba(255,255,255,.35); }
-    .lieux-filtre-dot {
-      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
+    .qc-breadcrumb {
+      font-size: .65rem; font-weight: 700; letter-spacing: .06em;
+      text-transform: uppercase; color: rgba(255,255,255,.38);
+      display: block; margin-bottom: 6px; padding: 0 2px;
     }
-    .lieux-filtre-count {
-      margin-left: auto; font-size: .7rem; opacity: .55;
-    }
-    /* ── Grand Montréal — Navigation quartiers ── */
-    .gmo-groupe-titre {
-      font-size: .65rem; font-weight: 800; letter-spacing: .1em;
-      text-transform: uppercase; color: rgba(255,255,255,.35);
-      margin: 10px 0 4px; padding: 0 2px;
-    }
-    .gmo-arrond-btn {
-      display: flex; align-items: center; gap: 6px;
-      width: 100%; padding: 6px 10px; margin-bottom: 3px;
-      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
-      border-radius: 6px; color: rgba(255,255,255,.75); font-size: .76rem;
-      cursor: pointer; transition: .15s; text-align: left;
-    }
-    .gmo-arrond-btn:hover { background: rgba(255,255,255,.13); color: #fff; border-color: rgba(255,255,255,.22); }
-    .gmo-arrond-btn.actif  { background: rgba(193,39,45,.18); color: #fff; border-color: rgba(193,39,45,.45); }
-    .gmo-nb { margin-left: auto; font-size: .68rem; opacity: .5; background: rgba(255,255,255,.1); padding: 1px 6px; border-radius: 8px; }
-    .gmo-back-btn {
+    .qc-back-btn {
       display: none; width: 100%; margin-bottom: 8px;
       background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.2);
       border-radius: 6px; color: rgba(255,255,255,.7); font-size: .76rem;
       padding: 6px 10px; cursor: pointer; text-align: left;
     }
-    .gmo-back-btn.visible { display: block; }
-    .popup-lieu-nom { display:block; font-weight:800; font-size:.95rem; color:#fff; margin-bottom:3px; }
-    .popup-lieu-cat { display:inline-block; font-size:.72rem; font-weight:700; padding:2px 8px; border-radius:10px; margin-bottom:5px; color:#fff; }
-    .popup-lieu-adresse { display:block; font-size:.78rem; color:rgba(255,255,255,.5); }
-    .popup-lieu-sous { display:block; font-size:.73rem; color:rgba(255,255,255,.35); margin-top:2px; }
+    .qc-back-btn.visible { display: block; }
+    .qc-nb {
+      margin-left: auto; font-size: .67rem; opacity: .5;
+      background: rgba(255,255,255,.1); padding: 1px 6px; border-radius: 8px; flex-shrink: 0;
+    }
+    .qc-region-btn {
+      display: flex; align-items: center; gap: 6px;
+      width: 100%; padding: 7px 10px; margin-bottom: 3px;
+      background: rgba(25,118,210,.1); border: 1px solid rgba(25,118,210,.2);
+      border-radius: 6px; color: rgba(255,255,255,.82); font-size: .77rem;
+      cursor: pointer; transition: .15s; text-align: left; font-weight: 600;
+    }
+    .qc-region-btn:hover { background: rgba(25,118,210,.25); color: #fff; border-color: rgba(25,118,210,.45); }
+    .qc-mrc-btn {
+      display: flex; align-items: center; gap: 6px;
+      width: 100%; padding: 6px 10px; margin-bottom: 3px;
+      background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 6px; color: rgba(255,255,255,.75); font-size: .75rem;
+      cursor: pointer; transition: .15s; text-align: left;
+    }
+    .qc-mrc-btn:hover { background: rgba(255,255,255,.12); color: #fff; border-color: rgba(255,255,255,.22); }
+    .qc-ville-btn {
+      display: flex; align-items: center; gap: 5px;
+      width: 100%; padding: 5px 10px; margin-bottom: 2px;
+      background: transparent; border: none;
+      color: rgba(255,255,255,.65); font-size: .75rem;
+      cursor: pointer; transition: .15s; text-align: left; border-radius: 5px;
+    }
+    .qc-ville-btn::before { content: '🏛'; font-size: .7rem; }
+    .qc-ville-btn:hover { background: rgba(255,255,255,.08); color: #fff; }
+    .popup-hdv-nom { display:block; font-weight:800; font-size:.95rem; color:#fff; margin-bottom:3px; }
+    .popup-hdv-badge { display:inline-block; font-size:.72rem; font-weight:700; padding:2px 8px; border-radius:10px; margin-bottom:5px; color:#fff; background:#1565C0; }
+    .popup-hdv-region { display:block; font-size:.75rem; color:rgba(255,255,255,.45); margin-top:2px; }
   </style>
   <!-- Google Analytics 4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-RDFSPWC9R2"></script>
@@ -333,31 +338,16 @@
     </div>
   </div>
 
-  <!-- Lieux établis — affiché en premier, actif par défaut -->
+  <!-- Province de Québec — Navigation hiérarchique Région → MRC → Ville -->
   <div class="carte-lieux-section">
-    <button class="carte-lieux-toggle actif" id="btnToggleLieux">
-      <span>📍 Lieux établis — MTL</span>
-      <span id="lieuxToggleIcon">▼</span>
+    <button class="carte-lieux-toggle" id="btnToggleQC">
+      <span>🍁 Province de Québec</span>
+      <span id="qcToggleIcon">▶</span>
     </button>
-    <div class="carte-lieux-filtres visible" id="lieuxFiltres">
-      <button class="lieux-filtre-btn actif" data-cat="tous" style="margin-top:4px;">
-        <span class="lieux-filtre-dot" style="background:#aaa;"></span>
-        Tous les lieux
-        <span class="lieux-filtre-count" id="lieux-count-tous"></span>
-      </button>
-      <!-- boutons par catégorie générés par JS -->
-    </div>
-  </div>
-
-  <!-- Grand Montréal — Navigation par quartier -->
-  <div class="carte-lieux-section">
-    <button class="carte-lieux-toggle" id="btnToggleGMO">
-      <span>🗺️ Grand Montréal</span>
-      <span id="gmoToggleIcon">▶</span>
-    </button>
-    <div class="carte-lieux-filtres" id="gmoPanel">
-      <button class="gmo-back-btn" id="gmoBackBtn">← Tous les quartiers</button>
-      <div id="gmoListe"></div>
+    <div class="carte-lieux-filtres" id="qcPanel">
+      <button class="qc-back-btn" id="qcBackBtn">← Retour</button>
+      <span class="qc-breadcrumb" id="qcBreadcrumb">17 régions administratives</span>
+      <div id="qcContenu"></div>
     </div>
   </div>
 
@@ -409,8 +399,7 @@
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-<script src="js/lieux-montreal.js"></script>
-<script src="js/lieux-grand-montreal.js"></script>
+<script src="js/villes-quebec.js"></script>
 <script src="js/main.js"></script>
 <script>
 // ── Firebase ──────────────────────────────────────────────
@@ -689,191 +678,108 @@ btnRejoindre.addEventListener('click', async () => {
 });
 
 // ══════════════════════════════════════════════════════════════
-// LIEUX ÉTABLIS — couche Montréal
+// PROVINCE DE QUÉBEC — Navigation Région → MRC → Ville
 // ══════════════════════════════════════════════════════════════
 
-// Groupes de couches par catégorie
-const lieuxGroupes = {};
-let lieuxVisibles = false;
-let lieuxCatActive = 'tous';
+const QC_ICON = L.divIcon({
+  className: '',
+  html: '<div class="hdv-marker"></div>',
+  iconSize: [14, 14],
+  iconAnchor: [7, 7],
+  popupAnchor: [0, -9],
+});
 
-function creerIconLieu(cat) {
-  const cfg = LIEUX_CAT[cat] || { couleur: '#aaa', rayon: 8 };
-  const size = cfg.rayon * 2 + 4;
-  return L.divIcon({
-    className: '',
-    html: `<div class="lieu-marker" style="width:${size}px;height:${size}px;background:${cfg.couleur};"></div>`,
-    iconSize: [size, size],
-    iconAnchor: [size / 2, size / 2],
-    popupAnchor: [0, -size / 2 - 2],
-  });
-}
-
-function creerMarqueurLieu(lieu) {
-  const cfg = LIEUX_CAT[lieu.cat] || { couleur: '#aaa', label: lieu.cat };
-  return L.marker([lieu.lat, lieu.lng], { icon: creerIconLieu(lieu.cat) })
+// Pré-construire tous les marqueurs (non ajoutés à la carte)
+const qcMarqueurs = {};
+QC_VILLES.forEach(v => {
+  const regionNom = (QC_REGIONS.find(r => r.id === v.region) || {}).nom || '';
+  qcMarqueurs[v.id] = L.marker([v.lat, v.lng], { icon: QC_ICON })
     .bindPopup(`
-      <span class="popup-lieu-nom">${lieu.nom}</span>
-      <span class="popup-lieu-cat" style="background:${cfg.couleur};">${cfg.label}</span>
-      <span class="popup-lieu-adresse">📍 ${lieu.adresse}</span>
-      <span class="popup-lieu-sous">${lieu.sousCat}</span>
+      <span class="popup-hdv-nom">🏛 ${v.nom}</span>
+      <span class="popup-hdv-badge">Hôtel de Ville</span>
+      <span class="popup-hdv-region">📍 ${regionNom}</span>
     `);
-}
-
-// Construire les groupes
-Object.keys(LIEUX_CAT).forEach(cat => {
-  lieuxGroupes[cat] = L.layerGroup();
-});
-LIEUX_MTL.forEach(lieu => {
-  const m = creerMarqueurLieu(lieu);
-  lieuxGroupes[lieu.cat].addLayer(m);
 });
 
-// Générer les boutons de filtre dans le panel
-const conteneurFiltres = document.getElementById('lieuxFiltres');
-// Compte total pour le bouton "Tous"
-document.getElementById('lieux-count-tous').textContent = LIEUX_MTL.length;
+let qcVisible = false;
+let qcNiveau = 0;          // 0=régions 1=MRCs 2=villes
+let qcRegionActive = null;
 
-Object.entries(LIEUX_CAT).forEach(([cat, cfg]) => {
-  const nb = LIEUX_MTL.filter(l => l.cat === cat).length;
-  if (nb === 0) return;
-  const btn = document.createElement('button');
-  btn.className = 'lieux-filtre-btn';
-  btn.dataset.cat = cat;
-  btn.innerHTML = `
-    <span class="lieux-filtre-dot" style="background:${cfg.couleur};"></span>
-    ${cfg.label}
-    <span class="lieux-filtre-count">${nb}</span>
-  `;
-  conteneurFiltres.appendChild(btn);
-});
+const qcPanelEl   = document.getElementById('qcPanel');
+const qcContenuEl = document.getElementById('qcContenu');
+const qcBreadcrumb= document.getElementById('qcBreadcrumb');
+const qcBackBtn   = document.getElementById('qcBackBtn');
 
-// Toggle afficher / masquer les lieux
-document.getElementById('btnToggleLieux').addEventListener('click', () => {
-  lieuxVisibles = !lieuxVisibles;
-  const icon = document.getElementById('lieuxToggleIcon');
-  const filtresEl = document.getElementById('lieuxFiltres');
-  document.getElementById('btnToggleLieux').classList.toggle('actif', lieuxVisibles);
-  icon.textContent = lieuxVisibles ? '▼' : '▶';
-  filtresEl.classList.toggle('visible', lieuxVisibles);
-
-  if (lieuxVisibles) {
-    appliquerFiltreLieux(lieuxCatActive);
-  } else {
-    Object.values(lieuxGroupes).forEach(g => { if (map.hasLayer(g)) map.removeLayer(g); });
-  }
-});
-
-// Filtrer par catégorie
-function appliquerFiltreLieux(cat) {
-  lieuxCatActive = cat;
-  Object.entries(lieuxGroupes).forEach(([c, g]) => {
-    const show = lieuxVisibles && (cat === 'tous' || cat === c);
-    if (show && !map.hasLayer(g)) g.addTo(map);
-    if (!show && map.hasLayer(g)) map.removeLayer(g);
-  });
-}
-
-// Délégation d'événements pour les boutons de filtre
-conteneurFiltres.addEventListener('click', e => {
-  const btn = e.target.closest('.lieux-filtre-btn');
-  if (!btn) return;
-  conteneurFiltres.querySelectorAll('.lieux-filtre-btn').forEach(b => b.classList.remove('actif'));
-  btn.classList.add('actif');
-  appliquerFiltreLieux(btn.dataset.cat);
-});
-
-// ══════════════════════════════════════════════════════════════
-// GRAND MONTRÉAL — Navigation par arrondissement
-// ══════════════════════════════════════════════════════════════
-
-const gmoGroupes = {};   // arrond id → L.layerGroup
-let gmoVisibles = false;
-let gmoArrondActif = null;
-
-// Construire les groupes de marqueurs par arrondissement
-ARRONDISSEMENTS_GMO.forEach(a => { gmoGroupes[a.id] = L.layerGroup(); });
-LIEUX_GMO.forEach(lieu => {
-  if (!gmoGroupes[lieu.arrond]) return;
-  const m = creerMarqueurLieu(lieu);
-  gmoGroupes[lieu.arrond].addLayer(m);
-});
-
-// Compter les lieux par arrondissement
-const gmoNbParArrond = {};
-LIEUX_GMO.forEach(l => { gmoNbParArrond[l.arrond] = (gmoNbParArrond[l.arrond] || 0) + 1; });
-
-// Générer la liste des arrondissements dans le panel
-const gmoListe = document.getElementById('gmoListe');
-const gmoBackBtn = document.getElementById('gmoBackBtn');
-const groupesLabels = { ile: '🏙️ Île de Montréal', couronne: '🌆 Couronnes' };
-
-['ile', 'couronne'].forEach(groupe => {
-  const titre = document.createElement('p');
-  titre.className = 'gmo-groupe-titre';
-  titre.textContent = groupesLabels[groupe];
-  gmoListe.appendChild(titre);
-
-  ARRONDISSEMENTS_GMO.filter(a => a.groupe === groupe).forEach(a => {
+function qcAfficherRegions() {
+  qcNiveau = 0; qcRegionActive = null;
+  qcBackBtn.classList.remove('visible');
+  qcBreadcrumb.textContent = '17 régions administratives';
+  qcContenuEl.innerHTML = '';
+  QC_REGIONS.forEach(r => {
+    const nb = QC_VILLES.filter(v => v.region === r.id).length;
     const btn = document.createElement('button');
-    btn.className = 'gmo-arrond-btn';
-    btn.dataset.id = a.id;
-    btn.innerHTML = `${a.nom}<span class="gmo-nb">${gmoNbParArrond[a.id] || 0}</span>`;
-    btn.addEventListener('click', () => zoomerArrond(a));
-    gmoListe.appendChild(btn);
+    btn.className = 'qc-region-btn';
+    btn.innerHTML = `${r.nom}<span class="qc-nb">${nb}</span>`;
+    btn.addEventListener('click', () => qcAfficherMRCs(r));
+    qcContenuEl.appendChild(btn);
   });
+}
+
+function qcAfficherMRCs(region) {
+  qcNiveau = 1; qcRegionActive = region;
+  qcBackBtn.classList.add('visible');
+  qcBreadcrumb.textContent = region.nom;
+  qcContenuEl.innerHTML = '';
+  map.setView(region.centre, region.zoom, { animate: true });
+  QC_MRC.filter(m => m.region === region.id).forEach(mrc => {
+    const nb = QC_VILLES.filter(v => v.mrc === mrc.id).length;
+    if (nb === 0) return;
+    const btn = document.createElement('button');
+    btn.className = 'qc-mrc-btn';
+    btn.innerHTML = `${mrc.nom}<span class="qc-nb">${nb}</span>`;
+    btn.addEventListener('click', () => qcAfficherVilles(mrc));
+    qcContenuEl.appendChild(btn);
+  });
+}
+
+function qcAfficherVilles(mrc) {
+  qcNiveau = 2;
+  qcBackBtn.classList.add('visible');
+  qcBreadcrumb.textContent = mrc.nom;
+  qcContenuEl.innerHTML = '';
+  map.setView(mrc.centre, mrc.zoom, { animate: true });
+  QC_VILLES.filter(v => v.mrc === mrc.id).forEach(v => {
+    const btn = document.createElement('button');
+    btn.className = 'qc-ville-btn';
+    btn.textContent = v.nom;
+    btn.addEventListener('click', () => {
+      map.setView([v.lat, v.lng], 15, { animate: true });
+      if (!map.hasLayer(qcMarqueurs[v.id])) qcMarqueurs[v.id].addTo(map);
+      setTimeout(() => qcMarqueurs[v.id].openPopup(), 400);
+    });
+    qcContenuEl.appendChild(btn);
+  });
+}
+
+qcBackBtn.addEventListener('click', () => {
+  if (qcNiveau === 2) qcAfficherMRCs(qcRegionActive);
+  else qcAfficherRegions();
 });
 
-function zoomerArrond(arrond) {
-  // Zoom sur le centre
-  map.setView(arrond.centre, arrond.zoom, { animate: true });
-  // Retirer tous les groupes GMO puis n'afficher que celui-là
-  Object.entries(gmoGroupes).forEach(([id, g]) => {
-    if (map.hasLayer(g)) map.removeLayer(g);
-  });
-  gmoGroupes[arrond.id].addTo(map);
-  // État actif
-  gmoListe.querySelectorAll('.gmo-arrond-btn').forEach(b => b.classList.remove('actif'));
-  gmoListe.querySelector(`[data-id="${arrond.id}"]`).classList.add('actif');
-  gmoArrondActif = arrond.id;
-  gmoBackBtn.classList.add('visible');
-}
-
-function afficherTousGMO() {
-  Object.values(gmoGroupes).forEach(g => { if (!map.hasLayer(g)) g.addTo(map); });
-  gmoListe.querySelectorAll('.gmo-arrond-btn').forEach(b => b.classList.remove('actif'));
-  gmoArrondActif = null;
-  gmoBackBtn.classList.remove('visible');
-}
-
-gmoBackBtn.addEventListener('click', afficherTousGMO);
-
-// Toggle Grand Montréal
-document.getElementById('btnToggleGMO').addEventListener('click', () => {
-  gmoVisibles = !gmoVisibles;
-  document.getElementById('btnToggleGMO').classList.toggle('actif', gmoVisibles);
-  document.getElementById('gmoToggleIcon').textContent = gmoVisibles ? '▼' : '▶';
-  document.getElementById('gmoPanel').classList.toggle('visible', gmoVisibles);
-  if (gmoVisibles) {
-    afficherTousGMO();
-    map.setView([45.55, -73.62], 11, { animate: true });
+document.getElementById('btnToggleQC').addEventListener('click', () => {
+  qcVisible = !qcVisible;
+  document.getElementById('btnToggleQC').classList.toggle('actif', qcVisible);
+  document.getElementById('qcToggleIcon').textContent = qcVisible ? '▼' : '▶';
+  qcPanelEl.classList.toggle('visible', qcVisible);
+  if (qcVisible) {
+    // Ajouter tous les marqueurs et zoomer sur la province
+    QC_VILLES.forEach(v => { if (!map.hasLayer(qcMarqueurs[v.id])) qcMarqueurs[v.id].addTo(map); });
+    map.setView([52.0, -72.0], 6, { animate: true });
+    qcAfficherRegions();
   } else {
-    Object.values(gmoGroupes).forEach(g => { if (map.hasLayer(g)) map.removeLayer(g); });
+    QC_VILLES.forEach(v => { if (map.hasLayer(qcMarqueurs[v.id])) map.removeLayer(qcMarqueurs[v.id]); });
   }
 });
-
-// ── Activation automatique au chargement ──────────────────
-lieuxVisibles = true;
-document.getElementById('btnToggleLieux').classList.add('actif');
-document.getElementById('lieuxToggleIcon').textContent = '▼';
-document.getElementById('lieuxFiltres').classList.add('visible');
-Object.values(lieuxGroupes).forEach(g => g.addTo(map));
-
-// Zoom sur Montréal si aucune session utilisateur (pour voir les lieux)
-try {
-  const sess = JSON.parse(localStorage.getItem('ca_citoyen_v1') || 'null');
-  if (!sess) setTimeout(() => map.setView([45.521, -73.598], 13), 800);
-} catch(e) {}
 </script>
 
 <footer class="pied-page">
