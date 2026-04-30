@@ -423,54 +423,6 @@ const COORDS_VILLES = {
   'Yellowknife, NT': {lat:62.4540, lng:-114.3718},
 };
 
-// ── Données simulées (fond de carte) ─────────────────────
-const CITOYENS_SIM = [
-  {lat:45.510,lng:-73.557,pseudo:'MarieC_MTL',ville:'Montréal',interet:'Logement',niv:3},
-  {lat:45.497,lng:-73.580,pseudo:'JFDupont',ville:'Montréal',interet:'Santé',niv:2},
-  {lat:45.525,lng:-73.594,pseudo:'AnniePleau',ville:'Montréal',interet:'Éducation',niv:3},
-  {lat:45.533,lng:-73.558,pseudo:'ClaudeRiv',ville:'Montréal',interet:'Droits',niv:1},
-  {lat:45.487,lng:-73.562,pseudo:'SophieMTL',ville:'Montréal',interet:'Élections',niv:2},
-  {lat:45.516,lng:-73.604,pseudo:'PierreLem',ville:'Montréal',interet:'Logement',niv:3},
-  {lat:45.549,lng:-73.577,pseudo:'NathBP',ville:'Laval',interet:'Environnement',niv:2},
-  {lat:45.473,lng:-73.571,pseudo:'ChristineLD',ville:'Longueuil',interet:'Santé',niv:1},
-  {lat:45.541,lng:-73.534,pseudo:'RobertMTL',ville:'Montréal-Nord',interet:'Immigration',niv:2},
-  {lat:45.503,lng:-73.614,pseudo:'MarcVD',ville:'Verdun',interet:'Logement',niv:2},
-  {lat:46.825,lng:-71.218,pseudo:'FrancoisTQ',ville:'Québec',interet:'Retraite',niv:2},
-  {lat:46.810,lng:-71.197,pseudo:'IsabelleQC',ville:'Québec',interet:'Fiscalité',niv:3},
-  {lat:46.840,lng:-71.235,pseudo:'MarcAQ',ville:'Québec',interet:'Logement',niv:1},
-  {lat:46.803,lng:-71.241,pseudo:'LucBQ',ville:'Lévis',interet:'Santé',niv:2},
-  {lat:45.432,lng:-75.693,pseudo:'ClaudinGat',ville:'Gatineau',interet:'Droits',niv:2},
-  {lat:45.414,lng:-75.701,pseudo:'PatMcOtt',ville:'Ottawa',interet:'Immigration',niv:3},
-  {lat:45.426,lng:-75.715,pseudo:'JulieHOtt',ville:'Ottawa',interet:'Élections',niv:2},
-  {lat:43.661,lng:-79.382,pseudo:'TorontoAct',ville:'Toronto',interet:'Immigration',niv:3},
-  {lat:43.650,lng:-79.398,pseudo:'LindaONT',ville:'Toronto',interet:'Logement',niv:2},
-  {lat:43.675,lng:-79.368,pseudo:'MikeTOR',ville:'Toronto',interet:'Droits',niv:1},
-  {lat:43.642,lng:-79.373,pseudo:'SarahTO',ville:'Toronto',interet:'Éducation',niv:3},
-  {lat:49.283,lng:-123.119,pseudo:'PierreBC',ville:'Vancouver',interet:'Environnement',niv:3},
-  {lat:49.272,lng:-123.133,pseudo:'SarahVAN',ville:'Vancouver',interet:'Logement',niv:2},
-  {lat:49.296,lng:-123.108,pseudo:'AlexNV',ville:'North Van',interet:'Élections',niv:1},
-  {lat:51.047,lng:-114.067,pseudo:'JohnAB',ville:'Calgary',interet:'Fiscalité',niv:2},
-  {lat:53.548,lng:-113.491,pseudo:'MarcEDM',ville:'Edmonton',interet:'Environnement',niv:2},
-  {lat:53.540,lng:-113.508,pseudo:'JennyEDM',ville:'Edmonton',interet:'Santé',niv:3},
-  {lat:49.897,lng:-97.140,pseudo:'AnnaWIN',ville:'Winnipeg',interet:'Droits',niv:1},
-  {lat:44.651,lng:-63.582,pseudo:'PierreNS',ville:'Halifax',interet:'Retraite',niv:2},
-  {lat:45.407,lng:-71.895,pseudo:'RobertSHB',ville:'Sherbrooke',interet:'Éducation',niv:2},
-  {lat:46.347,lng:-72.548,pseudo:'GuyTR',ville:'Trois-Rivières',interet:'Santé',niv:1},
-  {lat:48.430,lng:-71.062,pseudo:'DenisSAG',ville:'Saguenay',interet:'Logement',niv:1},
-  {lat:48.432,lng:-123.370,pseudo:'SuzVIC',ville:'Victoria',interet:'Environnement',niv:3},
-  {lat:52.133,lng:-106.670,pseudo:'PamSASK',ville:'Saskatoon',interet:'Immigration',niv:2},
-  {lat:50.447,lng:-104.620,pseudo:'TomREG',ville:'Régina',interet:'Droits',niv:1},
-];
-
-const ACTIVITES_SIM = [
-  {pseudo:'MarieC_MTL',action:'a rejoint le Groupe Logement Montréal',temps:'2 min',niv:'rouge'},
-  {pseudo:'PierreBC',action:'a signé la pétition Environnement Côte-Ouest',temps:'5 min',niv:'rouge'},
-  {pseudo:'IsabelleQC',action:'a créé le groupe Fiscalité Québec',temps:'12 min',niv:'rouge'},
-  {pseudo:'SarahTO',action:'a rejoint la discussion Éducation Ontario',temps:'18 min',niv:'orange'},
-  {pseudo:'AnnaWIN',action:'a participé à un sondage citoyen',temps:'25 min',niv:'bleu'},
-  {pseudo:'MarcEDM',action:'a commenté sur l\'environnement en Alberta',temps:'31 min',niv:'orange'},
-  {pseudo:'PatMcOtt',action:'a rejoint le réseau Ottawa-Gatineau',temps:'44 min',niv:'rouge'},
-];
 
 const ZONES = [
   {lat:45.510,lng:-73.570,r:12000},{lat:43.655,lng:-79.388,r:9000},
@@ -484,7 +436,7 @@ const map = L.map('carte', {
   center: [56.5, -95.0], zoom: 4,
   zoomControl: false, attributionControl: true,
 });
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
   attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
   subdomains: 'abcd', maxZoom: 19
 }).addTo(map);
@@ -496,37 +448,26 @@ ZONES.forEach(z => L.circle([z.lat, z.lng], {
 }).addTo(map));
 
 // ── Marqueurs ─────────────────────────────────────────────
-let marqueursSim = [];
 let marqueursReels = {};   // id Firestore → marqueur Leaflet
 let filtreCourant = 'tous';
 
-function creerMarqueur(c, estReel) {
+function creerMarqueur(c) {
   const niv = c.niv || 1;
   const sz = niv === 3 ? 13 : niv === 2 ? 11 : 9;
-  const cls = estReel ? `dot-inner niv-${niv} niv-reel` : `dot-inner niv-${niv}`;
   const icon = L.divIcon({
     className: 'dot-citoyen',
-    html: `<div class="${cls}" title="${c.pseudo}"></div>`,
+    html: `<div class="dot-inner niv-${niv} niv-reel" title="${c.pseudo}"></div>`,
     iconSize: [sz, sz], iconAnchor: [sz/2, sz/2], popupAnchor: [0, -10],
   });
   const niveaux = ['','Participant','Actif','Très actif'];
-  const badge = estReel ? '<div style="color:#C1272D;font-size:.7rem;font-weight:700;margin-top:4px;">🍁 Citoyen réel</div>' : '';
   return L.marker([c.lat, c.lng], { icon }).bindPopup(`
     <span class="popup-pseudo">${c.pseudo}</span>
     <span class="popup-ville">📍 ${c.ville}</span>
     <span class="popup-interet">${c.interet}</span>
     <div style="margin-top:6px;font-size:.72rem;color:rgba(255,255,255,.45);">${niveaux[niv]}</div>
-    ${badge}
+    <div style="color:#C1272D;font-size:.7rem;font-weight:700;margin-top:4px;">🍁 Citoyen réel</div>
   `);
 }
-
-// Charger citoyens simulés
-CITOYENS_SIM.forEach(c => {
-  const m = creerMarqueur(c, false);
-  m._enjeu = c.interet;
-  m.addTo(map);
-  marqueursSim.push(m);
-});
 
 // ── Feed d'activité ───────────────────────────────────────
 const feed = document.getElementById('carteActivite');
@@ -549,20 +490,12 @@ function ajouterActiviteFeed(pseudo, action, niv, prepend) {
   }
 }
 
-ACTIVITES_SIM.forEach(a => ajouterActiviteFeed(a.pseudo, a.action, a.niv, false));
-
 // ── Filtres ───────────────────────────────────────────────
 document.querySelectorAll('.carte-filtre').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.carte-filtre').forEach(b => b.classList.remove('actif'));
     btn.classList.add('actif');
     filtreCourant = btn.dataset.filtre;
-    // Simulés
-    marqueursSim.forEach((m, i) => {
-      const visible = filtreCourant === 'tous' || CITOYENS_SIM[i].interet === filtreCourant;
-      visible ? (!map.hasLayer(m) && m.addTo(map)) : (map.hasLayer(m) && map.removeLayer(m));
-    });
-    // Réels
     Object.entries(marqueursReels).forEach(([id, obj]) => {
       const visible = filtreCourant === 'tous' || obj.enjeu === filtreCourant;
       visible ? (!map.hasLayer(obj.m) && obj.m.addTo(map)) : (map.hasLayer(obj.m) && map.removeLayer(obj.m));
@@ -590,7 +523,7 @@ db.collection('citoyens').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
         pseudo: data.pseudo, ville: data.ville,
         interet: data.enjeu, niv: 1,
       };
-      const m = creerMarqueur(c, true);
+      const m = creerMarqueur(c);
       m._enjeu = data.enjeu;
       const visible = filtreCourant === 'tous' || data.enjeu === filtreCourant;
       if (visible) m.addTo(map);
@@ -612,8 +545,7 @@ db.collection('citoyens').orderBy('timestamp', 'desc').onSnapshot(snapshot => {
   });
   initialLoadDone = true;
   // Mettre à jour compteur
-  const total = CITOYENS_SIM.length + nbReels;
-  document.getElementById('carteNbCitoyens').textContent = total;
+  document.getElementById('carteNbCitoyens').textContent = nbReels;
 });
 
 // ── Toggle mobile panneau ─────────────────────────────────
