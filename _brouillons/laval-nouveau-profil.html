@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Laval — Citoyen Avisé</title>
+  <meta name="description" content="Profil civique et municipal de Laval.">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    /* ═══════════════════════════════════════════════════════
+       HERO REDESIGNÉ
+    ═══════════════════════════════════════════════════════ */
+    .vh {
+      background: linear-gradient(160deg, #0d0d1a 0%, #111128 55%, #1a1a38 100%);
+      padding: 60px 0 40px;
+      border-bottom: 1px solid rgba(193,39,45,.2);
+    }
+    .vh-inner {
+      display: grid;
+      grid-template-columns: 1fr 280px;
+      gap: 32px;
+      align-items: flex-start;
+    }
+    .vh-header {
+      position: relative;
+    }
+    .vh-mrc {
+      font-size: .75rem;
+      font-weight: 700;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.42);
+      margin-bottom: 8px;
+      display: block;
+    }
+    .vh-titre {
+      font-size: clamp(2.2rem, 5vw, 3.6rem);
+      font-weight: 900;
+      color: #fff;
+      margin: 0 0 24px;
+      line-height: 1.05;
+    }
+    .vh-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      padding-bottom: 28px;
+    }
+    .vhs-item {
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 10px;
+      padding: 13px 10px;
+      text-align: center;
+    }
+    .vhs-val {
+      display: block;
+      font-size: 1.2rem;
+      font-weight: 800;
+      color: #fff;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .vhs-label {
+      display: block;
+      font-size: .63rem;
+      color: rgba(255,255,255,.38);
+      text-transform: uppercase;
+      letter-spacing: .06em;
+      margin-top: 3px;
+    }
+    /* Mini-carte réduite */
+    .vh-map-wrap {
+      border-radius: 12px;
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,.1);
+      box-shadow: 0 10px 34px rgba(0,0,0,.5);
+      height: 180px;
+      position: sticky;
+      top: 80px;
+    }
+    #villeMinicarte {
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       SECTION PROMO VILLE (À GAUCHE = IMAGE/PATRIMOINE)
+    ═══════════════════════════════════════════════════════ */
+    .promo-section {
+      background: linear-gradient(180deg, #0d0d1a 0%, #0a0a16 100%);
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding: 70px 0;
+    }
+    .promo-inner {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+    .promo-photo {
+      border-radius: 16px;
+      overflow: hidden;
+      position: relative;
+      aspect-ratio: 3/4;
+      background: linear-gradient(135deg, #0d1a30 0%, #1a2a4a 100%);
+      border: 1px solid rgba(255,255,255,.1);
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    }
+    .promo-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      transition: transform .4s;
+    }
+    .promo-photo:hover img {
+      transform: scale(1.03);
+    }
+    .promo-photo-fallback {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-size: 5rem;
+      gap: 12px;
+      color: rgba(255,255,255,.3);
+    }
+    .promo-photo-legende {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,.9));
+      padding: 24px 16px 16px;
+      font-size: .73rem;
+      color: rgba(255,255,255,.7);
+      text-align: center;
+      font-weight: 600;
+    }
+    .promo-contenu h2 {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #fff;
+      margin: 0 0 14px;
+      line-height: 1.2;
+    }
+    .promo-contenu h2 em {
+      color: #C1272D;
+      font-style: normal;
+    }
+    .promo-desc {
+      color: rgba(255,255,255,.6);
+      font-size: .93rem;
+      line-height: 1.75;
+      margin-bottom: 24px;
+    }
+    .promo-faits {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 24px;
+    }
+    .promo-fait {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 20px;
+      padding: 6px 14px;
+      font-size: .78rem;
+      color: rgba(255,255,255,.75);
+      font-weight: 600;
+    }
+    .promo-fait::before {
+      content: '✓';
+      color: #C1272D;
+      font-weight: 900;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       SECTION CALENDRIER MUNICIPAL
+    ═══════════════════════════════════════════════════════ */
+    .calendrier-section {
+      padding: 64px 0;
+      border-top: 1px solid rgba(255,255,255,.07);
+    }
+    .section-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .section-header h2 {
+      font-size: 1.5rem;
+      font-weight: 900;
+      margin: 0;
+    }
+    .section-header h2 span {
+      color: #C1272D;
+    }
+    .cal-grille {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
+      gap: 12px;
+    }
+    .cal-event {
+      display: flex;
+      gap: 16px;
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px;
+      padding: 16px 18px;
+      align-items: flex-start;
+      transition: .18s;
+    }
+    .cal-event:hover {
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.18);
+    }
+    .cal-date-bloc {
+      flex-shrink: 0;
+      text-align: center;
+      min-width: 50px;
+      background: rgba(255,255,255,.07);
+      border-radius: 10px;
+      padding: 8px 4px;
+    }
+    .cal-jour {
+      font-size: 1.6rem;
+      font-weight: 900;
+      color: #fff;
+      line-height: 1;
+    }
+    .cal-mois {
+      font-size: .65rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.45);
+      letter-spacing: .06em;
+      margin-top: 2px;
+    }
+    .cal-info {
+      flex: 1;
+    }
+    .cal-type-badge {
+      display: inline-block;
+      font-size: .65rem;
+      font-weight: 800;
+      padding: 2px 8px;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      margin-bottom: 5px;
+    }
+    .badge-conseil {
+      background: rgba(193,39,45,.2);
+      color: #f08080;
+      border: 1px solid rgba(193,39,45,.3);
+    }
+    .badge-consultation {
+      background: rgba(25,118,210,.2);
+      color: #90CAF9;
+      border: 1px solid rgba(25,118,210,.3);
+    }
+    .badge-special {
+      background: rgba(255,160,0,.2);
+      color: #FFD54F;
+      border: 1px solid rgba(255,160,0,.3);
+    }
+    .badge-evenement {
+      background: rgba(76,175,80,.2);
+      color: #A5D6A7;
+      border: 1px solid rgba(76,175,80,.3);
+    }
+    .cal-titre {
+      font-size: .87rem;
+      font-weight: 700;
+      color: rgba(255,255,255,.85);
+      margin-bottom: 3px;
+    }
+    .cal-meta {
+      font-size: .74rem;
+      color: rgba(255,255,255,.38);
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       SECTION MAIRE EN FONCTION
+    ═══════════════════════════════════════════════════════ */
+    .maire-section {
+      padding: 64px 0;
+      border-top: 1px solid rgba(255,255,255,.07);
+      background: rgba(255,255,255,.015);
+    }
+    .maire-inner {
+      display: grid;
+      grid-template-columns: 260px 1fr;
+      gap: 48px;
+      align-items: start;
+    }
+    .maire-photo-wrap {
+      text-align: center;
+    }
+    .maire-photo {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 3px solid rgba(193,39,45,.5);
+      box-shadow: 0 10px 30px rgba(0,0,0,.5);
+    }
+    .maire-photo-fallback {
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #C1272D 0%, #7a0e13 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 4rem;
+      border: 3px solid rgba(193,39,45,.4);
+      box-shadow: 0 10px 30px rgba(0,0,0,.5);
+      margin: 0 auto;
+    }
+    .maire-nom-sous {
+      font-size: .82rem;
+      font-weight: 700;
+      color: rgba(255,255,255,.45);
+      margin-top: 14px;
+      text-align: center;
+    }
+    .maire-parti-badge {
+      display: inline-block;
+      font-size: .72rem;
+      font-weight: 700;
+      background: rgba(193,39,45,.18);
+      border: 1px solid rgba(193,39,45,.35);
+      color: rgba(255,255,255,.75);
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-top: 8px;
+    }
+    .maire-nom {
+      font-size: 2rem;
+      font-weight: 900;
+      color: #fff;
+      margin: 0 0 4px;
+    }
+    .maire-titre-poste {
+      font-size: .9rem;
+      color: rgba(255,255,255,.45);
+      margin-bottom: 6px;
+    }
+    .maire-depuis {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .78rem;
+      color: rgba(255,255,255,.4);
+      margin-bottom: 20px;
+    }
+    .maire-bio {
+      color: rgba(255,255,255,.6);
+      font-size: .9rem;
+      line-height: 1.75;
+      margin-bottom: 22px;
+    }
+    .maire-priorites-titre {
+      font-size: .65rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,.3);
+      margin-bottom: 10px;
+    }
+    .maire-priorites {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px;
+      margin-bottom: 22px;
+    }
+    .maire-priorite {
+      font-size: .77rem;
+      padding: 5px 12px;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 20px;
+      color: rgba(255,255,255,.65);
+    }
+    .maire-contact {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .maire-contact a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255,255,255,.07);
+      border: 1px solid rgba(255,255,255,.15);
+      color: rgba(255,255,255,.65);
+      text-decoration: none;
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: .82rem;
+      transition: .18s;
+    }
+    .maire-contact a:hover {
+      background: rgba(255,255,255,.14);
+      color: #fff;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       SECTION COMMENTAIRES CITOYENS
+    ═══════════════════════════════════════════════════════ */
+    .comments-section {
+      padding: 64px 0 80px;
+      border-top: 1px solid rgba(255,255,255,.07);
+    }
+    .comments-form-wrap {
+      background: rgba(255,255,255,.04);
+      border: 1px solid rgba(255,255,255,.1);
+      border-radius: 14px;
+      padding: 22px 24px;
+      margin-bottom: 28px;
+    }
+    .comments-form-titre {
+      font-size: .85rem;
+      font-weight: 700;
+      color: rgba(255,255,255,.7);
+      margin-bottom: 12px;
+    }
+    .comments-textarea {
+      width: 100%;
+      min-height: 90px;
+      padding: 12px 14px;
+      resize: vertical;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.14);
+      border-radius: 8px;
+      color: #fff;
+      font-size: .88rem;
+      font-family: inherit;
+      box-sizing: border-box;
+      outline: none;
+      transition: .2s;
+    }
+    .comments-textarea::placeholder {
+      color: rgba(255,255,255,.3);
+    }
+    .comments-textarea:focus {
+      border-color: rgba(193,39,45,.5);
+      background: rgba(255,255,255,.08);
+    }
+    .comments-submit {
+      margin-top: 10px;
+      padding: 9px 22px;
+      background: #C1272D;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-weight: 700;
+      font-size: .87rem;
+      cursor: pointer;
+      transition: .18s;
+    }
+    .comments-submit:hover {
+      background: #a01e23;
+    }
+    .comments-submit:disabled {
+      opacity: .5;
+      cursor: not-allowed;
+    }
+    .comments-cta {
+      text-align: center;
+      padding: 32px;
+      background: rgba(255,255,255,.03);
+      border: 1px dashed rgba(255,255,255,.15);
+      border-radius: 14px;
+      margin-bottom: 28px;
+      color: rgba(255,255,255,.45);
+      font-size: .9rem;
+    }
+    .comments-cta a {
+      color: #C1272D;
+      font-weight: 700;
+      text-decoration: none;
+    }
+    .comments-cta a:hover {
+      text-decoration: underline;
+    }
+    .comment-item {
+      display: flex;
+      gap: 14px;
+      padding: 16px 0;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .comment-item:last-child {
+      border-bottom: none;
+    }
+    .comment-av {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: .9rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .comment-corps {
+      flex: 1;
+    }
+    .comment-header {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 5px;
+      flex-wrap: wrap;
+    }
+    .comment-pseudo {
+      font-weight: 700;
+      font-size: .87rem;
+      color: #fff;
+    }
+    .comment-ville {
+      font-size: .72rem;
+      color: rgba(255,255,255,.35);
+    }
+    .comment-date {
+      font-size: .72rem;
+      color: rgba(255,255,255,.3);
+      margin-left: auto;
+    }
+    .comment-texte {
+      color: rgba(255,255,255,.65);
+      font-size: .86rem;
+      line-height: 1.65;
+    }
+    .comments-vide {
+      text-align: center;
+      padding: 32px;
+      color: rgba(255,255,255,.28);
+      font-size: .88rem;
+    }
+
+    /* ═══════════════════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════════════════ */
+    @media (max-width: 900px) {
+      .vh-inner {
+        grid-template-columns: 1fr;
+      }
+      .vh-map-wrap {
+        position: static;
+        height: 160px;
+        order: -1;
+        margin-bottom: 20px;
+      }
+      .promo-inner {
+        grid-template-columns: 1fr;
+      }
+      .promo-photo {
+        aspect-ratio: 16/9;
+      }
+      .maire-inner {
+        grid-template-columns: 1fr;
+      }
+      .maire-photo-wrap {
+        text-align: center;
+      }
+    }
+    @media (max-width: 600px) {
+      .vh-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .cal-grille {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-RDFSPWC9R2"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-RDFSPWC9R2');
+  </script>
+</head>
+<body>
+
+<!-- ── Nav ─────────────────────────────────────────────────────── -->
+<nav class="nav">
+  <div class="nav-inner">
+    <a href="index.html" class="nav-logo">🍁 Citoyen <span>Avisé</span></a>
+    <ul class="nav-liens">
+      <li><a href="index.html">Accueil</a></li>
+      <li><a href="elections.html">Élections</a></li>
+      <li><a href="gouvernement.html">Gouvernement</a></li>
+      <li><a href="droits.html">Droits</a></li>
+      <li><a href="services.html">Services</a></li>
+      <li><a href="participer.html">Participer</a></li>
+      <li class="nav-dropdown">
+        <a href="#" class="nav-dropdown-toggle">Ressources</a>
+        <div class="nav-dropdown-menu">
+          <a href="carte.html">🗺️ Carte citoyenne</a>
+          <a href="villes.html">🏛️ Villes du Québec</a>
+          <a href="actualites.html">📰 Actualités</a>
+          <a href="glossaire.html">📖 Glossaire</a>
+          <a href="calendrier.html">📅 Calendrier</a>
+          <a href="profil.html">👤 Mon profil</a>
+        </div>
+      </li>
+      <li><a href="a-propos.html">À propos</a></li>
+      <li><a href="en/map.html" class="nav-lang">🇨🇦 EN</a></li>
+      <li><a href="index.html#infolettre" class="nav-cta">S'inscrire</a></li>
+    </ul>
+    <button class="hamburger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+  <div class="menu-mobile">
+    <a href="index.html">🏠 Accueil</a>
+    <a href="elections.html">🗳️ Élections</a>
+    <a href="gouvernement.html">🏛️ Gouvernement</a>
+    <a href="droits.html">⚖️ Droits</a>
+    <a href="services.html">🛎️ Services</a>
+    <a href="participer.html">🤝 Participer</a>
+    <a href="carte.html">🗺️ Carte citoyenne</a>
+    <a href="villes.html">🏛️ Villes du Québec</a>
+    <a href="actualites.html">📰 Actualités</a>
+    <a href="glossaire.html">📖 Glossaire</a>
+    <a href="calendrier.html">📅 Calendrier</a>
+    <a href="a-propos.html">ℹ️ À propos</a>
+    <a href="index.html#infolettre" class="nav-cta-mobile">S'inscrire</a>
+  </div>
+</nav>
+
+<!-- ══════════════════════════════════════════════════════════════
+     HERO REDESIGNÉ
+══════════════════════════════════════════════════════════════ -->
+<section class="vh">
+  <div class="conteneur">
+    <div class="vh-inner">
+
+      <div class="vh-header">
+        <span class="vh-mrc">MRC Laval-Laurentides</span>
+        <h1 class="vh-titre">Laval</h1>
+
+        <div class="vh-stats">
+          <div class="vhs-item">
+            <span class="vhs-val">438 k</span>
+            <span class="vhs-label">habitants</span>
+          </div>
+          <div class="vhs-item">
+            <span class="vhs-val">247 km²</span>
+            <span class="vhs-label">superficie</span>
+          </div>
+          <div class="vhs-item">
+            <span class="vhs-val">1 774</span>
+            <span class="vhs-label">hab/km²</span>
+          </div>
+          <div class="vhs-item">
+            <span class="vhs-val">Stéphane Boyer</span>
+            <span class="vhs-label">Maire</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="vh-map-wrap">
+        <div id="villeMinicarte"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     SECTION PROMO VILLE (PATRIMOINE À GAUCHE)
+══════════════════════════════════════════════════════════════ -->
+<section class="promo-section">
+  <div class="conteneur">
+    <div class="promo-inner">
+
+      <div class="promo-photo">
+        <div class="promo-photo-fallback">⛪</div>
+        <div class="promo-photo-legende">Église de la Très-Sainte-Trinité — Laval-des-Rapides</div>
+      </div>
+
+      <div class="promo-contenu">
+        <h2>Découvrez <em>Laval</em>, la plus grande ville de l'agglomération montréalaise</h2>
+        <p class="promo-desc">
+          Laval est une ville dynamique et diversifiée, connue pour son développement urbain, ses espaces verts et son engagement envers le bien-être de ses citoyens. Avec plus de 438 000 habitants, Laval représente un pôle économique, culturel et civique majeur de la région métropolitaine.
+        </p>
+        <div class="promo-faits">
+          <span class="promo-fait">Seule municipalité de la région 13</span>
+          <span class="promo-fait">3 îles principales</span>
+          <span class="promo-fait">21 districts électoraux</span>
+          <span class="promo-fait">Croissance +8,2 % (2016-2021)</span>
+        </div>
+
+        <h3 style="font-size: 1.1rem; font-weight: 800; color: rgba(255,255,255,.8); margin: 28px 0 14px;">
+          Langues principales
+        </h3>
+        <ul style="list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 10px;">
+          <li style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; background: rgba(255,255,255,.06); border-radius: 20px; border: 1px solid rgba(255,255,255,.12); color: rgba(255,255,255,.7); font-size: .82rem;">
+            🇫🇷 Français (69 %)
+          </li>
+          <li style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; background: rgba(255,255,255,.06); border-radius: 20px; border: 1px solid rgba(255,255,255,.12); color: rgba(255,255,255,.7); font-size: .82rem;">
+            🇸🇦 Arabe (6 %)
+          </li>
+          <li style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; background: rgba(255,255,255,.06); border-radius: 20px; border: 1px solid rgba(255,255,255,.12); color: rgba(255,255,255,.7); font-size: .82rem;">
+            🇮🇹 Italien (3 %)
+          </li>
+          <li style="display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px; background: rgba(255,255,255,.06); border-radius: 20px; border: 1px solid rgba(255,255,255,.12); color: rgba(255,255,255,.7); font-size: .82rem;">
+            🇬🇧 Anglais (3 %)
+          </li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     CALENDRIER MUNICIPAL
+══════════════════════════════════════════════════════════════ -->
+<section class="calendrier-section">
+  <div class="conteneur">
+    <div class="section-header">
+      <h2>📅 Calendrier <span>municipal 2026</span></h2>
+    </div>
+    <div class="cal-grille">
+      <!-- Exemples d'événements — à remplir avec vraies données -->
+      <div class="cal-event">
+        <div class="cal-date-bloc">
+          <div class="cal-jour">15</div>
+          <div class="cal-mois">mai</div>
+        </div>
+        <div class="cal-info">
+          <span class="cal-type-badge badge-conseil">Séance du conseil</span>
+          <div class="cal-titre">Séance ordinaire du conseil municipal</div>
+          <div class="cal-meta">18h30 — Hôtel de Ville, salle du conseil</div>
+        </div>
+      </div>
+      <div class="cal-event">
+        <div class="cal-date-bloc">
+          <div class="cal-jour">22</div>
+          <div class="cal-mois">mai</div>
+        </div>
+        <div class="cal-info">
+          <span class="cal-type-badge badge-consultation">Consultation</span>
+          <div class="cal-titre">Consultation publique — Budgets participatifs</div>
+          <div class="cal-meta">19h — Centre culturel de Laval</div>
+        </div>
+      </div>
+      <div class="cal-event">
+        <div class="cal-date-bloc">
+          <div class="cal-jour">06</div>
+          <div class="cal-mois">juin</div>
+        </div>
+        <div class="cal-info">
+          <span class="cal-type-badge badge-evenement">Événement</span>
+          <div class="cal-titre">Jour de la Reine — Congés municipaux</div>
+          <div class="cal-meta">Services minimaux — Parcs ouverts</div>
+        </div>
+      </div>
+      <div class="cal-event">
+        <div class="cal-date-bloc">
+          <div class="cal-jour">19</div>
+          <div class="cal-mois">juin</div>
+        </div>
+        <div class="cal-info">
+          <span class="cal-type-badge badge-conseil">Séance du conseil</span>
+          <div class="cal-titre">Séance ordinaire du conseil municipal</div>
+          <div class="cal-meta">18h30 — Hôtel de Ville, salle du conseil</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     MAIRE EN FONCTION
+══════════════════════════════════════════════════════════════ -->
+<section class="maire-section">
+  <div class="conteneur">
+    <div class="section-header" style="margin-bottom: 36px;">
+      <h2>🏛️ Maire <span>en fonction</span></h2>
+    </div>
+    <div class="maire-inner">
+
+      <div class="maire-photo-wrap">
+        <div class="maire-photo-fallback">👨</div>
+        <p class="maire-nom-sous">Stéphane Boyer</p>
+        <span class="maire-parti-badge">Indépendant</span>
+      </div>
+
+      <div>
+        <h2 class="maire-nom">Stéphane Boyer</h2>
+        <p class="maire-titre-poste">Maire de Laval</p>
+        <p class="maire-depuis">
+          <span>📅</span><span>En fonction depuis 2017</span>
+        </p>
+        <p class="maire-bio">
+          Stéphane Boyer est le maire de Laval depuis 2017. Sous sa direction, la ville a poursuivi son développement urbain tout en mettant l'accent sur les enjeux d'accessibilité, de transport et de développement durable. Laval continue d'être une ville pionnière en matière de gouvernance municipale ouverte et participative.
+        </p>
+        <p class="maire-priorites-titre">Priorités du mandat</p>
+        <div class="maire-priorites">
+          <span class="maire-priorite">Transports actifs</span>
+          <span class="maire-priorite">Espaces verts</span>
+          <span class="maire-priorite">Développement durable</span>
+          <span class="maire-priorite">Participation citoyenne</span>
+          <span class="maire-priorite">Services publics</span>
+        </div>
+        <div class="maire-contact">
+          <a href="tel:+1-450-xxx-xxxx">📞 450-xxx-xxxx</a>
+          <a href="mailto:maire@laval.ca">📧 maire@laval.ca</a>
+          <a href="#">🌐 Voir le profil complet</a>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     COMMENTAIRES CITOYENS
+══════════════════════════════════════════════════════════════ -->
+<section class="comments-section">
+  <div class="conteneur">
+    <div class="section-header" style="margin-bottom: 24px;">
+      <h2>💬 Commentaires <span style="color: #C1272D;">citoyens</span></h2>
+      <span style="font-size: .8rem; color: rgba(255,255,255,.3);">12 commentaires</span>
+    </div>
+
+    <div id="commentsFormWrap">
+      <div class="comments-form-wrap">
+        <p class="comments-form-titre">Partagez votre avis sur Laval</p>
+        <textarea class="comments-textarea" placeholder="Qu'en pensez-vous ? Vos observations, suggestions ou remerciements..."></textarea>
+        <button class="comments-submit">Publier mon commentaire</button>
+      </div>
+    </div>
+
+    <!-- Exemples de commentaires -->
+    <div id="commentsList">
+      <div class="comment-item">
+        <div class="comment-av" style="background: #C1272D;">J</div>
+        <div class="comment-corps">
+          <div class="comment-header">
+            <span class="comment-pseudo">Jean D.</span>
+            <span class="comment-ville">Laval</span>
+            <span class="comment-date">il y a 3 jours</span>
+          </div>
+          <div class="comment-texte">
+            Excellente initiative pour augmenter l'accès à l'information civique. C'est important que les citoyens connaissent mieux le fonctionnement de leur ville.
+          </div>
+        </div>
+      </div>
+      <div class="comment-item">
+        <div class="comment-av" style="background: #1565C0;">M</div>
+        <div class="comment-corps">
+          <div class="comment-header">
+            <span class="comment-pseudo">Marie T.</span>
+            <span class="comment-ville">Laval</span>
+            <span class="comment-date">il y a 1 semaine</span>
+          </div>
+          <div class="comment-texte">
+            J'apprécie vraiment d'avoir accès au calendrier municipal directement. Cela m'aide à mieux suivre les décisions qui nous concernent.
+          </div>
+        </div>
+      </div>
+      <div class="comment-item">
+        <div class="comment-av" style="background: #2E7D32;">P</div>
+        <div class="comment-corps">
+          <div class="comment-header">
+            <span class="comment-pseudo">Pierre L.</span>
+            <span class="comment-ville">Laval</span>
+            <span class="comment-date">il y a 2 semaines</span>
+          </div>
+          <div class="comment-texte">
+            Bravo pour ce projet de plateforme civique. On a vraiment besoin de plus de transparence et d'engagement dans les affaires municipales.
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── Footer ─────────────────────────────────────────────────── -->
+<footer class="pied-page">
+  <div class="conteneur">
+    <div class="pied-grille">
+      <div>
+        <a href="index.html" class="pied-logo">🍁 Citoyen Avisé</a>
+        <p>L'information civique canadienne, centralisée et accessible à tous les Canadiens, gratuitement.</p>
+        <div class="pied-social">
+          <a href="https://www.facebook.com/citoyenavise" title="Facebook" aria-label="Facebook">f</a>
+          <a href="https://www.instagram.com/citoyenavise" title="Instagram" aria-label="Instagram">📷</a>
+          <a href="https://x.com/citoyenavise" title="X / Twitter" aria-label="X Twitter">𝕏</a>
+          <a href="https://www.youtube.com/@citoyenavise" title="YouTube" aria-label="YouTube">▶</a>
+          <a href="https://www.linkedin.com/company/citoyenavise" title="LinkedIn" aria-label="LinkedIn">in</a>
+        </div>
+      </div>
+      <div>
+        <p class="pied-titre">Sections</p>
+        <ul class="pied-liens">
+          <li><a href="elections.html">Élections &amp; Vote</a></li>
+          <li><a href="gouvernement.html">Gouvernement</a></li>
+          <li><a href="droits.html">Droits &amp; Libertés</a></li>
+          <li><a href="services.html">Services publics</a></li>
+          <li><a href="villes.html">Villes du Québec</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="pied-titre">Organisation</p>
+        <ul class="pied-liens">
+          <li><a href="a-propos.html">À propos</a></li>
+          <li><a href="a-propos.html#contact">Contactez-nous</a></li>
+          <li><a href="https://github.com/citoyenavise/citoyenavise">GitHub</a></li>
+        </ul>
+      </div>
+      <div>
+        <p class="pied-titre">Légal</p>
+        <ul class="pied-liens">
+          <li><a href="politique-confidentialite.html">Confidentialité</a></li>
+          <li><a href="conditions-utilisation.html">Conditions</a></li>
+          <li><a href="accessibilite.html">Accessibilité</a></li>
+        </ul>
+        <div class="encadre" style="margin-top: 20px; font-size: .82rem;">
+          <p>📧 <a href="mailto:infocitoyenavise@gmail.com" style="color: var(--rouge);">infocitoyenavise@gmail.com</a></p>
+        </div>
+      </div>
+    </div>
+    <div class="pied-bas">
+      <p>© 2026 Citoyen Avisé · Organisme civique indépendant · citoyenavise.org</p>
+      <div class="pied-valeurs">
+        <span>Indépendant</span><span>Non partisan</span><span>Gratuit</span><span>Sans publicité</span>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<!-- ── Scripts ─────────────────────────────────────────────────── -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="js/villes-quebec.js"></script>
+<script>
+  // Initialisation carte
+  const map = L.map('villeMinicarte').setView([45.57, -73.69], 11);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap',
+    maxZoom: 19
+  }).addTo(map);
+  L.circleMarker([45.57, -73.69], { radius: 8, color: '#C1272D', weight: 2, opacity: 0.7, fillOpacity: 0.3 }).addTo(map);
+</script>
+
+</body>
+</html>
