@@ -203,7 +203,58 @@ const QC_PROFILS = {
         'Programme de logement abordable — construction de nouvelles unités sociales',
         'Réfection du réseau d\'aqueduc vieillissant (investissement pluriannuel)',
       ]
-    }
+    },
+
+    // ── Promotion de la ville ──────────────────────────────────
+    promo: {
+      tagline: "L'île aux mille possibilités",
+      description: "Deuxième ville en importance au Québec, Laval occupe entièrement l'Île Jésus, encerclée par la rivière des Mille Îles au nord et la rivière des Prairies au sud. Fondée en 1965 par la fusion de 14 municipalités, elle conjugue dynamisme urbain, héritage patrimonial et accès à la nature. Carrefour biotechnologique, pôle commercial majeur et ville en pleine transformation, Laval trace sa voie vers un développement durable et inclusif.",
+      photo_url: null,
+      photo_legende: 'Église Sainte-Rose-de-Lima — Secteur patrimonial Sainte-Rose, XIXe siècle',
+      photo_emoji: '⛪',
+      faits_saillants: [
+        '2e ville du Québec par la population',
+        'Île Jésus — territoire 100 % insulaire',
+        '3 stations de métro (ligne orange)',
+        'La Cité de la Biotech — pôle pharmaceutique',
+        'Cosmodôme — musée des sciences spatiales',
+        '247 km² de superficie',
+      ],
+    },
+
+    // ── Maire en fonction ─────────────────────────────────────
+    maire_profil: {
+      nom: 'Stéphane Boyer',
+      titre: 'Maire de Laval',
+      parti: 'Mouvement lavallois',
+      depuis: 'Novembre 2021',
+      photo_url: null,
+      bio: "Stéphane Boyer est élu maire de Laval le 7 novembre 2021 à la tête du Mouvement lavallois avec 52 % des voix. Ancien conseiller municipal dans le district Sainte-Rose, il s'est imposé comme une figure de renouveau démocratique à la suite des scandales de corruption qui ont marqué l'administration précédente. Son mandat se distingue par un engagement fort pour la transparence, le développement durable, la mobilité active et l'amélioration des services de proximité pour l'ensemble des Lavallois.",
+      contact_email: 'maire@laval.ca',
+      contact_web: 'https://www.laval.ca',
+      priorites: [
+        'Transparence et saine gouvernance',
+        'Mobilité durable — réseau cyclable 400 km',
+        'Logement abordable et densification',
+        'Revitalisation des berges et espaces verts',
+        'Développement économique local',
+      ],
+    },
+
+    // ── Calendrier municipal ──────────────────────────────────
+    calendrier_municipal: [
+      { date: '2026-05-05', heure: '19h00', type: 'conseil',      lieu: 'Hôtel de Ville — Salle du conseil', titre: 'Séance ordinaire du conseil municipal' },
+      { date: '2026-05-19', heure: '19h00', type: 'conseil',      lieu: 'Hôtel de Ville — Salle du conseil', titre: 'Séance ordinaire du conseil municipal' },
+      { date: '2026-06-02', heure: '19h00', type: 'conseil',      lieu: 'Hôtel de Ville — Salle du conseil', titre: 'Séance ordinaire du conseil municipal' },
+      { date: '2026-06-09', heure: '18h30', type: 'consultation', lieu: 'Centre de la nature de Laval',       titre: 'Consultation publique — Plan Laval 2035' },
+      { date: '2026-06-16', heure: '19h00', type: 'special',      lieu: 'Hôtel de Ville — Salle du conseil', titre: 'Séance spéciale — Budget supplémentaire' },
+      { date: '2026-06-21', heure: '14h00', type: 'evenement',    lieu: 'Centre de la nature de Laval',       titre: 'Festivités de la Saint-Jean-Baptiste' },
+      { date: '2026-07-07', heure: '19h00', type: 'conseil',      lieu: 'Hôtel de Ville — Salle du conseil', titre: 'Séance ordinaire du conseil municipal' },
+      { date: '2026-07-21', heure: '19h00', type: 'conseil',      lieu: 'Hôtel de Ville — Salle du conseil', titre: 'Séance ordinaire du conseil municipal' },
+      { date: '2026-08-04', heure: '18h30', type: 'consultation', lieu: 'Bibliothèque Laval — succursale Chomedey', titre: 'Consultation — Réaménagement des berges' },
+      { date: '2026-08-18', heure: '19h00', type: 'conseil',      lieu: 'Hôtel de Ville — Salle du conseil', titre: 'Séance ordinaire du conseil municipal' },
+    ],
+
   }, // fin laval
 
   'longueuil': {

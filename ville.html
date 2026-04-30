@@ -4,187 +4,320 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title id="metaTitre">Profil de ville — Citoyen Avisé</title>
-  <meta name="description" id="metaDesc" content="Profil civique et municipal d'une ville du Québec — gouvernance, histoire, économie, infrastructures.">
+  <meta name="description" id="metaDesc" content="Profil civique et municipal d'une ville du Québec.">
   <link rel="stylesheet" href="css/style.css">
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
   <style>
-    /* ── Hero ville ───────────────────────────────────────────── */
-    .ville-hero {
-      background: linear-gradient(135deg, #0d0d1a 0%, #12122a 55%, #1a1a3a 100%);
-      padding: 72px 0 0;
+    /* ═══════════════════════════════════════════════════════
+       HERO
+    ═══════════════════════════════════════════════════════ */
+    .vh {
+      background: linear-gradient(160deg, #0d0d1a 0%, #111128 55%, #1a1a38 100%);
+      padding: 80px 0 0;
       border-bottom: 1px solid rgba(193,39,45,.2);
     }
-    .ville-breadcrumb {
-      font-size: .78rem; color: rgba(255,255,255,.35);
-      margin-bottom: 18px;
-    }
-    .ville-breadcrumb a { color: rgba(255,255,255,.45); text-decoration: none; }
-    .ville-breadcrumb a:hover { color: #fff; }
-    .ville-breadcrumb span { color: rgba(255,255,255,.65); }
-
-    .ville-hero-inner {
-      display: grid; grid-template-columns: 1fr 380px; gap: 40px;
+    .vh-inner {
+      display: grid; grid-template-columns: 1fr 300px; gap: 36px;
       align-items: start;
     }
-    .ville-hero-titre { font-size: clamp(2rem, 5vw, 3rem); margin: 0 0 8px; line-height: 1.1; }
-    .ville-hero-region {
-      display: inline-flex; align-items: center; gap: 7px;
-      background: rgba(193,39,45,.15); border: 1px solid rgba(193,39,45,.3);
-      color: rgba(255,255,255,.75); font-size: .78rem; font-weight: 700;
-      padding: 4px 12px; border-radius: 20px; margin-bottom: 28px;
-      letter-spacing: .04em; text-transform: uppercase;
+    .vh-mrc {
+      font-size: .75rem; font-weight: 700; letter-spacing: .08em;
+      text-transform: uppercase; color: rgba(255,255,255,.35);
+      margin-bottom: 6px;
     }
-    .ville-hero-mrc {
-      font-size: .85rem; color: rgba(255,255,255,.42);
-      margin-top: -22px; margin-bottom: 28px;
+    .vh-titre {
+      font-size: clamp(2.4rem, 6vw, 3.8rem); font-weight: 900;
+      color: #fff; margin: 0 0 30px; line-height: 1.05;
     }
-
-    /* ── Stats rapides ────────────────────────────────────────── */
-    .ville-stats-rapides {
+    .vh-stats {
       display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
-      margin-bottom: 32px;
+      padding-bottom: 36px;
     }
-    .vsr-item {
+    .vhs-item {
       background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.1);
-      border-radius: 10px; padding: 14px 12px; text-align: center;
+      border-radius: 10px; padding: 13px 10px; text-align: center;
     }
-    .vsr-val {
-      display: block; font-size: 1.25rem; font-weight: 800; color: #fff;
+    .vhs-val {
+      display: block; font-size: 1.2rem; font-weight: 800; color: #fff;
       white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
     }
-    .vsr-label {
-      display: block; font-size: .67rem; color: rgba(255,255,255,.4);
-      text-transform: uppercase; letter-spacing: .05em; margin-top: 3px;
+    .vhs-label {
+      display: block; font-size: .63rem; color: rgba(255,255,255,.38);
+      text-transform: uppercase; letter-spacing: .06em; margin-top: 3px;
     }
-
-    /* ── Mini-carte ───────────────────────────────────────────── */
-    .ville-minicarte-wrap {
-      border-radius: 14px; overflow: hidden;
-      border: 1px solid rgba(255,255,255,.12);
-      box-shadow: 0 12px 40px rgba(0,0,0,.5);
-      height: 260px; position: sticky; top: 80px;
+    /* Mini-carte */
+    .vh-map-wrap {
+      border-radius: 12px; overflow: hidden;
+      border: 1px solid rgba(255,255,255,.1);
+      box-shadow: 0 10px 34px rgba(0,0,0,.5);
+      height: 210px; position: sticky; top: 80px;
     }
     #villeMinicarte { width: 100%; height: 100%; }
 
-    /* ── CTA carte ─────────────────────────────────────────────── */
-    .ville-cta-carte {
-      display: inline-flex; align-items: center; gap: 7px;
-      background: transparent; border: 1px solid rgba(255,255,255,.2);
-      color: rgba(255,255,255,.65); padding: 9px 16px;
-      border-radius: 8px; font-size: .82rem; text-decoration: none;
-      transition: .2s; margin-top: 8px;
-    }
-    .ville-cta-carte:hover { border-color: rgba(255,255,255,.45); color: #fff; }
-
-    /* ── Onglets ───────────────────────────────────────────────── */
-    .ville-tabs-wrap {
-      background: rgba(255,255,255,.04);
+    /* ═══════════════════════════════════════════════════════
+       ONGLETS
+    ═══════════════════════════════════════════════════════ */
+    .vtabs-bar {
+      background: rgba(255,255,255,.03);
       border-bottom: 1px solid rgba(255,255,255,.1);
-      overflow-x: auto;
+      overflow-x: auto; white-space: nowrap;
     }
-    .ville-tabs {
-      display: flex; list-style: none; margin: 0; padding: 0;
-      min-width: max-content;
+    .vtabs-bar ul { display: flex; list-style: none; margin: 0; padding: 0; }
+    .vtab-btn {
+      padding: 15px 18px; font-size: .8rem; font-weight: 700;
+      color: rgba(255,255,255,.42); border: none; background: none;
+      cursor: pointer; border-bottom: 3px solid transparent; transition: .18s;
     }
-    .ville-tab-btn {
-      padding: 16px 20px; font-size: .82rem; font-weight: 700;
-      color: rgba(255,255,255,.45); border: none; background: none;
-      cursor: pointer; border-bottom: 3px solid transparent;
-      transition: .18s; white-space: nowrap;
-    }
-    .ville-tab-btn:hover { color: rgba(255,255,255,.8); }
-    .ville-tab-btn.actif { color: #fff; border-bottom-color: #C1272D; }
+    .vtab-btn:hover { color: rgba(255,255,255,.8); }
+    .vtab-btn.actif { color: #fff; border-bottom-color: #C1272D; }
+    .vtabs-content { padding: 44px 0 60px; }
+    .vtab-panel { display: none; }
+    .vtab-panel.actif { display: block; }
 
-    /* ── Contenu onglets ──────────────────────────────────────── */
-    .ville-contenu { padding: 52px 0 80px; }
-    .ville-tab-panel { display: none; }
-    .ville-tab-panel.actif { display: block; }
-
-    .ville-section-titre {
-      font-size: .68rem; font-weight: 800; letter-spacing: .1em;
-      text-transform: uppercase; color: rgba(255,255,255,.35);
-      margin: 0 0 14px;
+    /* ═══════════════════════════════════════════════════════
+       UTILITAIRES CONTENU
+    ═══════════════════════════════════════════════════════ */
+    .vs-titre {
+      font-size: .65rem; font-weight: 800; letter-spacing: .1em;
+      text-transform: uppercase; color: rgba(255,255,255,.32); margin: 0 0 12px;
     }
-    .ville-bloc {
+    .vbloc {
       background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
-      border-radius: 12px; padding: 20px 22px; margin-bottom: 18px;
+      border-radius: 12px; padding: 18px 20px; margin-bottom: 16px;
     }
-    .ville-bloc h3 {
-      font-size: .9rem; font-weight: 700; color: rgba(255,255,255,.85);
-      margin: 0 0 12px;
-    }
-    .ville-bloc ul {
-      margin: 0; padding-left: 18px; color: rgba(255,255,255,.65);
-      font-size: .85rem; line-height: 1.8;
-    }
-    .ville-bloc p { color: rgba(255,255,255,.6); font-size: .87rem; margin: 0; line-height: 1.7; }
+    .vbloc h3 { font-size: .88rem; font-weight: 700; color: rgba(255,255,255,.8); margin: 0 0 10px; }
+    .vbloc ul { margin: 0; padding-left: 16px; color: rgba(255,255,255,.6); font-size: .84rem; line-height: 1.85; }
+    .vbloc p  { color: rgba(255,255,255,.58); font-size: .86rem; line-height: 1.7; margin: 0; }
+    .vg2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .vftable { width: 100%; border-collapse: collapse; font-size: .83rem; }
+    .vftable tr { border-bottom: 1px solid rgba(255,255,255,.07); }
+    .vftable tr:last-child { border-bottom: none; }
+    .vftable td { padding: 8px 4px; color: rgba(255,255,255,.58); }
+    .vftable td:first-child { font-weight: 700; color: rgba(255,255,255,.38); font-size: .74rem; text-transform: uppercase; letter-spacing:.04em; width:42%; }
+    .district-tag { display:inline-block; font-size:.71rem; padding:3px 9px; background:rgba(255,255,255,.08); border:1px solid rgba(255,255,255,.12); border-radius:20px; color:rgba(255,255,255,.62); margin:2px; }
+    .timeline { list-style:none; padding:0; margin:0; }
+    .timeline li { display:flex; gap:12px; padding:9px 0; border-bottom:1px solid rgba(255,255,255,.06); font-size:.84rem; }
+    .timeline li:last-child { border-bottom:none; }
+    .tl-annee { flex-shrink:0; font-weight:700; color:#C1272D; font-size:.77rem; min-width:36px; }
+    .tl-evt { color:rgba(255,255,255,.62); line-height:1.5; }
+    .budget-nb { font-size:2.2rem; font-weight:900; color:#C1272D; }
+    .profil-wip { text-align:center; padding:60px 24px; background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.08); border-radius:14px; }
 
-    .ville-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    /* ═══════════════════════════════════════════════════════
+       SECTION PROMO VILLE
+    ═══════════════════════════════════════════════════════ */
+    .promo-section {
+      background: linear-gradient(180deg, #0d0d1a 0%, #0a0a16 100%);
+      border-top: 1px solid rgba(255,255,255,.08);
+      padding: 70px 0;
+    }
+    .promo-inner {
+      display: grid; grid-template-columns: 420px 1fr; gap: 52px; align-items: center;
+    }
+    .promo-photo {
+      border-radius: 16px; overflow: hidden; position: relative;
+      aspect-ratio: 4/3; background: linear-gradient(135deg, #0d1a30 0%, #1a2a4a 100%);
+      border: 1px solid rgba(255,255,255,.1);
+      box-shadow: 0 20px 60px rgba(0,0,0,.5);
+    }
+    .promo-photo img {
+      width: 100%; height: 100%; object-fit: cover;
+      display: block; transition: transform .4s;
+    }
+    .promo-photo:hover img { transform: scale(1.03); }
+    .promo-photo-fallback {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      font-size: 5rem; gap: 12px;
+    }
+    .promo-photo-legende {
+      position: absolute; bottom: 0; left: 0; right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,.8));
+      padding: 20px 16px 12px;
+      font-size: .72rem; color: rgba(255,255,255,.6); text-align: center;
+    }
+    .promo-tagline {
+      font-size: clamp(1.6rem, 3.5vw, 2.2rem); font-weight: 900;
+      color: #fff; margin: 0 0 16px; line-height: 1.2;
+    }
+    .promo-tagline em { color: #C1272D; font-style: normal; }
+    .promo-desc { color: rgba(255,255,255,.58); font-size: .93rem; line-height: 1.75; margin-bottom: 28px; }
+    .promo-faits { display: flex; flex-wrap: wrap; gap: 8px; }
+    .promo-fait {
+      display: inline-flex; align-items: center; gap: 6px;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
+      border-radius: 20px; padding: 6px 14px;
+      font-size: .78rem; color: rgba(255,255,255,.75); font-weight: 600;
+    }
+    .promo-fait::before { content: '✓'; color: #C1272D; font-weight: 900; }
 
-    /* Districts tags */
-    .districts-wrap { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; }
-    .district-tag {
-      font-size: .73rem; padding: 4px 10px;
-      background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.12);
+    /* ═══════════════════════════════════════════════════════
+       SECTION CALENDRIER MUNICIPAL
+    ═══════════════════════════════════════════════════════ */
+    .calendrier-section {
+      padding: 64px 0; border-top: 1px solid rgba(255,255,255,.07);
+    }
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 28px;
+    }
+    .section-header h2 { font-size: 1.5rem; font-weight: 900; margin: 0; }
+    .section-header h2 span { color: #C1272D; }
+    .cal-grille {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px;
+    }
+    .cal-event {
+      display: flex; gap: 16px;
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.08);
+      border-radius: 12px; padding: 16px 18px; align-items: flex-start;
+      transition: .18s;
+    }
+    .cal-event:hover { background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.18); }
+    .cal-date-bloc {
+      flex-shrink: 0; text-align: center; min-width: 50px;
+      background: rgba(255,255,255,.07); border-radius: 10px; padding: 8px 4px;
+    }
+    .cal-jour { font-size: 1.6rem; font-weight: 900; color: #fff; line-height: 1; }
+    .cal-mois { font-size: .65rem; font-weight: 800; text-transform: uppercase; color: rgba(255,255,255,.45); letter-spacing:.06em; margin-top: 2px; }
+    .cal-info { flex: 1; }
+    .cal-type-badge {
+      display: inline-block; font-size: .65rem; font-weight: 800;
+      padding: 2px 8px; border-radius: 10px; text-transform: uppercase;
+      letter-spacing: .05em; margin-bottom: 5px;
+    }
+    .badge-conseil      { background: rgba(193,39,45,.2);  color: #f08080; border: 1px solid rgba(193,39,45,.3); }
+    .badge-consultation { background: rgba(25,118,210,.2); color: #90CAF9; border: 1px solid rgba(25,118,210,.3); }
+    .badge-special      { background: rgba(255,160,0,.2);  color: #FFD54F; border: 1px solid rgba(255,160,0,.3); }
+    .badge-evenement    { background: rgba(76,175,80,.2);  color: #A5D6A7; border: 1px solid rgba(76,175,80,.3); }
+    .cal-titre { font-size: .87rem; font-weight: 700; color: rgba(255,255,255,.85); margin-bottom: 3px; }
+    .cal-meta  { font-size: .74rem; color: rgba(255,255,255,.38); }
+
+    /* ═══════════════════════════════════════════════════════
+       SECTION MAIRE
+    ═══════════════════════════════════════════════════════ */
+    .maire-section {
+      padding: 64px 0; border-top: 1px solid rgba(255,255,255,.07);
+      background: rgba(255,255,255,.015);
+    }
+    .maire-inner {
+      display: grid; grid-template-columns: 260px 1fr; gap: 48px; align-items: start;
+    }
+    .maire-photo-wrap { text-align: center; }
+    .maire-photo {
+      width: 180px; height: 180px; border-radius: 50%;
+      object-fit: cover; border: 3px solid rgba(193,39,45,.5);
+      box-shadow: 0 10px 30px rgba(0,0,0,.5);
+    }
+    .maire-photo-fallback {
+      width: 180px; height: 180px; border-radius: 50%;
+      background: linear-gradient(135deg, #C1272D 0%, #7a0e13 100%);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 4rem; border: 3px solid rgba(193,39,45,.4);
+      box-shadow: 0 10px 30px rgba(0,0,0,.5); margin: 0 auto;
+    }
+    .maire-nom-sous {
+      font-size: .82rem; font-weight: 700; color: rgba(255,255,255,.45);
+      margin-top: 14px; text-align: center;
+    }
+    .maire-parti-badge {
+      display: inline-block; font-size: .72rem; font-weight: 700;
+      background: rgba(193,39,45,.18); border: 1px solid rgba(193,39,45,.35);
+      color: rgba(255,255,255,.75); padding: 4px 12px; border-radius: 20px;
+      margin-top: 8px;
+    }
+    .maire-nom { font-size: 2rem; font-weight: 900; color: #fff; margin: 0 0 4px; }
+    .maire-titre-poste { font-size: .9rem; color: rgba(255,255,255,.45); margin-bottom: 6px; }
+    .maire-depuis { display: inline-flex; align-items: center; gap: 6px; font-size: .78rem; color: rgba(255,255,255,.4); margin-bottom: 20px; }
+    .maire-bio { color: rgba(255,255,255,.6); font-size: .9rem; line-height: 1.75; margin-bottom: 22px; }
+    .maire-priorites-titre { font-size: .65rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: rgba(255,255,255,.3); margin-bottom: 10px; }
+    .maire-priorites { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 22px; }
+    .maire-priorite {
+      font-size: .77rem; padding: 5px 12px;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.12);
       border-radius: 20px; color: rgba(255,255,255,.65);
     }
-
-    /* Fonctionnaire rows */
-    .fonct-table { width: 100%; border-collapse: collapse; font-size: .84rem; }
-    .fonct-table tr { border-bottom: 1px solid rgba(255,255,255,.07); }
-    .fonct-table tr:last-child { border-bottom: none; }
-    .fonct-table td { padding: 8px 4px; color: rgba(255,255,255,.6); }
-    .fonct-table td:first-child {
-      font-weight: 700; color: rgba(255,255,255,.45); font-size: .76rem;
-      text-transform: uppercase; letter-spacing: .04em; width: 42%;
+    .maire-contact {
+      display: flex; gap: 10px; flex-wrap: wrap;
     }
-
-    /* Timeline histoire */
-    .timeline { list-style: none; padding: 0; margin: 0; }
-    .timeline li {
-      display: flex; gap: 14px; padding: 10px 0;
-      border-bottom: 1px solid rgba(255,255,255,.06); font-size: .85rem;
-    }
-    .timeline li:last-child { border-bottom: none; }
-    .timeline-annee {
-      flex-shrink: 0; font-weight: 700; color: #C1272D;
-      font-size: .78rem; min-width: 38px;
-    }
-    .timeline-evt { color: rgba(255,255,255,.65); line-height: 1.5; }
-
-    /* Budget ─ chiffre formaté */
-    .budget-montant {
-      font-size: 2rem; font-weight: 800; color: #C1272D;
-      margin-bottom: 4px;
-    }
-
-    /* Tag profil partiel */
-    .badge-partiel {
+    .maire-contact a {
       display: inline-flex; align-items: center; gap: 6px;
-      background: rgba(255,190,0,.1); border: 1px solid rgba(255,190,0,.3);
-      color: rgba(255,190,0,.85); font-size: .78rem; font-weight: 700;
-      padding: 5px 13px; border-radius: 20px; margin-bottom: 28px;
+      background: rgba(255,255,255,.07); border: 1px solid rgba(255,255,255,.15);
+      color: rgba(255,255,255,.65); text-decoration: none;
+      padding: 8px 16px; border-radius: 8px; font-size: .82rem; transition: .18s;
     }
+    .maire-contact a:hover { background: rgba(255,255,255,.14); color: #fff; }
 
-    /* ── Profil en développement ──────────────────────────────── */
-    .profil-wip {
-      text-align: center; padding: 64px 24px;
-      background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.08);
-      border-radius: 14px;
+    /* ═══════════════════════════════════════════════════════
+       SECTION COMMENTAIRES
+    ═══════════════════════════════════════════════════════ */
+    .comments-section {
+      padding: 64px 0 80px; border-top: 1px solid rgba(255,255,255,.07);
     }
-    .profil-wip-ico { font-size: 3rem; margin-bottom: 16px; }
-    .profil-wip h2 { color: #fff; margin-bottom: 10px; font-size: 1.2rem; }
-    .profil-wip p { color: rgba(255,255,255,.45); font-size: .9rem; max-width: 420px; margin: 0 auto 24px; }
+    .comments-form-wrap {
+      background: rgba(255,255,255,.04); border: 1px solid rgba(255,255,255,.1);
+      border-radius: 14px; padding: 22px 24px; margin-bottom: 28px;
+    }
+    .comments-form-titre {
+      font-size: .85rem; font-weight: 700; color: rgba(255,255,255,.7); margin-bottom: 12px;
+    }
+    .comments-textarea {
+      width: 100%; min-height: 90px; padding: 12px 14px; resize: vertical;
+      background: rgba(255,255,255,.06); border: 1px solid rgba(255,255,255,.14);
+      border-radius: 8px; color: #fff; font-size: .88rem; font-family: inherit;
+      box-sizing: border-box; outline: none; transition: .2s;
+    }
+    .comments-textarea::placeholder { color: rgba(255,255,255,.3); }
+    .comments-textarea:focus { border-color: rgba(193,39,45,.5); background: rgba(255,255,255,.08); }
+    .comments-submit {
+      margin-top: 10px; padding: 9px 22px;
+      background: #C1272D; border: none; border-radius: 8px;
+      color: #fff; font-weight: 700; font-size: .87rem; cursor: pointer; transition: .18s;
+    }
+    .comments-submit:hover { background: #a01e23; }
+    .comments-submit:disabled { opacity: .5; cursor: not-allowed; }
+    .comments-cta {
+      text-align: center; padding: 32px;
+      background: rgba(255,255,255,.03); border: 1px dashed rgba(255,255,255,.15);
+      border-radius: 14px; margin-bottom: 28px;
+      color: rgba(255,255,255,.45); font-size: .9rem;
+    }
+    .comments-cta a { color: #C1272D; font-weight: 700; text-decoration: none; }
+    .comments-cta a:hover { text-decoration: underline; }
+    .comment-item {
+      display: flex; gap: 14px; padding: 16px 0;
+      border-bottom: 1px solid rgba(255,255,255,.07);
+    }
+    .comment-item:last-child { border-bottom: none; }
+    .comment-av {
+      width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center;
+      font-size: .9rem; font-weight: 800; color: #fff;
+    }
+    .comment-corps { flex: 1; }
+    .comment-header {
+      display: flex; gap: 10px; align-items: center; margin-bottom: 5px; flex-wrap: wrap;
+    }
+    .comment-pseudo { font-weight: 700; font-size: .87rem; color: #fff; }
+    .comment-ville  { font-size: .72rem; color: rgba(255,255,255,.35); }
+    .comment-date   { font-size: .72rem; color: rgba(255,255,255,.3); margin-left: auto; }
+    .comment-texte  { color: rgba(255,255,255,.65); font-size: .86rem; line-height: 1.65; }
+    .comments-vide  { text-align: center; padding: 32px; color: rgba(255,255,255,.28); font-size: .88rem; }
 
-    /* ── Responsive ───────────────────────────────────────────── */
+    /* ═══════════════════════════════════════════════════════
+       RESPONSIVE
+    ═══════════════════════════════════════════════════════ */
     @media (max-width: 900px) {
-      .ville-hero-inner { grid-template-columns: 1fr; }
-      .ville-minicarte-wrap { position: static; height: 220px; margin-bottom: 24px; order: -1; }
-      .ville-stats-rapides { grid-template-columns: repeat(2, 1fr); }
+      .vh-inner    { grid-template-columns: 1fr; }
+      .vh-map-wrap { position: static; height: 190px; order: -1; margin-bottom: 20px; }
+      .promo-inner { grid-template-columns: 1fr; }
+      .promo-photo { aspect-ratio: 16/9; }
+      .maire-inner { grid-template-columns: 1fr; }
+      .maire-photo-wrap { text-align: center; }
     }
-    @media (max-width: 560px) {
-      .ville-grid-2 { grid-template-columns: 1fr; }
-      .ville-stats-rapides { grid-template-columns: repeat(2, 1fr); }
+    @media (max-width: 600px) {
+      .vg2 { grid-template-columns: 1fr; }
+      .vh-stats { grid-template-columns: repeat(2, 1fr); }
+      .cal-grille { grid-template-columns: 1fr; }
     }
   </style>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-RDFSPWC9R2"></script>
@@ -192,6 +325,7 @@
 </head>
 <body>
 
+<!-- ── Nav ─────────────────────────────────────────────────────── -->
 <nav class="nav">
   <div class="nav-inner">
     <a href="index.html" class="nav-logo">🍁 Citoyen <span>Avisé</span></a>
@@ -236,244 +370,300 @@
   </div>
 </nav>
 
-<!-- ── Hero ────────────────────────────────────────────────────── -->
-<section class="ville-hero">
+<!-- ══════════════════════════════════════════════════════════════
+     HERO
+══════════════════════════════════════════════════════════════ -->
+<section class="vh">
   <div class="conteneur">
-    <p class="ville-breadcrumb">
-      <a href="index.html">Accueil</a> /
-      <a href="villes.html">Villes du Québec</a> /
-      <span id="breadcrumbNom">—</span>
-    </p>
+    <div class="vh-inner">
 
-    <div class="ville-hero-inner">
       <div>
-        <h1 class="ville-hero-titre" id="villeNom">—</h1>
-        <p class="ville-hero-mrc" id="villeMRCRegion">—</p>
-        <div class="ville-hero-region" id="villeRegionBadge">—</div>
+        <p class="vh-mrc" id="villeMRCLabel">—</p>
+        <h1 class="vh-titre" id="villeNom">—</h1>
 
-        <div class="ville-stats-rapides">
-          <div class="vsr-item">
-            <span class="vsr-val" id="statPop">—</span>
-            <span class="vsr-label">habitants</span>
+        <div class="vh-stats">
+          <div class="vhs-item">
+            <span class="vhs-val" id="statPop">—</span>
+            <span class="vhs-label">habitants</span>
           </div>
-          <div class="vsr-item">
-            <span class="vsr-val" id="statSuperficie">—</span>
-            <span class="vsr-label">km²</span>
+          <div class="vhs-item">
+            <span class="vhs-val" id="statSuperficie">—</span>
+            <span class="vhs-label">km²</span>
           </div>
-          <div class="vsr-item">
-            <span class="vsr-val" id="statDensite">—</span>
-            <span class="vsr-label">hab/km²</span>
+          <div class="vhs-item">
+            <span class="vhs-val" id="statDensite">—</span>
+            <span class="vhs-label">hab/km²</span>
           </div>
-          <div class="vsr-item">
-            <span class="vsr-val" id="statMaire" style="font-size:.9rem;">—</span>
-            <span class="vsr-label">Maire·sse</span>
+          <div class="vhs-item">
+            <span class="vhs-val" id="statMaire" style="font-size:.85rem;"></span>
+            <span class="vhs-label">Maire·sse</span>
           </div>
         </div>
-
-        <a href="carte.html" class="ville-cta-carte" id="lienCarte">
-          🗺️ Voir sur la carte →
-        </a>
       </div>
 
       <div>
-        <div class="ville-minicarte-wrap">
+        <div class="vh-map-wrap">
           <div id="villeMinicarte"></div>
         </div>
       </div>
+
     </div>
   </div>
 </section>
 
-<!-- ── Onglets ──────────────────────────────────────────────────── -->
-<div class="ville-tabs-wrap" id="tabsWrap" style="display:none;">
+<!-- ══════════════════════════════════════════════════════════════
+     ONGLETS INFORMATION MUNICIPALE
+══════════════════════════════════════════════════════════════ -->
+<div class="vtabs-bar" id="tabsBar" style="display:none;">
   <div class="conteneur" style="padding:0;">
-    <ul class="ville-tabs" id="villeTabs">
-      <li><button class="ville-tab-btn actif" data-tab="gouvernance">Gouvernance</button></li>
-      <li><button class="ville-tab-btn" data-tab="histoire">Histoire</button></li>
-      <li><button class="ville-tab-btn" data-tab="geographie">Géographie</button></li>
-      <li><button class="ville-tab-btn" data-tab="infrastructures">Infrastructures</button></li>
-      <li><button class="ville-tab-btn" data-tab="economie">Économie</button></li>
-      <li><button class="ville-tab-btn" data-tab="culture">Culture</button></li>
-      <li><button class="ville-tab-btn" data-tab="finances">Finances</button></li>
-      <li><button class="ville-tab-btn" data-tab="urbanisme">Urbanisme</button></li>
+    <ul>
+      <li><button class="vtab-btn actif" data-tab="gouvernance">Gouvernance</button></li>
+      <li><button class="vtab-btn" data-tab="histoire">Histoire</button></li>
+      <li><button class="vtab-btn" data-tab="geographie">Géographie</button></li>
+      <li><button class="vtab-btn" data-tab="infrastructures">Infrastructures</button></li>
+      <li><button class="vtab-btn" data-tab="economie">Économie</button></li>
+      <li><button class="vtab-btn" data-tab="culture">Culture</button></li>
+      <li><button class="vtab-btn" data-tab="finances">Finances</button></li>
+      <li><button class="vtab-btn" data-tab="urbanisme">Urbanisme</button></li>
     </ul>
   </div>
 </div>
 
-<!-- ── Contenu principal ────────────────────────────────────────── -->
-<section class="ville-contenu">
+<section class="vtabs-content">
   <div class="conteneur">
 
-    <!-- Panel sans profil complet -->
     <div id="panelWIP" style="display:none;">
       <div class="profil-wip">
-        <div class="profil-wip-ico">📋</div>
-        <h2>Profil en cours de documentation</h2>
-        <p>Les données détaillées pour cette ville seront disponibles prochainement. Les coordonnées géographiques et les informations de base sont déjà accessibles sur la carte interactive.</p>
+        <p style="font-size:3rem;margin-bottom:14px;">📋</p>
+        <h2 style="color:#fff;margin-bottom:10px;">Profil en cours de documentation</h2>
+        <p style="color:rgba(255,255,255,.45);font-size:.9rem;max-width:420px;margin:0 auto 24px;">Les données détaillées pour cette ville seront disponibles prochainement.</p>
         <a href="carte.html" class="btn btn-rouge">🗺️ Voir sur la carte →</a>
       </div>
     </div>
 
-    <!-- Onglet Gouvernance -->
-    <div class="ville-tab-panel actif" id="tab-gouvernance">
-      <div class="ville-grid-2">
+    <!-- Gouvernance -->
+    <div class="vtab-panel actif" id="tab-gouvernance">
+      <div class="vg2">
         <div>
-          <p class="ville-section-titre">Type de municipalité</p>
-          <div class="ville-bloc"><p id="typeCommune">—</p></div>
-
-          <p class="ville-section-titre">Conseil municipal</p>
-          <div class="ville-bloc">
-            <h3 id="nbConseillers">—</h3>
-            <div class="districts-wrap" id="districtsTags"></div>
+          <p class="vs-titre">Type de municipalité</p>
+          <div class="vbloc"><p id="typeCommune"></p></div>
+          <p class="vs-titre">Conseil municipal</p>
+          <div class="vbloc">
+            <h3 id="nbConseillers"></h3>
+            <div id="districtsTags" style="margin-top:8px;"></div>
           </div>
         </div>
         <div>
-          <p class="ville-section-titre">Fonctionnaires principaux</p>
-          <div class="ville-bloc">
-            <table class="fonct-table" id="fonctTable"></table>
-          </div>
+          <p class="vs-titre">Fonctionnaires principaux</p>
+          <div class="vbloc"><table class="vftable" id="fonctTable"></table></div>
         </div>
       </div>
     </div>
 
-    <!-- Onglet Histoire -->
-    <div class="ville-tab-panel" id="tab-histoire">
-      <div class="ville-grid-2">
+    <!-- Histoire -->
+    <div class="vtab-panel" id="tab-histoire">
+      <div class="vg2">
         <div>
-          <p class="ville-section-titre">Fondation</p>
-          <div class="ville-bloc"><p id="fondation">—</p></div>
-
-          <p class="ville-section-titre">Origine du nom</p>
-          <div class="ville-bloc"><p id="origineNom">—</p></div>
+          <p class="vs-titre">Fondation</p>
+          <div class="vbloc"><p id="fondation"></p></div>
+          <p class="vs-titre">Origine du nom</p>
+          <div class="vbloc"><p id="origineNom"></p></div>
         </div>
         <div>
-          <p class="ville-section-titre">Événements marquants</p>
-          <div class="ville-bloc">
-            <ul class="timeline" id="timeline"></ul>
-          </div>
+          <p class="vs-titre">Événements marquants</p>
+          <div class="vbloc"><ul class="timeline" id="timeline"></ul></div>
         </div>
       </div>
     </div>
 
-    <!-- Onglet Géographie -->
-    <div class="ville-tab-panel" id="tab-geographie">
-      <div class="ville-grid-2">
+    <!-- Géographie -->
+    <div class="vtab-panel" id="tab-geographie">
+      <div class="vg2">
         <div>
-          <p class="ville-section-titre">Coordonnées GPS</p>
-          <div class="ville-bloc">
-            <table class="fonct-table" id="coordTable"></table>
-          </div>
-
-          <p class="ville-section-titre">Régions naturelles</p>
-          <div class="ville-bloc">
-            <ul id="regionsNaturelles"></ul>
-          </div>
+          <p class="vs-titre">Coordonnées GPS</p>
+          <div class="vbloc"><table class="vftable" id="coordTable"></table></div>
+          <p class="vs-titre">Régions naturelles</p>
+          <div class="vbloc"><ul id="regionsNaturelles"></ul></div>
         </div>
         <div>
-          <p class="ville-section-titre">Cours d'eau</p>
-          <div class="ville-bloc">
-            <ul id="coursEau"></ul>
-          </div>
-
-          <p class="ville-section-titre">Démographie</p>
-          <div class="ville-bloc">
-            <table class="fonct-table" id="demoTable"></table>
-          </div>
+          <p class="vs-titre">Cours d'eau</p>
+          <div class="vbloc"><ul id="coursEau"></ul></div>
+          <p class="vs-titre">Démographie</p>
+          <div class="vbloc"><table class="vftable" id="demoTable"></table></div>
         </div>
       </div>
     </div>
 
-    <!-- Onglet Infrastructures -->
-    <div class="ville-tab-panel" id="tab-infrastructures">
-      <div class="ville-grid-2">
+    <!-- Infrastructures -->
+    <div class="vtab-panel" id="tab-infrastructures">
+      <div class="vg2">
         <div>
-          <p class="ville-section-titre">Établissements de santé</p>
-          <div class="ville-bloc"><ul id="hopitaux"></ul></div>
-
-          <p class="ville-section-titre">Établissements d'enseignement</p>
-          <div class="ville-bloc"><ul id="ecoles"></ul></div>
+          <p class="vs-titre">Santé</p>
+          <div class="vbloc"><ul id="hopitaux"></ul></div>
+          <p class="vs-titre">Enseignement</p>
+          <div class="vbloc"><ul id="ecoles"></ul></div>
         </div>
         <div>
-          <p class="ville-section-titre">Transport</p>
-          <div class="ville-bloc"><ul id="transports"></ul></div>
-
-          <p class="ville-section-titre">Services publics</p>
-          <div class="ville-bloc"><ul id="services"></ul></div>
+          <p class="vs-titre">Transport</p>
+          <div class="vbloc"><ul id="transports"></ul></div>
+          <p class="vs-titre">Services publics</p>
+          <div class="vbloc"><ul id="services"></ul></div>
         </div>
       </div>
     </div>
 
-    <!-- Onglet Économie -->
-    <div class="ville-tab-panel" id="tab-economie">
-      <div class="ville-grid-2">
+    <!-- Économie -->
+    <div class="vtab-panel" id="tab-economie">
+      <div class="vg2">
         <div>
-          <p class="ville-section-titre">Industries principales</p>
-          <div class="ville-bloc"><ul id="industries"></ul></div>
+          <p class="vs-titre">Industries principales</p>
+          <div class="vbloc"><ul id="industries"></ul></div>
         </div>
         <div>
-          <p class="ville-section-titre">Grands employeurs</p>
-          <div class="ville-bloc"><ul id="employeurs"></ul></div>
-
-          <p class="ville-section-titre">Marché du travail</p>
-          <div class="ville-bloc">
-            <table class="fonct-table" id="emploiTable"></table>
-          </div>
+          <p class="vs-titre">Grands employeurs</p>
+          <div class="vbloc"><ul id="employeurs"></ul></div>
+          <p class="vs-titre">Marché du travail</p>
+          <div class="vbloc"><table class="vftable" id="emploiTable"></table></div>
         </div>
       </div>
     </div>
 
-    <!-- Onglet Culture -->
-    <div class="ville-tab-panel" id="tab-culture">
-      <div class="ville-grid-2">
+    <!-- Culture -->
+    <div class="vtab-panel" id="tab-culture">
+      <div class="vg2">
         <div>
-          <p class="ville-section-titre">Festivals et événements</p>
-          <div class="ville-bloc"><ul id="festivals"></ul></div>
-
-          <p class="ville-section-titre">Lieux culturels</p>
-          <div class="ville-bloc"><ul id="lieuxCulturels"></ul></div>
+          <p class="vs-titre">Festivals</p>
+          <div class="vbloc"><ul id="festivals"></ul></div>
+          <p class="vs-titre">Lieux culturels</p>
+          <div class="vbloc"><ul id="lieuxCulturels"></ul></div>
         </div>
         <div>
-          <p class="ville-section-titre">Patrimoine</p>
-          <div class="ville-bloc"><ul id="patrimoine"></ul></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Onglet Finances -->
-    <div class="ville-tab-panel" id="tab-finances">
-      <p class="ville-section-titre">Budget municipal annuel</p>
-      <div class="ville-bloc" style="text-align:center; padding: 30px;">
-        <div class="budget-montant" id="budgetMontant">—</div>
-        <p id="budgetNote" style="color:rgba(255,255,255,.4); font-size:.8rem; margin-top:4px;"></p>
-      </div>
-      <div class="ville-grid-2">
-        <div>
-          <p class="ville-section-titre">Sources de revenus</p>
-          <div class="ville-bloc"><ul id="sourcesRevenus"></ul></div>
-        </div>
-        <div>
-          <p class="ville-section-titre">Endettement</p>
-          <div class="ville-bloc"><p id="endettement">—</p></div>
+          <p class="vs-titre">Patrimoine</p>
+          <div class="vbloc"><ul id="patrimoine"></ul></div>
         </div>
       </div>
     </div>
 
-    <!-- Onglet Urbanisme -->
-    <div class="ville-tab-panel" id="tab-urbanisme">
-      <div class="ville-grid-2">
+    <!-- Finances -->
+    <div class="vtab-panel" id="tab-finances">
+      <p class="vs-titre">Budget municipal annuel</p>
+      <div class="vbloc" style="text-align:center;padding:28px 20px;">
+        <div class="budget-nb" id="budgetMontant"></div>
+        <p style="color:rgba(255,255,255,.35);font-size:.77rem;margin-top:4px;">Estimation annuelle</p>
+      </div>
+      <div class="vg2">
         <div>
-          <p class="ville-section-titre">Zones résidentielles</p>
-          <div class="ville-bloc"><ul id="zonesResid"></ul></div>
-
-          <p class="ville-section-titre">Zones industrielles</p>
-          <div class="ville-bloc"><ul id="zonesIndus"></ul></div>
+          <p class="vs-titre">Sources de revenus</p>
+          <div class="vbloc"><ul id="sourcesRevenus"></ul></div>
         </div>
         <div>
-          <p class="ville-section-titre">Projets de développement</p>
-          <div class="ville-bloc"><ul id="projetsDev"></ul></div>
+          <p class="vs-titre">Endettement</p>
+          <div class="vbloc"><p id="endettement"></p></div>
         </div>
       </div>
     </div>
+
+    <!-- Urbanisme -->
+    <div class="vtab-panel" id="tab-urbanisme">
+      <div class="vg2">
+        <div>
+          <p class="vs-titre">Zones résidentielles</p>
+          <div class="vbloc"><ul id="zonesResid"></ul></div>
+          <p class="vs-titre">Zones industrielles</p>
+          <div class="vbloc"><ul id="zonesIndus"></ul></div>
+        </div>
+        <div>
+          <p class="vs-titre">Projets de développement</p>
+          <div class="vbloc"><ul id="projetsDev"></ul></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     PROMOTION DE LA VILLE
+══════════════════════════════════════════════════════════════ -->
+<section class="promo-section" id="promoSection" style="display:none;">
+  <div class="conteneur">
+    <div class="promo-inner">
+
+      <div class="promo-photo" id="promoPhotoWrap">
+        <!-- Image injectée par JS ou fallback CSS -->
+      </div>
+
+      <div>
+        <p class="vs-titre" style="margin-bottom:10px;">À propos de la ville</p>
+        <h2 class="promo-tagline" id="promoTagline"></h2>
+        <p class="promo-desc" id="promoDesc"></p>
+        <div class="promo-faits" id="promoFaits"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     CALENDRIER MUNICIPAL
+══════════════════════════════════════════════════════════════ -->
+<section class="calendrier-section" id="calendrierSection" style="display:none;">
+  <div class="conteneur">
+    <div class="section-header">
+      <h2>📅 Calendrier <span>municipal</span></h2>
+      <span style="font-size:.78rem;color:rgba(255,255,255,.35);" id="calAnnee"></span>
+    </div>
+    <div class="cal-grille" id="calGrille"></div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     MAIRE EN FONCTION
+══════════════════════════════════════════════════════════════ -->
+<section class="maire-section" id="maireSection" style="display:none;">
+  <div class="conteneur">
+    <div class="section-header" style="margin-bottom:36px;">
+      <h2>🏛 Maire <span>en fonction</span></h2>
+    </div>
+    <div class="maire-inner">
+
+      <div class="maire-photo-wrap">
+        <div id="mairePhotoEl"></div>
+        <p class="maire-nom-sous" id="maireNomSous"></p>
+        <span class="maire-parti-badge" id="mairePartiBadge"></span>
+      </div>
+
+      <div>
+        <h2 class="maire-nom" id="maireNom"></h2>
+        <p class="maire-titre-poste" id="maireTitrePoste"></p>
+        <p class="maire-depuis" id="maireDepuis">
+          <span>📅</span><span></span>
+        </p>
+        <p class="maire-bio" id="maireBio"></p>
+        <p class="maire-priorites-titre">Priorités du mandat</p>
+        <div class="maire-priorites" id="mairePriorites"></div>
+        <div class="maire-contact" id="maireContact"></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════════════════════════════════════════════
+     COMMENTAIRES CITOYENS
+══════════════════════════════════════════════════════════════ -->
+<section class="comments-section">
+  <div class="conteneur">
+    <div class="section-header" style="margin-bottom:24px;">
+      <h2>💬 Commentaires <span style="color:#C1272D;">citoyens</span></h2>
+      <span id="commentsCount" style="font-size:.8rem;color:rgba(255,255,255,.3);"></span>
+    </div>
+
+    <!-- Form ou CTA selon session -->
+    <div id="commentsFormWrap"></div>
+
+    <!-- Liste des commentaires -->
+    <div id="commentsList"></div>
 
   </div>
 </section>
@@ -485,6 +675,13 @@
       <div>
         <a href="index.html" class="pied-logo">🍁 Citoyen Avisé</a>
         <p>L'information civique canadienne, centralisée et accessible à tous les Canadiens, gratuitement.</p>
+        <div class="pied-social">
+          <a href="https://www.facebook.com/citoyenavise" title="Facebook" aria-label="Facebook">f</a>
+          <a href="https://www.instagram.com/citoyenavise" title="Instagram" aria-label="Instagram">📷</a>
+          <a href="https://x.com/citoyenavise" title="X / Twitter" aria-label="X Twitter">𝕏</a>
+          <a href="https://www.youtube.com/@citoyenavise" title="YouTube" aria-label="YouTube">▶</a>
+          <a href="https://www.linkedin.com/company/citoyenavise" title="LinkedIn" aria-label="LinkedIn">in</a>
+        </div>
       </div>
       <div>
         <p class="pied-titre">Sections</p>
@@ -493,7 +690,7 @@
           <li><a href="gouvernement.html">Gouvernement</a></li>
           <li><a href="droits.html">Droits &amp; Libertés</a></li>
           <li><a href="services.html">Services publics</a></li>
-          <li><a href="carte.html">Carte citoyenne</a></li>
+          <li><a href="villes.html">Villes du Québec</a></li>
         </ul>
       </div>
       <div>
@@ -501,6 +698,7 @@
         <ul class="pied-liens">
           <li><a href="a-propos.html">À propos</a></li>
           <li><a href="a-propos.html#contact">Contactez-nous</a></li>
+          <li><a href="https://github.com/citoyenavise/citoyenavise">GitHub</a></li>
         </ul>
       </div>
       <div>
@@ -508,8 +706,9 @@
         <ul class="pied-liens">
           <li><a href="politique-confidentialite.html">Confidentialité</a></li>
           <li><a href="conditions-utilisation.html">Conditions</a></li>
+          <li><a href="accessibilite.html">Accessibilité</a></li>
         </ul>
-        <div class="encadre" style="margin-top:20px; font-size:.82rem;">
+        <div class="encadre" style="margin-top:20px;font-size:.82rem;">
           <p>📧 <a href="mailto:infocitoyenavise@gmail.com" style="color:var(--rouge);">infocitoyenavise@gmail.com</a></p>
         </div>
       </div>
@@ -523,200 +722,420 @@
   </div>
 </footer>
 
+<!-- ── Scripts ─────────────────────────────────────────────────── -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="js/villes-quebec.js"></script>
 <script src="js/profils-villes.js"></script>
 <script src="js/main.js"></script>
 <script>
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
+// Firebase
+// ════════════════════════════════════════════════════════════════
+firebase.initializeApp({
+  apiKey: "AIzaSyBhV5WhiErMwF3WnDUwPBgfjEDJS-PzZ9I",
+  authDomain: "citoyenavise.firebaseapp.com",
+  projectId: "citoyenavise",
+  storageBucket: "citoyenavise.firebasestorage.app",
+  messagingSenderId: "682604041638",
+  appId: "1:682604041638:web:d25f5fbd21a8cb7171eb67"
+});
+const db = firebase.firestore();
+
+// ════════════════════════════════════════════════════════════════
 // Utilitaires
-// ════════════════════════════════════════════════════════════
-function fmt(n) {
-  if (typeof n !== 'number') return '—';
-  return n.toLocaleString('fr-CA');
-}
+// ════════════════════════════════════════════════════════════════
+const fmt = n => typeof n === 'number' ? n.toLocaleString('fr-CA') : '—';
 function fmtBudget(n) {
   if (!n) return '—';
   if (n >= 1e9) return (n / 1e9).toFixed(2).replace('.', ',') + ' G$';
   if (n >= 1e6) return (n / 1e6).toFixed(1).replace('.', ',') + ' M$';
   return n.toLocaleString('fr-CA') + ' $';
 }
-function liste(el, arr) {
-  if (!el || !arr || !arr.length) { if (el) el.innerHTML = '<li style="color:rgba(255,255,255,.3)">Données non disponibles</li>'; return; }
-  el.innerHTML = arr.map(i => `<li>${i}</li>`).join('');
+function liste(id, arr) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.innerHTML = (arr && arr.length)
+    ? arr.map(i => `<li>${i}</li>`).join('')
+    : '<li style="color:rgba(255,255,255,.28)">Données non disponibles</li>';
 }
 function txt(id, val) {
   const el = document.getElementById(id);
   if (el) el.textContent = val || '—';
 }
+const MOIS_FR = ['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc'];
+const MOIS_LONG = ['Janvier','Février','Mars','Avril','Mai','Juin','Juillet','Août','Septembre','Octobre','Novembre','Décembre'];
+function tempsEcoule(ts) {
+  if (!ts) return '';
+  const diff = Date.now() - ts.toMillis();
+  const min = Math.floor(diff / 60000);
+  if (min < 2) return 'à l\'instant';
+  if (min < 60) return `il y a ${min} min`;
+  const h = Math.floor(min / 60);
+  if (h < 24) return `il y a ${h}h`;
+  const j = Math.floor(h / 24);
+  if (j < 30) return `il y a ${j} jour${j > 1 ? 's' : ''}`;
+  return `il y a ${Math.floor(j / 30)} mois`;
+}
+function avColor(pseudo) {
+  const colors = ['#C1272D','#1565C0','#2E7D32','#6A1B9A','#E65100','#00838F'];
+  let h = 0; for (let i = 0; i < pseudo.length; i++) h = (h * 31 + pseudo.charCodeAt(i)) & 0xFFFFFF;
+  return colors[Math.abs(h) % colors.length];
+}
 
-// ════════════════════════════════════════════════════════════
-// Lecture de l'ID depuis l'URL
-// ════════════════════════════════════════════════════════════
+// ════════════════════════════════════════════════════════════════
+// Paramètre URL
+// ════════════════════════════════════════════════════════════════
 const params = new URLSearchParams(window.location.search);
 const villeId = params.get('id') || '';
 const villeData = QC_VILLES.find(v => v.id === villeId);
 
 if (!villeData) {
-  document.title = 'Ville introuvable — Citoyen Avisé';
-  document.querySelector('.ville-hero-titre').textContent = 'Ville introuvable';
+  txt('villeNom', 'Ville introuvable');
   document.getElementById('panelWIP').style.display = 'block';
-  document.getElementById('panelWIP').querySelector('h2').textContent = 'Ville non trouvée';
-  document.getElementById('panelWIP').querySelector('p').textContent = 'L\'identifiant fourni ne correspond à aucune ville répertoriée.';
 } else {
   const profil = QC_PROFILS[villeId] || null;
-  const profilComplet = profil && !!profil.histoire;
+  const complet = profil && !!profil.histoire;
   const region = QC_REGIONS.find(r => r.id === villeData.region) || {};
-  const mrc = QC_MRC.find(m => m.id === villeData.mrc) || {};
+  const mrc    = QC_MRC.find(m => m.id === villeData.mrc) || {};
 
-  // ── Meta ──────────────────────────────────────────────────
+  // ── Meta & titre ───────────────────────────────────────────
   document.title = `${villeData.nom} — Citoyen Avisé`;
   document.getElementById('metaTitre').textContent = `${villeData.nom} — Citoyen Avisé`;
   document.getElementById('metaDesc').content = `Profil civique de ${villeData.nom}, ${region.nom}. Gouvernance, histoire, économie, infrastructures.`;
 
-  // ── Hero ──────────────────────────────────────────────────
+  // ── Hero ───────────────────────────────────────────────────
   txt('villeNom', villeData.nom);
-  txt('breadcrumbNom', villeData.nom);
-  txt('villeMRCRegion', `MRC ${mrc.nom || '—'}  ·  ${region.nom || '—'}`);
-  document.getElementById('villeRegionBadge').textContent = `🍁 Région ${villeData.region} — ${region.abrv || region.nom}`;
-  document.getElementById('lienCarte').href = `carte.html#qc-${villeId}`;
+  txt('villeMRCLabel', `MRC ${mrc.nom || '—'}  ·  ${region.nom || '—'}`);
+  txt('statPop',       profil && profil.population        ? fmt(profil.population)        : '—');
+  txt('statSuperficie',profil && profil.superficie_km2    ? fmt(profil.superficie_km2)    : '—');
+  txt('statDensite',   profil && profil.densite_population? fmt(profil.densite_population): '—');
+  txt('statMaire',     profil && profil.maire             ? profil.maire                  : '—');
 
-  // ── Stats rapides ─────────────────────────────────────────
-  const pop = profil && profil.population;
-  const sup = profil && profil.superficie_km2;
-  const den = profil && profil.densite_population;
-  const maire = profil && profil.maire;
-  txt('statPop', pop ? fmt(pop) : '—');
-  txt('statSuperficie', sup ? fmt(sup) : '—');
-  txt('statDensite', den ? fmt(den) : '—');
-  txt('statMaire', maire || '—');
-
-  // ── Mini-carte Leaflet ────────────────────────────────────
+  // ── Mini-carte ─────────────────────────────────────────────
   const miniMap = L.map('villeMinicarte', {
     center: [villeData.lat, villeData.lng], zoom: 13,
     zoomControl: false, dragging: false, scrollWheelZoom: false,
-    doubleClickZoom: false, touchZoom: false,
-    attributionControl: false,
+    doubleClickZoom: false, touchZoom: false, attributionControl: false,
   });
-  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', {
-    subdomains: 'abcd', maxZoom: 19,
-  }).addTo(miniMap);
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png',
+    { subdomains: 'abcd', maxZoom: 19 }).addTo(miniMap);
   const hdvIcon = L.divIcon({
     className: '',
-    html: '<div style="width:14px;height:14px;background:#1976D2;border:3px solid #fff;border-radius:0;transform:rotate(45deg);box-shadow:0 2px 8px rgba(0,0,0,.6);"></div>',
+    html: '<div style="width:14px;height:14px;background:#1976D2;border:3px solid #fff;transform:rotate(45deg);box-shadow:0 2px 8px rgba(0,0,0,.6);"></div>',
     iconSize: [14, 14], iconAnchor: [7, 7], popupAnchor: [0, -10],
   });
   L.marker([villeData.lat, villeData.lng], { icon: hdvIcon })
     .bindPopup(`<strong>${villeData.nom}</strong><br><small>Hôtel de Ville</small>`)
-    .addTo(miniMap)
-    .openPopup();
+    .addTo(miniMap).openPopup();
 
-  // ── Contenu complet ou partiel ────────────────────────────
-  if (profilComplet) {
-    document.getElementById('tabsWrap').style.display = 'block';
+  // ── Onglets (profil complet) ───────────────────────────────
+  if (complet) {
+    document.getElementById('tabsBar').style.display = 'block';
+    const p = profil;
+    const g = p.gouvernance, h = p.histoire, geo = p.geographie,
+          inf = p.infrastructures, eco = p.economique,
+          cul = p.culture_et_societe, fin = p.finances_municipales,
+          urb = p.urbanisme, pd = p.profil_demographique;
 
-    // — Gouvernance ──────────────────────────────────────────
-    const g = profil.gouvernance;
+    // Gouvernance
     txt('typeCommune', g.type_municipalite);
-    txt('nbConseillers', `${g.conseil_municipal.nombre_conseillers} conseillers · ${g.conseil_municipal.districts.length} districts`);
-    const distWrap = document.getElementById('districtsTags');
+    txt('nbConseillers', `${g.conseil_municipal.nombre_conseillers} conseillers — ${g.conseil_municipal.districts.length} districts`);
     g.conseil_municipal.districts.forEach(d => {
-      const span = document.createElement('span');
-      span.className = 'district-tag';
-      span.textContent = d;
-      distWrap.appendChild(span);
+      const s = document.createElement('span'); s.className = 'district-tag'; s.textContent = d;
+      document.getElementById('districtsTags').appendChild(s);
     });
     const fp = g.fonctionnaires_principaux;
-    const fonctRows = [
+    document.getElementById('fonctTable').innerHTML = [
       ['Directeur général', fp.directeur_general],
       ['Greffier', fp.greffier],
       ['Dir. finances', fp.directeur_finances],
       ['Dir. urbanisme', fp.directeur_urbanisme],
       ['Chef de police', fp.chef_police],
       ['Chef incendie', fp.chef_incendie],
-    ];
-    document.getElementById('fonctTable').innerHTML = fonctRows
-      .map(([k, v]) => `<tr><td>${k}</td><td>${v || '—'}</td></tr>`)
-      .join('') + (fp.autres_postes_cles || []).map(p => `<tr><td>Autre poste</td><td>${p}</td></tr>`).join('');
+    ].map(([k,v])=>`<tr><td>${k}</td><td>${v||'—'}</td></tr>`).join('')
+    + (fp.autres_postes_cles||[]).map(p=>`<tr><td>Autre poste</td><td>${p}</td></tr>`).join('');
 
-    // — Histoire ─────────────────────────────────────────────
-    const h = profil.histoire;
+    // Histoire
     txt('fondation', h.fondation);
     txt('origineNom', h.origine_nom);
     const tl = document.getElementById('timeline');
     h.evenements_importants.forEach(evt => {
-      const [annee, ...reste] = evt.split(' — ');
+      const [annee, ...r] = evt.split(' — ');
       const li = document.createElement('li');
-      li.innerHTML = `<span class="timeline-annee">${annee}</span><span class="timeline-evt">${reste.join(' — ')}</span>`;
+      li.innerHTML = `<span class="tl-annee">${annee}</span><span class="tl-evt">${r.join(' — ')}</span>`;
       tl.appendChild(li);
     });
 
-    // — Géographie ───────────────────────────────────────────
-    const geo = profil.geographie;
+    // Géographie
     document.getElementById('coordTable').innerHTML = `
       <tr><td>Latitude</td><td>${geo.coordonnees.latitude}</td></tr>
-      <tr><td>Longitude</td><td>${geo.coordonnees.longitude}</td></tr>
-    `;
-    liste(document.getElementById('regionsNaturelles'), geo.regions_naturelles);
-    liste(document.getElementById('coursEau'), geo.cours_eau);
-    const pd = profil.profil_demographique;
+      <tr><td>Longitude</td><td>${geo.coordonnees.longitude}</td></tr>`;
+    liste('regionsNaturelles', geo.regions_naturelles);
+    liste('coursEau', geo.cours_eau);
     document.getElementById('demoTable').innerHTML = `
       <tr><td>Croissance</td><td>${pd.croissance_population}</td></tr>
-      <tr><td>Âge médian</td><td>${pd.age_median} ans</td></tr>
-    ` + pd.langues_principales.map(l => `<tr><td>Langue</td><td>${l}</td></tr>`).join('');
+      <tr><td>Âge médian</td><td>${pd.age_median} ans</td></tr>`
+    + pd.langues_principales.map(l=>`<tr><td>Langue</td><td>${l}</td></tr>`).join('');
 
-    // — Infrastructures ──────────────────────────────────────
-    const inf = profil.infrastructures;
-    liste(document.getElementById('hopitaux'), inf.hopitaux);
-    liste(document.getElementById('ecoles'), inf.ecoles_principales);
-    liste(document.getElementById('transports'), inf.transports);
-    liste(document.getElementById('services'), inf.services_publics);
+    // Infrastructures
+    liste('hopitaux', inf.hopitaux);
+    liste('ecoles', inf.ecoles_principales);
+    liste('transports', inf.transports);
+    liste('services', inf.services_publics);
 
-    // — Économie ─────────────────────────────────────────────
-    const eco = profil.economique;
-    liste(document.getElementById('industries'), eco.industries_principales);
-    liste(document.getElementById('employeurs'), eco.grands_employeurs);
-    document.getElementById('emploiTable').innerHTML = `
-      <tr><td>Taux d'emploi</td><td>${eco.taux_emploi} %</td></tr>
-    `;
+    // Économie
+    liste('industries', eco.industries_principales);
+    liste('employeurs', eco.grands_employeurs);
+    document.getElementById('emploiTable').innerHTML = `<tr><td>Taux d'emploi</td><td>${eco.taux_emploi} %</td></tr>`;
 
-    // — Culture ──────────────────────────────────────────────
-    const cul = profil.culture_et_societe;
-    liste(document.getElementById('festivals'), cul.festivals);
-    liste(document.getElementById('lieuxCulturels'), cul.lieux_culturels);
-    liste(document.getElementById('patrimoine'), cul.patrimoine);
+    // Culture
+    liste('festivals', cul.festivals);
+    liste('lieuxCulturels', cul.lieux_culturels);
+    liste('patrimoine', cul.patrimoine);
 
-    // — Finances ─────────────────────────────────────────────
-    const fin = profil.finances_municipales;
+    // Finances
     document.getElementById('budgetMontant').textContent = fmtBudget(fin.budget_annuel);
-    document.getElementById('budgetNote').textContent = 'Budget municipal annuel estimé';
-    liste(document.getElementById('sourcesRevenus'), fin.sources_revenus);
+    liste('sourcesRevenus', fin.sources_revenus);
     txt('endettement', fin.endettement);
 
-    // — Urbanisme ────────────────────────────────────────────
-    const urb = profil.urbanisme;
-    liste(document.getElementById('zonesResid'), urb.zones_residentielles);
-    liste(document.getElementById('zonesIndus'), urb.zones_industrielles);
-    liste(document.getElementById('projetsDev'), urb.projets_developpement);
+    // Urbanisme
+    liste('zonesResid', urb.zones_residentielles);
+    liste('zonesIndus', urb.zones_industrielles);
+    liste('projetsDev', urb.projets_developpement);
 
   } else {
-    // Profil partiel ou inexistant
     document.getElementById('panelWIP').style.display = 'block';
-    // Masquer les panneaux d'onglets
-    document.querySelectorAll('.ville-tab-panel').forEach(p => p.style.display = 'none');
+    document.querySelectorAll('.vtab-panel').forEach(p => p.style.display = 'none');
   }
 
-  // ── Navigation par onglets ────────────────────────────────
-  document.querySelectorAll('.ville-tab-btn').forEach(btn => {
+  // ── Navigation onglets ─────────────────────────────────────
+  document.querySelectorAll('.vtab-btn').forEach(btn => {
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.ville-tab-btn').forEach(b => b.classList.remove('actif'));
-      document.querySelectorAll('.ville-tab-panel').forEach(p => p.classList.remove('actif'));
+      document.querySelectorAll('.vtab-btn').forEach(b => b.classList.remove('actif'));
+      document.querySelectorAll('.vtab-panel').forEach(p => p.classList.remove('actif'));
       btn.classList.add('actif');
       const panel = document.getElementById('tab-' + btn.dataset.tab);
       if (panel) panel.classList.add('actif');
     });
   });
-}
+
+  // ════════════════════════════════════════════════════════════
+  // SECTION PROMO
+  // ════════════════════════════════════════════════════════════
+  const promo = profil && profil.promo;
+  if (promo) {
+    document.getElementById('promoSection').style.display = 'block';
+
+    // Tagline avec dernier mot en rouge
+    const mots = promo.tagline.split(' ');
+    const dernier = mots.pop();
+    document.getElementById('promoTagline').innerHTML = `${mots.join(' ')} <em>${dernier}</em>`;
+    txt('promoDesc', promo.description);
+
+    // Faits saillants
+    const faitsWrap = document.getElementById('promoFaits');
+    (promo.faits_saillants || []).forEach(f => {
+      const s = document.createElement('span');
+      s.className = 'promo-fait'; s.textContent = f;
+      faitsWrap.appendChild(s);
+    });
+
+    // Photo ou fallback
+    const photoWrap = document.getElementById('promoPhotoWrap');
+    if (promo.photo_url) {
+      photoWrap.innerHTML = `
+        <img src="${promo.photo_url}" alt="${promo.photo_legende || villeData.nom}" onerror="this.parentElement.innerHTML=photoFallback('${promo.photo_emoji||'🏛'}')">
+        <div class="promo-photo-legende">${promo.photo_legende || ''}</div>`;
+    } else {
+      photoWrap.innerHTML = `
+        <div class="promo-photo-fallback">
+          <span>${promo.photo_emoji || '🏛'}</span>
+          <span style="font-size:1rem;color:rgba(255,255,255,.35);">${promo.photo_legende || 'Patrimoine'}</span>
+        </div>`;
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════
+  // SECTION CALENDRIER MUNICIPAL
+  // ════════════════════════════════════════════════════════════
+  const cal = profil && profil.calendrier_municipal;
+  if (cal && cal.length) {
+    document.getElementById('calendrierSection').style.display = 'block';
+    document.getElementById('calAnnee').textContent = new Date().getFullYear();
+    const grille = document.getElementById('calGrille');
+    const today = new Date(); today.setHours(0,0,0,0);
+
+    cal.forEach(evt => {
+      const d = new Date(evt.date + 'T00:00:00');
+      const isPast = d < today;
+      const jour = d.getDate();
+      const mois = MOIS_FR[d.getMonth()].toUpperCase();
+      const badgeClass = {conseil:'badge-conseil',consultation:'badge-consultation',special:'badge-special',evenement:'badge-evenement'}[evt.type]||'badge-conseil';
+      const typeLabel = {conseil:'Séance ordinaire',consultation:'Consultation publique',special:'Séance spéciale',evenement:'Événement'}[evt.type]||evt.type;
+
+      const card = document.createElement('div');
+      card.className = 'cal-event';
+      if (isPast) card.style.opacity = '.45';
+      card.innerHTML = `
+        <div class="cal-date-bloc">
+          <div class="cal-jour">${jour}</div>
+          <div class="cal-mois">${mois}</div>
+        </div>
+        <div class="cal-info">
+          <span class="cal-type-badge ${badgeClass}">${typeLabel}</span>
+          <div class="cal-titre">${evt.titre}</div>
+          <div class="cal-meta">🕐 ${evt.heure} &nbsp;·&nbsp; 📍 ${evt.lieu}</div>
+        </div>`;
+      grille.appendChild(card);
+    });
+  }
+
+  // ════════════════════════════════════════════════════════════
+  // SECTION MAIRE
+  // ════════════════════════════════════════════════════════════
+  const mp = profil && profil.maire_profil;
+  if (mp) {
+    document.getElementById('maireSection').style.display = 'block';
+
+    // Photo ou fallback
+    const initiales = mp.nom.split(' ').map(w => w[0]).join('').slice(0, 2).toUpperCase();
+    const photoEl = document.getElementById('mairePhotoEl');
+    if (mp.photo_url) {
+      photoEl.innerHTML = `<img src="${mp.photo_url}" alt="${mp.nom}" class="maire-photo" onerror="this.outerHTML='<div class=maire-photo-fallback>${initiales}</div>'">`;
+    } else {
+      photoEl.innerHTML = `<div class="maire-photo-fallback">${initiales}</div>`;
+    }
+
+    txt('maireNomSous', mp.nom);
+    txt('mairePartiBadge', mp.parti);
+    txt('maireNom', mp.nom);
+    txt('maireTitrePoste', mp.titre);
+    const depuisSpan = document.querySelector('#maireDepuis span:last-child');
+    if (depuisSpan) depuisSpan.textContent = `Élu·e depuis ${mp.depuis}`;
+    txt('maireBio', mp.bio);
+
+    // Priorités
+    const priorWrap = document.getElementById('mairePriorites');
+    (mp.priorites || []).forEach(p => {
+      const s = document.createElement('span');
+      s.className = 'maire-priorite'; s.textContent = p;
+      priorWrap.appendChild(s);
+    });
+
+    // Contact
+    const contactWrap = document.getElementById('maireContact');
+    if (mp.contact_email) {
+      contactWrap.innerHTML += `<a href="mailto:${mp.contact_email}">📧 ${mp.contact_email}</a>`;
+    }
+    if (mp.contact_web) {
+      contactWrap.innerHTML += `<a href="${mp.contact_web}" target="_blank" rel="noopener">🌐 Site officiel →</a>`;
+    }
+  }
+
+  // ════════════════════════════════════════════════════════════
+  // COMMENTAIRES CITOYENS (Firebase)
+  // ════════════════════════════════════════════════════════════
+  const SESSION_KEY = 'ca_citoyen_v1';
+  let session = null;
+  try { session = JSON.parse(localStorage.getItem(SESSION_KEY)); } catch(e) {}
+
+  const formWrap = document.getElementById('commentsFormWrap');
+  const listEl   = document.getElementById('commentsList');
+
+  if (session && session.pseudo) {
+    // Formulaire pour membres connectés
+    formWrap.innerHTML = `
+      <div class="comments-form-wrap">
+        <p class="comments-form-titre">Commentez en tant que <strong>${session.pseudo}</strong> (${session.ville ? session.ville.split(',')[0] : ''})</p>
+        <textarea class="comments-textarea" id="commentTexte" placeholder="Partagez votre avis sur ${villeData.nom}, un enjeu local, une initiative citoyenne…" maxlength="500"></textarea>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:8px;">
+          <button class="comments-submit" id="btnSubmitComment">Publier →</button>
+          <span id="commentCharCount" style="font-size:.72rem;color:rgba(255,255,255,.3);">0 / 500</span>
+        </div>
+      </div>`;
+
+    const textarea = document.getElementById('commentTexte');
+    const charCount = document.getElementById('commentCharCount');
+    textarea.addEventListener('input', () => { charCount.textContent = `${textarea.value.length} / 500`; });
+
+    document.getElementById('btnSubmitComment').addEventListener('click', async () => {
+      const texte = textarea.value.trim();
+      if (!texte || texte.length < 5) return;
+      const btn = document.getElementById('btnSubmitComment');
+      btn.disabled = true; btn.textContent = 'Publication…';
+      try {
+        await db.collection('commentaires_villes').add({
+          villeId, villeNom: villeData.nom,
+          pseudo: session.pseudo,
+          ville: session.ville || '',
+          texte,
+          timestamp: firebase.firestore.FieldValue.serverTimestamp(),
+        });
+        textarea.value = ''; charCount.textContent = '0 / 500';
+      } catch(e) { console.error(e); }
+      btn.disabled = false; btn.textContent = 'Publier →';
+    });
+
+  } else {
+    formWrap.innerHTML = `
+      <div class="comments-cta">
+        <p>✍️ <a href="carte.html">Rejoignez le réseau citoyen</a> pour partager votre avis sur ${villeData.nom} et interagir avec la communauté locale.</p>
+      </div>`;
+  }
+
+  // Écoute Firestore — commentaires en temps réel
+  db.collection('commentaires_villes')
+    .where('villeId', '==', villeId)
+    .orderBy('timestamp', 'desc')
+    .limit(25)
+    .onSnapshot(snapshot => {
+      const count = snapshot.size;
+      document.getElementById('commentsCount').textContent = count ? `${count} commentaire${count > 1 ? 's' : ''}` : '';
+
+      if (count === 0) {
+        listEl.innerHTML = '<p class="comments-vide">Aucun commentaire pour cette ville. Soyez le premier à contribuer !</p>';
+        return;
+      }
+
+      listEl.innerHTML = '';
+      snapshot.forEach(doc => {
+        const c = doc.data();
+        const initiales = (c.pseudo || '?').replace(/[^a-zA-ZÀ-ÿ0-9]/g,'').slice(0,2).toUpperCase() || '?';
+        const couleur = avColor(c.pseudo || '?');
+        const ville_affiche = c.ville ? c.ville.split(',')[0] : '';
+
+        const item = document.createElement('div');
+        item.className = 'comment-item';
+        item.innerHTML = `
+          <div class="comment-av" style="background:${couleur};">${initiales}</div>
+          <div class="comment-corps">
+            <div class="comment-header">
+              <span class="comment-pseudo">${c.pseudo || '—'}</span>
+              ${ville_affiche ? `<span class="comment-ville">📍 ${ville_affiche}</span>` : ''}
+              <span class="comment-date">${tempsEcoule(c.timestamp)}</span>
+            </div>
+            <p class="comment-texte">${c.texte.replace(/</g,'&lt;')}</p>
+          </div>`;
+        listEl.appendChild(item);
+      });
+    }, err => {
+      if (err.code === 'failed-precondition') {
+        // Index requis — afficher les commentaires sans orderBy
+        db.collection('commentaires_villes')
+          .where('villeId', '==', villeId)
+          .limit(25)
+          .get()
+          .then(snap => {
+            if (snap.empty) {
+              listEl.innerHTML = '<p class="comments-vide">Aucun commentaire pour cette ville. Soyez le premier à contribuer !</p>';
+            }
+          });
+      }
+    });
+
+} // fin if villeData
 </script>
 </body>
 </html>
