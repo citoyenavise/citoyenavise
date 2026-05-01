@@ -416,16 +416,35 @@
         <div class="carte" style="border-top:4px solid var(--rouge); padding:20px; background:#fff; border:1.5px solid #ddd; border-radius:12px; text-decoration:none; color:inherit;">
           <span class="carte-icone">🇨🇦</span>
           <h3>Citoyenneté canadienne</h3>
-          <p>Accorder les droits complets du citoyen canadien. Prérequis : RP depuis 3 ans, résidence au Canada 1095 jours sur 5 ans, maîtrise du français/anglais, test de citoyenneté, taxes déclarées. Droits du citoyen incluent vote, passeport canadien, accès sans restriction aux emplois fédéraux, représentation diplomatique.</p>
+          <p>Accorder les droits complets du citoyen canadien. Prérequis : RP depuis 3 ans, résidence au Canada 1095 jours sur 5 ans, maîtrise du français/anglais, test de citoyenneté, taxes déclarées.</p>
 
-          <div class="carte-boutons">
-            <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/citoyennete-canadienne.html" class="btn btn-contour-rouge btn-sm" target="_blank" rel="noopener">Accéder →</a>
-            <button class="btn-points" onclick="ouvrirModal('modal-citoyennete')" title="Plus d'informations">ℹ️</button>>
-          </div>
+          <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/citoyennete-canadienne.html" class="btn btn-contour-rouge btn-sm" style="margin-top:12px;" target="_blank" rel="noopener">Accéder →</a>
+
+          <details class="details-infos" style="margin-top:12px;">
+            <summary style="cursor: pointer; font-weight: 700; color: var(--rouge); user-select: none;">+ Plus d'infos</summary>
+            <div style="margin-top:12px; padding-top:12px; border-top: 1px solid #e0e0e0;">
+              <div style="margin-bottom:12px;">
+                <h4 style="font-weight:700; color:var(--rouge); margin-bottom:6px; font-size:13px;">Description</h4>
+                <p style="font-size:13px; line-height:1.5; color:#555; margin:0;">La citoyenneté canadienne confère les droits complets de citoyen. Les citoyens jouissent de droits fondamentaux, droits politiques (vote), accès emplois publics fédéraux, protection consulaire, passeport canadien.</p>
+              </div>
+              <div style="margin-bottom:12px;">
+                <h4 style="font-weight:700; color:var(--rouge); margin-bottom:6px; font-size:13px;">Lois qui s'y rattachent</h4>
+                <p style="font-size:13px; line-height:1.5; color:#555; margin:0;"><strong>Loi sur la citoyenneté</strong> (L.R.C. 1985, c. C-29). <strong>LIPR</strong> - Coordonne procédures immigration/citoyenneté. <strong>Charte canadienne des droits et libertés</strong> - Protège droits.</p>
+              </div>
+              <div style="margin-bottom:12px;">
+                <h4 style="font-weight:700; color:var(--rouge); margin-bottom:6px; font-size:13px;">Conditions</h4>
+                <p style="font-size:13px; line-height:1.5; color:#555; margin:0;"><strong>Prérequis :</strong> RP 3 ans minimum, résider 1095 jours en 5 ans, français/anglais niveau CLB/NCLC 4 minimum, déclarer impôts fédéraux (3 dernières années).</p>
+              </div>
+              <div>
+                <h4 style="font-weight:700; color:var(--rouge); margin-bottom:6px; font-size:13px;">Fonctionnement</h4>
+                <p style="font-size:13px; line-height:1.5; color:#555; margin:0;"><strong>Étapes :</strong> 1) Demande en ligne. 2) Vérification antécédents. 3) Test citoyenneté (20 questions, 15 bonnes réponses min). 4) Entrevue. 5) Serment allégeance. <strong>Délai :</strong> ~12 mois.</p>
+              </div>
+            </div>
+          </details>
         </div>
 
-        <!-- Modal pour Citoyenneté canadienne -->
-        <div id="modal-citoyennete" class="modal">
+        <!-- Modal pour Citoyenneté canadienne (conservé) -->
+        <div id="modal-citoyennete" class="modal" style="display:none;">
           <div class="modal-contenu">
             <button class="modal-fermer" onclick="fermerModal('modal-citoyennete')">&times;</button>
             <h2 class="modal-titre">Citoyenneté canadienne</h2>
@@ -455,12 +474,31 @@
         <div class="carte" style="border-top:4px solid var(--rouge); padding:20px; background:#fff; border:1.5px solid #ddd; border-radius:12px; text-decoration:none; color:inherit;">
           <span class="carte-icone">💼</span>
           <h3>Permis de travail et d'études</h3>
-          <p>Permettre aux travailleurs et étudiants étrangers de travailler et étudier légalement au Canada. Types de permis de travail : fermé (pour employeur spécifique), ouvert (pour tout employeur). EIMT pour vérifier pénurie de main-d'œuvre. Permis d'études pour études à temps plein, avec autorisation de travail hors campus (20h/semaine during studies).</p>
+          <p>Permettre aux travailleurs et étudiants étrangers de travailler et étudier légalement au Canada. Types : permis fermé (employeur spécifique), ouvert (tout employeur).</p>
 
-          <div class="carte-boutons">
-            <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/travailler-canada.html" class="btn btn-contour-rouge btn-sm" target="_blank" rel="noopener">Accéder →</a>
-            <button class="btn-points" onclick="ouvrirModal('modal-travail-etudes')" title="Plus d'informations">ℹ️</button>>
-          </div>
+          <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/travailler-canada.html" class="btn btn-contour-rouge btn-sm" style="margin-top:12px;" target="_blank" rel="noopener">Accéder →</a>
+
+          <details class="details-infos" style="margin-top:12px;">
+            <summary style="cursor: pointer; font-weight: 700; color: var(--rouge); user-select: none;">+ Plus d'infos</summary>
+            <div style="margin-top:12px; padding-top:12px; border-top: 1px solid #e0e0e0;">
+              <div style="margin-bottom:12px;">
+                <h4 style="font-weight:700; color:var(--rouge); margin-bottom:6px; font-size:13px;">Description</h4>
+                <p style="font-size:13px; line-height:1.5; color:#555; margin:0;">Autorisation officielle pour travailler ou étudier légalement au Canada. Permis travail permet ressortissants étrangers occuper emploi. Permis études permet études temps plein.</p>
+              </div>
+              <div style="margin-bottom:12px;">
+                <h4 style="font-weight:700; color:var(--rouge); margin-bottom:6px; font-size:13px;">Lois qui s'y rattachent</h4>
+                <p style="font-size:13px; line-height:1.5; color:#555; margin:0;"><strong>LIPR</strong> (L.C. 2001, c. 27) - Encadre conditions travail/études. <strong>Règlement LIPR</strong> - Détail procédures. <strong>ALÉNA/ACÉU</strong> - Autorise certains travailleurs professionnels.</p>
+              </div>
+              <div style="margin-bottom:12px;">
+                <h4 style="font-weight:700; color:var(--rouge); margin-bottom:6px; font-size:13px;">Conditions</h4>
+                <p style="font-size:13px; line-height:1.5; color:#555; margin:0;"><strong>Travail fermé :</strong> Offre emploi signée, EIMT. <strong>Travail ouvert :</strong> Catégories spéciales. <strong>Études :</strong> Lettre acceptation, preuve moyens financiers.</p>
+              </div>
+              <div>
+                <h4 style="font-weight:700; color:var(--rouge); margin-bottom:6px; font-size:13px;">Fonctionnement</h4>
+                <p style="font-size:13px; line-height:1.5; color:#555; margin:0;"><strong>Délai :</strong> 4-8 semaines. <strong>Études :</strong> Travail 20h/semaine pendant études. <strong>Post-études :</strong> PTPD jusqu'à 3 ans selon durée programme.</p>
+              </div>
+            </div>
+          </details>
         </div>
 
         <!-- Modal pour Permis de travail et d'études -->
@@ -494,12 +532,31 @@
         <div class="carte" style="border-top:4px solid var(--rouge); padding:20px; background:#fff; border:1.5px solid #ddd; border-radius:12px; text-decoration:none; color:inherit;">
           <span class="carte-icone">👨‍👩‍👧‍👦</span>
           <h3>Parrainage familial</h3>
-          <p>Permet aux Canadiens de parrainer membres de leur famille pour immigrer. Familles admissibles : conjoint/partenaire, enfants, parents, grands-parents. Parrain doit assumer responsabilité financière. Engagement de parrainage entre 3-20 ans selon relation. Délai : environ 12 mois pour conjoint, 20-24 mois pour parents/grands-parents (tirage au sort + traitement).</p>
+          <p>Permet aux Canadiens de parrainer proches pour immigrer. Familles admissibles : conjoint, enfants, parents, grands-parents. Parrain signe contrat légal.</p>
 
-          <div class="carte-boutons">
-            <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/immigrer-canada/parrainer-membres-famille.html" class="btn btn-contour-rouge btn-sm" target="_blank" rel="noopener">Accéder →</a>
-            <button class="btn-points" onclick="ouvrirModal('modal-parrainage')" title="Plus d'informations">ℹ️</button>>
-          </div>
+          <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/immigrer-canada/parrainer-membres-famille.html" class="btn btn-contour-rouge btn-sm" style="margin-top:12px;" target="_blank" rel="noopener">Accéder →</a>
+
+          <details class="details-infos" style="margin-top:12px;">
+            <summary style="cursor: pointer; font-weight: 700; color: var(--rouge); user-select: none;">+ Plus d'infos</summary>
+            <div style="margin-top:12px; padding-top:12px; border-top: 1px solid #e0e0e0;">
+              <div style="margin-bottom:12px;">
+                <h4 style="font-weight:700; color:var(--rouge); margin-bottom:6px; font-size:13px;">Description</h4>
+                <p style="font-size:13px; line-height:1.5; color:#555; margin:0;">Programme permettant citoyens/RP canadiens de parrainer proches pour immigrer. Parrain s'engage prendre responsabilité financière. Permet réunification familiale légale.</p>
+              </div>
+              <div style="margin-bottom:12px;">
+                <h4 style="font-weight:700; color:var(--rouge); margin-bottom:6px; font-size:13px;">Lois qui s'y rattachent</h4>
+                <p style="font-size:13px; line-height:1.5; color:#555; margin:0;"><strong>LIPR</strong> (L.C. 2001, c. 27) - Encadre parrainage. <strong>Lois provinciales aide sociale</strong> - Définissent recours si aide sociale requise.</p>
+              </div>
+              <div style="margin-bottom:12px;">
+                <h4 style="font-weight:700; color:var(--rouge); margin-bottom:6px; font-size:13px;">Conditions</h4>
+                <p style="font-size:13px; line-height:1.5; color:#555; margin:0;"><strong>Parrain :</strong> Citoyen/RP, 18+ ans, revenu suffisant. <strong>Parrainé :</strong> Relation admissible. <strong>Restrictions :</strong> Pas parrainage antérieur impayé, parrain pas receveur aide sociale.</p>
+              </div>
+              <div>
+                <h4 style="font-weight:700; color:var(--rouge); margin-bottom:6px; font-size:13px;">Fonctionnement</h4>
+                <p style="font-size:13px; line-height:1.5; color:#555; margin:0;"><strong>Étapes :</strong> 1) Demande parrain + engagement. 2) Évaluation revenu. 3) Demande parrainé. <strong>Délai :</strong> ~12 mois conjoint, ~24 mois parents/grands-parents.</p>
+              </div>
+            </div>
+          </details>
         </div>
 
         <!-- Modal pour Parrainage familial -->
@@ -533,12 +590,31 @@
         <div class="carte" style="border-top:4px solid var(--rouge); padding:20px; background:#fff; border:1.5px solid #ddd; border-radius:12px; text-decoration:none; color:inherit;">
           <span class="carte-icone">🔢</span>
           <h3>Numéro d'assurance sociale</h3>
-          <p>Numéro à 9 chiffres absolument nécessaire pour travailler légalement au Canada, payer impôts et accéder à programmes gouvernementaux (AE, RPC, SV, ACE). Permanent pour citoyens et RP, temporaire (commence par 9) pour travailleurs temporaires. Protéger votre NAS : communiquer seulement à employeurs, institutions financières et gouvernements.</p>
+          <p>Numéro à 9 chiffres nécessaire pour travailler, payer impôts et accéder programmes gouvernementaux (AE, RPC, SV, ACE).</p>
 
-          <div class="carte-boutons">
-            <a href="https://www.canada.ca/fr/emploi-developpement-social/services/numero-assurance-sociale.html" class="btn btn-contour-rouge btn-sm" target="_blank" rel="noopener">Accéder →</a>
-            <button class="btn-points" onclick="ouvrirModal('modal-nas')" title="Plus d'informations">ℹ️</button>>
-          </div>
+          <a href="https://www.canada.ca/fr/emploi-developpement-social/services/numero-assurance-sociale.html" class="btn btn-contour-rouge btn-sm" style="margin-top:12px;" target="_blank" rel="noopener">Accéder →</a>
+
+          <details class="details-infos" style="margin-top:12px;">
+            <summary style="cursor: pointer; font-weight: 700; color: var(--rouge); user-select: none;">+ Plus d'infos</summary>
+            <div style="margin-top:12px; padding-top:12px; border-top: 1px solid #e0e0e0;">
+              <div style="margin-bottom:12px;">
+                <h4 style="font-weight:700; color:var(--rouge); margin-bottom:6px; font-size:13px;">Description</h4>
+                <p style="font-size:13px; line-height:1.5; color:#555; margin:0;">Numéro identifiant unique à 9 chiffres absolument nécessaire pour travailler Canada, payer impôts, recevoir prestations gouvernementales. NAS confidentiel : vol identité risque majeur.</p>
+              </div>
+              <div style="margin-bottom:12px;">
+                <h4 style="font-weight:700; color:var(--rouge); margin-bottom:6px; font-size:13px;">Lois qui s'y rattachent</h4>
+                <p style="font-size:13px; line-height:1.5; color:#555; margin:0;"><strong>Loi EDSC</strong> - Encadre administration NAS. <strong>Loi protection renseignements personnels</strong> - Protège confidentialité.</p>
+              </div>
+              <div style="margin-bottom:12px;">
+                <h4 style="font-weight:700; color:var(--rouge); margin-bottom:6px; font-size:13px;">Conditions</h4>
+                <p style="font-size:13px; line-height:1.5; color:#555; margin:0;"><strong>Permanent :</strong> Citoyens, RP. <strong>Temporaire (9-) :</strong> Travailleurs temporaires, étudiants. <strong>Éligibilité :</strong> 16+ ans, droit travailler légalement.</p>
+              </div>
+              <div>
+                <h4 style="font-weight:700; color:var(--rouge); margin-bottom:6px; font-size:13px;">Fonctionnement</h4>
+                <p style="font-size:13px; line-height:1.5; color:#555; margin:0;"><strong>Obtention :</strong> Service Canada en personne ou en ligne. <strong>Protection :</strong> Conserver confidentiel, fournir seulement employeurs/institutions/gouvernements. <strong>Délai :</strong> Immédiat personne.</p>
+              </div>
+            </div>
+          </details>
         </div>
 
         <!-- Modal pour Numéro d'assurance sociale -->
@@ -572,12 +648,31 @@
         <div class="carte" style="border-top:4px solid var(--rouge); padding:20px; background:#fff; border:1.5px solid #ddd; border-radius:12px; text-decoration:none; color:inherit;">
           <span class="carte-icone">📋</span>
           <h3>État d'une demande IRCC</h3>
-          <p>Portail en ligne sécurisé pour suivre en temps réel avancement de toute demande d'immigration, visa ou citoyenneté. Informations disponibles : date de réception, statut actuel, délai estimé. Délais publiés par IRCC varient selon type de demande. Webform disponible en cas de dépassement significatif du délai prévu.</p>
+          <p>Portail en ligne sécurisé pour suivre avancement demandes immigration, visa ou citoyenneté en temps réel.</p>
 
-          <div class="carte-boutons">
-            <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/demande/verifier-etat.html" class="btn btn-contour-rouge btn-sm" target="_blank" rel="noopener">Accéder →</a>
-            <button class="btn-points" onclick="ouvrirModal('modal-etat-demande')" title="Plus d'informations">ℹ️</button>>
-          </div>
+          <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/demande/verifier-etat.html" class="btn btn-contour-rouge btn-sm" style="margin-top:12px;" target="_blank" rel="noopener">Accéder →</a>
+
+          <details class="details-infos" style="margin-top:12px;">
+            <summary style="cursor: pointer; font-weight: 700; color: var(--rouge); user-select: none;">+ Plus d'infos</summary>
+            <div style="margin-top:12px; padding-top:12px; border-top: 1px solid #e0e0e0;">
+              <div style="margin-bottom:12px;">
+                <h4 style="font-weight:700; color:var(--rouge); margin-bottom:6px; font-size:13px;">Description</h4>
+                <p style="font-size:13px; line-height:1.5; color:#555; margin:0;">Portail IRCC permettant suivre en temps réel avancement demandes immigration, visa, citoyenneté. Offre transparence processus, délais estimés, documents requis.</p>
+              </div>
+              <div style="margin-bottom:12px;">
+                <h4 style="font-weight:700; color:var(--rouge); margin-bottom:6px; font-size:13px;">Lois qui s'y rattachent</h4>
+                <p style="font-size:13px; line-height:1.5; color:#555; margin:0;"><strong>LIPR</strong> - Encadre procédures. <strong>Loi accès information</strong> - Droit accès dossier. <strong>Loi protection renseignements</strong> - Protège données.</p>
+              </div>
+              <div style="margin-bottom:12px;">
+                <h4 style="font-weight:700; color:var(--rouge); margin-bottom:6px; font-size:13px;">Conditions</h4>
+                <p style="font-size:13px; line-height:1.5; color:#555; margin:0;"><strong>Accès :</strong> Créer compte sécurisé. <strong>Informations :</strong> Numéro demande, date naissance. <strong>Types :</strong> RP Express Entry, parrainage, visa, citoyenneté.</p>
+              </div>
+              <div>
+                <h4 style="font-weight:700; color:var(--rouge); margin-bottom:6px; font-size:13px;">Fonctionnement</h4>
+                <p style="font-size:13px; line-height:1.5; color:#555; margin:0;"><strong>Accès :</strong> Compte sécurisé + infos demande. <strong>Informations :</strong> Date réception, statut, délai moyen. <strong>Recours :</strong> Webform si dépassement délai significatif.</p>
+              </div>
+            </div>
+          </details>
         </div>
 
         <!-- Modal pour État d'une demande IRCC -->
