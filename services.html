@@ -128,6 +128,33 @@
       cursor: pointer;
       display: inline-block;
     }
+
+    /* Conteneur boutons */
+    .carte-boutons {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 12px;
+      gap: 8px;
+    }
+
+    /* Bouton "..." */
+    .btn-points {
+      background: transparent;
+      border: 1px solid var(--rouge);
+      color: var(--rouge);
+      padding: 6px 8px;
+      border-radius: 6px;
+      font-size: 18px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      line-height: 1;
+    }
+    .btn-points:hover {
+      background: var(--rouge);
+      color: white;
+    }
   </style>
   <!-- Google Analytics 4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-RDFSPWC9R2"></script>
@@ -325,8 +352,10 @@
           <h3>Résidence permanente</h3>
           <p>Permet de vivre, travailler et étudier au Canada de façon permanente. Principales voies : Express Entry, Parrainage, Candidats des provinces. Droits des RP incluent accès à services publics, avantages sociaux, sauf services fédéraux à certains postes. Obligation de résidence : 730 jours en 5 ans.</p>
 
-          <button class="btn btn-contour-rouge btn-sm btn-infos" onclick="ouvrirModal('modal-rp')">Plus d'infos</button>
-          <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/immigrer-canada/residence-permanente.html" class="btn btn-contour-rouge btn-sm" style="margin-top:12px; margin-left:8px;" target="_blank" rel="noopener">Accéder →</a>
+          <div class="carte-boutons">
+            <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/immigrer-canada/residence-permanente.html" class="btn btn-contour-rouge btn-sm" target="_blank" rel="noopener">Accéder →</a>
+            <button class="btn-points" onclick="ouvrirModal('modal-rp')" title="Plus d'informations">…</button>
+          </div>
         </div>
 
         <!-- Modal pour Résidence permanente -->
@@ -362,8 +391,10 @@
           <h3>Citoyenneté canadienne</h3>
           <p>Accorder les droits complets du citoyen canadien. Prérequis : RP depuis 3 ans, résidence au Canada 1095 jours sur 5 ans, maîtrise du français/anglais, test de citoyenneté, taxes déclarées. Droits du citoyen incluent vote, passeport canadien, accès sans restriction aux emplois fédéraux, représentation diplomatique.</p>
 
-          <button class="btn btn-contour-rouge btn-sm btn-infos" onclick="ouvrirModal('modal-citoyennete')">Plus d'infos</button>
-          <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/citoyennete-canadienne.html" class="btn btn-contour-rouge btn-sm" style="margin-top:12px; margin-left:8px;" target="_blank" rel="noopener">Accéder →</a>
+          <div class="carte-boutons">
+            <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/citoyennete-canadienne.html" class="btn btn-contour-rouge btn-sm" target="_blank" rel="noopener">Accéder →</a>
+            <button class="btn-points" onclick="ouvrirModal('modal-citoyennete')" title="Plus d'informations">…</button>
+          </div>
         </div>
 
         <!-- Modal pour Citoyenneté canadienne -->
@@ -399,8 +430,10 @@
           <h3>Permis de travail et d'études</h3>
           <p>Permettre aux travailleurs et étudiants étrangers de travailler et étudier légalement au Canada. Types de permis de travail : fermé (pour employeur spécifique), ouvert (pour tout employeur). EIMT pour vérifier pénurie de main-d'œuvre. Permis d'études pour études à temps plein, avec autorisation de travail hors campus (20h/semaine during studies).</p>
 
-          <button class="btn btn-contour-rouge btn-sm btn-infos" onclick="ouvrirModal('modal-travail-etudes')">Plus d'infos</button>
-          <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/travailler-canada.html" class="btn btn-contour-rouge btn-sm" style="margin-top:12px; margin-left:8px;" target="_blank" rel="noopener">Accéder →</a>
+          <div class="carte-boutons">
+            <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/travailler-canada.html" class="btn btn-contour-rouge btn-sm" target="_blank" rel="noopener">Accéder →</a>
+            <button class="btn-points" onclick="ouvrirModal('modal-travail-etudes')" title="Plus d'informations">…</button>
+          </div>
         </div>
 
         <!-- Modal pour Permis de travail et d'études -->
@@ -436,8 +469,10 @@
           <h3>Parrainage familial</h3>
           <p>Permet aux Canadiens de parrainer membres de leur famille pour immigrer. Familles admissibles : conjoint/partenaire, enfants, parents, grands-parents. Parrain doit assumer responsabilité financière. Engagement de parrainage entre 3-20 ans selon relation. Délai : environ 12 mois pour conjoint, 20-24 mois pour parents/grands-parents (tirage au sort + traitement).</p>
 
-          <button class="btn btn-contour-rouge btn-sm btn-infos" onclick="ouvrirModal('modal-parrainage')">Plus d'infos</button>
-          <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/immigrer-canada/parrainer-membres-famille.html" class="btn btn-contour-rouge btn-sm" style="margin-top:12px; margin-left:8px;" target="_blank" rel="noopener">Accéder →</a>
+          <div class="carte-boutons">
+            <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/immigrer-canada/parrainer-membres-famille.html" class="btn btn-contour-rouge btn-sm" target="_blank" rel="noopener">Accéder →</a>
+            <button class="btn-points" onclick="ouvrirModal('modal-parrainage')" title="Plus d'informations">…</button>
+          </div>
         </div>
 
         <!-- Modal pour Parrainage familial -->
@@ -473,8 +508,10 @@
           <h3>Numéro d'assurance sociale</h3>
           <p>Numéro à 9 chiffres absolument nécessaire pour travailler légalement au Canada, payer impôts et accéder à programmes gouvernementaux (AE, RPC, SV, ACE). Permanent pour citoyens et RP, temporaire (commence par 9) pour travailleurs temporaires. Protéger votre NAS : communiquer seulement à employeurs, institutions financières et gouvernements.</p>
 
-          <button class="btn btn-contour-rouge btn-sm btn-infos" onclick="ouvrirModal('modal-nas')">Plus d'infos</button>
-          <a href="https://www.canada.ca/fr/emploi-developpement-social/services/numero-assurance-sociale.html" class="btn btn-contour-rouge btn-sm" style="margin-top:12px; margin-left:8px;" target="_blank" rel="noopener">Accéder →</a>
+          <div class="carte-boutons">
+            <a href="https://www.canada.ca/fr/emploi-developpement-social/services/numero-assurance-sociale.html" class="btn btn-contour-rouge btn-sm" target="_blank" rel="noopener">Accéder →</a>
+            <button class="btn-points" onclick="ouvrirModal('modal-nas')" title="Plus d'informations">…</button>
+          </div>
         </div>
 
         <!-- Modal pour Numéro d'assurance sociale -->
@@ -510,8 +547,10 @@
           <h3>État d'une demande IRCC</h3>
           <p>Portail en ligne sécurisé pour suivre en temps réel avancement de toute demande d'immigration, visa ou citoyenneté. Informations disponibles : date de réception, statut actuel, délai estimé. Délais publiés par IRCC varient selon type de demande. Webform disponible en cas de dépassement significatif du délai prévu.</p>
 
-          <button class="btn btn-contour-rouge btn-sm btn-infos" onclick="ouvrirModal('modal-etat-demande')">Plus d'infos</button>
-          <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/demande/verifier-etat.html" class="btn btn-contour-rouge btn-sm" style="margin-top:12px; margin-left:8px;" target="_blank" rel="noopener">Accéder →</a>
+          <div class="carte-boutons">
+            <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/demande/verifier-etat.html" class="btn btn-contour-rouge btn-sm" target="_blank" rel="noopener">Accéder →</a>
+            <button class="btn-points" onclick="ouvrirModal('modal-etat-demande')" title="Plus d'informations">…</button>
+          </div>
         </div>
 
         <!-- Modal pour État d'une demande IRCC -->
