@@ -43,6 +43,91 @@
       transform: translateY(-4px);
       box-shadow: 0 6px 16px rgba(193, 39, 45, 0.15);
     }
+
+    /* Styles pour les modals */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      animation: fadeIn 0.3s ease;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .modal.active {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-contenu {
+      background-color: #fff;
+      border-radius: 12px;
+      padding: 32px;
+      max-width: 600px;
+      width: 90%;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp {
+      from {
+        transform: translateY(30px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+    .modal-fermer {
+      float: right;
+      font-size: 28px;
+      font-weight: bold;
+      color: #aaa;
+      cursor: pointer;
+      border: none;
+      background: none;
+      padding: 0;
+      margin: -8px -8px 12px 0;
+    }
+    .modal-fermer:hover,
+    .modal-fermer:focus {
+      color: var(--rouge);
+    }
+    .modal-titre {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--rouge);
+      margin-bottom: 20px;
+      clear: both;
+    }
+    .modal-section {
+      margin-bottom: 20px;
+    }
+    .modal-section h4 {
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--rouge);
+      margin-bottom: 10px;
+    }
+    .modal-section p {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #555;
+      margin: 0;
+    }
+    .btn-infos {
+      margin-top: 12px;
+      cursor: pointer;
+      display: inline-block;
+    }
   </style>
   <!-- Google Analytics 4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-RDFSPWC9R2"></script>
@@ -235,47 +320,227 @@
       <h2 class="services-titre-section">Immigration et citoyenneté</h2>
       <div class="grille-3">
 
-        <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/immigrer-canada/residence-permanente.html" class="carte" style="text-decoration:none;color:inherit;border-top:4px solid var(--rouge);" target="_blank" rel="noopener">
+        <div class="carte" style="border-top:4px solid var(--rouge); padding:20px; background:#fff; border:1.5px solid #ddd; border-radius:12px; text-decoration:none; color:inherit;">
           <span class="carte-icone">🏠</span>
           <h3>Résidence permanente</h3>
           <p>Permet de vivre, travailler et étudier au Canada de façon permanente. Principales voies : Express Entry, Parrainage, Candidats des provinces. Droits des RP incluent accès à services publics, avantages sociaux, sauf services fédéraux à certains postes. Obligation de résidence : 730 jours en 5 ans.</p>
-          <span class="btn btn-contour-rouge btn-sm" style="margin-top:12px;">Accéder →</span>
-        </a>
 
-        <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/citoyennete-canadienne.html" class="carte" style="text-decoration:none;color:inherit;border-top:4px solid var(--rouge);" target="_blank" rel="noopener">
+          <button class="btn btn-contour-rouge btn-sm btn-infos" onclick="ouvrirModal('modal-rp')">Plus d'infos</button>
+          <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/immigrer-canada/residence-permanente.html" class="btn btn-contour-rouge btn-sm" style="margin-top:12px; margin-left:8px;" target="_blank" rel="noopener">Accéder →</a>
+        </div>
+
+        <!-- Modal pour Résidence permanente -->
+        <div id="modal-rp" class="modal">
+          <div class="modal-contenu">
+            <button class="modal-fermer" onclick="fermerModal('modal-rp')">&times;</button>
+            <h2 class="modal-titre">Résidence permanente</h2>
+
+            <div class="modal-section">
+              <h4>Description</h4>
+              <p>Le statut de résident permanent (RP) permet aux immigrants de vivre, travailler et étudier au Canada de manière permanente. Les RP ont accès aux services publics fédéraux, provinciaux et municipaux (santé, éducation), ainsi qu'aux avantages sociaux. À l'inverse des citoyens, les RP ne peuvent pas voter, ne reçoivent pas de passeport canadien et ne peuvent occuper certains postes fédéraux. Le statut se maintient par l'obligation de résidence.</p>
+            </div>
+
+            <div class="modal-section">
+              <h4>Lois qui s'y rattachent</h4>
+              <p><strong>Loi sur l'immigration et la protection des réfugiés (LIPR)</strong> (L.C. 2001, c. 27) - Encadre les conditions d'admission, statut et droits/obligations des RP. <strong>Loi sur la citoyenneté</strong> - Définit voies vers citoyenneté. <strong>Loi sur l'accès à l'information</strong> - Droit d'accès aux dossiers d'immigration.</p>
+            </div>
+
+            <div class="modal-section">
+              <h4>Conditions</h4>
+              <p><strong>Voies d'admission :</strong> Express Entry (basé points : formation, langue, expérience travail), Parrainage familial (membre famille canadien ou RP parraine), Candidats des provinces (programme provincial). <strong>Critères :</strong> Solvabilité financière, antécédents criminels/médicaux acceptables, tests langues (IELTS/TOEFL anglais, TCF/DELF français). <strong>Délais :</strong> 6 mois average pour Express Entry, 12-24 mois parrainage.</p>
+            </div>
+
+            <div class="modal-section">
+              <h4>Fonctionnement</h4>
+              <p><strong>Obligation de résidence :</strong> 730 jours en 5 ans (peut inclure temps avant obtention RP). <strong>Renouvellement de permis :</strong> Valide 5 ans, renouvellement automatique si résidence respectée. <strong>Accès services :</strong> Soins santé (selon province), assurance maladie (délai d'attente possible), prêts étudiants fédéraux, allocations familiales (après 18 mois résidence). <strong>Immigration vers citoyenneté :</strong> Après 3 ans RP, can demander citoyenneté.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="carte" style="border-top:4px solid var(--rouge); padding:20px; background:#fff; border:1.5px solid #ddd; border-radius:12px; text-decoration:none; color:inherit;">
           <span class="carte-icone">🇨🇦</span>
           <h3>Citoyenneté canadienne</h3>
           <p>Accorder les droits complets du citoyen canadien. Prérequis : RP depuis 3 ans, résidence au Canada 1095 jours sur 5 ans, maîtrise du français/anglais, test de citoyenneté, taxes déclarées. Droits du citoyen incluent vote, passeport canadien, accès sans restriction aux emplois fédéraux, représentation diplomatique.</p>
-          <span class="btn btn-contour-rouge btn-sm" style="margin-top:12px;">Accéder →</span>
-        </a>
 
-        <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/travailler-canada.html" class="carte" style="text-decoration:none;color:inherit;border-top:4px solid var(--rouge);" target="_blank" rel="noopener">
+          <button class="btn btn-contour-rouge btn-sm btn-infos" onclick="ouvrirModal('modal-citoyennete')">Plus d'infos</button>
+          <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/citoyennete-canadienne.html" class="btn btn-contour-rouge btn-sm" style="margin-top:12px; margin-left:8px;" target="_blank" rel="noopener">Accéder →</a>
+        </div>
+
+        <!-- Modal pour Citoyenneté canadienne -->
+        <div id="modal-citoyennete" class="modal">
+          <div class="modal-contenu">
+            <button class="modal-fermer" onclick="fermerModal('modal-citoyennete')">&times;</button>
+            <h2 class="modal-titre">Citoyenneté canadienne</h2>
+
+            <div class="modal-section">
+              <h4>Description</h4>
+              <p>La citoyenneté canadienne confère les droits complets et responsabilités de citoyen. Les citoyens jouissent de droits fondamentaux (liberté expression, association, religion), droits politiques (vote, candidature élections), accès sans restriction emplois publics fédéraux, protection consulaire à l'étranger, passeport canadien sans restriction. Un citoyen conserve sa citoyenneté même s'il acquiert une autre nationalité.</p>
+            </div>
+
+            <div class="modal-section">
+              <h4>Lois qui s'y rattachent</h4>
+              <p><strong>Loi sur la citoyenneté</strong> (L.R.C. 1985, c. C-29) - Définit conditions d'obtention, droits, responsabilités citoyens. <strong>Loi sur l'immigration et la protection des réfugiés (LIPR)</strong> - Coordonne procédures immigration/citoyenneté. <strong>Charte canadienne des droits et libertés</strong> - Protège droits citoyens. <strong>Loi électorale du Canada</strong> - Encadre droit vote.</p>
+            </div>
+
+            <div class="modal-section">
+              <h4>Conditions</h4>
+              <p><strong>Prérequis :</strong> Être RP depuis minimum 3 ans (ou 2 ans pour certains). Résider au Canada minimum 1095 jours sur 5 années précédentes. Maîtriser français ou anglais (niveau CLB/NCLC 4 minimum). Avoir déclaré impôts fédéraux si obligatoire (3 dernières années). <strong>Exclusions :</strong> Antécédents criminels graves, terrorisme, sécurité nationale.</p>
+            </div>
+
+            <div class="modal-section">
+              <h4>Fonctionnement</h4>
+              <p><strong>Étapes :</strong> 1) Demande en ligne via IRCC. 2) Vérification antécédents (criminels, sécurité). 3) Test citoyenneté (20 questions sur histoire/civisme canadien, 15 bonnes réponses minimum). 4) Entrevue avec agent (français/anglais). 5) Serment allégeance (cérémonie groupe). <strong>Délai :</strong> Environ 12 mois. <strong>Droits immédiats :</strong> Vote, passeport, protection consulaire.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="carte" style="border-top:4px solid var(--rouge); padding:20px; background:#fff; border:1.5px solid #ddd; border-radius:12px; text-decoration:none; color:inherit;">
           <span class="carte-icone">💼</span>
           <h3>Permis de travail et d'études</h3>
           <p>Permettre aux travailleurs et étudiants étrangers de travailler et étudier légalement au Canada. Types de permis de travail : fermé (pour employeur spécifique), ouvert (pour tout employeur). EIMT pour vérifier pénurie de main-d'œuvre. Permis d'études pour études à temps plein, avec autorisation de travail hors campus (20h/semaine during studies).</p>
-          <span class="btn btn-contour-rouge btn-sm" style="margin-top:12px;">Accéder →</span>
-        </a>
 
-        <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/immigrer-canada/parrainer-membres-famille.html" class="carte" style="text-decoration:none;color:inherit;border-top:4px solid var(--rouge);" target="_blank" rel="noopener">
+          <button class="btn btn-contour-rouge btn-sm btn-infos" onclick="ouvrirModal('modal-travail-etudes')">Plus d'infos</button>
+          <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/travailler-canada.html" class="btn btn-contour-rouge btn-sm" style="margin-top:12px; margin-left:8px;" target="_blank" rel="noopener">Accéder →</a>
+        </div>
+
+        <!-- Modal pour Permis de travail et d'études -->
+        <div id="modal-travail-etudes" class="modal">
+          <div class="modal-contenu">
+            <button class="modal-fermer" onclick="fermerModal('modal-travail-etudes')">&times;</button>
+            <h2 class="modal-titre">Permis de travail et d'études</h2>
+
+            <div class="modal-section">
+              <h4>Description</h4>
+              <p>Autorisation officielle pour travailler ou étudier légalement au Canada. Permis de travail permet à ressortissants étrangers d'occuper un emploi. Permis d'études permet études temps plein établissement reconnu. Ces permis ne donnent pas droit au RP (sauf via programmes spécifiques). Durée : généralement liée contrat travail ou durée programme études. Renouvellement possible si conditions remplies.</p>
+            </div>
+
+            <div class="modal-section">
+              <h4>Lois qui s'y rattachent</h4>
+              <p><strong>Loi sur l'immigration et la protection des réfugiés (LIPR)</strong> (L.C. 2001, c. 27) - Encadre conditions travail/études. <strong>Règlement sur l'immigration et la protection des réfugiés</strong> - Détail procédures, critères, exceptions. <strong>Accord de libre-échange (ALÉNA/ACÉU)</strong> - Autorise certains travailleurs professionnels des pays signataires sans EIMT.</p>
+            </div>
+
+            <div class="modal-section">
+              <h4>Conditions</h4>
+              <p><strong>Permis de travail fermé :</strong> Offre emploi signée, vérification EIMT (pénurie main-d'œuvre), médecin autorisé exam santé. <strong>Permis de travail ouvert :</strong> Catégories spéciales (conjoints RP/permis, réfugiés acceptés). <strong>Permis d'études :</strong> Lettre acceptation établissement reconnu, preuve moyens financiers (~20 000-30 000$/année), tests langue (TOEFL/IELTS anglais, TCF français).</p>
+            </div>
+
+            <div class="modal-section">
+              <h4>Fonctionnement</h4>
+              <p><strong>Demande :</strong> En ligne via IRCC (ou papier selon situations). <strong>Délai :</strong> 4-8 semaines permis travail, 4 semaines permis études. <strong>Travail :</strong> Max 48h/semaine, dépôt direct revenu sur compte bancaire. <strong>Études :</strong> Travail autorisé 20h/semaine pendant études, temps plein pendant pauses (été, hiver). <strong>Post-études :</strong> Permis travail post-diplôme (PTPD) jusqu'à 3 ans selon durée programme.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="carte" style="border-top:4px solid var(--rouge); padding:20px; background:#fff; border:1.5px solid #ddd; border-radius:12px; text-decoration:none; color:inherit;">
           <span class="carte-icone">👨‍👩‍👧‍👦</span>
           <h3>Parrainage familial</h3>
           <p>Permet aux Canadiens de parrainer membres de leur famille pour immigrer. Familles admissibles : conjoint/partenaire, enfants, parents, grands-parents. Parrain doit assumer responsabilité financière. Engagement de parrainage entre 3-20 ans selon relation. Délai : environ 12 mois pour conjoint, 20-24 mois pour parents/grands-parents (tirage au sort + traitement).</p>
-          <span class="btn btn-contour-rouge btn-sm" style="margin-top:12px;">Accéder →</span>
-        </a>
 
-        <a href="https://www.canada.ca/fr/emploi-developpement-social/services/numero-assurance-sociale.html" class="carte" style="text-decoration:none;color:inherit;border-top:4px solid var(--rouge);" target="_blank" rel="noopener">
+          <button class="btn btn-contour-rouge btn-sm btn-infos" onclick="ouvrirModal('modal-parrainage')">Plus d'infos</button>
+          <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/immigrer-canada/parrainer-membres-famille.html" class="btn btn-contour-rouge btn-sm" style="margin-top:12px; margin-left:8px;" target="_blank" rel="noopener">Accéder →</a>
+        </div>
+
+        <!-- Modal pour Parrainage familial -->
+        <div id="modal-parrainage" class="modal">
+          <div class="modal-contenu">
+            <button class="modal-fermer" onclick="fermerModal('modal-parrainage')">&times;</button>
+            <h2 class="modal-titre">Parrainage familial</h2>
+
+            <div class="modal-section">
+              <h4>Description</h4>
+              <p>Programme permettant citoyens/RP canadiens de parrainer proches pour immigrer au Canada. Parrain s'engage prendre responsabilité financière du parrainé : loger, nourrir, accès services sociaux si nécessaire. Parrain signe contrat légal (engagement parrainage) valide 3-20 ans selon relation. Si parrainé reçoit aide sociale, parrain peut être recours. Permet réunification familiale légale.</p>
+            </div>
+
+            <div class="modal-section">
+              <h4>Lois qui s'y rattachent</h4>
+              <p><strong>Loi sur l'immigration et la protection des réfugiés (LIPR)</strong> (L.C. 2001, c. 27) - Encadre parrainage, catégories, obligations. <strong>Loi sur les mesures de guerre/statut réfugiés</strong> - Dispositions spéciales certains réfugiés. <strong>Lois provinciales/territoriales aide sociale</strong> - Définissent recours si aide sociale requise pendant parrainage.</p>
+            </div>
+
+            <div class="modal-section">
+              <h4>Conditions</h4>
+              <p><strong>Parrain doit :</strong> Citoyen/RP canadien, 18+ ans, résider Canada, revenu suffisant (seuil variable selon taille famille). <strong>Parrainé doit :</strong> Relation admissible (conjoint, enfants, parents, grands-parents, frères/sœurs si orphelins mineurs). <strong>Restrictions :</strong> Pas parrainé antérieur impayé, parrain pas bénéficiaire aide sociale, pas antécédents criminels graves.</p>
+            </div>
+
+            <div class="modal-section">
+              <h4>Fonctionnement</h4>
+              <p><strong>Étapes :</strong> 1) Demande parrain + engagement parrainage. 2) Évaluation revenu (Avis cotisation impôt). 3) Demande parrainé (RP/permis). 4) Approbation traitement. 5) Parrainage actif (3-20 ans selon relation). <strong>Délai :</strong> Conjoint ~12 mois, parents/grands-parents ~24 mois (tirage au sort + traitement). <strong>Fin parrainage :</strong> Après période engagement, ou si parrainé devient citoyen canadien.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="carte" style="border-top:4px solid var(--rouge); padding:20px; background:#fff; border:1.5px solid #ddd; border-radius:12px; text-decoration:none; color:inherit;">
           <span class="carte-icone">🔢</span>
           <h3>Numéro d'assurance sociale</h3>
           <p>Numéro à 9 chiffres absolument nécessaire pour travailler légalement au Canada, payer impôts et accéder à programmes gouvernementaux (AE, RPC, SV, ACE). Permanent pour citoyens et RP, temporaire (commence par 9) pour travailleurs temporaires. Protéger votre NAS : communiquer seulement à employeurs, institutions financières et gouvernements.</p>
-          <span class="btn btn-contour-rouge btn-sm" style="margin-top:12px;">Accéder →</span>
-        </a>
 
-        <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/demande/verifier-etat.html" class="carte" style="text-decoration:none;color:inherit;border-top:4px solid var(--rouge);" target="_blank" rel="noopener">
+          <button class="btn btn-contour-rouge btn-sm btn-infos" onclick="ouvrirModal('modal-nas')">Plus d'infos</button>
+          <a href="https://www.canada.ca/fr/emploi-developpement-social/services/numero-assurance-sociale.html" class="btn btn-contour-rouge btn-sm" style="margin-top:12px; margin-left:8px;" target="_blank" rel="noopener">Accéder →</a>
+        </div>
+
+        <!-- Modal pour Numéro d'assurance sociale -->
+        <div id="modal-nas" class="modal">
+          <div class="modal-contenu">
+            <button class="modal-fermer" onclick="fermerModal('modal-nas')">&times;</button>
+            <h2 class="modal-titre">Numéro d'assurance sociale (NAS)</h2>
+
+            <div class="modal-section">
+              <h4>Description</h4>
+              <p>Numéro identifiant unique à 9 chiffres absolument nécessaire pour travailler au Canada, payer impôts, recevoir prestations gouvernementales. Utilisé employer vérifier statut travail, institutions financières crédit/emprunts, gouvernements pour allocation/pensions. NAS confidentiel : vol identité risque majeur. Protéger NAS consigne importante pour sécurité personnelle.</p>
+            </div>
+
+            <div class="modal-section">
+              <h4>Lois qui s'y rattachent</h4>
+              <p><strong>Loi sur le ministère de l'Emploi et du Développement social</strong> (L.C. 2005, c. 34) - Encadre administration, attribut NAS. <strong>Loi sur la protection des renseignements personnels</strong> - Protège confidentialité NAS, utilisation limitée. <strong>Loi de l'impôt sur le revenu</strong> - Exige NAS pour déclarations taxes. <strong>Loi sur l'assurance-emploi</strong> - Demande NAS pour prestations AE.</p>
+            </div>
+
+            <div class="modal-section">
+              <h4>Conditions</h4>
+              <p><strong>Numéro permanent :</strong> Citoyens canadiens, résidents permanents. <strong>Numéro temporaire (commence par 9) :</strong> Travailleurs temporaires, étudiants étrangers, réfugiés claimants. <strong>Éligibilité :</strong> Personnes 16+ ans, ayant droit travailler Canada légalement (permis travail valide, citoyenneté/RP). <strong>Délai :</strong> Généralement immédiat en personne Service Canada, quelques jours courrier.</p>
+            </div>
+
+            <div class="modal-section">
+              <h4>Fonctionnement</h4>
+              <p><strong>Obtention :</strong> Service Canada en personne (bureau Service Canada, partenaires), ou en ligne si demande initiale. <strong>Documents requis :</strong> Pièce identité principale (passeport, acte naissance, carte RP), certificat naissance ou équivalent. <strong>Utilisation sécuritaire :</strong> Fournir seulement à : employeurs, institutions financières, gouvernements. <strong>Protection :</strong> Conserver NAS confidentiel, vérifier relevé revenu annuel, déposer plainte si vol soupçonné.</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="carte" style="border-top:4px solid var(--rouge); padding:20px; background:#fff; border:1.5px solid #ddd; border-radius:12px; text-decoration:none; color:inherit;">
           <span class="carte-icone">📋</span>
           <h3>État d'une demande IRCC</h3>
           <p>Portail en ligne sécurisé pour suivre en temps réel avancement de toute demande d'immigration, visa ou citoyenneté. Informations disponibles : date de réception, statut actuel, délai estimé. Délais publiés par IRCC varient selon type de demande. Webform disponible en cas de dépassement significatif du délai prévu.</p>
-          <span class="btn btn-contour-rouge btn-sm" style="margin-top:12px;">Accéder →</span>
-        </a>
+
+          <button class="btn btn-contour-rouge btn-sm btn-infos" onclick="ouvrirModal('modal-etat-demande')">Plus d'infos</button>
+          <a href="https://www.canada.ca/fr/immigration-refugies-citoyennete/services/demande/verifier-etat.html" class="btn btn-contour-rouge btn-sm" style="margin-top:12px; margin-left:8px;" target="_blank" rel="noopener">Accéder →</a>
+        </div>
+
+        <!-- Modal pour État d'une demande IRCC -->
+        <div id="modal-etat-demande" class="modal">
+          <div class="modal-contenu">
+            <button class="modal-fermer" onclick="fermerModal('modal-etat-demande')">&times;</button>
+            <h2 class="modal-titre">État d'une demande IRCC</h2>
+
+            <div class="modal-section">
+              <h4>Description</h4>
+              <p>Portail en ligne sécurisé d'Immigration, Réfugiés et Citoyenneté Canada (IRCC) permettant suivre en temps réel avancement demandes immigration, visa, citoyenneté. Offre transparence processus, délais estimés, documents requis. Essentiel pour candidats impatients savoir statut, prochaines étapes. Accessible 24/7 depuis ordinateur/mobile.</p>
+            </div>
+
+            <div class="modal-section">
+              <h4>Lois qui s'y rattachent</h4>
+              <p><strong>Loi sur l'immigration et la protection des réfugiés (LIPR)</strong> (L.C. 2001, c. 27) - Encadre procédures demandes, délais. <strong>Loi sur l'accès à l'information</strong> - Droit accès informations dossier immigration. <strong>Loi sur la protection des renseignements personnels</strong> - Protège données personnelles portail. <strong>Directives IRCC</strong> - Détaillent délais standard par type demande.</p>
+            </div>
+
+            <div class="modal-section">
+              <h4>Conditions</h4>
+              <p><strong>Accès :</strong> Créer compte sécurisé avec identifiant/mot passe. Authentification deux facteurs recommandée. <strong>Informations requises :</strong> Numéro demande (reçu email confirmation), date naissance, details personnels. <strong>Types demandes :</strong> RP Express Entry, parrainage, visa, citoyenneté, renouvellement permis. <strong>Délai consultation :</strong> Mis à jour périodiquement (pas en temps réel instantané).</p>
+            </div>
+
+            <div class="modal-section">
+              <h4>Fonctionnement</h4>
+              <p><strong>Accès :</strong> 1) Se connecter compte sécurisé IRCC. 2) Entrer informations demande. 3) Voir statut : reçue, en traitement, documents requis, décision prise. <strong>Informations :</strong> Date réception, étapes complétées, délai moyen type demande, prochaines étapes. <strong>Alertes :</strong> Notifications demandes documents, décisions. <strong>Délais :</strong> Publiés IRCC (pas garantis contractuellement). <strong>Recours :</strong> Webform si dépassement significatif délai, requête information supplémentaire via courrier.</p>
+            </div>
+          </div>
+        </div>
 
       </div>
     </div>
@@ -571,5 +836,34 @@
 </footer>
 <button class="retour-haut" aria-label="Retour en haut">↑</button>
 <script src="js/main.js"></script>
+
+<script>
+  // Gestion des modals pour "Plus d'infos"
+  function ouvrirModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) modal.classList.add('active');
+  }
+
+  function fermerModal(id) {
+    const modal = document.getElementById(id);
+    if (modal) modal.classList.remove('active');
+  }
+
+  // Fermer le modal si on clique sur le fond
+  document.addEventListener('click', function(event) {
+    if (event.target.classList.contains('modal')) {
+      event.target.classList.remove('active');
+    }
+  });
+
+  // Fermer le modal avec la touche Échap
+  document.addEventListener('keydown', function(event) {
+    if (event.key === 'Escape') {
+      document.querySelectorAll('.modal.active').forEach(modal => {
+        modal.classList.remove('active');
+      });
+    }
+  });
+</script>
 </body>
 </html>
