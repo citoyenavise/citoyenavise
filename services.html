@@ -8,36 +8,40 @@
   <link rel="canonical" href="https://citoyenavise.org/services.html">
   <link rel="stylesheet" href="css/style.css">
   <style>
-    /* Transformer les services-lien en bulles */
-    .services-lien {
-      color: #fff !important;
-      font-weight: 700;
-      font-size: 0.95rem !important;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      margin: 6px 6px 6px 0 !important;
-      padding: 10px 16px !important;
-      background: linear-gradient(135deg, #1565C0 0%, #0d47a1 100%);
-      border: 1px solid rgba(21, 101, 192, 0.3);
-      border-radius: 20px;
-      text-decoration: none !important;
-      line-height: 1.4 !important;
-      transition: all 0.2s ease;
-      white-space: nowrap;
-      box-shadow: 0 2px 8px rgba(21, 101, 192, 0.15);
-    }
-    .services-lien:hover {
-      color: #fff !important;
-      text-decoration: none !important;
-      background: linear-gradient(135deg, #0d47a1 0%, #082d5c 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 12px rgba(21, 101, 192, 0.25);
-      padding: 10px 18px !important;
-      gap: 10px;
+    /* Transformer les services-lien en cases/cartes */
+    .services-liste {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      list-style: none;
+      padding: 0;
     }
     .services-liste li {
-      margin-bottom: 12px;
+      margin-bottom: 0 !important;
+    }
+    .services-lien {
+      display: block;
+      color: #1a1a1a !important;
+      font-weight: 700;
+      font-size: 1.1rem;
+      padding: 20px;
+      background: #fff;
+      border: 1.5px solid #ddd;
+      border-radius: 12px;
+      text-decoration: none !important;
+      line-height: 1.4;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      border-top: 4px solid var(--rouge);
+      margin-bottom: 0 !important;
+    }
+    .services-lien:hover {
+      color: #1a1a1a !important;
+      text-decoration: none !important;
+      background: #f9f9f9;
+      border-color: var(--rouge);
+      transform: translateY(-4px);
+      box-shadow: 0 6px 16px rgba(193, 39, 45, 0.15);
     }
   </style>
   <!-- Google Analytics 4 -->
