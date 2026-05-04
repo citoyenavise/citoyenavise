@@ -1,9 +1,19 @@
 /**
- * Popular System Module - Idées populaires, trending, homepage
+ * Popular System Module — Version officielle
+ * Gestion des contenus populaires avec invalidation cache événementielle
  */
 
+const routes = require('./routes');
+const { PopularService } = require('./service');
+const EventBus = require('../../core/eventBus');
+
 module.exports = {
-  routes: require('./routes'),
-  controller: require('./controller'),
-  service: require('./service'),
+  name: 'popular',
+  routes: (app) => {
+    app.use('/popular', routes);
+  },
+  init: () => {
+    EventBus.on('like.added', PopularService.invalidateAll);
+    EventBus.on('post.created', PopularService.invalidateAll);
+  },
 };

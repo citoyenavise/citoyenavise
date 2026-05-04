@@ -144,7 +144,44 @@ function loadRoutes(app) {
 
     // Charger le module
     try {
-      const routes = require(routesFile);
+      const indexFile = path.join(modulePath, 'index.js');
+      let moduleConfig = null;
+      let routes = null;
+
+      // Vérifier si le module a un index.js avec config (pattern moderne)
+      if (fs.existsSync(indexFile)) {
+        try {
+          moduleConfig = require(indexFile);
+          // Si index.js exporte un objet avec 'routes' fonction
+          if (moduleConfig && typeof moduleConfig.routes === 'function') {
+            // Utiliser le nouveau pattern { routes, init }
+            moduleConfig.routes(app);
+            stats.loaded.push(moduleName);
+            logger.info(`✅ CORE module loaded: ${moduleName} → ${routePath}`);
+
+            // Appeler init() s'il existe
+            if (typeof moduleConfig.init === 'function') {
+              try {
+                moduleConfig.init();
+                logger.debug(`📡 Module initialized: ${moduleName}`);
+              } catch (initError) {
+                logger.warn(`Module init warning for ${moduleName}`, {
+                  meta: { error: initError.message },
+                });
+              }
+            }
+            return; // Pattern moderne utilisé avec succès
+          }
+        } catch (configError) {
+          // Index.js existe mais n'est pas valide, continuer avec routes.js
+          logger.debug(`Index.js not usable for ${moduleName}, trying routes.js`, {
+            meta: { error: configError.message },
+          });
+        }
+      }
+
+      // Fallback: charger routes.js directement (pattern legacy)
+      routes = require(routesFile);
       app.use(routePath, routes);
       stats.loaded.push(moduleName);
       logger.info(`✅ CORE module loaded: ${moduleName} → ${routePath}`);
