@@ -1,5 +1,5 @@
 /**
- * Validation Schemas (Zod)
+ * Validation Schemas — Popular System
  */
 
 const { z } = require('zod');
