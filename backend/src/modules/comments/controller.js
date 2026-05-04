@@ -1,6 +1,5 @@
 /**
- * Comments Controller
- * Gestion des commentaires sur les posts
+ * Comments Controller — Version corrigée & stabilisée
  */
 
 const service = require('./service');
@@ -9,96 +8,90 @@ const { createCommentSchema, updateCommentSchema, getCommentsSchema } = require(
 
 module.exports = {
   /**
-   * Créer un commentaire
-   * POST /api/v1/comments
+   * POST /api/v1/posts/:postId/comments
    */
   createComment: async (req, res) => {
-    const validation = createCommentSchema.safeParse(req.body);
-    if (!validation.success) {
-      throw new AppError('Validation échouée', 400);
-    }
-
-    const { postId, content } = validation.data;
-    const comment = await service.createComment(postId, req.userId, content);
-
-    res.status(201).json({
-      success: true,
-      data: comment,
-      error: null,
-    });
-  },
-
-  /**
-   * Récupérer les commentaires d'un post
-   * GET /api/v1/posts/:postId/comments
-   */
-  getCommentsByPost: async (req, res) => {
     const { postId } = req.params;
-    const { limit = 20, offset = 0 } = req.query;
 
-    const validation = getCommentsSchema.safeParse({ postId, limit, offset });
-    if (!validation.success) {
-      throw new AppError('Validation échouée', 400);
-    }
-
-    const comments = await service.getCommentsByPost(
+    const validation = createCommentSchema.safeParse({
       postId,
-      parseInt(limit),
-      parseInt(offset)
-    );
-
-    res.json({
-      success: true,
-      data: comments,
-      error: null,
+      content: req.body.content,
     });
-  },
-
-  /**
-   * Récupérer un commentaire
-   * GET /api/v1/comments/:commentId
-   */
-  getComment: async (req, res) => {
-    const { commentId } = req.params;
-    const comment = await service.getCommentById(commentId);
-
-    res.json({
-      success: true,
-      data: comment,
-      error: null,
-    });
-  },
-
-  /**
-   * Mettre à jour un commentaire
-   * PATCH /api/v1/comments/:commentId
-   */
-  updateComment: async (req, res) => {
-    const { commentId } = req.params;
-    const validation = updateCommentSchema.safeParse(req.body);
 
     if (!validation.success) {
       throw new AppError('Validation échouée', 400);
     }
 
     const { content } = validation.data;
-    const comment = await service.updateComment(commentId, req.userId, content);
+    const comment = await service.createComment(postId, req.user.userId, content);
 
-    res.json({
-      success: true,
-      data: comment,
-      error: null,
-    });
+    res.status(201).json(comment);
   },
 
   /**
-   * Supprimer un commentaire
+   * GET /api/v1/posts/:postId/comments
+   */
+  getCommentsByPost: async (req, res) => {
+    const { postId } = req.params;
+    const { limit = 20, page = 1, sort = 'latest' } = req.query;
+
+    const validation = getCommentsSchema.safeParse({
+      postId,
+      limit,
+      page,
+      sort,
+    });
+
+    if (!validation.success) {
+      throw new AppError('Validation échouée', 400);
+    }
+
+    const comments = await service.getCommentsByPost(
+      postId,
+      validation.data.limit,
+      validation.data.page,
+      validation.data.sort
+    );
+
+    res.json(comments);
+  },
+
+  /**
+   * GET /api/v1/comments/:commentId
+   */
+  getComment: async (req, res) => {
+    const { commentId } = req.params;
+    const comment = await service.getCommentById(commentId);
+    res.json(comment);
+  },
+
+  /**
+   * PUT /api/v1/comments/:commentId
+   */
+  updateComment: async (req, res) => {
+    const { commentId } = req.params;
+
+    const validation = updateCommentSchema.safeParse(req.body);
+    if (!validation.success) {
+      throw new AppError('Validation échouée', 400);
+    }
+
+    const updated = await service.updateComment(
+      commentId,
+      req.user.userId,
+      validation.data.content
+    );
+
+    res.json(updated);
+  },
+
+  /**
    * DELETE /api/v1/comments/:commentId
    */
   deleteComment: async (req, res) => {
     const { commentId } = req.params;
-    await service.deleteComment(commentId, req.userId);
 
+    await service.deleteComment(commentId, req.user.userId);
     res.status(204).send();
   },
 };
