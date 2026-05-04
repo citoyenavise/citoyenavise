@@ -1,5 +1,5 @@
 /**
- * Routes profils citoyens
+ * Routes profils citoyens — version corrigée
  */
 
 const express = require('express');
@@ -9,22 +9,19 @@ const profilesController = require('./controller');
 
 const router = express.Router();
 
-// List profiles
+// List profiles (public)
 router.get('/', authOptional, asyncHandler(profilesController.listProfiles));
 
-// Get profile
+// Get profile (public)
 router.get('/:id', asyncHandler(profilesController.getProfile));
-
-// Create profile (protected)
-router.post('/', authRequired, asyncHandler(profilesController.createProfile));
 
 // Update profile (protected)
 router.put('/:id', authRequired, asyncHandler(profilesController.updateProfile));
 
-// Get profile posts
+// Get profile posts (public)
 router.get('/:id/posts', asyncHandler(profilesController.getProfilePosts));
 
-// Get followers
+// Get followers (public)
 router.get('/:id/followers', asyncHandler(profilesController.getFollowers));
 
 // Follow profile (protected)
