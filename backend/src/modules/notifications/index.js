@@ -1,5 +1,5 @@
 /**
- * Notifications Module - Système de notifications (in-app, email, temps réel)
+ * Notifications Module
  */
 
 module.exports = {
