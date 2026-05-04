@@ -6,7 +6,7 @@
 const express = require('express');
 const { asyncHandler } = require('../../core/middleware/errorHandler');
 const { authOptional } = require('../../core/middleware/auth');
-const controller = require('./controller');
+const PopularController = require('./controller');
 
 const router = express.Router();
 
@@ -17,7 +17,7 @@ const router = express.Router();
 router.get(
   '/',
   authOptional,
-  asyncHandler(controller.getPopular)
+  asyncHandler(PopularController.getPopular)
 );
 
 module.exports = router;

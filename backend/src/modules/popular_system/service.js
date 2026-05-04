@@ -121,7 +121,9 @@ async function invalidateAll() {
   }
 }
 
-module.exports = {
+const PopularService = {
   getPopular,
   invalidateAll,
 };
+
+module.exports = { PopularService };
