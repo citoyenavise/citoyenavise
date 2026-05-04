@@ -7,6 +7,7 @@ CREATE TABLE IF NOT EXISTS comments (
   user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
   content TEXT NOT NULL,
   status VARCHAR(50) DEFAULT 'published' CHECK (status IN ('draft', 'published', 'archived', 'flagged')),
+  likes_count INT DEFAULT 0,
   is_flagged BOOLEAN DEFAULT false,
   flag_reason VARCHAR(255),
   created_at TIMESTAMP DEFAULT NOW(),

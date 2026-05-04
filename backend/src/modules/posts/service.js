@@ -6,6 +6,7 @@ const { v4: uuidv4 } = require('uuid');
 const { query, transaction } = require('../../core/services/database');
 const { AppError } = require('../../core/middleware/errorHandler');
 const logger = require('../../core/utils/logger');
+const eventBus = require('../../core/eventBus');
 
 const VALID_TYPES = ['idea', 'proposal', 'question', 'discussion'];
 const VALID_CATEGORIES = ['élections', 'gouvernement', 'droits', 'services', 'santé', 'éducation', 'environnement', 'économie', 'autres'];
@@ -184,6 +185,14 @@ async function createPost(userId, { title, content, type, category }) {
   );
 
   logger.info('Post created', { meta: { postId, userId } });
+
+  // Émettre événement pour invalidation du cache popular
+  eventBus.emit('post.created', {
+    postId,
+    userId,
+    timestamp: new Date().toISOString(),
+  });
+
   return result.rows[0];
 }
 

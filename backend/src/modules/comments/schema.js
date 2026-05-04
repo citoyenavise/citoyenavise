@@ -1,11 +1,6 @@
 /**
- * Validation Schemas (Zod)
+ * Validation Schemas — Consolidated in validation.js
+ * This file is deprecated. Use ./validation.js instead.
  */
 
-const { z } = require('zod');
-
-// À implémenter
-
-module.exports = {
-  // schemas
-};
+module.exports = require('./validation');
