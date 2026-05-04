@@ -1,6 +1,5 @@
 /**
- * Routes — Likes
- * API pour les likes sur posts/idées
+ * Routes — Likes (version corrigée)
  */
 
 const express = require('express');
@@ -10,37 +9,28 @@ const controller = require('./controller');
 
 const router = express.Router();
 
-/**
- * POST /api/v1/likes — Liker un post
- * Body: { postId }
- */
+// Liker un post
 router.post(
-  '/',
+  '/posts/:postId/like',
   authRequired,
   asyncHandler(controller.likePost)
 );
 
-/**
- * DELETE /api/v1/likes/:postId — Retirer un like
- */
+// Unliker un post
 router.delete(
-  '/:postId',
+  '/posts/:postId/like',
   authRequired,
   asyncHandler(controller.unlikePost)
 );
 
-/**
- * GET /api/v1/posts/:postId/likes — Lister les utilisateurs qui ont aimé
- */
+// Lister les likes
 router.get(
   '/posts/:postId/likes',
   authOptional,
   asyncHandler(controller.getPostLikes)
 );
 
-/**
- * GET /api/v1/posts/:postId/likes/check — Vérifier si l'utilisateur a aimé
- */
+// Vérifier si l'utilisateur a liké
 router.get(
   '/posts/:postId/likes/check',
   authRequired,
