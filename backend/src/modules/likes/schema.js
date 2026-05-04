@@ -1,11 +1,18 @@
 /**
- * Validation Schemas (Zod)
+ * Validation Schemas — Likes
  */
 
 const { z } = require('zod');
 
-// À implémenter
+const likeSchema = z.object({
+  postId: z.string().uuid(),
+});
+
+const unlikeSchema = z.object({
+  postId: z.string().uuid(),
+});
 
 module.exports = {
-  // schemas
+  likeSchema,
+  unlikeSchema,
 };
