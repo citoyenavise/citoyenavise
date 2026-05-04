@@ -1,26 +1,29 @@
 /**
- * Validation Schemas — Comments
+ * Validation Schemas — Comments (version corrigée)
  */
 
 const { z } = require('zod');
 
 const createCommentSchema = z.object({
-  postId: z.string().uuid('postId doit être un UUID valide'),
+  postId: z.string().uuid(),
   content: z.string()
-    .min(1, 'Le contenu ne peut pas être vide')
-    .max(5000, 'Le contenu ne peut pas dépasser 5000 caractères'),
+    .trim()
+    .min(3, 'Le commentaire est trop court')
+    .max(5000, 'Le commentaire est trop long'),
 });
 
 const updateCommentSchema = z.object({
   content: z.string()
-    .min(1, 'Le contenu ne peut pas être vide')
-    .max(5000, 'Le contenu ne peut pas dépasser 5000 caractères'),
+    .trim()
+    .min(3, 'Le commentaire est trop court')
+    .max(5000, 'Le commentaire est trop long'),
 });
 
 const getCommentsSchema = z.object({
-  postId: z.string().uuid('postId doit être un UUID valide'),
-  limit: z.coerce.number().int().min(1).max(100).optional().default(20),
-  offset: z.coerce.number().int().min(0).optional().default(0),
+  postId: z.string().uuid(),
+  limit: z.coerce.number().min(1).max(100).default(20),
+  page: z.coerce.number().min(1).default(1),
+  sort: z.enum(['latest', 'popular']).default('latest'),
 });
 
 module.exports = {
