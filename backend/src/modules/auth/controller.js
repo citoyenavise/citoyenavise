@@ -1,5 +1,5 @@
 /**
- * Contrôleur authentification
+ * Contrôleur authentification — VERSION STANDARDISÉE
  */
 
 const { z } = require('zod');
@@ -14,22 +14,31 @@ const registerSchema = z.object({
 });
 
 const loginSchema = z.object({
-  email: z.string().email().toLowerCase(),
-  password: z.string(),
+  email: z.string().email('Email invalide').toLowerCase(),
+  password: z.string().min(1, 'Password required'),
 });
 
 const refreshSchema = z.object({
-  refreshToken: z.string(),
+  refreshToken: z.string('Refresh token required'),
 });
 
 /**
- * Inscription
+ * POST /api/v1/auth/register
  */
 async function register(req, res) {
-  const validated = registerSchema.parse(req.body);
-  const result = await service.registerUser(validated);
+  const validated = registerSchema.safeParse(req.body);
+  if (!validated.success) {
+    throw new AppError(
+      'VALIDATION_ERROR',
+      400,
+      'Validation failed',
+      validated.error.issues.map(i => ({ path: i.path.join('.'), message: i.message }))
+    );
+  }
 
-  res.status(201).json({
+  const result = await service.registerUser(validated.data);
+
+  res.apiCreated({
     user: result.user,
     profile: result.profile,
     accessToken: result.accessToken,
@@ -38,13 +47,25 @@ async function register(req, res) {
 }
 
 /**
- * Connexion
+ * POST /api/v1/auth/login
  */
 async function login(req, res) {
-  const validated = loginSchema.parse(req.body);
-  const result = await service.loginUser(validated);
+  const validated = loginSchema.safeParse(req.body);
+  if (!validated.success) {
+    throw new AppError(
+      'VALIDATION_ERROR',
+      400,
+      'Validation failed',
+      validated.error.issues.map(i => ({ path: i.path.join('.'), message: i.message }))
+    );
+  }
 
-  res.status(200).json({
+  const result = await service.loginUser(validated.data);
+  if (!result) {
+    throw new AppError('INVALID_CREDENTIALS', 401, 'Email or password incorrect');
+  }
+
+  res.apiSuccess({
     user: result.user,
     accessToken: result.accessToken,
     refreshToken: result.refreshToken,
@@ -52,33 +73,52 @@ async function login(req, res) {
 }
 
 /**
- * Utilisateur courant
+ * GET /api/v1/auth/me
  */
 async function getMe(req, res) {
   const user = await service.getCurrentUser(req.user.userId);
-  res.json(user);
+  if (!user) {
+    throw new AppError('NOT_FOUND', 404, 'User not found');
+  }
+
+  res.apiSuccess(user);
 }
 
 /**
- * Rafraîchir le token
+ * POST /api/v1/auth/refresh
  */
 async function refresh(req, res) {
-  const validated = refreshSchema.parse(req.body);
-  const result = await service.refreshAccessToken(validated.refreshToken);
+  const validated = refreshSchema.safeParse(req.body);
+  if (!validated.success) {
+    throw new AppError(
+      'VALIDATION_ERROR',
+      400,
+      'Validation failed',
+      validated.error.issues.map(i => ({ path: i.path.join('.'), message: i.message }))
+    );
+  }
 
-  res.json({
+  const result = await service.refreshAccessToken(validated.data.refreshToken);
+  if (!result) {
+    throw new AppError('TOKEN_EXPIRED', 401, 'Refresh token invalid or expired');
+  }
+
+  res.apiSuccess({
     accessToken: result.accessToken,
+    refreshToken: result.refreshToken,
   });
 }
 
 /**
- * Logout
+ * POST /api/v1/auth/logout
  */
 async function logout(req, res) {
   const { refreshToken } = req.body;
-  await service.logout(refreshToken);
+  if (refreshToken) {
+    await service.logout(refreshToken);
+  }
 
-  res.json({ success: true });
+  res.apiSuccess({ loggedOut: true });
 }
 
 module.exports = {

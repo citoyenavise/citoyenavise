@@ -1,14 +1,15 @@
 /**
- * Contrôleur profils — version corrigée
+ * Contrôleur profils — VERSION STANDARDISÉE
  */
 
 const { z } = require('zod');
 const profilesService = require('./service');
+const { AppError } = require('../../core/middleware/errorHandler');
 
-// Validation stricte
+// Validation
 const updateProfileSchema = z.object({
   bio: z.string().max(500).optional(),
-  avatarUrl: z.string().url().optional(),
+  avatarUrl: z.string().url('Avatar URL invalide').optional(),
   location: z.string().optional(),
   latitude: z.number().min(-90).max(90).optional(),
   longitude: z.number().min(-180).max(180).optional(),
@@ -20,68 +21,116 @@ const paginationSchema = z.object({
   page: z.coerce.number().min(1).default(1),
 });
 
-// LIST
+/**
+ * GET /api/v1/profiles
+ */
 async function listProfiles(req, res) {
   const validated = paginationSchema.extend({
     search: z.string().optional(),
     region: z.string().optional(),
-  }).parse(req.query);
+  }).safeParse(req.query);
 
-  const result = await profilesService.listProfiles(validated);
-  res.json(result);
+  if (!validated.success) {
+    throw new AppError(
+      'VALIDATION_ERROR',
+      400,
+      'Invalid query parameters',
+      validated.error.issues.map(i => ({ path: i.path.join('.'), message: i.message }))
+    );
+  }
+
+  const result = await profilesService.listProfiles(validated.data);
+  const { data, total, page, limit } = result;
+  res.apiPaginated(data, total, page, limit);
 }
 
-// GET
+/**
+ * GET /api/v1/profiles/:id
+ */
 async function getProfile(req, res) {
   const { id } = req.params;
   const profile = await profilesService.getProfile(id);
-  res.json(profile);
+
+  if (!profile) {
+    throw new AppError('NOT_FOUND', 404, 'Profile not found');
+  }
+
+  res.apiSuccess(profile);
 }
 
-// UPDATE (pas de createProfile)
+/**
+ * PUT /api/v1/profiles/:id
+ */
 async function updateProfile(req, res) {
-  const { id } = req.params; // profileId
-  const validated = updateProfileSchema.parse(req.body);
+  const { id } = req.params;
+  const validated = updateProfileSchema.safeParse(req.body);
+
+  if (!validated.success) {
+    throw new AppError(
+      'VALIDATION_ERROR',
+      400,
+      'Validation failed',
+      validated.error.issues.map(i => ({ path: i.path.join('.'), message: i.message }))
+    );
+  }
 
   const profile = await profilesService.updateProfile(
     id,
-    validated,
+    validated.data,
     req.user.userId
   );
 
-  res.json(profile);
+  res.apiUpdated(profile);
 }
 
-// POSTS
+/**
+ * GET /api/v1/profiles/:id/posts
+ */
 async function getProfilePosts(req, res) {
   const { id } = req.params;
-  const validated = paginationSchema.parse(req.query);
+  const validated = paginationSchema.safeParse(req.query);
 
-  const posts = await profilesService.getProfilePosts(id, validated);
-  res.json(posts);
+  if (!validated.success) {
+    throw new AppError('VALIDATION_ERROR', 400, 'Invalid query parameters');
+  }
+
+  const result = await profilesService.getProfilePosts(id, validated.data);
+  const { data, total, page, limit } = result;
+  res.apiPaginated(data, total, page, limit);
 }
 
-// FOLLOWERS
+/**
+ * GET /api/v1/profiles/:id/followers
+ */
 async function getFollowers(req, res) {
   const { id } = req.params;
-  const validated = paginationSchema.parse(req.query);
+  const validated = paginationSchema.safeParse(req.query);
 
-  const followers = await profilesService.getFollowers(id, validated);
-  res.json(followers);
+  if (!validated.success) {
+    throw new AppError('VALIDATION_ERROR', 400, 'Invalid query parameters');
+  }
+
+  const result = await profilesService.getFollowers(id, validated.data);
+  const { data, total, page, limit } = result;
+  res.apiPaginated(data, total, page, limit);
 }
 
-// FOLLOW
+/**
+ * POST /api/v1/profiles/:id/follow
+ */
 async function followProfile(req, res) {
   const { id } = req.params;
   await profilesService.followProfile(id, req.user.userId);
-  res.status(201).json({ message: 'Followed' });
+  res.apiCreated({ followed: true });
 }
 
-// UNFOLLOW
+/**
+ * DELETE /api/v1/profiles/:id/follow
+ */
 async function unfollowProfile(req, res) {
   const { id } = req.params;
   await profilesService.unfollowProfile(id, req.user.userId);
-  res.status(204).send();
+  res.apiSuccess({ unfollowed: true });
 }
 
 module.exports = {

@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="api-url" content=""><!-- Déterminé dynamiquement par api.js -->
+  <title>Accueil — Citoyen Avisé</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <style>
+    .homepage-container {
+      background: linear-gradient(135deg, #f5f5f5 0%, #ffffff 100%);
+      min-height: 100vh;
+    }
+
+    .homepage-hero {
+      background: linear-gradient(135deg, var(--rouge) 0%, var(--rouge-fonce) 100%);
+      color: white;
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    .homepage-hero h1 {
+      font-size: 2.5rem;
+      margin-bottom: 12px;
+      font-weight: 700;
+    }
+
+    .homepage-hero p {
+      font-size: 1.1rem;
+      opacity: 0.95;
+      margin-bottom: 30px;
+    }
+
+    .homepage-hero-actions {
+      display: flex;
+      gap: 12px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .homepage-hero-actions a,
+    .homepage-hero-actions button {
+      padding: 12px 24px;
+      border-radius: 6px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      border: none;
+    }
+
+    .btn-primary-hero {
+      background: white;
+      color: var(--rouge);
+    }
+
+    .btn-primary-hero:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+    }
+
+    .btn-secondary-hero {
+      background: rgba(255, 255, 255, 0.2);
+      color: white;
+      border: 2px solid white;
+    }
+
+    .btn-secondary-hero:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .homepage-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+
+    .homepage-section {
+      margin-bottom: 50px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 24px;
+      font-size: 1.4rem;
+      font-weight: 700;
+      color: var(--noir-doux);
+    }
+
+    .section-header span {
+      font-size: 1.6rem;
+    }
+
+    /* Statistiques */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 20px;
+      margin-bottom: 40px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .stat-number {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: var(--rouge);
+      margin-bottom: 8px;
+    }
+
+    .stat-label {
+      color: var(--gris-texte);
+      font-size: 0.95rem;
+    }
+
+    /* Grille de contenu */
+    .content-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 24px;
+    }
+
+    .content-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .content-card-title {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--noir-doux);
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid var(--gris-clair);
+    }
+
+    .item-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .item {
+      padding: 12px;
+      border-radius: 6px;
+      background: var(--gris-pale);
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 3px solid var(--gris-clair);
+    }
+
+    .item:hover {
+      background: white;
+      border-left-color: var(--rouge);
+      transform: translateX(4px);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .item-title {
+      font-weight: 600;
+      color: var(--noir-doux);
+      margin-bottom: 4px;
+      font-size: 0.95rem;
+    }
+
+    .item-meta {
+      font-size: 0.8rem;
+      color: var(--gris);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .item-badge {
+      display: inline-block;
+      padding: 2px 6px;
+      background: var(--rouge-clair);
+      color: var(--rouge);
+      border-radius: 3px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    /* User cards */
+    .users-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
+    }
+
+    .user-card {
+      background: white;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      transition: all 0.2s;
+    }
+
+    .user-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+    }
+
+    .user-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      background: var(--rouge);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 1.2rem;
+      margin: 0 auto 12px;
+    }
+
+    .user-name {
+      font-weight: 700;
+      color: var(--noir-doux);
+      margin-bottom: 4px;
+      font-size: 0.95rem;
+    }
+
+    .user-bio {
+      font-size: 0.8rem;
+      color: var(--gris-texte);
+      margin-bottom: 8px;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    .user-followers {
+      font-size: 0.85rem;
+      color: var(--rouge);
+      font-weight: 600;
+    }
+
+    /* Empty state */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--gris);
+    }
+
+    .loader {
+      display: flex;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    .spinner {
+      border: 3px solid var(--gris-clair);
+      border-top: 3px solid var(--rouge);
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .homepage-hero h1 {
+        font-size: 1.8rem;
+      }
+
+      .homepage-hero p {
+        font-size: 1rem;
+      }
+
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .users-grid {
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Hero Section -->
+<div class="homepage-hero">
+  <h1>Citoyen Avisé</h1>
+  <p>Participez à la démocratie canadienne • Centralisez l'information civique</p>
+  <div class="homepage-hero-actions">
+    <a href="/feed" class="btn-primary-hero">Découvrir le fil d'actualité</a>
+    <a href="/ideas" class="btn-secondary-hero">Explorer les idées</a>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="homepage-content">
+  <!-- Statistiques -->
+  <div class="homepage-section">
+    <div class="section-header"><span>📊</span> Vue d'ensemble</div>
+    <div class="stats-grid" id="stats-grid">
+      <div class="loader"><div class="spinner"></div></div>
+    </div>
+  </div>
+
+  <!-- Contenu populaire -->
+  <div class="content-grid">
+    <!-- Idées populaires -->
+    <div class="content-card">
+      <div class="content-card-title">💡 Idées Populaires</div>
+      <div class="item-list" id="popular-ideas">
+        <div class="loader"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- Posts tendance -->
+    <div class="content-card">
+      <div class="content-card-title">🔥 Tendances (24h)</div>
+      <div class="item-list" id="trending-posts">
+        <div class="loader"><div class="spinner"></div></div>
+      </div>
+    </div>
+
+    <!-- Utilisateurs influents -->
+    <div class="content-card">
+      <div class="content-card-title">⭐ Utilisateurs Influents</div>
+      <div class="users-grid" id="top-users">
+        <div class="loader"><div class="spinner"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Configuration (doit être première) -->
+<script src="/js/config.js"></script>
+
+<!-- Scripts -->
+<script src="/js/utils/api.js"></script>
+<script src="/js/utils/store.js"></script>
+<script src="/js/utils/helpers.js"></script>
+<script src="/js/components/header.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', async () => {
+    initHeader();
+    await loadHomepageData();
+  });
+
+  async function loadHomepageData() {
+    try {
+      // Charger toutes les données en parallèle
+      const response = await api.popular.getHomepage();
+      const { popularIdeas, trendingPosts, topUsers, stats } = response;
+
+      // Afficher les statistiques
+      renderStats(stats);
+
+      // Afficher les idées populaires
+      renderPopularIdeas(popularIdeas);
+
+      // Afficher les posts tendance
+      renderTrendingPosts(trendingPosts);
+
+      // Afficher les utilisateurs
+      renderTopUsers(topUsers);
+    } catch (err) {
+      console.error('Erreur chargement homepage:', err);
+      showToast('Erreur de chargement', 'error');
+    }
+  }
+
+  function renderStats(stats) {
+    const container = document.getElementById('stats-grid');
+    if (!stats) {
+      container.innerHTML = '<div class="empty-state">Aucune donnée</div>';
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="stat-card">
+        <div class="stat-number">${stats.totalIdeas || 0}</div>
+        <div class="stat-label">💡 Idées civiques</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">${stats.totalPosts || 0}</div>
+        <div class="stat-label">📝 Posts & discussions</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-number">${stats.totalUsers || 0}</div>
+        <div class="stat-label">👥 Citoyens avisés</div>
+      </div>
+    `;
+  }
+
+  function renderPopularIdeas(ideas) {
+    const container = document.getElementById('popular-ideas');
+    if (!ideas || ideas.length === 0) {
+      container.innerHTML = '<div class="empty-state"><p>Aucune idée populaire</p></div>';
+      return;
+    }
+
+    container.innerHTML = ideas.map(idea => `
+      <div class="item">
+        <div class="item-title">${idea.title || idea.content.substring(0, 40)}...</div>
+        <div class="item-meta">
+          <span class="item-badge">💡 ${truncate(idea.category, 15)}</span>
+          <span>❤️ ${idea.likes_count || 0}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderTrendingPosts(posts) {
+    const container = document.getElementById('trending-posts');
+    if (!posts || posts.length === 0) {
+      container.innerHTML = '<div class="empty-state"><p>Aucun post tendance</p></div>';
+      return;
+    }
+
+    container.innerHTML = posts.map(post => `
+      <div class="item">
+        <div class="item-title">${post.title || post.content.substring(0, 40)}...</div>
+        <div class="item-meta">
+          <span class="item-badge">${truncate(post.type || 'post', 12)}</span>
+          <span>❤️ ${post.recent_likes || post.likes_count || 0}</span>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function renderTopUsers(users) {
+    const container = document.getElementById('top-users');
+    if (!users || users.length === 0) {
+      container.innerHTML = '<div class="empty-state"><p>Aucun utilisateur</p></div>';
+      return;
+    }
+
+    container.innerHTML = users.map(user => `
+      <div class="user-card">
+        <div class="user-avatar" style="background: ${getRandomColor()}">
+          ${getInitials(user.username)}
+        </div>
+        <div class="user-name">${user.username}</div>
+        <div class="user-bio">${user.bio || 'Citoyen actif'}</div>
+        <div class="user-followers">👥 ${user.followers_count || 0}</div>
+      </div>
+    `).join('');
+  }
+
+  function truncate(text, length = 20) {
+    if (!text) return '';
+    if (text.length <= length) return text;
+    return text.substring(0, length) + '...';
+  }
+</script>
+
+</body>
+</html>

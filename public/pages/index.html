@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Citoyen Avisé — Carte Interactive Immersive</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/css/components.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.1/dist/MarkerCluster.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.1/dist/MarkerCluster.Default.css" />
+  <style>
+    .home-container {
+      display: flex;
+      gap: 0;
+      height: calc(100vh - 68px);
+    }
+
+    .home-map {
+      flex: 1;
+      position: relative;
+      background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%);
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+      border-radius: 0;
+    }
+
+    .map-controls {
+      position: absolute;
+      top: 16px;
+      left: 16px;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      z-index: 1000;
+    }
+
+    .map-control-button {
+      padding: 8px 12px;
+      border: 1px solid var(--gris-clair);
+      background: white;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .map-control-button:hover,
+    .map-control-button.active {
+      background: var(--rouge);
+      color: white;
+      border-color: var(--rouge);
+    }
+
+    .home-sidebar {
+      width: 320px;
+      background: white;
+      border-left: 1px solid var(--gris-clair);
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      box-shadow: -2px 0 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .sidebar-header {
+      padding: 16px;
+      border-bottom: 1px solid var(--gris-clair);
+      background: linear-gradient(135deg, var(--gris-pale) 0%, white 100%);
+      flex-shrink: 0;
+    }
+
+    .sidebar-title {
+      font-size: 1rem;
+      font-weight: 700;
+      margin-bottom: 12px;
+      color: var(--noir-doux);
+    }
+
+    .sidebar-search {
+      margin-bottom: 10px;
+    }
+
+    .sidebar-search input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid var(--gris-clair);
+      border-radius: 6px;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+
+    .sidebar-search input:focus {
+      outline: none;
+      border-color: var(--rouge);
+      box-shadow: 0 0 0 3px rgba(193, 39, 45, 0.1);
+    }
+
+    .sidebar-filters {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+    }
+
+    .sidebar-filters button {
+      padding: 4px 10px;
+      border: 1px solid var(--gris-clair);
+      background: white;
+      border-radius: 16px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .sidebar-filters button:hover {
+      border-color: var(--rouge);
+    }
+
+    .sidebar-filters button.active {
+      background: var(--rouge);
+      color: white;
+      border-color: var(--rouge);
+    }
+
+    .sidebar-content {
+      flex: 1;
+      padding: 12px;
+      overflow-y: auto;
+    }
+
+    .sidebar-empty {
+      text-align: center;
+      color: var(--gris);
+      padding: 32px 16px;
+      font-size: 0.9rem;
+    }
+
+    .sidebar-item {
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid var(--gris-clair);
+      margin-bottom: 10px;
+      cursor: pointer;
+      transition: all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+      background: white;
+    }
+
+    .sidebar-item:hover {
+      border-color: var(--rouge);
+      box-shadow: 0 4px 12px rgba(193, 39, 45, 0.12);
+      transform: translateX(-2px);
+    }
+
+    .sidebar-item-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 8px;
+    }
+
+    .sidebar-item-avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: var(--rouge);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.8rem;
+      font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .sidebar-item-name {
+      font-weight: 600;
+      font-size: 0.95rem;
+      flex: 1;
+      color: var(--noir-doux);
+    }
+
+    .sidebar-item-location {
+      font-size: 0.8rem;
+      color: var(--gris);
+    }
+
+    .sidebar-item-bio {
+      font-size: 0.85rem;
+      color: var(--gris-texte);
+      margin-top: 6px;
+      line-height: 1.3;
+    }
+
+    .sidebar-item-stats {
+      font-size: 0.75rem;
+      color: var(--gris);
+      margin-top: 6px;
+    }
+
+    /* Scrollbar styles */
+    .sidebar-content::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .sidebar-content::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    .sidebar-content::-webkit-scrollbar-thumb {
+      background: var(--gris-clair);
+      border-radius: 3px;
+    }
+
+    .sidebar-content::-webkit-scrollbar-thumb:hover {
+      background: var(--gris);
+    }
+
+    /* Idées populaires */
+    .sidebar-ideas-section {
+      padding: 12px;
+      border-bottom: 1px solid var(--gris-clair);
+      background: linear-gradient(135deg, var(--rouge-clair) 0%, transparent 100%);
+    }
+
+    .sidebar-ideas-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      font-weight: 700;
+      margin-bottom: 10px;
+      color: var(--noir-doux);
+    }
+
+    .sidebar-ideas-header a {
+      font-size: 0.75rem;
+      color: var(--rouge);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .sidebar-ideas-header a:hover {
+      text-decoration: underline;
+    }
+
+    .sidebar-idea-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid var(--gris-clair);
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.8rem;
+    }
+
+    .sidebar-idea-item:hover {
+      padding-left: 4px;
+      color: var(--rouge);
+    }
+
+    .sidebar-idea-item:last-child {
+      border: none;
+    }
+
+    .sidebar-idea-title {
+      flex: 1;
+      color: inherit;
+      font-weight: 500;
+    }
+
+    .sidebar-idea-likes {
+      color: var(--rouge);
+      font-weight: 700;
+      white-space: nowrap;
+      margin-left: 8px;
+    }
+
+    @media (max-width: 768px) {
+      .home-container {
+        flex-direction: column;
+      }
+
+      .home-sidebar {
+        width: 100%;
+        height: 35%;
+        border-left: none;
+        border-top: 1px solid var(--gris-clair);
+      }
+
+      .map-controls {
+        top: 8px;
+        left: 8px;
+        flex-direction: row;
+        gap: 6px;
+      }
+
+      .map-control-button {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="home-container">
+  <div class="home-map">
+    <div id="map"></div>
+    <div class="map-controls">
+      <button class="map-control-button" data-map-toggle="heatmap" title="Afficher la heatmap">🔥 Heatmap</button>
+      <button class="map-control-button" data-region-zoom="QC">QC</button>
+      <button class="map-control-button" data-region-zoom="ON">ON</button>
+      <button class="map-control-button" data-region-zoom="BC">BC</button>
+      <button class="map-control-button" data-region-zoom="AB">AB</button>
+    </div>
+  </div>
+
+  <div class="home-sidebar">
+    <div class="sidebar-header">
+      <div class="sidebar-title">Communauté</div>
+      <div class="sidebar-search">
+        <input
+          type="text"
+          id="search-input"
+          placeholder="Rechercher..."
+        >
+      </div>
+      <div class="sidebar-filters">
+        <button class="region-filter active" data-region="all">Tous</button>
+        <button class="region-filter" data-region="citizen">🍁 Citoyens</button>
+        <button class="region-filter" data-region="organization">🏢 Orga</button>
+      </div>
+    </div>
+
+    <div class="sidebar-ideas-section" id="popular-ideas-section" style="display: none;">
+      <div class="sidebar-ideas-header">
+        <span>✨ Idées populaires</span>
+        <a href="/ideas" onclick="navigate('/ideas'); return false;">Voir tout →</a>
+      </div>
+      <div id="popular-ideas-list"><!-- chargé dynamiquement --></div>
+    </div>
+
+    <div class="sidebar-content" id="sidebar-content">
+      <div class="sidebar-empty">Chargement...</div>
+    </div>
+  </div>
+</div>
+
+<script src="/js/utils/api.js"></script>
+<script src="/js/utils/store.js"></script>
+<script src="/js/utils/helpers.js"></script>
+<script src="/js/components/header.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.1/dist/leaflet.markercluster.js"></script>
+<script src="https://unpkg.com/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
+<script src="/js/modules/map-advanced.js"></script>
+<script>
+  let advancedMap;
+  let allProfiles = [];
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    // Initialiser header
+    initHeader();
+
+    // Initialiser carte avancée
+    try {
+      advancedMap = new AdvancedMap('map');
+      advancedMap.initialize();
+    } catch (err) {
+      console.error('Erreur initialisation carte', err);
+      showToast('Erreur initialisation de la carte', 'error');
+      return;
+    }
+
+    // Charger nœuds carte
+    await loadMapNodes();
+
+    // Charger profils
+    await loadProfiles();
+
+    // Charger idées populaires
+    await loadPopularIdeas();
+
+    // Setup event listeners
+    setupEventListeners();
+  });
+
+  async function loadMapNodes() {
+    try {
+      const geojson = await api.map.getNodes(null, null);
+      if (geojson && geojson.features) {
+        advancedMap.addNodes(geojson);
+      }
+    } catch (err) {
+      console.error('Erreur chargement nœuds', err);
+    }
+  }
+
+  async function loadProfiles() {
+    try {
+      const response = await api.profiles.list(100, 1);
+      allProfiles = response.data || [];
+      updateSidebar();
+    } catch (err) {
+      console.error('Erreur chargement profils', err);
+      document.getElementById('sidebar-content').innerHTML =
+        '<div class="sidebar-empty">Erreur de chargement</div>';
+    }
+  }
+
+  function setupEventListeners() {
+    // Recherche
+    document.getElementById('search-input').addEventListener('input', e => {
+      const query = e.target.value;
+      if (query.trim()) {
+        advancedMap.searchAndZoom(query);
+      }
+      updateSidebar(query);
+    });
+
+    // Filtres type
+    document.querySelectorAll('.region-filter').forEach(btn => {
+      btn.addEventListener('click', e => {
+        document.querySelectorAll('.region-filter').forEach(b => b.classList.remove('active'));
+        e.target.classList.add('active');
+        const type = e.target.dataset.region;
+        advancedMap.applyFilters({ type: type === 'all' ? 'all' : type });
+        updateSidebar();
+      });
+    });
+
+    // Zoom régions
+    document.querySelectorAll('[data-region-zoom]').forEach(btn => {
+      btn.addEventListener('click', e => {
+        const region = e.target.dataset.regionZoom;
+        advancedMap.zoomToRegion(region);
+      });
+    });
+
+    // Toggle heatmap
+    const heatmapBtn = document.querySelector('[data-map-toggle="heatmap"]');
+    heatmapBtn.addEventListener('click', e => {
+      e.target.classList.toggle('active');
+      if (advancedMap.heatmapLayer) {
+        if (e.target.classList.contains('active')) {
+          advancedMap.heatmapLayer.addTo(advancedMap.map);
+        } else {
+          advancedMap.map.removeLayer(advancedMap.heatmapLayer);
+        }
+      }
+    });
+  }
+
+  function updateSidebar(search = '') {
+    const container = document.getElementById('sidebar-content');
+    const activeFilter = document.querySelector('.region-filter.active');
+    const typeFilter = activeFilter?.dataset.region || 'all';
+
+    let filtered = allProfiles;
+
+    // Appliquer filtre type
+    if (typeFilter !== 'all') {
+      filtered = filtered.filter(p => {
+        const nodeType = p.nodeType || 'citizen';
+        return nodeType === typeFilter;
+      });
+    }
+
+    // Appliquer recherche
+    if (search) {
+      const q = search.toLowerCase();
+      filtered = filtered.filter(p =>
+        (p.username && p.username.toLowerCase().includes(q)) ||
+        (p.bio && p.bio.toLowerCase().includes(q)) ||
+        (p.location && p.location.toLowerCase().includes(q))
+      );
+    }
+
+    if (filtered.length === 0) {
+      container.innerHTML = '<div class="sidebar-empty">Aucun résultat</div>';
+      return;
+    }
+
+    container.innerHTML = filtered.map(p => `
+      <div class="sidebar-item" onclick="navigate('/profiles/${p.id}')">
+        <div class="sidebar-item-header">
+          <div class="sidebar-item-avatar" style="background:${getRandomColor()}">
+            ${getInitials(p.username)}
+          </div>
+          <div class="sidebar-item-name">${p.username}</div>
+        </div>
+        ${p.location ? `<div class="sidebar-item-location">📍 ${p.location}</div>` : ''}
+        ${p.bio ? `<div class="sidebar-item-bio">${truncate(p.bio, 75)}</div>` : ''}
+        <div class="sidebar-item-stats">
+          👥 ${p.followersCount || 0} • 📝 ${p.postsCount || 0}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function loadPopularIdeas() {
+    try {
+      const response = await api.ideas.getPopular(3);
+      const ideas = response.data || [];
+
+      if (ideas.length === 0) {
+        document.getElementById('popular-ideas-section').style.display = 'none';
+        return;
+      }
+
+      document.getElementById('popular-ideas-section').style.display = 'block';
+      document.getElementById('popular-ideas-list').innerHTML = ideas.map(idea => `
+        <div class="sidebar-idea-item" onclick="navigate('/ideas'); return false;">
+          <div class="sidebar-idea-title">${truncate(idea.title, 45)}</div>
+          <div class="sidebar-idea-likes">❤️ ${idea.likesCount}</div>
+        </div>
+      `).join('');
+    } catch (err) {
+      console.error('Erreur chargement idées populaires', err);
+      // Ne pas casser la page si l'API échoue
+      document.getElementById('popular-ideas-section').style.display = 'none';
+    }
+  }
+</script>
+
+</body>
+</html>

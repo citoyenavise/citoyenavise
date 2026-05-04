@@ -6,91 +6,119 @@ const z = require('zod');
 const logger = require('../utils/logger');
 
 /**
- * Classe d'erreur applicative
+ * Classe d'erreur applicative standardisée
+ * Usage nouveau: AppError(code, statusCode, message, details)
+ * Backward compat: AppError(message, statusCode) pour legacy code
  */
 class AppError extends Error {
-  constructor(message, statusCode = 500, details = {}) {
+  constructor(codeOrMessage, statusCodeOrMessage = 500, messageOrDetails = null, details = null) {
+    // Déterminer le pattern utilisé
+    const errorCodes = [
+      'VALIDATION_ERROR', 'UNAUTHORIZED', 'FORBIDDEN', 'NOT_FOUND', 'CONFLICT',
+      'DUPLICATE_EMAIL', 'DUPLICATE_USERNAME', 'INVALID_CREDENTIALS', 'TOKEN_EXPIRED',
+      'BAD_REQUEST', 'SERVER_ERROR', 'DATABASE_ERROR', 'RESOURCE_NOT_FOUND'
+    ];
+
+    let code, statusCode, message, finalDetails;
+
+    // Pattern nouveau: AppError(code, statusCode, message, details)
+    if (errorCodes.includes(codeOrMessage)) {
+      code = codeOrMessage;
+      statusCode = statusCodeOrMessage;
+      message = messageOrDetails || code;
+      finalDetails = details;
+    } else {
+      // Pattern legacy: AppError(message, statusCode, details)
+      code = 'SERVER_ERROR';
+      statusCode = statusCodeOrMessage;
+      message = codeOrMessage;
+      finalDetails = messageOrDetails;
+    }
+
     super(message);
+    this.code = code;
     this.statusCode = statusCode;
-    this.details = details;
+    this.details = finalDetails || {};
     Error.captureStackTrace(this, this.constructor);
   }
 }
 
 /**
- * Middleware de gestion d'erreurs
+ * Middleware de gestion d'erreurs — STANDARDISÉ
  */
 function errorHandler(err, req, res, next) {
   // Gérer les erreurs de validation Zod
   if (err instanceof z.ZodError) {
-    const statusCode = 400;
-    const message = 'Validation failed';
+    const issues = err.issues.map(issue => ({
+      path: issue.path.join('.'),
+      message: issue.message,
+      code: issue.code,
+    }));
 
     logger.warn('Validation error', {
       meta: {
-        statusCode,
         path: req.path,
-        issues: err.issues,
+        issues,
       },
     });
 
-    return res.status(statusCode).json({
-      error: message,
-      issues: err.issues.map(issue => ({
-        path: issue.path.join('.'),
-        message: issue.message,
-      })),
+    return res.status(400).json({
+      success: false,
+      data: null,
+      meta: {
+        version: '1.0',
+        timestamp: new Date().toISOString(),
+      },
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: 'Validation failed',
+        details: issues,
+      },
     });
   }
 
-  const statusCode = err.statusCode || 500;
+  // Gérer AppError
+  let code = err.code || 'SERVER_ERROR';
+  let statusCode = err.statusCode || 500;
   let message = err.message || 'Internal Server Error';
+  let details = err.details || null;
 
-  // Log COMPLET en interne (avec contexte sensible)
-  if (statusCode >= 500) {
-    logger.error('Server error', {
-      meta: {
-        statusCode,
-        message,
-        path: req.path,
-        method: req.method,
-        userId: req.user?.userId,
-        stack: err.stack,  // Détails complets en logs seulement
-        requestId: req.requestId,
-      },
-    });
-  } else {
-    logger.warn('Client error', {
-      meta: {
-        statusCode,
-        message,
-        path: req.path,
-        userId: req.user?.userId,
-        requestId: req.requestId,
-      },
-    });
-  }
+  // Log avec contexte
+  const logLevel = statusCode >= 500 ? 'error' : 'warn';
+  const logFn = logger[logLevel];
 
-  // Réponse au client — MESSAGES GÉNÉRIQUES en prod
+  logFn(`${code} - ${message}`, {
+    meta: {
+      code,
+      statusCode,
+      path: req.path,
+      method: req.method,
+      userId: req.user?.userId,
+      requestId: req.requestId,
+      ...(statusCode >= 500 && { stack: err.stack }),
+    },
+  });
+
+  // Messages génériques en prod
   const isProduction = process.env.NODE_ENV === 'production';
-
-  let clientError = {
-    error: isProduction && statusCode >= 500
-      ? 'An error occurred. Please try again later.'
-      : message,
-  };
-
-  // Ajouter requestId pour debug client (sans révéler détails)
-  if (req.requestId) {
-    clientError.requestId = req.requestId;
+  if (isProduction && statusCode >= 500) {
+    message = 'An error occurred. Please try again later.';
+    details = null;
   }
 
-  // JAMAIS exposer les détails en production
-  if (!isProduction && statusCode >= 500) {
-    clientError.details = err.details || {};
-  }
-
-  res.status(statusCode).json(clientError);
+  res.status(statusCode).json({
+    success: false,
+    data: null,
+    meta: {
+      version: '1.0',
+      timestamp: new Date().toISOString(),
+    },
+    error: {
+      code,
+      message,
+      ...(details && { details }),
+    },
+  });
 }
 
 /**

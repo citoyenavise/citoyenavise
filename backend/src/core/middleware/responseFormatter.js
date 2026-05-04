@@ -29,7 +29,7 @@ class ResponseFormatter {
     };
   }
 
-  static ERROR(message, code = 'UNKNOWN_ERROR', statusCode = 500, details = null) {
+  static ERROR(message, code = 'SERVER_ERROR', statusCode = 500, details = null) {
     return {
       success: false,
       data: null,
@@ -38,8 +38,8 @@ class ResponseFormatter {
         timestamp: new Date().toISOString(),
       },
       error: {
-        code,
-        message,
+        code: code || 'SERVER_ERROR',
+        message: message || 'An error occurred',
         ...(details && { details }),
       },
     };
