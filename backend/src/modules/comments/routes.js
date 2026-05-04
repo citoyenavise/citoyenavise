@@ -1,6 +1,5 @@
 /**
- * Routes — Comments
- * API pour les commentaires sur posts
+ * Routes — Comments (version corrigée)
  */
 
 const express = require('express');
@@ -10,46 +9,35 @@ const controller = require('./controller');
 
 const router = express.Router();
 
-/**
- * POST /api/v1/comments — Créer un commentaire
- * Body: { postId, content }
- */
+// Créer un commentaire
 router.post(
-  '/',
+  '/posts/:postId/comments',
   authRequired,
   asyncHandler(controller.createComment)
 );
 
-/**
- * GET /api/v1/posts/:postId/comments — Lister les commentaires
- */
+// Lister les commentaires d'un post
 router.get(
   '/posts/:postId/comments',
   asyncHandler(controller.getCommentsByPost)
 );
 
-/**
- * GET /api/v1/comments/:commentId — Récupérer un commentaire
- */
+// Récupérer un commentaire
 router.get(
-  '/:commentId',
+  '/comments/:commentId',
   asyncHandler(controller.getComment)
 );
 
-/**
- * PATCH /api/v1/comments/:commentId — Mettre à jour un commentaire
- */
-router.patch(
-  '/:commentId',
+// Mettre à jour un commentaire
+router.put(
+  '/comments/:commentId',
   authRequired,
   asyncHandler(controller.updateComment)
 );
 
-/**
- * DELETE /api/v1/comments/:commentId — Supprimer un commentaire
- */
+// Supprimer un commentaire
 router.delete(
-  '/:commentId',
+  '/comments/:commentId',
   authRequired,
   asyncHandler(controller.deleteComment)
 );
