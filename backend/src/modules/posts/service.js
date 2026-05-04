@@ -1,5 +1,5 @@
 /**
- * Service posts & idées
+ * Service posts & idées — version corrigée et stabilisée
  */
 
 const { v4: uuidv4 } = require('uuid');
@@ -11,7 +11,7 @@ const VALID_TYPES = ['idea', 'proposal', 'question', 'discussion'];
 const VALID_CATEGORIES = ['élections', 'gouvernement', 'droits', 'services', 'santé', 'éducation', 'environnement', 'économie', 'autres'];
 
 /**
- * Valider type et catégorie
+ * Validation stricte type + catégorie
  */
 function validateTypeCategory(type, category) {
   if (!VALID_TYPES.includes(type)) {
@@ -41,12 +41,14 @@ async function listPosts({ limit = 20, page = 1, category = null, type = null, s
   let paramIndex = 1;
 
   if (category) {
+    validateTypeCategory('idea', category); // validation catégorie seule
     sql += ` AND p.category = $${paramIndex}`;
     params.push(category);
     paramIndex += 1;
   }
 
   if (type) {
+    if (!VALID_TYPES.includes(type)) throw new AppError('Invalid type', 400);
     sql += ` AND p.type = $${paramIndex}`;
     params.push(type);
     paramIndex += 1;
@@ -58,40 +60,41 @@ async function listPosts({ limit = 20, page = 1, category = null, type = null, s
     paramIndex += 1;
   }
 
-  // Tri
-  if (sort === 'popular') {
-    sql += ' ORDER BY p.likes_count DESC, p.created_at DESC';
-  } else {
-    sql += ' ORDER BY p.created_at DESC';
-  }
+  sql += sort === 'popular'
+    ? ' ORDER BY p.likes_count DESC, p.created_at DESC'
+    : ' ORDER BY p.created_at DESC';
 
   sql += ` LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`;
   params.push(maxLimit, offset);
 
   const result = await query(sql, params);
 
-  // Compteur total
-  let countSql = 'SELECT COUNT(*) FROM posts p JOIN users u ON p.user_id = u.id WHERE p.status = $1 AND p.deleted_at IS NULL AND u.deleted_at IS NULL';
-  const countParams = ['published'];
-  let countParamIndex = 2;
+  // Total
+  let countSql = `
+    SELECT COUNT(*)
+    FROM posts p
+    JOIN users u ON p.user_id = u.id
+    WHERE p.status = 'published' AND p.deleted_at IS NULL AND u.deleted_at IS NULL
+  `;
+  const countParams = [];
+  let countIndex = 1;
 
   if (category) {
-    countSql += ` AND p.category = $${countParamIndex}`;
+    countSql += ` AND p.category = $${countIndex}`;
     countParams.push(category);
-    countParamIndex += 1;
+    countIndex += 1;
   }
   if (type) {
-    countSql += ` AND p.type = $${countParamIndex}`;
+    countSql += ` AND p.type = $${countIndex}`;
     countParams.push(type);
-    countParamIndex += 1;
+    countIndex += 1;
   }
   if (userId) {
-    countSql += ` AND p.user_id = $${countParamIndex}`;
+    countSql += ` AND p.user_id = $${countIndex}`;
     countParams.push(userId);
   }
 
-  const countResult = await query(countSql, countParams);
-  const total = parseInt(countResult.rows[0].count, 10);
+  const total = parseInt((await query(countSql, countParams)).rows[0].count, 10);
 
   return {
     data: result.rows.map(p => ({
@@ -121,7 +124,7 @@ async function listPosts({ limit = 20, page = 1, category = null, type = null, s
 }
 
 /**
- * Récupérer post
+ * Récupérer post (uniquement publié)
  */
 async function getPost(postId) {
   const result = await query(
@@ -130,7 +133,7 @@ async function getPost(postId) {
      FROM posts p
      JOIN users u ON p.user_id = u.id
      LEFT JOIN profiles pr ON u.id = pr.user_id
-     WHERE p.id = $1 AND p.deleted_at IS NULL`,
+     WHERE p.id = $1 AND p.status = 'published' AND p.deleted_at IS NULL`,
     [postId]
   );
 
@@ -166,6 +169,7 @@ async function createPost(userId, { title, content, type, category }) {
   validateTypeCategory(type, category);
 
   const postId = uuidv4();
+
   const result = await query(
     `INSERT INTO posts (id, user_id, title, content, type, category, status)
      VALUES ($1, $2, $3, $4, $5, $6, 'published')
@@ -173,8 +177,13 @@ async function createPost(userId, { title, content, type, category }) {
     [postId, userId, title, content, type, category]
   );
 
-  logger.info('Post created', { meta: { postId, userId, category } });
+  // Incrément posts_count
+  await query(
+    'UPDATE profiles SET posts_count = posts_count + 1 WHERE user_id = $1',
+    [userId]
+  );
 
+  logger.info('Post created', { meta: { postId, userId } });
   return result.rows[0];
 }
 
@@ -182,15 +191,12 @@ async function createPost(userId, { title, content, type, category }) {
  * Mettre à jour post
  */
 async function updatePost(postId, data, requestingUserId) {
-  const result = await query('SELECT user_id FROM posts WHERE id = $1', [postId]);
+  const result = await query('SELECT user_id, type FROM posts WHERE id = $1', [postId]);
 
-  if (result.rows.length === 0) {
-    throw new AppError('Post not found', 404);
-  }
+  if (result.rows.length === 0) throw new AppError('Post not found', 404);
+  if (result.rows[0].user_id !== requestingUserId) throw new AppError('Cannot update another post', 403);
 
-  if (result.rows[0].user_id !== requestingUserId) {
-    throw new AppError('Cannot update another post', 403);
-  }
+  const originalType = result.rows[0].type;
 
   const updates = [];
   const params = [postId];
@@ -199,27 +205,26 @@ async function updatePost(postId, data, requestingUserId) {
   if (data.title) {
     updates.push(`title = $${paramIndex}`);
     params.push(data.title);
-    paramIndex += 1;
+    paramIndex++;
   }
 
   if (data.content) {
     updates.push(`content = $${paramIndex}`);
     params.push(data.content);
-    paramIndex += 1;
+    paramIndex++;
   }
 
   if (data.category) {
-    validateTypeCategory(data.type || 'idea', data.category);
+    validateTypeCategory(originalType, data.category);
     updates.push(`category = $${paramIndex}`);
     params.push(data.category);
-    paramIndex += 1;
+    paramIndex++;
   }
 
-  if (updates.length === 0) {
-    return getPost(postId);
-  }
+  if (updates.length === 0) return getPost(postId);
 
   updates.push('updated_at = NOW()');
+
   await query(`UPDATE posts SET ${updates.join(', ')} WHERE id = $1`, params);
 
   logger.info('Post updated', { meta: { postId } });
@@ -227,100 +232,97 @@ async function updatePost(postId, data, requestingUserId) {
 }
 
 /**
- * Supprimer post (soft delete)
+ * Supprimer post
  */
 async function deletePost(postId, requestingUserId) {
   const result = await query('SELECT user_id FROM posts WHERE id = $1', [postId]);
 
-  if (result.rows.length === 0) {
-    throw new AppError('Post not found', 404);
-  }
-
-  if (result.rows[0].user_id !== requestingUserId) {
-    throw new AppError('Cannot delete another post', 403);
-  }
+  if (result.rows.length === 0) throw new AppError('Post not found', 404);
+  if (result.rows[0].user_id !== requestingUserId) throw new AppError('Cannot delete another post', 403);
 
   await query('UPDATE posts SET deleted_at = NOW() WHERE id = $1', [postId]);
+
+  // Décrément posts_count
+  await query(
+    'UPDATE profiles SET posts_count = posts_count - 1 WHERE user_id = $1',
+    [requestingUserId]
+  );
+
   logger.info('Post deleted', { meta: { postId } });
 }
 
 /**
- * Signaler post
+ * Signaler post (modération)
  */
 async function flagPost(postId, reason, userId) {
+  const exists = await query('SELECT id FROM posts WHERE id = $1 AND deleted_at IS NULL', [postId]);
+  if (exists.rows.length === 0) throw new AppError('Post not found', 404);
+
   await query(
-    'UPDATE posts SET status = $1, is_flagged = true, flag_reason = $2 WHERE id = $3',
-    ['flagged', reason || 'No reason provided', postId]
+    `UPDATE posts
+     SET status = 'flagged', is_flagged = true, flag_reason = $1, updated_at = NOW()
+     WHERE id = $2`,
+    [reason, postId]
   );
 
   logger.warn('Post flagged', { meta: { postId, userId, reason } });
 }
 
 /**
- * Liker un post (transactionnel)
+ * Liker un post
  */
 async function likePost(postId, userId) {
-  // Vérifier l'existence du post
-  const postCheck = await query('SELECT id FROM posts WHERE id = $1', [postId]);
-  if (postCheck.rows.length === 0) {
-    throw new AppError('Post not found', 404);
-  }
+  const exists = await query('SELECT id FROM posts WHERE id = $1 AND status = \'published\'', [postId]);
+  if (exists.rows.length === 0) throw new AppError('Post not found', 404);
 
-  // Transaction atomique: INSERT + UPDATE conditionnel
   await transaction(async (client) => {
-    // Essayer d'insérer le like
-    const insertResult = await client.query(
-      `INSERT INTO likes (user_id, post_id) VALUES ($1, $2)
+    const insert = await client.query(
+      `INSERT INTO likes (user_id, post_id)
+       VALUES ($1, $2)
        ON CONFLICT (user_id, post_id) DO NOTHING
        RETURNING id`,
       [userId, postId]
     );
 
-    // Incrémenter le compteur SEULEMENT si l'insertion a réussi
-    if (insertResult.rows.length > 0) {
+    if (insert.rows.length > 0) {
       await client.query(
         'UPDATE posts SET likes_count = likes_count + 1 WHERE id = $1',
         [postId]
       );
-      logger.debug('Post liked', { meta: { postId, userId } });
-    } else {
-      logger.debug('Post already liked', { meta: { postId, userId } });
     }
   });
 }
 
 /**
- * Unliker un post (transactionnel)
+ * Unliker un post
  */
 async function unlikePost(postId, userId) {
-  // Transaction atomique: DELETE + UPDATE conditionnel
   await transaction(async (client) => {
-    const deleteResult = await client.query(
-      'DELETE FROM likes WHERE post_id = $1 AND user_id = $2 RETURNING id',
-      [postId, userId]
+    const del = await client.query(
+      'DELETE FROM likes WHERE user_id = $1 AND post_id = $2 RETURNING id',
+      [userId, postId]
     );
 
-    // Décrémenter le compteur SEULEMENT si le like existait
-    if (deleteResult.rows.length > 0) {
+    if (del.rows.length > 0) {
       await client.query(
         'UPDATE posts SET likes_count = likes_count - 1 WHERE id = $1',
         [postId]
       );
-      logger.debug('Post unliked', { meta: { postId, userId } });
-    } else {
-      logger.debug('Post not liked', { meta: { postId, userId } });
     }
   });
 }
 
 /**
- * Récupérer les idées populaires
+ * Idées populaires
  */
 async function getPopularIdeas({ limit = 5, category = null }) {
   const maxLimit = Math.min(limit, 20);
-  const params = ['idea', 'published'];
-  let paramIndex = 3;
 
+  if (category && !VALID_CATEGORIES.includes(category)) {
+    throw new AppError('Invalid category', 400);
+  }
+
+  const params = ['idea', 'published'];
   let sql = `
     SELECT p.id, p.user_id, p.title, p.content, p.type, p.category, p.likes_count, p.views_count, p.is_pinned, p.created_at,
            u.username, pr.avatar_url, pr.location
@@ -331,13 +333,11 @@ async function getPopularIdeas({ limit = 5, category = null }) {
   `;
 
   if (category) {
-    sql += ` AND p.category = $${paramIndex}`;
+    sql += ` AND p.category = $3`;
     params.push(category);
-    paramIndex += 1;
   }
 
-  sql += ` ORDER BY p.likes_count DESC, p.created_at DESC LIMIT $${paramIndex}`;
-  params.push(maxLimit);
+  sql += ` ORDER BY p.likes_count DESC, p.created_at DESC LIMIT ${maxLimit}`;
 
   const result = await query(sql, params);
 
