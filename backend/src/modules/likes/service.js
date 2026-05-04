@@ -129,6 +129,24 @@ async function checkLike(postId, userId) {
   return result.rows.length > 0;
 }
 
+/**
+ * Obtenir les statistiques de likes d'un post
+ */
+async function getPostLikeStats(postId) {
+  const result = await query(`
+    SELECT
+      COUNT(*) as total_likes,
+      COUNT(DISTINCT user_id) as unique_likers
+    FROM likes
+    WHERE post_id = $1
+  `, [postId]);
+
+  return {
+    totalLikes: parseInt(result.rows[0].total_likes),
+    uniqueLikers: parseInt(result.rows[0].unique_likers),
+  };
+}
+
 module.exports = {
   likePost,
   unlikePost,
