@@ -115,6 +115,20 @@ async function getPostLikes(postId, limit = 20) {
   return result.rows;
 }
 
+/**
+ * Vérifier si l'utilisateur a aimé un post
+ */
+async function checkLike(postId, userId) {
+  if (!userId) return false;
+
+  const result = await query(
+    'SELECT id FROM likes WHERE user_id = $1 AND post_id = $2',
+    [userId, postId]
+  );
+
+  return result.rows.length > 0;
+}
+
 module.exports = {
   likePost,
   unlikePost,
