@@ -1,6 +1,6 @@
 /**
  * Routes — Popular System
- * API pour les contenus populaires et trending
+ * API pour les contenus populaires avec scoring temporal
  */
 
 const express = require('express');
@@ -11,39 +11,13 @@ const controller = require('./controller');
 const router = express.Router();
 
 /**
- * GET /api/v1/popular/ideas — Idées populaires
+ * GET /api/v1/popular — Posts populaires avec scoring temporal
+ * Params: range (daily|weekly|monthly|all), sort (score|likes|comments), page, limit
  */
 router.get(
-  '/ideas',
+  '/',
   authOptional,
-  asyncHandler(controller.getPopularIdeas)
-);
-
-/**
- * GET /api/v1/popular/posts — Posts populaires
- */
-router.get(
-  '/posts',
-  authOptional,
-  asyncHandler(controller.getPopularPosts)
-);
-
-/**
- * GET /api/v1/popular/trending — Trending (24h)
- */
-router.get(
-  '/trending',
-  authOptional,
-  asyncHandler(controller.getTrending)
-);
-
-/**
- * GET /api/v1/popular/homepage — Données pour homepage
- */
-router.get(
-  '/homepage',
-  authOptional,
-  asyncHandler(controller.getHomepageData)
+  asyncHandler(controller.getPopular)
 );
 
 module.exports = router;
