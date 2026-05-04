@@ -12,6 +12,9 @@ const router = express.Router();
 // List posts (feed)
 router.get('/', authOptional, asyncHandler(postsController.listPosts));
 
+// Get popular posts
+router.get('/popular', authOptional, asyncHandler(postsController.getPopularPosts));
+
 // Get post
 router.get('/:id', asyncHandler(postsController.getPost));
 

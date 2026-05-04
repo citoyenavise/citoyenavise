@@ -2,42 +2,14 @@
  * Contrôleur posts & idées — version corrigée
  */
 
-const { z } = require('zod');
 const postsService = require('./service');
-
-// Validation stricte des types et catégories
-const VALID_TYPES = ['idea', 'proposal', 'question', 'discussion'];
-const VALID_CATEGORIES = ['élections', 'gouvernement', 'droits', 'services', 'santé', 'éducation', 'environnement', 'économie', 'autres'];
-
-// Création
-const createPostSchema = z.object({
-  title: z.string().min(5).max(255),
-  content: z.string().min(20).max(5000),
-  type: z.enum(VALID_TYPES),
-  category: z.enum(VALID_CATEGORIES),
-});
-
-// Mise à jour
-const updatePostSchema = z.object({
-  title: z.string().min(5).max(255).optional(),
-  content: z.string().min(20).max(5000).optional(),
-  category: z.enum(VALID_CATEGORIES).optional(),
-});
-
-// Pagination + filtres
-const listSchema = z.object({
-  limit: z.coerce.number().min(1).max(100).default(20),
-  page: z.coerce.number().min(1).default(1),
-  category: z.enum(VALID_CATEGORIES).optional(),
-  type: z.enum(VALID_TYPES).optional(),
-  sort: z.enum(['latest', 'popular']).default('latest'),
-  userId: z.string().uuid().optional(),
-});
-
-// Flag
-const flagSchema = z.object({
-  reason: z.string().min(5).max(500),
-});
+const {
+  createPostSchema,
+  updatePostSchema,
+  listSchema,
+  flagSchema,
+  PopularQuerySchema,
+} = require('./schema');
 
 async function listPosts(req, res) {
   const validated = listSchema.parse(req.query);
@@ -90,6 +62,12 @@ async function unlikePost(req, res) {
   res.status(204).send();
 }
 
+async function getPopularPosts(req, res) {
+  const validated = PopularQuerySchema.parse(req.query);
+  const result = await postsService.getPopularPosts(validated);
+  res.json(result);
+}
+
 module.exports = {
   listPosts,
   getPost,
@@ -99,4 +77,5 @@ module.exports = {
   flagPost,
   likePost,
   unlikePost,
+  getPopularPosts,
 };

@@ -362,6 +362,80 @@ async function getPopularIdeas({ limit = 5, category = null }) {
   };
 }
 
+/**
+ * Posts populaires (avec filtrage par période et tri flexible)
+ */
+async function getPopularPosts({ range = 'daily', page = 1, limit = 10, sort = 'score' }) {
+  const offset = (page - 1) * limit;
+  const maxLimit = Math.min(limit, 50);
+
+  let dateFilter = '';
+  if (range === 'daily') {
+    dateFilter = `AND p.created_at >= NOW() - INTERVAL '1 day'`;
+  } else if (range === 'weekly') {
+    dateFilter = `AND p.created_at >= NOW() - INTERVAL '7 days'`;
+  } else if (range === 'monthly') {
+    dateFilter = `AND p.created_at >= NOW() - INTERVAL '30 days'`;
+  }
+
+  let orderBy = 'p.likes_count DESC, p.views_count DESC, p.created_at DESC';
+  if (sort === 'likes') {
+    orderBy = 'p.likes_count DESC, p.created_at DESC';
+  } else if (sort === 'comments') {
+    orderBy = '(SELECT COUNT(*) FROM comments WHERE post_id = p.id) DESC, p.created_at DESC';
+  }
+
+  const sql = `
+    SELECT p.id, p.user_id, p.title, p.content, p.type, p.category, p.likes_count, p.views_count, p.is_pinned, p.created_at,
+           u.username, pr.avatar_url, pr.location,
+           (SELECT COUNT(*) FROM comments WHERE post_id = p.id AND deleted_at IS NULL) as comments_count
+    FROM posts p
+    JOIN users u ON p.user_id = u.id
+    LEFT JOIN profiles pr ON u.id = pr.user_id
+    WHERE p.status = 'published' AND p.deleted_at IS NULL AND u.deleted_at IS NULL ${dateFilter}
+    ORDER BY ${orderBy}
+    LIMIT $1 OFFSET $2
+  `;
+
+  const result = await query(sql, [maxLimit, offset]);
+
+  const countSql = `
+    SELECT COUNT(*)
+    FROM posts p
+    WHERE p.status = 'published' AND p.deleted_at IS NULL ${dateFilter}
+  `;
+  const total = parseInt((await query(countSql, [])).rows[0].count, 10);
+
+  return {
+    data: result.rows.map(p => ({
+      id: p.id,
+      userId: p.user_id,
+      title: p.title,
+      content: p.content,
+      type: p.type,
+      category: p.category,
+      likesCount: p.likes_count,
+      viewsCount: p.views_count,
+      commentsCount: parseInt(p.comments_count, 10),
+      isPinned: p.is_pinned,
+      creator: {
+        username: p.username,
+        avatarUrl: p.avatar_url,
+        location: p.location,
+      },
+      createdAt: p.created_at,
+    })),
+    meta: {
+      total,
+      page,
+      limit: maxLimit,
+      pages: Math.ceil(total / maxLimit),
+      range,
+      sort,
+    },
+  };
+}
+
 module.exports = {
   listPosts,
   getPost,
@@ -372,4 +446,5 @@ module.exports = {
   likePost,
   unlikePost,
   getPopularIdeas,
+  getPopularPosts,
 };
