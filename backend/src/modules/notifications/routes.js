@@ -9,22 +9,8 @@ const controller = require('./controller');
 
 const router = express.Router();
 
-router.get(
-  '/',
-  authRequired,
-  asyncHandler(controller.list)
-);
-
-router.patch(
-  '/:id/read',
-  authRequired,
-  asyncHandler(controller.markAsRead)
-);
-
-router.patch(
-  '/read-all',
-  authRequired,
-  asyncHandler(controller.markAllAsRead)
-);
+router.get('/', authRequired, asyncHandler(controller.list));
+router.patch('/:id/read', authRequired, asyncHandler(controller.markAsRead));
+router.patch('/read-all', authRequired, asyncHandler(controller.markAllAsRead));
 
 module.exports = router;
