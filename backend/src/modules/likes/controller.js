@@ -1,38 +1,39 @@
 /**
- * Likes Controller
- * Gestion des likes sur les posts/idées
+ * Likes Controller — Version corrigée
  */
 
 const service = require('./service');
 const { AppError } = require('../../core/middleware/errorHandler');
+const { likeSchema, unlikeSchema } = require('./schema');
 
 module.exports = {
   /**
-   * Liker un post/idée
-   * POST /api/v1/likes
+   * POST /api/v1/posts/:postId/like
    */
   likePost: async (req, res) => {
-    const { postId } = req.body;
-    if (!postId) {
-      throw new AppError('postId requis', 400);
-    }
+    const validation = likeSchema.safeParse(req.params);
+    if (!validation.success) throw new AppError('Validation échouée', 400);
 
-    const like = await service.likePost(postId, req.userId);
-    res.status(201).json(like);
+    const { postId } = validation.data;
+    const result = await service.likePost(postId, req.user.userId);
+
+    res.status(201).json(result);
   },
 
   /**
-   * Retirer un like
-   * DELETE /api/v1/likes/:postId
+   * DELETE /api/v1/posts/:postId/like
    */
   unlikePost: async (req, res) => {
-    const { postId } = req.params;
-    await service.unlikePost(postId, req.userId);
+    const validation = unlikeSchema.safeParse(req.params);
+    if (!validation.success) throw new AppError('Validation échouée', 400);
+
+    const { postId } = validation.data;
+    await service.unlikePost(postId, req.user.userId);
+
     res.status(204).send();
   },
 
   /**
-   * Obtenir les utilisateurs qui ont aimé un post
    * GET /api/v1/posts/:postId/likes
    */
   getPostLikes: async (req, res) => {
@@ -44,12 +45,12 @@ module.exports = {
   },
 
   /**
-   * Vérifier si l'utilisateur a aimé un post
    * GET /api/v1/posts/:postId/likes/check
    */
   checkLike: async (req, res) => {
     const { postId } = req.params;
-    const isLiked = await service.checkLike(postId, req.userId);
+    const isLiked = await service.checkLike(postId, req.user.userId);
+
     res.json({ isLiked });
   },
 };
