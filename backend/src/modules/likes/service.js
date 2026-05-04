@@ -96,6 +96,25 @@ async function unlikePost(postId, userId) {
   });
 }
 
+/**
+ * Obtenir les likes d'un post
+ */
+async function getPostLikes(postId, limit = 20) {
+  const maxLimit = Math.min(limit, 100);
+
+  const result = await query(`
+    SELECT u.id, u.username, pr.avatar_url, l.created_at
+    FROM likes l
+    JOIN users u ON l.user_id = u.id
+    LEFT JOIN profiles pr ON u.id = pr.user_id
+    WHERE l.post_id = $1 AND u.deleted_at IS NULL
+    ORDER BY l.created_at DESC
+    LIMIT $2
+  `, [postId, maxLimit]);
+
+  return result.rows;
+}
+
 module.exports = {
   likePost,
   unlikePost,
