@@ -1,30 +1,42 @@
 /**
- * Contrôleur posts & idées
+ * Contrôleur posts & idées — version corrigée
  */
 
 const { z } = require('zod');
 const postsService = require('./service');
 
+// Validation stricte des types et catégories
+const VALID_TYPES = ['idea', 'proposal', 'question', 'discussion'];
+const VALID_CATEGORIES = ['élections', 'gouvernement', 'droits', 'services', 'santé', 'éducation', 'environnement', 'économie', 'autres'];
+
+// Création
 const createPostSchema = z.object({
-  title: z.string().min(5, 'Min 5 caractères').max(255),
-  content: z.string().min(20, 'Min 20 caractères').max(5000),
-  type: z.enum(['idea', 'proposal', 'question', 'discussion']),
-  category: z.string(),
+  title: z.string().min(5).max(255),
+  content: z.string().min(20).max(5000),
+  type: z.enum(VALID_TYPES),
+  category: z.enum(VALID_CATEGORIES),
 });
 
+// Mise à jour
 const updatePostSchema = z.object({
   title: z.string().min(5).max(255).optional(),
   content: z.string().min(20).max(5000).optional(),
-  category: z.string().optional(),
+  category: z.enum(VALID_CATEGORIES).optional(),
 });
 
+// Pagination + filtres
 const listSchema = z.object({
-  limit: z.coerce.number().default(20),
-  page: z.coerce.number().default(1),
-  category: z.string().optional(),
-  type: z.string().optional(),
+  limit: z.coerce.number().min(1).max(100).default(20),
+  page: z.coerce.number().min(1).default(1),
+  category: z.enum(VALID_CATEGORIES).optional(),
+  type: z.enum(VALID_TYPES).optional(),
   sort: z.enum(['latest', 'popular']).default('latest'),
-  userId: z.string().optional(),
+  userId: z.string().uuid().optional(),
+});
+
+// Flag
+const flagSchema = z.object({
+  reason: z.string().min(5).max(500),
 });
 
 async function listPosts(req, res) {
@@ -59,9 +71,10 @@ async function deletePost(req, res) {
 }
 
 async function flagPost(req, res) {
+  const validated = flagSchema.parse(req.body);
   const { id } = req.params;
-  const { reason } = req.body;
-  await postsService.flagPost(id, reason, req.user.userId);
+
+  await postsService.flagPost(id, validated.reason, req.user.userId);
   res.json({ message: 'Post flagged' });
 }
 
