@@ -26,6 +26,11 @@ const coreModules = {
   popular_system: '/api/v1/popular',
   search: '/api/v1/search',
   map: '/api/v1/map',
+  education: '/api/v1/education',
+  initiatives: '/api/v1/initiatives',
+  admin: '/api/v1/admin',
+  analytics: '/api/v1/analytics',
+  reports: '/api/v1/reports',
 };
 
 /**
@@ -211,7 +216,7 @@ function logStartupSummary(stats, modulesPath) {
   logger.info(horizontalLine);
 
   // Modules actifs
-  logger.info(`\n✅ CORE MODULES ACTIVE (${stats.loaded.length}/9):`);
+  logger.info(`\n✅ CORE MODULES ACTIVE (${stats.loaded.length}/15):`);
   stats.loaded.forEach(m => logger.info(`   • ${m}`));
 
   // Modules en attente

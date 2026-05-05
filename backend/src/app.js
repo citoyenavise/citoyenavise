@@ -207,7 +207,7 @@ app.get('/api/internal/modules', asyncHandler(async (req, res) => {
     modules: moduleLoader.getModuleStatus(),
     loadStats: {
       coreLoaded: moduleStats.loaded.length,
-      coreTotal: 9,
+      coreTotal: 15,
       standbyDisabled: moduleStats.standby,
       incomplete: moduleStats.incomplete.length,
       missing: moduleStats.missing.length,

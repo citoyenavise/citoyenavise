@@ -1,11 +1,11 @@
 ﻿/**
- * Module Admin - Export des routes
+ * Module Reports - Export des routes
  */
 
 const router = require("./routes");
 
 module.exports = {
   routes: (app) => {
-    app.use("/api/v1/admin", router);
+    app.use("/api/v1/reports", router);
   },
 };
