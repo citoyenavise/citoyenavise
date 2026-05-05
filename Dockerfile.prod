@@ -1,0 +1,60 @@
+# Dockerfile.prod — Production-ready for Render deployment
+# Multi-stage: Build frontend + backend, serve both via Node.js
+
+# Stage 1: Frontend build (React + Vite)
+FROM node:18-alpine AS frontend-builder
+
+WORKDIR /app/frontend
+
+COPY frontend/package*.json ./
+RUN npm ci --only=production && npm cache clean --force
+
+COPY frontend .
+RUN npm run build
+
+# Stage 2: Backend dependencies
+FROM node:18-alpine AS backend-builder
+
+WORKDIR /app
+
+COPY backend/package*.json ./
+RUN npm ci --only=production && npm cache clean --force
+
+# Stage 3: Runtime (production image)
+FROM node:18-alpine
+
+LABEL maintainer="Citoyen Avisé Team"
+LABEL description="Citoyenavise.org — Production-ready backend + frontend"
+LABEL version="1.0.0"
+
+WORKDIR /app
+
+# Security: Non-root user
+RUN addgroup -g 1001 -S nodejs && \
+    adduser -S nodejs -u 1001
+
+# Copy backend dependencies from builder
+COPY --from=backend-builder --chown=nodejs:nodejs /app/node_modules ./node_modules
+
+# Copy backend source
+COPY --chown=nodejs:nodejs backend/src ./src
+COPY --chown=nodejs:nodejs backend/server.js backend/setup.js ./
+
+# Copy frontend dist from builder
+COPY --from=frontend-builder --chown=nodejs:nodejs /app/frontend/dist ./frontend/dist
+
+# Copy package.json (needed for require() paths)
+COPY --chown=nodejs:nodejs backend/package.json ./package.json
+
+# Express port (will be reverse-proxied by Render)
+EXPOSE 5000
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:5000/health', (r) => {if (r.statusCode !== 200) throw new Error(r.statusCode)})"
+
+# Non-root user
+USER nodejs
+
+# Start application
+CMD ["node", "server.js"]
