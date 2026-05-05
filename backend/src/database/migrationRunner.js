@@ -139,21 +139,24 @@ class MigrationRunner {
    */
   async showStatus() {
     const migrations = this.getMigrations();
-    const executed = await this.getExecutedMigrations(
-      await pool.connect().finally(c => c.release())
-    );
+    const client = await pool.connect();
+    try {
+      const executed = await this.getExecutedMigrations(client);
 
-    console.log('\n📊 Status des migrations:\n');
-    console.log('Version | Status    | Description');
-    console.log('--------|-----------|------------------');
+      console.log('\n📊 Status des migrations:\n');
+      console.log('Version | Status    | Description');
+      console.log('--------|-----------|------------------');
 
-    for (const m of migrations) {
-      const status = executed.includes(m.version) ? '✅ Applied' : '⏳ Pending';
-      console.log(`V${m.version.toString().padStart(3, '0')}   | ${status.padEnd(9)} | ${m.name}`);
+      for (const m of migrations) {
+        const status = executed.includes(m.version) ? '✅ Applied' : '⏳ Pending';
+        console.log(`V${m.version.toString().padStart(3, '0')}   | ${status.padEnd(9)} | ${m.name}`);
+      }
+
+      console.log(`\nTotal: ${migrations.length} migrations (${executed.length} appliquées)`);
+      console.log('');
+    } finally {
+      client.release();
     }
-
-    console.log(`\nTotal: ${migrations.length} migrations (${executed.length} appliquées)`);
-    console.log('');
   }
 
   /**
