@@ -20,4 +20,21 @@ router.get(
   asyncHandler(PopularController.getPopular)
 );
 
+/**
+ * GET /api/v1/popular/metrics — Métriques de cache (interne/monitoring)
+ * Cache hit rate, query count, etc.
+ */
+router.get(
+  '/metrics',
+  asyncHandler(PopularController.getMetrics)
+);
+
+/**
+ * POST /api/v1/popular/metrics/reset — Réinitialiser les métriques (admin)
+ */
+router.post(
+  '/metrics/reset',
+  asyncHandler(PopularController.resetMetrics)
+);
+
 module.exports = router;
