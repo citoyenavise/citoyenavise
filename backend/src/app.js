@@ -221,6 +221,28 @@ app.get('/api/internal/modules', asyncHandler(async (req, res) => {
   });
 }));
 
+// Serve frontend dist (production local mode)
+const path = require('path');
+const fs = require('fs');
+const distPath = path.join(__dirname, '../../frontend/dist');
+
+if (fs.existsSync(distPath)) {
+  // Serve static files from dist/
+  app.use(express.static(distPath));
+
+  // SPA fallback: route all non-API requests to index.html
+  app.get('*', (req, res) => {
+    // Skip API routes
+    if (!req.path.startsWith('/api') && !req.path.startsWith('/health') && !req.path.startsWith('/ready')) {
+      res.sendFile(path.join(distPath, 'index.html'));
+    }
+  });
+
+  logger.info('Frontend dist served at /', { meta: { distPath } });
+} else {
+  logger.debug('Frontend dist not found (development mode)', { meta: { distPath } });
+}
+
 // 404
 app.use(notFound);
 
