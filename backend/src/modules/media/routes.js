@@ -1,23 +1,26 @@
 /**
- * Media Routes
+ * Media Routes — File upload endpoints
  */
 
 const express = require('express');
-const router = express.Router();
 const multer = require('multer');
+const { requireAuth } = require('../../core/middleware/auth');
+const { uploadHandler, getMediaHandler, deleteMediaHandler } = require('./controller');
 
-const { authRequired } = require('../../core/middleware/auth');
-const MediaController = require('./controller');
+const router = express.Router();
 
-const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 500 * 1024 * 1024 } });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 500 * 1024 * 1024 }, // 500MB max
+});
 
-// Upload media
-router.post('/', authRequired, upload.single('file'), MediaController.upload);
+// POST /api/v1/media — Upload file (multipart/form-data)
+router.post('/', requireAuth, upload.single('file'), uploadHandler);
 
-// Get media
-router.get('/:id', MediaController.getMedia);
+// GET /api/v1/media/:id — Get media info
+router.get('/:id', getMediaHandler);
 
-// Delete media
-router.delete('/:id', authRequired, MediaController.deleteMedia);
+// DELETE /api/v1/media/:id — Delete media (owner only)
+router.delete('/:id', requireAuth, deleteMediaHandler);
 
 module.exports = router;

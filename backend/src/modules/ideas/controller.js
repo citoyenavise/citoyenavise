@@ -139,7 +139,7 @@ module.exports = {
    * Idées populaires
    * GET /api/v1/ideas/popular?limit=10&category=elections
    */
-  getPopular: async (req, res) => {
+  getPopularIdeas: async (req, res) => {
     const { limit = 10, category } = req.query;
 
     const ideas = await service.getPopularIdeas({

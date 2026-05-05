@@ -1,6 +1,6 @@
 const { trackEventSchema, statsQuerySchema } = require('./schema');
 const service = require('./service');
-const AppError = require('../../core/errors/AppError');
+const AppError = require('../../core/errors');
 
 class AnalyticsController {
   async track(req, res, next) {
@@ -26,6 +26,15 @@ class AnalyticsController {
 
       const stats = await service.getStats(validated.data.range);
       return res.apiSuccess('Analytics stats', stats);
+    } catch (error) {
+      next(error);
+    }
+  }
+
+  async getOptimizationReport(req, res, next) {
+    try {
+      const report = await service.getOptimizationReport();
+      return res.apiSuccess('Optimization report', report);
     } catch (error) {
       next(error);
     }

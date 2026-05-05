@@ -1,16 +1,16 @@
-﻿/**
+/**
  * Admin Service — User management, content moderation, stats
  */
 
-const db = require("../../lib/db");
-const AppError = require("../../lib/AppError");
-const { AdminAuditService } = require("./audit.service");
+const { query } = require('../../core/services/database');
+const AppError = require('../../core/errors');
+const { AdminAuditService } = require('./audit.service');
 
 const CONTENT_TABLES = {
-  post: "posts",
-  article: "education_articles",
-  video: "education_videos",
-  quiz: "education_quizzes",
+  post: 'posts',
+  article: 'education_articles',
+  video: 'education_videos',
+  quiz: 'education_quizzes',
 };
 
 exports.AdminService = {
@@ -26,7 +26,7 @@ exports.AdminService = {
 
     if (banned !== undefined) {
       params.push(banned);
-      where.push(`banned_at ${banned ? "IS NOT NULL" : "IS NULL"}`);
+      where.push(`banned_at ${banned ? 'IS NOT NULL' : 'IS NULL'}`);
     }
 
     if (search) {
@@ -44,9 +44,9 @@ exports.AdminService = {
       where.push(`created_at <= $${params.length}`);
     }
 
-    const whereClause = where.length ? "WHERE " + where.join(" AND ") : "";
+    const whereClause = where.length ? 'WHERE ' + where.join(' AND ') : '';
 
-    const itemsRes = await db.query(
+    const itemsRes = await query(
       `SELECT id, username, email, role, banned_at, created_at
        FROM users
        ${whereClause}
@@ -55,7 +55,7 @@ exports.AdminService = {
       [...params, limit, offset]
     );
 
-    const countRes = await db.query(
+    const countRes = await query(
       `SELECT COUNT(*) FROM users ${whereClause}`,
       params
     );
@@ -72,7 +72,7 @@ exports.AdminService = {
   },
 
   async updateRole(userId, newRole, adminId) {
-    const result = await db.query(
+    const result = await query(
       `UPDATE users
        SET role = $1, updated_at = NOW()
        WHERE id = $2
@@ -81,13 +81,13 @@ exports.AdminService = {
     );
 
     if (!result.rows.length) {
-      throw new AppError("Utilisateur non trouvé", 404);
+      throw new AppError('Utilisateur non trouvé', 404);
     }
 
     await AdminAuditService.logAction({
       adminId,
-      action: "UPDATE_ROLE",
-      targetType: "user",
+      action: 'UPDATE_ROLE',
+      targetType: 'user',
       targetId: userId,
       metadata: { newRole },
     });
@@ -96,7 +96,7 @@ exports.AdminService = {
   },
 
   async banUser(userId, reason, adminId) {
-    const result = await db.query(
+    const result = await query(
       `UPDATE users
        SET banned_at = NOW(), ban_reason = $1, updated_at = NOW()
        WHERE id = $2
@@ -105,13 +105,13 @@ exports.AdminService = {
     );
 
     if (!result.rows.length) {
-      throw new AppError("Utilisateur non trouvé", 404);
+      throw new AppError('Utilisateur non trouvé', 404);
     }
 
     await AdminAuditService.logAction({
       adminId,
-      action: "BAN_USER",
-      targetType: "user",
+      action: 'BAN_USER',
+      targetType: 'user',
       targetId: userId,
       metadata: { reason },
     });
@@ -120,7 +120,7 @@ exports.AdminService = {
   },
 
   async unbanUser(userId, adminId) {
-    const result = await db.query(
+    const result = await query(
       `UPDATE users
        SET banned_at = NULL, ban_reason = NULL, updated_at = NOW()
        WHERE id = $1
@@ -129,13 +129,13 @@ exports.AdminService = {
     );
 
     if (!result.rows.length) {
-      throw new AppError("Utilisateur non trouvé", 404);
+      throw new AppError('Utilisateur non trouvé', 404);
     }
 
     await AdminAuditService.logAction({
       adminId,
-      action: "UNBAN_USER",
-      targetType: "user",
+      action: 'UNBAN_USER',
+      targetType: 'user',
       targetId: userId,
     });
 
@@ -144,12 +144,12 @@ exports.AdminService = {
 
   async deleteContent(table, contentId, adminId) {
     if (!CONTENT_TABLES[table]) {
-      throw new AppError("Type de contenu invalide", 400);
+      throw new AppError('Type de contenu invalide', 400);
     }
 
     const tableName = CONTENT_TABLES[table];
 
-    const result = await db.query(
+    const result = await query(
       `UPDATE ${tableName}
        SET deleted_at = NOW(), updated_at = NOW()
        WHERE id = $1 AND deleted_at IS NULL
@@ -158,12 +158,12 @@ exports.AdminService = {
     );
 
     if (!result.rows.length) {
-      throw new AppError("Contenu non trouvé", 404);
+      throw new AppError('Contenu non trouvé', 404);
     }
 
     await AdminAuditService.logAction({
       adminId,
-      action: "DELETE_CONTENT",
+      action: 'DELETE_CONTENT',
       targetType: table,
       targetId: contentId,
     });
@@ -173,12 +173,12 @@ exports.AdminService = {
 
   async restoreContent(table, contentId, adminId) {
     if (!CONTENT_TABLES[table]) {
-      throw new AppError("Type de contenu invalide", 400);
+      throw new AppError('Type de contenu invalide', 400);
     }
 
     const tableName = CONTENT_TABLES[table];
 
-    const result = await db.query(
+    const result = await query(
       `UPDATE ${tableName}
        SET deleted_at = NULL, updated_at = NOW()
        WHERE id = $1 AND deleted_at IS NOT NULL
@@ -187,12 +187,12 @@ exports.AdminService = {
     );
 
     if (!result.rows.length) {
-      throw new AppError("Contenu non trouvé ou déjà restauré", 404);
+      throw new AppError('Contenu non trouvé ou déjà restauré', 404);
     }
 
     await AdminAuditService.logAction({
       adminId,
-      action: "RESTORE_CONTENT",
+      action: 'RESTORE_CONTENT',
       targetType: table,
       targetId: contentId,
     });
@@ -201,16 +201,16 @@ exports.AdminService = {
   },
 
   async statsOverview() {
-    const userRes = await db.query(`SELECT COUNT(*) FROM users`);
-    const bannedRes = await db.query(`SELECT COUNT(*) FROM users WHERE banned_at IS NOT NULL`);
-    const rolesRes = await db.query(
+    const userRes = await query(`SELECT COUNT(*) FROM users`);
+    const bannedRes = await query(`SELECT COUNT(*) FROM users WHERE banned_at IS NOT NULL`);
+    const rolesRes = await query(
       `SELECT role, COUNT(*) as count FROM users GROUP BY role`
     );
 
-    const postsRes = await db.query(`SELECT COUNT(*) FROM posts WHERE deleted_at IS NULL`);
-    const articlesRes = await db.query(`SELECT COUNT(*) FROM education_articles WHERE deleted_at IS NULL`);
-    const videosRes = await db.query(`SELECT COUNT(*) FROM education_videos WHERE deleted_at IS NULL`);
-    const quizzesRes = await db.query(`SELECT COUNT(*) FROM education_quizzes WHERE deleted_at IS NULL`);
+    const postsRes = await query(`SELECT COUNT(*) FROM posts WHERE deleted_at IS NULL`);
+    const articlesRes = await query(`SELECT COUNT(*) FROM education_articles WHERE deleted_at IS NULL`);
+    const videosRes = await query(`SELECT COUNT(*) FROM education_videos WHERE deleted_at IS NULL`);
+    const quizzesRes = await query(`SELECT COUNT(*) FROM education_quizzes WHERE deleted_at IS NULL`);
 
     const roleDistribution = rolesRes.rows.reduce((acc, row) => {
       acc[row.role] = Number(row.count);

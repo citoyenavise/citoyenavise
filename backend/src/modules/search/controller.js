@@ -1,6 +1,6 @@
 const { searchQuerySchema, reindexSchema } = require('./schema');
 const service = require('./service');
-const AppError = require('../../core/errors/AppError');
+const AppError = require('../../core/errors');
 
 class SearchController {
   async search(req, res, next) {

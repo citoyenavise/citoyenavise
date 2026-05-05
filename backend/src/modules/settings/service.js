@@ -2,11 +2,11 @@
  * Settings Service — System-wide configuration
  */
 
-const db = require('../../lib/db');
+const { query } = require('../../core/services/database');
 
 class SettingsService {
   static async getSetting(key) {
-    const result = await db.query(
+    const result = await query(
       `SELECT value FROM system_settings WHERE key = $1`,
       [key]
     );
@@ -14,7 +14,7 @@ class SettingsService {
   }
 
   static async setSetting(key, value) {
-    const result = await db.query(
+    const result = await query(
       `INSERT INTO system_settings (key, value) VALUES ($1, $2)
        ON CONFLICT (key) DO UPDATE SET value = $2, updated_at = NOW()
        RETURNING *`,
@@ -24,7 +24,7 @@ class SettingsService {
   }
 
   static async getAllSettings() {
-    const result = await db.query(`SELECT key, value FROM system_settings`);
+    const result = await query(`SELECT key, value FROM system_settings`);
     const settings = {};
     result.rows.forEach(row => {
       settings[row.key] = JSON.parse(row.value);

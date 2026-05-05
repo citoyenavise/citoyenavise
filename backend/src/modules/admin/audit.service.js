@@ -2,12 +2,12 @@
  * Admin Audit Service — Tracking admin actions
  */
 
-const db = require('../../lib/db');
+const { query } = require('../../core/services/database');
 
 exports.AdminAuditService = {
   async logAction({ adminId, action, targetType, targetId, metadata = null }) {
     try {
-      await db.query(
+      await query(
         `INSERT INTO admin_audit_logs (admin_id, action, target_type, target_id, metadata)
          VALUES ($1, $2, $3, $4, $5)`,
         [adminId, action, targetType, targetId, metadata ? JSON.stringify(metadata) : null]
@@ -45,7 +45,7 @@ exports.AdminAuditService = {
       LIMIT $${params.length + 1} OFFSET $${params.length + 2}
     `;
 
-    const result = await db.query(query, [...params, limit, offset]);
+    const result = await query(query, [...params, limit, offset]);
     return result.rows;
   },
 };

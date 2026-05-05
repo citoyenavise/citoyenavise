@@ -1,14 +1,6 @@
-const { query } = require('../../core/database');
-const AppError = require('../../core/errors/AppError');
+const { query } = require('../../core/services/database');
+const AppError = require('../../core/errors');
 const logger = require('../../core/utils/logger');
-
-// Try to load Redis, but make it optional
-let redis = null;
-try {
-  redis = require('../../core/redis');
-} catch (err) {
-  logger.warn('Redis not available for search caching', { meta: { error: err.message } });
-}
 
 const SEARCH_TYPES = {
   post: 'post',
@@ -379,16 +371,7 @@ async function searchGlobal(params) {
 }
 
 async function invalidateCache() {
-  if (!redis) return; // Redis not available, skip caching
-
-  try {
-    const keys = await redis.keys('search:*');
-    if (keys.length > 0) {
-      await redis.del(...keys);
-    }
-  } catch (error) {
-    logger.warn('Failed to invalidate search cache', { meta: { error: error.message } });
-  }
+  return; // No Redis caching for search results
 }
 
 module.exports = {

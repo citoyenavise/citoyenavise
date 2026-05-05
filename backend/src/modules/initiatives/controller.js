@@ -1,6 +1,6 @@
 const { createInitiativeSchema, updateInitiativeSchema, listInitiativeSchema, closeInitiativeSchema } = require('./schema');
 const initiativeService = require('./service');
-const AppError = require('../../core/errors/AppError');
+const AppError = require('../../core/errors');
 
 class InitiativeController {
   async create(req, res, next) {

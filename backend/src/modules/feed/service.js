@@ -2,7 +2,7 @@
  * Feed Service — Smart feed with temporal scoring
  */
 
-const db = require('../../lib/db');
+const { query } = require('../../core/services/database');
 
 class FeedService {
   /**
@@ -16,7 +16,7 @@ class FeedService {
     // baseScore = log(1 + likes + comments)
     // timeDecay = exp(-hours_old / 48)
     // finalScore = baseScore * timeDecay
-    const result = await db.query(
+    const result = await query(
       `SELECT
          p.id,
          p.user_id,
@@ -47,7 +47,7 @@ class FeedService {
     );
 
     // Get total count
-    const totalRes = await db.query(
+    const totalRes = await query(
       `SELECT COUNT(*) as count FROM posts
        WHERE status = 'published' AND deleted_at IS NULL`
     );
@@ -85,7 +85,7 @@ class FeedService {
   static async getUserActivity({ userId, page = 1, limit = 20 }) {
     const offset = (page - 1) * limit;
 
-    const result = await db.query(
+    const result = await query(
       `(
         SELECT
           'post' as type,

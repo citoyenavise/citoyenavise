@@ -4,7 +4,7 @@
 
 const { FeedService } = require('./service');
 const { GetFeedSchema } = require('./schema');
-const { apiSuccess } = require('../../lib/apiResponse');
+
 
 const FeedController = {
   async getSmartFeed(req, res, next) {
@@ -23,7 +23,7 @@ const FeedController = {
         limit: parse.data.limit,
       });
 
-      return apiSuccess(res, data);
+      return res.json(data);
     } catch (err) {
       next(err);
     }
@@ -39,7 +39,7 @@ const FeedController = {
         limit: Number(limit),
       });
 
-      return apiSuccess(res, activity);
+      return res.json(activity);
     } catch (err) {
       next(err);
     }

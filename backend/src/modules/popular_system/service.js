@@ -7,7 +7,7 @@
  */
 
 const { query } = require('../../core/services/database');
-const redis = require('../../core/services/redis');
+const cache = require('../../core/services/cache');
 const logger = require('../../core/utils/logger');
 
 const RANGE_MAP = {
@@ -85,19 +85,18 @@ async function getPopular({ range = 'daily', page = 1, limit = 10, sort = 'score
   const cacheKey = `popular:${range}:${page}:${safeLimitLimit}:${sort}`;
 
   // Vérifier le cache
-  let cached = null;
   try {
-    cached = await redis.get(cacheKey);
+    const cached = await cache.get(cacheKey);
     if (cached) {
       metrics.cacheHits++;
       logger.debug('Cache HIT', {
         meta: { cacheKey, ratio: `${metrics.cacheHits}/${metrics.cacheHits + metrics.cacheMisses}` },
       });
-      return JSON.parse(cached);
+      return cached;
     }
     metrics.cacheMisses++;
   } catch (err) {
-    logger.warn('Redis get failed, continuing', { meta: { error: err.message } });
+    logger.warn('Cache get failed, continuing', { meta: { error: err.message } });
     metrics.cacheMisses++;
   }
 
@@ -164,11 +163,11 @@ async function getPopular({ range = 'daily', page = 1, limit = 10, sort = 'score
     },
   });
 
-  // Cacher le résultat
+  // Cacher le résultat (60 seconds TTL)
   try {
-    await redis.setex(cacheKey, 60, JSON.stringify(posts));
+    await cache.set(cacheKey, posts, 60);
   } catch (err) {
-    logger.warn('Redis set failed', { meta: { error: err.message } });
+    logger.warn('Cache set failed', { meta: { error: err.message } });
   }
 
   return posts;
@@ -180,22 +179,17 @@ async function getPopular({ range = 'daily', page = 1, limit = 10, sort = 'score
  */
 async function invalidatePopularCache(range = null) {
   try {
-    let pattern = 'popular:';
+    let pattern = 'popular:*';
     if (range) {
       pattern = `popular:${range}:*`;
-    } else {
-      pattern = 'popular:*';
     }
 
-    const keys = await redis.keys(pattern);
-    if (keys.length > 0) {
-      await redis.del(...keys);
-      logger.info('Invalidated popular cache', {
-        meta: { pattern, count: keys.length },
-      });
-    }
+    await cache.invalidatePattern(pattern);
+    logger.info('Invalidated popular cache', {
+      meta: { pattern },
+    });
   } catch (err) {
-    logger.warn('Redis invalidation failed', { meta: { error: err.message } });
+    logger.warn('Cache invalidation failed', { meta: { error: err.message } });
   }
 }
 
