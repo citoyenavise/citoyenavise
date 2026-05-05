@@ -1,19 +1,25 @@
 /**
- * Popular System Module — Version officielle
- * Gestion des contenus populaires avec invalidation cache événementielle
+ * Popular System Module — Version optimisée pour 100k+ posts
+ * Tri SQL, scoring pré-calculé, cache granulaire, event-driven updates
  */
 
 const routes = require('./routes');
-const { PopularService } = require('./service');
-const EventBus = require('../../core/eventBus');
+const { setupEventListeners } = require('./events');
 
 module.exports = {
   name: 'popular',
   routes: (app) => {
-    app.use('/popular', routes);
+    app.use('/api/v1/popular', routes);
   },
   init: () => {
-    EventBus.on('like.added', PopularService.invalidateAll);
-    EventBus.on('post.created', PopularService.invalidateAll);
+    try {
+      const { eventBus } = require('../../core/eventBus');
+      setupEventListeners(eventBus);
+    } catch (err) {
+      const logger = require('../../core/utils/logger');
+      logger.warn('Popular system init: could not setup event listeners', {
+        meta: { error: err.message },
+      });
+    }
   },
 };

@@ -51,6 +51,7 @@ wsServer.attach();
 global.wsServer = wsServer;
 
 // Initialize event handlers (event-driven reactions)
+// Note: Module-level init() functions are called by moduleLoader.loadRoutes()
 (() => {
   try {
     const eventBus = require('./src/core/eventBus');
