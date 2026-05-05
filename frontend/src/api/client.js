@@ -1,9 +1,14 @@
 /**
  * Client API Citoyen Avisé
  * Utilisation simple et centralisée de l'API backend
+ *
+ * Configuration API:
+ * - VITE_API_URL (env): URL absolue (ex: http://backend:5000/api/v1 pour Docker)
+ * - Fallback: '/api/v1' (URL relative, fonctionne avec tout backend sur même domaine)
+ * - Development: VITE_API_URL='http://localhost:5000/api/v1' ou '/api/v1'
  */
 
-const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+const API_BASE = import.meta.env.VITE_API_URL || '/api/v1';
 
 class TokenManager {
   setAccessToken(token) {
