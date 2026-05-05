@@ -9,7 +9,7 @@
 
 const cache = require('./cache');
 const logger = require('../utils/logger');
-const config = require('../config');
+const config = require('../../config');
 
 // En production: fail-secure (rejeter les tokens si Redis down)
 // En développement: fail-open (accepter les tokens si Redis down)

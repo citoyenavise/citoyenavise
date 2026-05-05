@@ -3,7 +3,7 @@
  */
 
 const jwt = require('jsonwebtoken');
-const config = require('../config');
+const config = require('../../config');
 
 /**
  * Générer access token — avec type verification

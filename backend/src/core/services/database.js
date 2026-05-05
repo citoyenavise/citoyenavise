@@ -3,8 +3,8 @@
  */
 
 const { Pool } = require('pg');
-const config = require('../config');
-const logger = require('./logger');
+const config = require('../../config');
+const logger = require('../utils/logger');
 
 const pool = new Pool({
   connectionString: config.DATABASE_URL,

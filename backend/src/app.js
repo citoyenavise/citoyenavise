@@ -51,22 +51,21 @@ if (Sentry) {
 // Security Headers — Helm + additional headers
 const securityHeaders = require('./core/middleware/securityHeaders');
 
-app.use(helmet({
+const helmetConfig = {
   contentSecurityPolicy: {
     directives: {
       defaultSrc: ["'self'"],
-      scriptSrc: ["'self'"],  // NO inline scripts
-      styleSrc: ["'self'"],   // NO inline styles
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'"],
       imgSrc: ["'self'", 'data:', 'https:'],
       connectSrc: ["'self'", config.API_URL],
-      frameSrc: ["'none'"],   // NO iframes
-      objectSrc: ["'none'"],  // NO plugins
+      frameSrc: ["'none'"],
+      objectSrc: ["'none'"],
       formAction: ["'self'"],
-      upgradeInsecureRequests: config.isProduction() ? [] : undefined,
     },
   },
   hsts: {
-    maxAge: 31536000,  // 1 year
+    maxAge: 31536000,
     includeSubDomains: true,
     preload: config.isProduction(),
   },
@@ -74,7 +73,13 @@ app.use(helmet({
   referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
   xssFilter: true,
   noSniff: true,
-}));
+};
+
+if (config.isProduction()) {
+  helmetConfig.contentSecurityPolicy.directives.upgradeInsecureRequests = [];
+}
+
+app.use(helmet(helmetConfig));
 
 // Security headers additionnels
 app.use(securityHeaders);

@@ -1,6 +1,9 @@
 /**
- * Cache Service — Redis Integration
- * Gère le caching distribué pour données populaires, trending, etc.
+ * Cache Service — Redis avec fallback mémoire automatique
+ * Gère le caching distribué, jamais bloquant
+ * - Redis si disponible
+ * - Fallback mémoire (Map) si Redis absent
+ * - Tous les appels non-blocking avec try/catch
  */
 
 const redis = require('redis');
@@ -10,6 +13,9 @@ class CacheService {
   constructor() {
     this.client = null;
     this.isConnected = false;
+    // Fallback mémoire: Map avec TTL via setTimeout
+    this.memoryStore = new Map();
+    this.memoryTimers = new Map();
     this.ttls = {
       // Temps en secondes
       POPULAR_IDEAS: 10 * 60,      // 10 minutes
@@ -23,11 +29,12 @@ class CacheService {
 
   /**
    * Initialiser la connexion Redis
+   * Ne jamais bloquer le démarrage si Redis absent
    */
   async connect() {
     try {
       if (!process.env.REDIS_URL && !process.env.REDIS_HOST) {
-        logger.warn('Redis non configuré - cache désactivé');
+        logger.info('Redis non configuré — cache mémoire activé');
         this.isConnected = false;
         return;
       }
@@ -39,152 +46,272 @@ class CacheService {
         url: redisUrl,
         socket: {
           reconnectStrategy: (retries) => Math.min(retries * 50, 500),
+          connectTimeout: 3000,
         },
       });
 
       this.client.on('error', (err) => {
-        logger.error('Redis error', { meta: { error: err.message } });
+        logger.warn('Redis connection error — using memory cache', { meta: { error: err.message } });
         this.isConnected = false;
       });
 
       this.client.on('connect', () => {
-        logger.info('Redis connected');
+        logger.info('✅ Redis connected');
         this.isConnected = true;
       });
 
       await this.client.connect();
     } catch (err) {
-      logger.warn('Redis connexion échouée - cache désactivé', { meta: { error: err.message } });
+      logger.info('Redis unavailable — using memory cache', { meta: { error: err.message } });
       this.isConnected = false;
     }
   }
 
   /**
-   * Récupérer une clé du cache
+   * Récupérer une clé (Redis ou mémoire)
+   * Jamais bloquant: try/catch enveloppe tout
    */
   async get(key) {
-    if (!this.isConnected || !this.client) return null;
-
     try {
-      const value = await this.client.get(key);
-      if (value) {
-        logger.debug(`Cache HIT: ${key}`);
-        return JSON.parse(value);
+      // Essayer Redis d'abord
+      if (this.isConnected && this.client) {
+        try {
+          const value = await Promise.race([
+            this.client.get(key),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000)),
+          ]);
+          if (value) {
+            logger.debug(`Cache HIT (Redis): ${key}`);
+            return JSON.parse(value);
+          }
+          logger.debug(`Cache MISS (Redis): ${key}`);
+          return null;
+        } catch (redisErr) {
+          // Redis failed, continue à la mémoire
+          logger.debug(`Cache get Redis failed: ${redisErr.message}`);
+        }
       }
-      logger.debug(`Cache MISS: ${key}`);
+
+      // Fallback mémoire
+      if (this.memoryStore.has(key)) {
+        logger.debug(`Cache HIT (Memory): ${key}`);
+        return this.memoryStore.get(key);
+      }
+
+      logger.debug(`Cache MISS (Memory): ${key}`);
       return null;
     } catch (err) {
-      logger.error('Cache get error', { meta: { key, error: err.message } });
+      logger.warn('Cache get error', { meta: { key, error: err.message } });
       return null;
     }
   }
 
   /**
-   * Sauvegarder une clé avec TTL
+   * Sauvegarder une clé avec TTL (Redis + mémoire)
    */
   async set(key, value, ttl = null) {
-    if (!this.isConnected || !this.client) return false;
-
     try {
       const ttlSeconds = ttl || this.ttls.HOMEPAGE_DATA;
-      await this.client.setEx(key, ttlSeconds, JSON.stringify(value));
-      logger.debug(`Cache SET: ${key} (TTL: ${ttlSeconds}s)`);
-      return true;
-    } catch (err) {
-      logger.error('Cache set error', { meta: { key, error: err.message } });
-      return false;
-    }
-  }
+      const serialized = JSON.stringify(value);
 
-  /**
-   * Supprimer une clé
-   */
-  async del(key) {
-    if (!this.isConnected || !this.client) return false;
-
-    try {
-      await this.client.del(key);
-      logger.debug(`Cache DEL: ${key}`);
-      return true;
-    } catch (err) {
-      logger.error('Cache del error', { meta: { key, error: err.message } });
-      return false;
-    }
-  }
-
-  /**
-   * Invalider un pattern (ex: "popular:*") — SCAN non-blocking
-   * Utilise SCAN au lieu de KEYS pour ne pas blocker Redis
-   */
-  async invalidatePattern(pattern) {
-    if (!this.isConnected || !this.client) return 0;
-
-    try {
-      const keysToDelete = [];
-      let cursor = '0';
-
-      // Itérer avec SCAN (non-blocking)
-      do {
-        const result = await this.client.scan(
-          parseInt(cursor),
-          { MATCH: pattern, COUNT: 100 }  // COUNT hint
-        );
-
-        cursor = result.cursor;
-
-        if (result.keys && result.keys.length > 0) {
-          keysToDelete.push(...result.keys);
+      // Redis
+      if (this.isConnected && this.client) {
+        try {
+          await Promise.race([
+            this.client.setEx(key, ttlSeconds, serialized),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000)),
+          ]);
+          logger.debug(`Cache SET (Redis): ${key} (TTL: ${ttlSeconds}s)`);
+        } catch (redisErr) {
+          logger.debug(`Cache set Redis failed: ${redisErr.message}`);
         }
-      } while (cursor !== '0');
-
-      // Supprimer toutes les clés trouvées
-      if (keysToDelete.length > 0) {
-        // Batch deletion (chunk by 100 to avoid huge payloads)
-        const chunkSize = 100;
-        for (let i = 0; i < keysToDelete.length; i += chunkSize) {
-          const chunk = keysToDelete.slice(i, i + chunkSize);
-          await this.client.del(chunk);
-        }
-
-        logger.debug(`Cache INVALIDATE: ${pattern} (${keysToDelete.length} keys)`);
       }
 
-      return keysToDelete.length;
-    } catch (err) {
-      logger.error('Cache invalidatePattern error', { meta: { pattern, error: err.message } });
-      return 0;
-    }
-  }
+      // Mémoire (always, as backup)
+      this.memoryStore.set(key, value);
+      logger.debug(`Cache SET (Memory): ${key} (TTL: ${ttlSeconds}s)`);
 
-  /**
-   * Vider tout le cache
-   */
-  async flush() {
-    if (!this.isConnected || !this.client) return false;
+      // Planifier l'expiration mémoire
+      if (this.memoryTimers.has(key)) {
+        clearTimeout(this.memoryTimers.get(key));
+      }
 
-    try {
-      await this.client.flushDb();
-      logger.info('Cache flushed');
+      const timer = setTimeout(() => {
+        this.memoryStore.delete(key);
+        this.memoryTimers.delete(key);
+        logger.debug(`Cache EXPIRED: ${key}`);
+      }, ttlSeconds * 1000);
+
+      this.memoryTimers.set(key, timer);
       return true;
     } catch (err) {
-      logger.error('Cache flush error', { meta: { error: err.message } });
+      logger.warn('Cache set error', { meta: { key, error: err.message } });
       return false;
     }
   }
 
   /**
-   * Fermer la connexion
+   * Supprimer une clé (Redis + mémoire)
    */
-  async disconnect() {
-    if (this.client) {
-      await this.client.quit();
-      logger.info('Redis disconnected');
-      this.isConnected = false;
+  async del(key) {
+    try {
+      // Redis
+      if (this.isConnected && this.client) {
+        try {
+          await Promise.race([
+            this.client.del(key),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000)),
+          ]);
+          logger.debug(`Cache DEL (Redis): ${key}`);
+        } catch (redisErr) {
+          logger.debug(`Cache del Redis failed: ${redisErr.message}`);
+        }
+      }
+
+      // Mémoire
+      if (this.memoryStore.has(key)) {
+        this.memoryStore.delete(key);
+        logger.debug(`Cache DEL (Memory): ${key}`);
+      }
+
+      if (this.memoryTimers.has(key)) {
+        clearTimeout(this.memoryTimers.get(key));
+        this.memoryTimers.delete(key);
+      }
+
+      return true;
+    } catch (err) {
+      logger.warn('Cache del error', { meta: { key, error: err.message } });
+      return false;
     }
   }
 
   /**
-   * Générer une clé de cache standardisée
+   * Invalider un pattern (Redis SCAN + mémoire Map)
+   * Pattern: "popular:*", "user:123:*", etc.
+   */
+  async invalidatePattern(pattern) {
+    let deletedCount = 0;
+
+    try {
+      // Redis SCAN (non-blocking)
+      if (this.isConnected && this.client) {
+        try {
+          const keysToDelete = [];
+          let cursor = '0';
+
+          do {
+            const result = await Promise.race([
+              this.client.scan(parseInt(cursor), { MATCH: pattern, COUNT: 100 }),
+              new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000)),
+            ]);
+
+            cursor = result.cursor;
+
+            if (result.keys && result.keys.length > 0) {
+              keysToDelete.push(...result.keys);
+            }
+          } while (cursor !== '0');
+
+          // Batch delete
+          if (keysToDelete.length > 0) {
+            const chunkSize = 100;
+            for (let i = 0; i < keysToDelete.length; i += chunkSize) {
+              const chunk = keysToDelete.slice(i, i + chunkSize);
+              await Promise.race([
+                this.client.del(chunk),
+                new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000)),
+              ]);
+            }
+            deletedCount += keysToDelete.length;
+            logger.debug(`Cache INVALIDATE (Redis): ${pattern} (${keysToDelete.length} keys)`);
+          }
+        } catch (redisErr) {
+          logger.debug(`Cache invalidate Redis failed: ${redisErr.message}`);
+        }
+      }
+
+      // Mémoire: regex pattern matching
+      const regex = new RegExp('^' + pattern.replace(/\*/g, '.*') + '$');
+      for (const key of this.memoryStore.keys()) {
+        if (regex.test(key)) {
+          this.memoryStore.delete(key);
+          if (this.memoryTimers.has(key)) {
+            clearTimeout(this.memoryTimers.get(key));
+            this.memoryTimers.delete(key);
+          }
+          deletedCount++;
+        }
+      }
+
+      if (deletedCount > 0) {
+        logger.debug(`Cache INVALIDATE (Memory): ${pattern} (${deletedCount} keys)`);
+      }
+
+      return deletedCount;
+    } catch (err) {
+      logger.warn('Cache invalidatePattern error', { meta: { pattern, error: err.message } });
+      return deletedCount;
+    }
+  }
+
+  /**
+   * Vider tout le cache (Redis + mémoire)
+   */
+  async flush() {
+    try {
+      // Redis
+      if (this.isConnected && this.client) {
+        try {
+          await Promise.race([
+            this.client.flushDb(),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 3000)),
+          ]);
+          logger.info('Cache flushed (Redis)');
+        } catch (redisErr) {
+          logger.debug(`Cache flush Redis failed: ${redisErr.message}`);
+        }
+      }
+
+      // Mémoire
+      for (const timer of this.memoryTimers.values()) {
+        clearTimeout(timer);
+      }
+      this.memoryStore.clear();
+      this.memoryTimers.clear();
+      logger.info('Cache flushed (Memory)');
+
+      return true;
+    } catch (err) {
+      logger.warn('Cache flush error', { meta: { error: err.message } });
+      return false;
+    }
+  }
+
+  /**
+   * Fermer les connexions proprement
+   */
+  async disconnect() {
+    try {
+      if (this.client && this.isConnected) {
+        await this.client.quit();
+        logger.info('Redis disconnected');
+      }
+
+      for (const timer of this.memoryTimers.values()) {
+        clearTimeout(timer);
+      }
+      this.memoryStore.clear();
+      this.memoryTimers.clear();
+
+      this.isConnected = false;
+    } catch (err) {
+      logger.warn('Cache disconnect error', { meta: { error: err.message } });
+    }
+  }
+
+  /**
+   * Générer une clé cache standardisée
    */
   key(...parts) {
     return parts.filter(p => p !== null && p !== undefined).join(':');
@@ -212,6 +339,18 @@ class CacheService {
     profileData: (userId) =>
       this.key('profile:data', userId),
   };
+
+  /**
+   * Info statut cache (pour monitoring)
+   */
+  getStatus() {
+    return {
+      redisConnected: this.isConnected,
+      redisClient: !!this.client,
+      memoryStoreSize: this.memoryStore.size,
+      memoryTimersSize: this.memoryTimers.size,
+    };
+  }
 }
 
 // Singleton
