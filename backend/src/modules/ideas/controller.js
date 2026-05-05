@@ -1,5 +1,5 @@
 /**
- * Ideas Controller
+ * Ideas Controller — Version standardisée
  * Gestion des idées civiques (créer, lister, liker, popularité)
  */
 
@@ -27,15 +27,27 @@ module.exports = {
    * GET /api/v1/ideas?limit=20&page=1&category=elections&sort=latest
    */
   listIdeas: async (req, res) => {
-    const params = listSchema.parse(req.query);
-    const userId = req.userId || null;
+    const params = listSchema.safeParse(req.query);
+    if (!params.success) {
+      throw new AppError(
+        'VALIDATION_ERROR',
+        422,
+        'Invalid query parameters',
+        params.error.issues.map(i => ({ path: i.path.join('.'), message: i.message }))
+      );
+    }
 
+    const userId = req.user?.userId || null;
     const ideas = await service.listIdeas({
-      ...params,
+      ...params.data,
       userId,
     });
 
-    res.json(ideas);
+    if (ideas.data && Array.isArray(ideas.data)) {
+      res.apiPaginated(ideas.data, ideas.meta.total, ideas.meta.page, ideas.meta.limit);
+    } else {
+      res.apiSuccess(ideas);
+    }
   },
 
   /**
@@ -43,11 +55,11 @@ module.exports = {
    * GET /api/v1/ideas/:id
    */
   getIdea: async (req, res) => {
-    const idea = await service.getIdea(req.params.id, req.userId);
+    const idea = await service.getIdea(req.params.id, req.user?.userId);
     if (!idea) {
-      throw new AppError('Idée non trouvée', 404);
+      throw new AppError('NOT_FOUND', 404, 'Idea not found');
     }
-    res.json(idea);
+    res.apiSuccess(idea);
   },
 
   /**
@@ -55,14 +67,22 @@ module.exports = {
    * POST /api/v1/ideas
    */
   createIdea: async (req, res) => {
-    const validated = createIdeaSchema.parse(req.body);
+    const validated = createIdeaSchema.safeParse(req.body);
+    if (!validated.success) {
+      throw new AppError(
+        'VALIDATION_ERROR',
+        422,
+        'Validation failed',
+        validated.error.issues.map(i => ({ path: i.path.join('.'), message: i.message }))
+      );
+    }
 
     const idea = await service.createIdea({
-      ...validated,
-      userId: req.userId,
+      ...validated.data,
+      userId: req.user.userId,
     });
 
-    res.status(201).json(idea);
+    res.apiCreated(idea);
   },
 
   /**
@@ -70,14 +90,22 @@ module.exports = {
    * PUT /api/v1/ideas/:id
    */
   updateIdea: async (req, res) => {
-    const validated = createIdeaSchema.partial().parse(req.body);
-
-    const idea = await service.updateIdea(req.params.id, validated, req.userId);
-    if (!idea) {
-      throw new AppError('Idée non trouvée', 404);
+    const validated = createIdeaSchema.partial().safeParse(req.body);
+    if (!validated.success) {
+      throw new AppError(
+        'VALIDATION_ERROR',
+        422,
+        'Validation failed',
+        validated.error.issues.map(i => ({ path: i.path.join('.'), message: i.message }))
+      );
     }
 
-    res.json(idea);
+    const idea = await service.updateIdea(req.params.id, validated.data, req.user.userId);
+    if (!idea) {
+      throw new AppError('NOT_FOUND', 404, 'Idea not found');
+    }
+
+    res.apiUpdated(idea);
   },
 
   /**
@@ -85,8 +113,8 @@ module.exports = {
    * DELETE /api/v1/ideas/:id
    */
   deleteIdea: async (req, res) => {
-    await service.deleteIdea(req.params.id, req.userId);
-    res.status(204).send();
+    await service.deleteIdea(req.params.id, req.user.userId);
+    res.apiDeleted(req.params.id);
   },
 
   /**
@@ -94,8 +122,8 @@ module.exports = {
    * POST /api/v1/ideas/:id/like
    */
   likeIdea: async (req, res) => {
-    const idea = await service.likeIdea(req.params.id, req.userId);
-    res.json(idea);
+    const idea = await service.likeIdea(req.params.id, req.user.userId);
+    res.apiCreated({ liked: true, idea });
   },
 
   /**

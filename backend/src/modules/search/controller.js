@@ -1,79 +1,56 @@
-/**
- * Controller de recherche
- */
-
-const { z } = require('zod');
+const { searchQuerySchema, reindexSchema } = require('./schema');
 const service = require('./service');
-const { AppError } = require('../../core/middleware/errorHandler');
+const AppError = require('../../core/errors/AppError');
 
-const searchSchema = z.object({
-  q: z.string().min(2, 'Min 2 caractères'),
-  type: z.enum(['posts', 'users', 'all']).default('all'),
-  category: z.string().optional(),
-  sort: z.enum(['relevance', 'recent', 'popular']).default('relevance'),
-  page: z.coerce.number().int().min(1).default(1),
-  limit: z.coerce.number().int().min(1).max(50).default(20),
-});
+class SearchController {
+  async search(req, res, next) {
+    try {
+      const validated = searchQuerySchema.safeParse(req.query);
+      if (!validated.success) {
+        throw AppError.validationError('Validation failed', validated.error.flatten().fieldErrors);
+      }
 
-/**
- * Recherche globale
- */
-async function search(req, res) {
-  const params = searchSchema.parse({ ...req.query, ...req.body });
+      const { q, type, category, page, limit, sort } = validated.data;
+      const params = { q, category, page, limit, sort };
 
-  let result;
-  const filters = {
-    category: params.category,
-    sort: params.sort,
-    page: params.page,
-    limit: params.limit,
-  };
+      let result;
+      if (!type) {
+        result = await service.searchGlobal(params);
+      } else if (type === 'post') {
+        result = await service.searchPosts(params);
+      } else if (type === 'initiative') {
+        result = await service.searchInitiatives(params);
+      } else if (type === 'article') {
+        result = await service.searchArticles(params);
+      } else if (type === 'video') {
+        result = await service.searchVideos(params);
+      } else if (type === 'profile') {
+        result = await service.searchProfiles(params);
+      } else {
+        result = { items: [], total: 0 };
+      }
 
-  switch (params.type) {
-    case 'posts':
-      result = await service.searchPosts(params.q, filters);
-      break;
-    case 'users':
-      result = await service.searchUsers(params.q, filters);
-      break;
-    case 'all':
-    default:
-      result = await service.searchAll(params.q, filters);
-      break;
+      const pages = Math.ceil(result.total / limit);
+      return res.apiPaginated('Search results', result.items, { total: result.total, page, limit, pages });
+    } catch (error) {
+      next(error);
+    }
   }
 
-  res.json(result);
+  async reindex(req, res, next) {
+    try {
+      const validated = reindexSchema.safeParse({ type: req.params.type || req.body?.type || 'all' });
+      if (!validated.success) {
+        throw AppError.validationError('Validation failed', validated.error.flatten().fieldErrors);
+      }
+
+      // For now, just invalidate cache
+      await service.invalidateCache();
+      return res.apiSuccess('Search cache invalidated', { type: validated.data.type, status: 'ok' });
+    } catch (error) {
+      next(error);
+    }
+  }
 }
 
-/**
- * Chercher seulement les posts
- */
-async function searchPostsOnly(req, res) {
-  const { q, category, sort, page, limit } = searchSchema.parse(req.query);
-
-  const result = await service.searchPosts(q, {
-    category,
-    sort,
-    page,
-    limit,
-  });
-
-  res.json(result);
-}
-
-/**
- * Chercher seulement les users
- */
-async function searchUsersOnly(req, res) {
-  const { q, page, limit } = searchSchema.parse(req.query);
-
-  const result = await service.searchUsers(q, { page, limit });
-
-  res.json(result);
-}
-
-module.exports = {
-  search,
-  searchPostsOnly,
-  searchUsersOnly,
-};
+module.exports = new SearchController();

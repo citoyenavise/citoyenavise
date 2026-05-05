@@ -44,7 +44,20 @@
       "Bash(node -c c:/Users/Dave/citoyenavise/backend/src/modules/likes/service.js)",
       "Bash(node -c c:/Users/Dave/citoyenavise/backend/src/modules/posts/service.js)",
       "Bash(node -c c:/Users/Dave/citoyenavise/backend/src/core/middleware/errorHandler.js)",
-      "Bash(node -c c:/Users/Dave/citoyenavise/backend/src/modules/auth/controller.js)"
+      "Bash(node -c c:/Users/Dave/citoyenavise/backend/src/modules/auth/controller.js)",
+      "Bash(npm test *)",
+      "PowerShell(cd \"$env:USERPROFILE\\\\citoyenavise\\\\backend\"; npm install 2>&1 | Tail-Object -Wait -LineCount 20)",
+      "Bash(npm --version)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Dave\\\\citoyenavise\" -Force)",
+      "Bash(Format-Table -Property Name, Mode)",
+      "Bash(node -c src/modules/education/videos/schema.js)",
+      "Bash(node -c src/modules/education/videos/service.js)",
+      "Bash(node -c src/modules/education/videos/controller.js)",
+      "Bash(node -c src/modules/education/videos/routes.js)",
+      "Bash(node -c src/modules/education/videos/index.js)",
+      "PowerShell(head -5)",
+      "PowerShell(New-Item -ItemType Directory -Path \"c:\\\\Users\\\\Dave\\\\citoyenavise\\\\backend\\\\src\\\\modules\\\\reports\" -Force)",
+      "Bash(node -e ' *)"
     ]
   }
 }

@@ -1,103 +1,40 @@
-/**
- * Routes de recherche
- */
-
 const express = require('express');
-const { asyncHandler } = require('../../core/middleware/errorHandler');
-const controller = require('./controller');
-
 const router = express.Router();
+const controller = require('./controller');
+const { authRequired, authOptional } = require('../../core/middleware/auth');
+const asyncHandler = require('../../core/middleware/asyncHandler');
 
-/**
- * @openapi
- * /api/v1/search:
- *   get:
- *     summary: Search across all types
- *     tags: [Search]
- *     parameters:
- *       - in: query
- *         name: q
- *         required: true
- *         schema:
- *           type: string
- *         description: Search query (minimum 2 characters)
- *       - in: query
- *         name: type
- *         schema:
- *           type: string
- *           enum: [posts, users, all]
- *         default: all
- *       - in: query
- *         name: category
- *         schema:
- *           type: string
- *       - in: query
- *         name: sort
- *         schema:
- *           type: string
- *           enum: [relevance, recent, popular]
- *       - in: query
- *         name: page
- *         schema:
- *           type: integer
- *           default: 1
- *       - in: query
- *         name: limit
- *         schema:
- *           type: integer
- *           default: 20
- *           maximum: 50
- *     responses:
- *       200:
- *         description: Search results
- *       400:
- *         description: Validation error
- */
-router.get('/', asyncHandler(controller.search));
+// Global search (public)
+router.get('/', authOptional, asyncHandler((req, res, next) => controller.search(req, res, next)));
 
-/**
- * @openapi
- * /api/v1/search/posts:
- *   get:
- *     summary: Search posts only
- *     tags: [Search]
- *     parameters:
- *       - in: query
- *         name: q
- *         required: true
- *         schema:
- *           type: string
- *       - in: query
- *         name: category
- *         schema:
- *           type: string
- *       - in: query
- *         name: sort
- *         schema:
- *           type: string
- *           enum: [relevance, recent, popular]
- *     responses:
- *       200:
- *         description: Post search results
- */
-router.get('/posts', asyncHandler(controller.searchPostsOnly));
+// Search by type shortcuts
+router.get('/posts', authOptional, asyncHandler((req, res, next) => {
+  req.query.type = 'post';
+  return controller.search(req, res, next);
+}));
 
-/**
- * @openapi
- * /api/v1/search/users:
- *   get:
- *     summary: Search users only
- *     tags: [Search]
- *     parameters:
- *       - in: query
- *         name: q
- *         required: true
- *         schema:
- *           type: string
- *     responses:
- *       200:
- *         description: User search results
- */
-router.get('/users', asyncHandler(controller.searchUsersOnly));
+router.get('/initiatives', authOptional, asyncHandler((req, res, next) => {
+  req.query.type = 'initiative';
+  return controller.search(req, res, next);
+}));
+
+router.get('/articles', authOptional, asyncHandler((req, res, next) => {
+  req.query.type = 'article';
+  return controller.search(req, res, next);
+}));
+
+router.get('/videos', authOptional, asyncHandler((req, res, next) => {
+  req.query.type = 'video';
+  return controller.search(req, res, next);
+}));
+
+router.get('/profiles', authOptional, asyncHandler((req, res, next) => {
+  req.query.type = 'profile';
+  return controller.search(req, res, next);
+}));
+
+// Maintenance (protected - cache invalidation)
+router.post('/reindex', authRequired, asyncHandler((req, res, next) => controller.reindex(req, res, next)));
+router.post('/reindex/:type', authRequired, asyncHandler((req, res, next) => controller.reindex(req, res, next)));
 
 module.exports = router;

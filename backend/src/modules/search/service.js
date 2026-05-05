@@ -1,159 +1,402 @@
-/**
- * Service de recherche — Full-text search PostgreSQL
- */
-
-const { query } = require('../../core/services/database');
-const { AppError } = require('../../core/middleware/errorHandler');
+const { query } = require('../../core/database');
+const AppError = require('../../core/errors/AppError');
 const logger = require('../../core/utils/logger');
 
-/**
- * Chercher dans les posts (par titre + contenu)
- */
-async function searchPosts(searchText, filters = {}) {
-  const { category, sort = 'relevance', page = 1, limit = 20 } = filters;
-
-  const offset = (page - 1) * limit;
-
-  let queryText = `
-    SELECT p.id, p.title, p.content, p.category, p.user_id, p.likes_count,
-           p.created_at, u.username,
-           ts_rank(p.search_vector, plainto_tsquery('french', $1)) as rank
-    FROM posts p
-    JOIN users u ON p.user_id = u.id
-    WHERE p.search_vector @@ plainto_tsquery('french', $1)
-    AND p.deleted_at IS NULL
-  `;
-
-  const params = [searchText];
-
-  if (category) {
-    queryText += ` AND p.category = $${params.length + 1}`;
-    params.push(category);
-  }
-
-  // Sorting
-  if (sort === 'relevance') {
-    queryText += ` ORDER BY rank DESC, p.created_at DESC`;
-  } else if (sort === 'recent') {
-    queryText += ` ORDER BY p.created_at DESC`;
-  } else if (sort === 'popular') {
-    queryText += ` ORDER BY p.likes_count DESC, p.created_at DESC`;
-  }
-
-  queryText += ` LIMIT $${params.length + 1} OFFSET $${params.length + 2}`;
-  params.push(limit, offset);
-
-  const result = await query(queryText, params);
-
-  // Obtenir le total
-  let countQuery = `
-    SELECT COUNT(*) as total
-    FROM posts p
-    WHERE p.search_vector @@ plainto_tsquery('french', $1)
-    AND p.deleted_at IS NULL
-  `;
-  const countParams = [searchText];
-
-  if (category) {
-    countQuery += ` AND p.category = $${countParams.length + 1}`;
-    countParams.push(category);
-  }
-
-  const countResult = await query(countQuery, countParams);
-  const total = parseInt(countResult.rows[0].total, 10);
-
-  logger.info('Search posts', { meta: { searchText, results: result.rows.length, total } });
-
-  return {
-    data: result.rows,
-    meta: {
-      total,
-      page,
-      limit,
-      pages: Math.ceil(total / limit),
-    },
-  };
+// Try to load Redis, but make it optional
+let redis = null;
+try {
+  redis = require('../../core/redis');
+} catch (err) {
+  logger.warn('Redis not available for search caching', { meta: { error: err.message } });
 }
 
-/**
- * Chercher des utilisateurs (par username + bio)
- */
-async function searchUsers(searchText, filters = {}) {
-  const { page = 1, limit = 20 } = filters;
+const SEARCH_TYPES = {
+  post: 'post',
+  initiative: 'initiative',
+  article: 'article',
+  video: 'video',
+  profile: 'profile',
+};
 
-  const offset = (page - 1) * limit;
-
-  const queryText = `
-    SELECT u.id, u.username, u.email, u.role, u.is_verified, u.created_at,
-           p.id as profile_id, p.bio, p.avatar_url, p.location, p.followers_count,
-           (u.search_vector @@ plainto_tsquery('french', $1) OR
-            p.search_vector @@ plainto_tsquery('french', $1)) as matches
-    FROM users u
-    LEFT JOIN profiles p ON u.id = p.user_id
-    WHERE (u.search_vector @@ plainto_tsquery('french', $1)
-           OR p.search_vector @@ plainto_tsquery('french', $1))
-    AND u.deleted_at IS NULL
-    ORDER BY u.created_at DESC
-    LIMIT $2 OFFSET $3
-  `;
-
-  const result = await query(queryText, [searchText, limit, offset]);
-
-  // Count
-  const countQuery = `
-    SELECT COUNT(DISTINCT u.id) as total
-    FROM users u
-    LEFT JOIN profiles p ON u.id = p.user_id
-    WHERE (u.search_vector @@ plainto_tsquery('french', $1)
-           OR p.search_vector @@ plainto_tsquery('french', $1))
-    AND u.deleted_at IS NULL
-  `;
-
-  const countResult = await query(countQuery, [searchText]);
-  const total = parseInt(countResult.rows[0].total, 10);
-
-  logger.info('Search users', { meta: { searchText, results: result.rows.length, total } });
-
-  return {
-    data: result.rows.map(row => ({
-      id: row.id,
-      username: row.username,
-      email: row.email,
-      role: row.role,
-      isVerified: row.is_verified,
-      profile: {
-        id: row.profile_id,
-        bio: row.bio,
-        avatarUrl: row.avatar_url,
-        location: row.location,
-        followersCount: row.followers_count,
-      },
-      createdAt: row.created_at,
-    })),
-    meta: {
-      total,
-      page,
-      limit,
-      pages: Math.ceil(total / limit),
-    },
-  };
+function buildOrderBy(sort) {
+  if (sort === 'date') return 'ORDER BY created_at DESC';
+  if (sort === 'popularity') return 'ORDER BY popularity DESC';
+  return 'ORDER BY created_at DESC'; // default to date (no relevance score in ILIKE)
 }
 
-/**
- * Recherche multi-type (posts + users)
- */
-async function searchAll(searchText, filters = {}) {
-  const postsResult = await searchPosts(searchText, { ...filters, limit: 10 });
-  const usersResult = await searchUsers(searchText, { ...filters, limit: 10 });
+function normalizeResult(type, row) {
+  switch (type) {
+    case SEARCH_TYPES.post:
+      return {
+        id: row.id,
+        type: 'post',
+        title: row.title,
+        excerpt: row.content ? row.content.slice(0, 200) : null,
+        createdAt: row.created_at,
+        popularity: row.likes_count ?? 0,
+        author: row.username ? {
+          id: row.user_id,
+          username: row.username,
+          avatar: row.avatar_url,
+        } : null,
+        metadata: {
+          category: row.category || null,
+          tags: row.tags || [],
+        },
+      };
+    case SEARCH_TYPES.initiative:
+      return {
+        id: row.id,
+        type: 'initiative',
+        title: row.title,
+        excerpt: row.description ? row.description.slice(0, 200) : null,
+        createdAt: row.created_at,
+        popularity: row.supporters_count ?? 0,
+        author: row.username ? {
+          id: row.author_id,
+          username: row.username,
+          avatar: row.avatar_url,
+        } : null,
+        metadata: {
+          category: row.category || null,
+          status: row.status,
+          latitude: row.latitude,
+          longitude: row.longitude,
+        },
+      };
+    case SEARCH_TYPES.article:
+      return {
+        id: row.id,
+        type: 'article',
+        title: row.title,
+        excerpt: row.content ? row.content.slice(0, 200) : null,
+        createdAt: row.created_at,
+        popularity: row.views_count ?? 0,
+        author: row.username ? {
+          id: row.author_id,
+          username: row.username,
+          avatar: row.avatar_url,
+        } : null,
+        metadata: {
+          category: row.category || null,
+          status: row.status,
+        },
+      };
+    case SEARCH_TYPES.video:
+      return {
+        id: row.id,
+        type: 'video',
+        title: row.title,
+        excerpt: row.description ? row.description.slice(0, 200) : null,
+        createdAt: row.created_at,
+        popularity: row.views_count ?? 0,
+        author: row.username ? {
+          id: row.author_id,
+          username: row.username,
+          avatar: row.avatar_url,
+        } : null,
+        metadata: {
+          category: row.category || null,
+          duration: row.duration_seconds,
+          thumbnailUrl: row.thumbnail_url,
+        },
+      };
+    case SEARCH_TYPES.profile:
+      return {
+        id: row.id,
+        type: 'profile',
+        title: row.username,
+        excerpt: row.bio ? row.bio.slice(0, 200) : null,
+        createdAt: row.created_at,
+        popularity: 0,
+        author: null,
+        metadata: {
+          location: row.location || null,
+          bio: row.bio,
+        },
+      };
+    default:
+      return null;
+  }
+}
 
-  return {
-    posts: postsResult,
-    users: usersResult,
-  };
+async function searchPosts({ q, category, page, limit, sort }) {
+  try {
+    const offset = (page - 1) * limit;
+    let paramIndex = 1;
+    let whereClause = "WHERE p.deleted_at IS NULL";
+    const params = [];
+
+    // Search query
+    whereClause += ` AND (p.title ILIKE $${paramIndex} OR p.content ILIKE $${paramIndex})`;
+    params.push(`%${q}%`);
+    paramIndex++;
+
+    if (category) {
+      whereClause += ` AND p.category = $${paramIndex}`;
+      params.push(category);
+      paramIndex++;
+    }
+
+    // Count total
+    const countResult = await query(`SELECT COUNT(*) as total FROM posts p ${whereClause}`, params);
+    const total = parseInt(countResult.rows[0].total, 10);
+
+    // Get results
+    params.push(limit, offset);
+    const result = await query(
+      `SELECT p.id, p.title, p.content, p.category, p.user_id, p.likes_count, p.created_at, p.tags,
+              u.username, p.avatar_url
+       FROM posts p
+       LEFT JOIN users u ON p.user_id = u.id
+       ${whereClause}
+       ${buildOrderBy(sort)}
+       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+      params
+    );
+
+    return {
+      items: result.rows.map(row => normalizeResult(SEARCH_TYPES.post, row)),
+      total,
+    };
+  } catch (error) {
+    logger.error('searchPosts error', { meta: { error: error.message } });
+    throw AppError.databaseError('Failed to search posts');
+  }
+}
+
+async function searchInitiatives({ q, category, page, limit, sort }) {
+  try {
+    const offset = (page - 1) * limit;
+    let paramIndex = 1;
+    let whereClause = "WHERE i.deleted_at IS NULL";
+    const params = [];
+
+    // Search query
+    whereClause += ` AND (i.title ILIKE $${paramIndex} OR i.description ILIKE $${paramIndex})`;
+    params.push(`%${q}%`);
+    paramIndex++;
+
+    if (category) {
+      whereClause += ` AND i.category = $${paramIndex}`;
+      params.push(category);
+      paramIndex++;
+    }
+
+    // Count total
+    const countResult = await query(`SELECT COUNT(*) as total FROM initiatives i ${whereClause}`, params);
+    const total = parseInt(countResult.rows[0].total, 10);
+
+    // Get results
+    params.push(limit, offset);
+    const result = await query(
+      `SELECT i.id, i.title, i.description, i.category, i.status, i.latitude, i.longitude,
+              i.author_id, i.supporters_count, i.created_at,
+              u.username, p.avatar_url
+       FROM initiatives i
+       LEFT JOIN users u ON i.author_id = u.id
+       LEFT JOIN user_profiles p ON u.id = p.user_id
+       ${whereClause}
+       ${buildOrderBy(sort)}
+       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+      params
+    );
+
+    return {
+      items: result.rows.map(row => normalizeResult(SEARCH_TYPES.initiative, row)),
+      total,
+    };
+  } catch (error) {
+    logger.error('searchInitiatives error', { meta: { error: error.message } });
+    throw AppError.databaseError('Failed to search initiatives');
+  }
+}
+
+async function searchArticles({ q, category, page, limit, sort }) {
+  try {
+    const offset = (page - 1) * limit;
+    let paramIndex = 1;
+    let whereClause = "WHERE a.deleted_at IS NULL";
+    const params = [];
+
+    // Search query
+    whereClause += ` AND (a.title ILIKE $${paramIndex} OR a.content ILIKE $${paramIndex})`;
+    params.push(`%${q}%`);
+    paramIndex++;
+
+    if (category) {
+      whereClause += ` AND a.category = $${paramIndex}`;
+      params.push(category);
+      paramIndex++;
+    }
+
+    // Count total
+    const countResult = await query(`SELECT COUNT(*) as total FROM education_articles a ${whereClause}`, params);
+    const total = parseInt(countResult.rows[0].total, 10);
+
+    // Get results
+    params.push(limit, offset);
+    const result = await query(
+      `SELECT a.id, a.title, a.content, a.category, a.status, a.views_count, a.created_at,
+              a.author_id, u.username, p.avatar_url
+       FROM education_articles a
+       LEFT JOIN users u ON a.author_id = u.id
+       LEFT JOIN user_profiles p ON u.id = p.user_id
+       ${whereClause}
+       ${buildOrderBy(sort)}
+       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+      params
+    );
+
+    return {
+      items: result.rows.map(row => normalizeResult(SEARCH_TYPES.article, row)),
+      total,
+    };
+  } catch (error) {
+    logger.error('searchArticles error', { meta: { error: error.message } });
+    throw AppError.databaseError('Failed to search articles');
+  }
+}
+
+async function searchVideos({ q, category, page, limit, sort }) {
+  try {
+    const offset = (page - 1) * limit;
+    let paramIndex = 1;
+    let whereClause = "WHERE v.deleted_at IS NULL";
+    const params = [];
+
+    // Search query
+    whereClause += ` AND (v.title ILIKE $${paramIndex} OR v.description ILIKE $${paramIndex})`;
+    params.push(`%${q}%`);
+    paramIndex++;
+
+    if (category) {
+      whereClause += ` AND v.category = $${paramIndex}`;
+      params.push(category);
+      paramIndex++;
+    }
+
+    // Count total
+    const countResult = await query(`SELECT COUNT(*) as total FROM education_videos v ${whereClause}`, params);
+    const total = parseInt(countResult.rows[0].total, 10);
+
+    // Get results
+    params.push(limit, offset);
+    const result = await query(
+      `SELECT v.id, v.title, v.description, v.category, v.views_count, v.duration_seconds,
+              v.thumbnail_url, v.created_at, v.author_id, u.username, p.avatar_url
+       FROM education_videos v
+       LEFT JOIN users u ON v.author_id = u.id
+       LEFT JOIN user_profiles p ON u.id = p.user_id
+       ${whereClause}
+       ${buildOrderBy(sort)}
+       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+      params
+    );
+
+    return {
+      items: result.rows.map(row => normalizeResult(SEARCH_TYPES.video, row)),
+      total,
+    };
+  } catch (error) {
+    logger.error('searchVideos error', { meta: { error: error.message } });
+    throw AppError.databaseError('Failed to search videos');
+  }
+}
+
+async function searchProfiles({ q, page, limit, sort }) {
+  try {
+    const offset = (page - 1) * limit;
+    let paramIndex = 1;
+    let whereClause = "WHERE u.deleted_at IS NULL";
+    const params = [];
+
+    // Search query
+    whereClause += ` AND (u.username ILIKE $${paramIndex} OR p.bio ILIKE $${paramIndex})`;
+    params.push(`%${q}%`);
+    paramIndex++;
+
+    // Count total
+    const countResult = await query(
+      `SELECT COUNT(DISTINCT u.id) as total FROM users u
+       LEFT JOIN user_profiles p ON u.id = p.user_id
+       ${whereClause}`,
+      params
+    );
+    const total = parseInt(countResult.rows[0].total, 10);
+
+    // Get results
+    params.push(limit, offset);
+    const result = await query(
+      `SELECT DISTINCT u.id, u.username, u.created_at, p.bio, p.location
+       FROM users u
+       LEFT JOIN user_profiles p ON u.id = p.user_id
+       ${whereClause}
+       ORDER BY u.created_at DESC
+       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}`,
+      params
+    );
+
+    return {
+      items: result.rows.map(row => normalizeResult(SEARCH_TYPES.profile, row)),
+      total,
+    };
+  } catch (error) {
+    logger.error('searchProfiles error', { meta: { error: error.message } });
+    throw AppError.databaseError('Failed to search profiles');
+  }
+}
+
+async function searchGlobal(params) {
+  try {
+    const results = await Promise.all([
+      searchPosts(params),
+      searchInitiatives(params),
+      searchArticles(params),
+      searchVideos(params),
+      searchProfiles(params),
+    ]);
+
+    const merged = [];
+    for (const result of results) {
+      merged.push(...result.items);
+    }
+
+    // Sort by date (most recent first)
+    merged.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    const start = (params.page - 1) * params.limit;
+    const items = merged.slice(start, start + params.limit);
+
+    return {
+      items,
+      total: merged.length,
+    };
+  } catch (error) {
+    logger.error('searchGlobal error', { meta: { error: error.message } });
+    throw AppError.databaseError('Failed to perform global search');
+  }
+}
+
+async function invalidateCache() {
+  if (!redis) return; // Redis not available, skip caching
+
+  try {
+    const keys = await redis.keys('search:*');
+    if (keys.length > 0) {
+      await redis.del(...keys);
+    }
+  } catch (error) {
+    logger.warn('Failed to invalidate search cache', { meta: { error: error.message } });
+  }
 }
 
 module.exports = {
   searchPosts,
-  searchUsers,
-  searchAll,
+  searchInitiatives,
+  searchArticles,
+  searchVideos,
+  searchProfiles,
+  searchGlobal,
+  invalidateCache,
 };

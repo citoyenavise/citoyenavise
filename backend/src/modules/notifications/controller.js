@@ -1,5 +1,5 @@
 /**
- * Notifications Controller
+ * Notifications Controller — Version standardisée
  */
 
 const service = require('./service');
@@ -9,26 +9,44 @@ const { markReadSchema, paginationSchema } = require('./schema');
 module.exports = {
   async list(req, res) {
     const validation = paginationSchema.safeParse(req.query);
-    if (!validation.success) throw new AppError('Paramètres invalides', 400);
+    if (!validation.success) {
+      throw new AppError(
+        'VALIDATION_ERROR',
+        422,
+        'Invalid query parameters',
+        validation.error.issues.map(i => ({ path: i.path.join('.'), message: i.message }))
+      );
+    }
 
     const { page, limit } = validation.data;
-    const notifications = await service.list(req.user.userId, page, limit);
+    const result = await service.list(req.user.userId, validation.data.page, validation.data.limit);
 
-    res.json(notifications);
+    if (result && result.data && Array.isArray(result.data)) {
+      res.apiPaginated(result.data, result.meta.total, result.meta.page, result.meta.limit);
+    } else {
+      res.apiSuccess(result || []);
+    }
   },
 
   async markAsRead(req, res) {
     const validation = markReadSchema.safeParse(req.params);
-    if (!validation.success) throw new AppError('Paramètres invalides', 400);
+    if (!validation.success) {
+      throw new AppError(
+        'VALIDATION_ERROR',
+        422,
+        'Invalid parameters',
+        validation.error.issues.map(i => ({ path: i.path.join('.'), message: i.message }))
+      );
+    }
 
     const { id } = validation.data;
     await service.markAsRead(id, req.user.userId);
 
-    res.status(204).send();
+    res.apiSuccess({ marked: true });
   },
 
   async markAllAsRead(req, res) {
     await service.markAllAsRead(req.user.userId);
-    res.status(204).send();
+    res.apiSuccess({ allMarked: true });
   },
 };

@@ -1,5 +1,5 @@
 /**
- * Comments Controller — Version corrigée & stabilisée
+ * Comments Controller — Version corrigée avec format standardisé
  */
 
 const service = require('./service');
@@ -19,13 +19,18 @@ module.exports = {
     });
 
     if (!validation.success) {
-      throw new AppError('Validation échouée', 400);
+      throw new AppError(
+        'VALIDATION_ERROR',
+        422,
+        'Validation failed',
+        validation.error.issues.map(i => ({ path: i.path.join('.'), message: i.message }))
+      );
     }
 
     const { content } = validation.data;
     const comment = await service.createComment(postId, req.user.userId, content);
 
-    res.status(201).json(comment);
+    res.apiCreated(comment);
   },
 
   /**
@@ -43,17 +48,23 @@ module.exports = {
     });
 
     if (!validation.success) {
-      throw new AppError('Validation échouée', 400);
+      throw new AppError(
+        'VALIDATION_ERROR',
+        422,
+        'Invalid query parameters',
+        validation.error.issues.map(i => ({ path: i.path.join('.'), message: i.message }))
+      );
     }
 
-    const comments = await service.getCommentsByPost(
+    const result = await service.getCommentsByPost(
       postId,
       validation.data.limit,
       validation.data.page,
       validation.data.sort
     );
 
-    res.json(comments);
+    // Retourner avec pagination
+    res.apiPaginated(result.data, result.meta.total, result.meta.page, result.meta.limit);
   },
 
   /**
@@ -62,7 +73,12 @@ module.exports = {
   getComment: async (req, res) => {
     const { commentId } = req.params;
     const comment = await service.getCommentById(commentId);
-    res.json(comment);
+
+    if (!comment) {
+      throw new AppError('NOT_FOUND', 404, 'Comment not found');
+    }
+
+    res.apiSuccess(comment);
   },
 
   /**
@@ -73,7 +89,12 @@ module.exports = {
 
     const validation = updateCommentSchema.safeParse(req.body);
     if (!validation.success) {
-      throw new AppError('Validation échouée', 400);
+      throw new AppError(
+        'VALIDATION_ERROR',
+        422,
+        'Validation failed',
+        validation.error.issues.map(i => ({ path: i.path.join('.'), message: i.message }))
+      );
     }
 
     const updated = await service.updateComment(
@@ -82,7 +103,7 @@ module.exports = {
       validation.data.content
     );
 
-    res.json(updated);
+    res.apiUpdated(updated);
   },
 
   /**
@@ -92,6 +113,6 @@ module.exports = {
     const { commentId } = req.params;
 
     await service.deleteComment(commentId, req.user.userId);
-    res.status(204).send();
+    res.apiDeleted(commentId);
   },
 };

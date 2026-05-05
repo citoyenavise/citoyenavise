@@ -62,18 +62,16 @@ function errorHandler(err, req, res, next) {
       },
     });
 
-    return res.status(400).json({
+    return res.status(422).json({
       success: false,
+      timestamp: new Date().toISOString(),
       data: null,
-      meta: {
-        version: '1.0',
-        timestamp: new Date().toISOString(),
-      },
       error: {
         code: 'VALIDATION_ERROR',
         message: 'Validation failed',
         details: issues,
       },
+      meta: null,
     });
   }
 
@@ -108,16 +106,14 @@ function errorHandler(err, req, res, next) {
 
   res.status(statusCode).json({
     success: false,
+    timestamp: new Date().toISOString(),
     data: null,
-    meta: {
-      version: '1.0',
-      timestamp: new Date().toISOString(),
-    },
     error: {
       code,
       message,
       ...(details && { details }),
     },
+    meta: null,
   });
 }
 
@@ -126,7 +122,15 @@ function errorHandler(err, req, res, next) {
  */
 function notFound(req, res) {
   res.status(404).json({
-    error: `Route not found: ${req.method} ${req.path}`,
+    success: false,
+    timestamp: new Date().toISOString(),
+    data: null,
+    error: {
+      code: 'NOT_FOUND',
+      message: `Route not found: ${req.method} ${req.path}`,
+      details: null,
+    },
+    meta: null,
   });
 }
 

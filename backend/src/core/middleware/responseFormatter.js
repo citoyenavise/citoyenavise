@@ -10,73 +10,84 @@ const logger = require('../utils/logger');
  * Format:
  * {
  *   success: boolean,
+ *   timestamp: ISO string,
  *   data: any,
- *   meta: { page, limit, total, version, timestamp },
- *   error: null | { code, message }
+ *   error: null | { code, message, details? },
+ *   meta: { pagination?, ...custom }
  * }
  */
 class ResponseFormatter {
   static SUCCESS(data, meta = {}) {
     return {
       success: true,
+      timestamp: new Date().toISOString(),
       data: data || null,
-      meta: {
-        version: '1.0',
-        timestamp: new Date().toISOString(),
-        ...meta,
-      },
       error: null,
+      meta: meta || null,
     };
   }
 
   static ERROR(message, code = 'SERVER_ERROR', statusCode = 500, details = null) {
     return {
       success: false,
+      timestamp: new Date().toISOString(),
       data: null,
-      meta: {
-        version: '1.0',
-        timestamp: new Date().toISOString(),
-      },
       error: {
         code: code || 'SERVER_ERROR',
         message: message || 'An error occurred',
         ...(details && { details }),
       },
+      meta: null,
     };
   }
 
   static PAGINATED(data, total, page = 1, limit = 20) {
-    return this.SUCCESS(data, {
-      pagination: {
-        page: parseInt(page),
-        limit: parseInt(limit),
-        total,
-        pages: Math.ceil(total / limit),
-        hasNextPage: page * limit < total,
-        hasPrevPage: page > 1,
+    return {
+      success: true,
+      timestamp: new Date().toISOString(),
+      data: data || [],
+      error: null,
+      meta: {
+        pagination: {
+          page: parseInt(page),
+          limit: parseInt(limit),
+          total,
+          pages: Math.ceil(total / limit),
+          hasNextPage: page * limit < total,
+          hasPrevPage: page > 1,
+        },
       },
-    });
+    };
   }
 
   static CREATED(data, meta = {}) {
-    return this.SUCCESS(data, {
-      created: true,
-      ...meta,
-    });
+    return {
+      success: true,
+      timestamp: new Date().toISOString(),
+      data,
+      error: null,
+      meta: { created: true, ...meta },
+    };
   }
 
   static UPDATED(data, meta = {}) {
-    return this.SUCCESS(data, {
-      updated: true,
-      ...meta,
-    });
+    return {
+      success: true,
+      timestamp: new Date().toISOString(),
+      data,
+      error: null,
+      meta: { updated: true, ...meta },
+    };
   }
 
   static DELETED(id, meta = {}) {
-    return this.SUCCESS(
-      { id, deleted: true },
-      { action: 'DELETE', ...meta }
-    );
+    return {
+      success: true,
+      timestamp: new Date().toISOString(),
+      data: { id, deleted: true },
+      error: null,
+      meta: { action: 'DELETE', ...meta },
+    };
   }
 }
 

@@ -1,9 +1,10 @@
 /**
- * Contrôleur carte (GeoJSON)
+ * Contrôleur carte (GeoJSON) — Version standardisée
  */
 
 const { z } = require('zod');
 const mapService = require('./service');
+const { AppError } = require('../../core/middleware/errorHandler');
 
 const bboxSchema = z.object({
   bounds: z.string().regex(/^-?\d+\.?\d*,-?\d+\.?\d*,-?\d+\.?\d*,-?\d+\.?\d*$/, 'Format: west,south,east,north').optional(),
@@ -29,45 +30,74 @@ const createNodeSchema = z.object({
 });
 
 async function getNodes(req, res) {
-  const validated = bboxSchema.parse(req.query);
+  const validated = bboxSchema.safeParse(req.query);
+
+  if (!validated.success) {
+    throw new AppError(
+      'VALIDATION_ERROR',
+      422,
+      'Invalid query parameters',
+      validated.error.issues.map(i => ({ path: i.path.join('.'), message: i.message }))
+    );
+  }
 
   let geojson;
 
   // Si bounds fournis, parser
-  if (validated.bounds) {
-    const [west, south, east, north] = validated.bounds.split(',').map(Number);
-    geojson = await mapService.getNodesInBbox(west, south, east, north, validated.limit);
-  } else if (validated.region) {
-    geojson = await mapService.getNodesByRegion(validated.region, validated.limit);
-  } else if (validated.west !== undefined && validated.south !== undefined && validated.east !== undefined && validated.north !== undefined) {
-    geojson = await mapService.getNodesInBbox(validated.west, validated.south, validated.east, validated.north, validated.limit);
+  if (validated.data.bounds) {
+    const [west, south, east, north] = validated.data.bounds.split(',').map(Number);
+    geojson = await mapService.getNodesInBbox(west, south, east, north, validated.data.limit);
+  } else if (validated.data.region) {
+    geojson = await mapService.getNodesByRegion(validated.data.region, validated.data.limit);
+  } else if (validated.data.west !== undefined && validated.data.south !== undefined && validated.data.east !== undefined && validated.data.north !== undefined) {
+    geojson = await mapService.getNodesInBbox(validated.data.west, validated.data.south, validated.data.east, validated.data.north, validated.data.limit);
   } else {
-    return res.status(400).json({
-      error: 'Bbox or region required',
-      example: '?bounds=-74,45,-73,46 or ?region=QC',
-    });
+    throw new AppError(
+      'BAD_REQUEST',
+      400,
+      'Bbox or region required',
+      { example: '?bounds=-74,45,-73,46 or ?region=QC' }
+    );
   }
 
-  res.json(geojson);
+  res.apiSuccess(geojson);
 }
 
 async function createNode(req, res) {
-  const validated = createNodeSchema.parse(req.body);
-  const node = await mapService.createNode(validated);
-  res.status(201).json(node);
+  const validated = createNodeSchema.safeParse(req.body);
+  if (!validated.success) {
+    throw new AppError(
+      'VALIDATION_ERROR',
+      422,
+      'Validation failed',
+      validated.error.issues.map(i => ({ path: i.path.join('.'), message: i.message }))
+    );
+  }
+
+  const node = await mapService.createNode(validated.data);
+  res.apiCreated(node);
 }
 
 async function updateNode(req, res) {
   const { id } = req.params;
-  const validated = createNodeSchema.partial().parse(req.body);
-  const node = await mapService.updateNode(id, validated);
-  res.json(node);
+  const validated = createNodeSchema.partial().safeParse(req.body);
+  if (!validated.success) {
+    throw new AppError(
+      'VALIDATION_ERROR',
+      422,
+      'Validation failed',
+      validated.error.issues.map(i => ({ path: i.path.join('.'), message: i.message }))
+    );
+  }
+
+  const node = await mapService.updateNode(id, validated.data);
+  res.apiUpdated(node);
 }
 
 async function deleteNode(req, res) {
   const { id } = req.params;
   await mapService.deleteNode(id);
-  res.status(204).send();
+  res.apiDeleted(id);
 }
 
 module.exports = {

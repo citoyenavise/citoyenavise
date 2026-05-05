@@ -64,6 +64,7 @@ async function createComment(postId, userId, content) {
  */
 async function getCommentsByPost(postId, limit, page, sort) {
   const offset = (page - 1) * limit;
+  const maxLimit = Math.min(limit, 100);
 
   const orderBy =
     sort === 'popular'
@@ -90,10 +91,26 @@ async function getCommentsByPost(postId, limit, page, sort) {
     ${orderBy}
     LIMIT $2 OFFSET $3
   `,
-    [postId, limit, offset]
+    [postId, maxLimit, offset]
   );
 
-  return result.rows;
+  // Get total count
+  const countResult = await query(
+    `SELECT COUNT(*) as count FROM comments c
+     WHERE c.post_id = $1 AND c.deleted_at IS NULL AND c.status = 'published'`,
+    [postId]
+  );
+  const total = parseInt(countResult.rows[0].count, 10);
+
+  return {
+    data: result.rows,
+    meta: {
+      total,
+      page,
+      limit: maxLimit,
+      pages: Math.ceil(total / maxLimit),
+    },
+  };
 }
 
 /**
