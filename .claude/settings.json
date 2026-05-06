@@ -57,7 +57,15 @@
       "Bash(node -c src/modules/education/videos/index.js)",
       "PowerShell(head -5)",
       "PowerShell(New-Item -ItemType Directory -Path \"c:\\\\Users\\\\Dave\\\\citoyenavise\\\\backend\\\\src\\\\modules\\\\reports\" -Force)",
-      "Bash(node -e ' *)"
+      "Bash(node -e ' *)",
+      "Bash(timeout 5 npm start)",
+      "Bash(npm start *)",
+      "Bash(curl -s http://localhost:3000/health)",
+      "Bash(curl -s http://localhost:3000/api/info)",
+      "Bash(pkill -f \"node src/server.js\")",
+      "Bash(awk '{print $NF}')",
+      "Bash(git config *)",
+      "Bash(git remote *)"
     ]
   }
 }
