@@ -3,6 +3,7 @@ import { AuthProvider } from './contexts/AuthContext'
 import { Header } from './components/Header'
 import { ProtectedRoute } from './components/ProtectedRoute'
 
+import { Home } from './pages/Home'
 import { Login } from './pages/Login'
 import { Register } from './pages/Register'
 import { Feed } from './pages/Feed'
@@ -43,7 +44,7 @@ export default function App() {
             }
           />
 
-          <Route path="/" element={<Navigate to="/feed" replace />} />
+          <Route path="/" element={<Home />} />
           <Route path="*" element={<Navigate to="/feed" replace />} />
         </Routes>
       </AuthProvider>
