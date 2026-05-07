@@ -6,12 +6,21 @@ const { Pool } = require('pg');
 const config = require('../../config');
 const logger = require('../utils/logger');
 
-const pool = new Pool({
+const poolConfig = {
   connectionString: config.DATABASE_URL,
   max: config.DB_POOL_SIZE,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
-});
+};
+
+// SSL/TLS for production (Render, Heroku, etc.)
+if (config.isProduction() || process.env.DATABASE_URL?.includes('render.com')) {
+  poolConfig.ssl = {
+    rejectUnauthorized: false,
+  };
+}
+
+const pool = new Pool(poolConfig);
 
 pool.on('error', (err) => {
   logger.error('Unexpected error on idle client', { meta: { error: err } });
