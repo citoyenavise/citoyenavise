@@ -6,10 +6,18 @@ const { Pool } = require('pg');
 const config = require('../../config');
 const logger = require('../utils/logger');
 
-// Log DATABASE_URL for debugging (masked)
-const dbUrl = config.DATABASE_URL || '';
-const maskedUrl = dbUrl.replace(/:[^@]*@/, ':***@').substring(0, 50);
-logger.info(`Database URL (masked): ${maskedUrl}...`);
+// Log DATABASE_URL for debugging
+if (!config.DATABASE_URL) {
+  logger.error('❌ DATABASE_URL is NOT defined!');
+} else {
+  const dbUrl = config.DATABASE_URL;
+  const maskedUrl = dbUrl.replace(/:[^@]*@/, ':***@');
+  const hostMatch = dbUrl.match(/@([^:/]+)/);
+  const host = hostMatch ? hostMatch[1] : 'unknown';
+  logger.info(`✅ Database URL configured`, {
+    meta: { host, length: dbUrl.length },
+  });
+}
 
 const poolConfig = {
   connectionString: config.DATABASE_URL,
