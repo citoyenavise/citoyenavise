@@ -13,8 +13,8 @@ const poolConfig = {
   connectionTimeoutMillis: 2000,
 };
 
-// SSL/TLS: enabled in production, disabled in development
-poolConfig.ssl = process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false;
+// SSL/TLS: force SSL for all environments
+poolConfig.ssl = { rejectUnauthorized: false };
 
 const pool = new Pool(poolConfig);
 
