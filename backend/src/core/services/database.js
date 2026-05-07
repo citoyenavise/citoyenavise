@@ -13,10 +13,8 @@ const poolConfig = {
   connectionTimeoutMillis: 2000,
 };
 
-// SSL/TLS for production (Render, Heroku, etc.)
-if (config.isProduction() || process.env.DATABASE_URL?.includes('render.com')) {
-  poolConfig.ssl = true;
-}
+// SSL/TLS: enabled in production, disabled in development
+poolConfig.ssl = process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false;
 
 const pool = new Pool(poolConfig);
 
