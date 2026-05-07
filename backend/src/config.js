@@ -2,8 +2,12 @@
  * Configuration centralisée
  */
 
-// Only load .env in development, not in production
-if (process.env.NODE_ENV !== 'production') {
+// Force production mode for Render
+const ENV = process.env.NODE_ENV || 'development';
+console.log('🔍 NODE_ENV detected:', ENV);
+
+// Only load .env in development
+if (ENV !== 'production') {
   require('dotenv').config({ path: `${__dirname}/../.env` });
 }
 module.exports = {
