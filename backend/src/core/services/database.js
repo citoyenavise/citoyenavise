@@ -6,28 +6,31 @@ const { Pool } = require('pg');
 const config = require('../../config');
 const logger = require('../utils/logger');
 
-// Log DATABASE_URL for debugging
-if (!config.DATABASE_URL) {
-  logger.error('❌ DATABASE_URL is NOT defined!');
-} else {
-  const dbUrl = config.DATABASE_URL;
-  const maskedUrl = dbUrl.replace(/:[^@]*@/, ':***@');
-  const hostMatch = dbUrl.match(/@([^:/]+)/);
-  const host = hostMatch ? hostMatch[1] : 'unknown';
-  logger.info(`✅ Database URL configured`, {
-    meta: { host, length: dbUrl.length },
-  });
-}
-
 const poolConfig = {
-  connectionString: config.DATABASE_URL,
-  max: config.DB_POOL_SIZE,
+  connectionString: process.env.DATABASE_URL,
+  max: parseInt(process.env.DB_POOL_SIZE, 10) || 10,
   idleTimeoutMillis: 30000,
   connectionTimeoutMillis: 2000,
+  application_name: 'citoyenavise_backend',
 };
 
-// SSL/TLS: force SSL for all environments
-poolConfig.ssl = { rejectUnauthorized: false };
+// SSL configuration pour Render PostgreSQL
+if (process.env.DATABASE_URL && process.env.DATABASE_URL.includes('render.com')) {
+  poolConfig.ssl = {
+    rejectUnauthorized: false,
+  };
+}
+
+// Log DATABASE_URL for debugging
+if (!process.env.DATABASE_URL) {
+  logger.error('❌ DATABASE_URL is NOT defined!');
+} else {
+  const hostMatch = process.env.DATABASE_URL.match(/@([^:/]+)/);
+  const host = hostMatch ? hostMatch[1] : 'unknown';
+  logger.info(`✅ Database URL configured`, {
+    meta: { host, isRender: host.includes('render.com') },
+  });
+}
 
 const pool = new Pool(poolConfig);
 
