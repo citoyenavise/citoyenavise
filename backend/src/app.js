@@ -276,7 +276,7 @@ async function startServer() {
   }
 
   // Start server
-  const PORT = process.env.PORT || 3000;
+  const PORT = config.PORT;
   const server = app.listen(PORT, () => {
     logger.info(`🚀 Backend API running on http://localhost:${PORT}`, {
       meta: { port: PORT, env: process.env.NODE_ENV },
