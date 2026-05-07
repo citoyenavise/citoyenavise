@@ -2,8 +2,10 @@
  * Configuration centralisée
  */
 
-require('dotenv').config({ path: `${__dirname}/../.env` });
-
+// Only load .env in development, not in production
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config({ path: `${__dirname}/../.env` });
+}
 module.exports = {
   // Server
   NODE_ENV: process.env.NODE_ENV || 'development',
