@@ -15,9 +15,7 @@ const poolConfig = {
 
 // SSL/TLS for production (Render, Heroku, etc.)
 if (config.isProduction() || process.env.DATABASE_URL?.includes('render.com')) {
-  poolConfig.ssl = {
-    rejectUnauthorized: false,
-  };
+  poolConfig.ssl = true;
 }
 
 const pool = new Pool(poolConfig);
