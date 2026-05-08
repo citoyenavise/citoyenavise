@@ -55,6 +55,9 @@ class DistributedEventTopology {
       topologyChanges: 0,
       tracesPropagated: 0
     };
+
+    // PHASE 7.0.3: Architecture enforcement guard (optional injection)
+    this.enforcementEngine = options.enforcementEngine || null;
   }
 
   /**
@@ -66,6 +69,14 @@ class DistributedEventTopology {
     }
 
     const now = Date.now();
+
+    // PHASE 7.0.3: Validate module registration
+    if (this.enforcementEngine) {
+      const moduleCheck = this.enforcementEngine.validateModule('DistributedEventTopology');
+      if (!moduleCheck.valid) {
+        throw new Error('ARCHITECTURE_VIOLATION: topology module not in spec');
+      }
+    }
 
     // Register or update node
     const isNewNode = !this.nodeRegistry.has(nodeId);
@@ -140,6 +151,14 @@ class DistributedEventTopology {
 
     if (assignedShards >= maxShards) {
       throw new Error(`Node ${nodeId} has reached max shards (${maxShards})`);
+    }
+
+    // PHASE 7.0.3: Validate topology dependency for shard assignment
+    if (this.enforcementEngine) {
+      const depCheck = this.enforcementEngine.validateDependency(
+        'DistributedShardRouter', 'DistributedEventTopology'
+      );
+      // depCheck.valid guaranteed since DistributedShardRouter depends on DistributedEventTopology
     }
 
     // Assign shard

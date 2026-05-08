@@ -39,6 +39,9 @@ class SelfHealingOrchestrator {
     // Optional injection from Phase 1.6
     this.recoveryOrchestrator = options.recoveryOrchestrator || null;
 
+    // PHASE 7.0.3: Architecture enforcement guard (optional injection)
+    this.enforcementEngine = options.enforcementEngine || null;
+
     this.healingCycleHistory = [];
 
     // PHASE 5.7: Business-level idempotency (eventId + traceId composite key)
@@ -104,6 +107,15 @@ class SelfHealingOrchestrator {
       return { action: 'SKIPPED', reason: 'already_healing', idempotencyKey };
     }
     this.activeHealings.set(idempotencyKey, now);
+
+    // PHASE 7.0.3: System readiness guard before healing
+    if (this.enforcementEngine) {
+      const readiness = this.enforcementEngine.validateSystemReadiness();
+      if (!readiness.valid) {
+        this.activeHealings.delete(idempotencyKey);
+        return { action: 'BLOCKED', reason: 'system_not_ready', details: readiness };
+      }
+    }
 
     try {
       this.metrics.violationsReceived += 1;

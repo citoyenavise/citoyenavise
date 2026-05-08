@@ -363,6 +363,27 @@ class ArchitectureEnforcementEngine {
       timestamp: new Date().toISOString()
     };
   }
+
+  /**
+   * PHASE 7.0.3 — System readiness guard for orchestrators
+   * Validates that the system is in an operational state (READY or DEGRADED)
+   */
+  validateSystemReadiness() {
+    const operationalStates = ['READY', 'DEGRADED'];
+    const isOperational = operationalStates.includes(this.currentLifecycleState);
+
+    if (!isOperational) {
+      this._escalate('CRITICAL', `System not in operational state: ${this.currentLifecycleState}`, {});
+      return {
+        valid: false,
+        level: 'CRITICAL',
+        reason: 'SYSTEM_NOT_READY',
+        currentState: this.currentLifecycleState
+      };
+    }
+
+    return { valid: true, currentState: this.currentLifecycleState };
+  }
 }
 
 module.exports = ArchitectureEnforcementEngine;

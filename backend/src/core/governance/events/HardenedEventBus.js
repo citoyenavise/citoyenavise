@@ -48,6 +48,9 @@ class HardenedEventBus extends GovernanceEventBus {
     this.traceIdCounts = new Map(); // traceId → publishCount
     this.maxPublishesPerTraceId = options.maxPublishesPerTraceId || 10;
 
+    // PHASE 7.0.3: Architecture enforcement guard (optional injection)
+    this.enforcementEngine = options.enforcementEngine || null;
+
     this.metrics = {
       ...this.metrics,
       eventsExpired: 0, // PHASE 5.7: TTL enforcement
@@ -91,6 +94,24 @@ class HardenedEventBus extends GovernanceEventBus {
       this.metrics.rateLimited += 1;
       const eventId = event.eventId || event.id;
       return { published: false, reason: 'rate_limited', eventId };
+    }
+
+    // STEP 4.5 (PHASE 7.0.3): Architecture enforcement pre-publish guard
+    if (this.enforcementEngine) {
+      const enforceResult = this.enforcementEngine.validateEvent(
+        event.type,
+        event.source || null,
+        event
+      );
+      if (!enforceResult.valid) {
+        this.metrics.eventsRejected += 1;
+        return {
+          published: false,
+          reason: 'architecture_violation',
+          action: enforceResult.action,
+          eventId: event.eventId || event.id
+        };
+      }
     }
 
     try {

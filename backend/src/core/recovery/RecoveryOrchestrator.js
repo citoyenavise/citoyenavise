@@ -27,6 +27,9 @@ class RecoveryOrchestrator {
     this.retryPolicyExecutor = options.retryPolicyExecutor || null;
     this.gracefulShutdownManager = options.gracefulShutdownManager || null;
 
+    // PHASE 7.0.3: Architecture enforcement guard (optional injection)
+    this.enforcementEngine = options.enforcementEngine || null;
+
     this.recoveryPaths = new Map();
 
     // PHASE 5.7 v2: Business-level idempotency (eventId + traceId)
@@ -234,6 +237,14 @@ class RecoveryOrchestrator {
     if (this.activeRecoveries.size >= this.maxConcurrentRecoveries) {
       this.metrics.concurrencyLimited = (this.metrics.concurrencyLimited || 0) + 1;
       return { skipped: true, reason: 'max_concurrent_recoveries_reached' };
+    }
+
+    // PHASE 7.0.3: System readiness guard before recovery
+    if (this.enforcementEngine) {
+      const readiness = this.enforcementEngine.validateSystemReadiness();
+      if (!readiness.valid) {
+        return { skipped: true, reason: 'system_not_ready', details: readiness };
+      }
     }
 
     this.activeRecoveries.set(idempotencyKey, now);
