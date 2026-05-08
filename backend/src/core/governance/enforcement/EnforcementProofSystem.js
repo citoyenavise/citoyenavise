@@ -54,7 +54,11 @@ class EnforcementProofSystem {
       // Batch metrics (observability only)
       batchQueueDepth: 0,
       batchFlushed: 0,
-      proofFlushRate: 0 // proofs per second
+      proofFlushRate: 0, // proofs per second
+      // PHASE 7.0.5: Enhanced observability metrics
+      batchAutoCompactCount: 0, // auto-compactions triggered
+      lastFlushTimestamp: null, // ISO string
+      lastFlushDurationMs: 0 // duration of last compactProofs()
     };
   }
 
@@ -182,6 +186,7 @@ class EnforcementProofSystem {
 
       // Auto-compact if batch buffer gets large
       if (this.batchProcessingBuffer.length > this.maxBatchBufferSize) {
+        this.metrics.batchAutoCompactCount++;
         this.compactProofs();
       }
 
@@ -333,7 +338,8 @@ class EnforcementProofSystem {
    * CRITICAL: Batch never influences enforcement decisions
    */
   compactProofs() {
-    const now = Date.now();
+    const flushStart = Date.now();
+    const now = flushStart;
     const flushCount = this.batchProcessingBuffer.length;
 
     if (flushCount === 0) {
@@ -378,9 +384,16 @@ class EnforcementProofSystem {
       aggregated.aggregatedMetrics.latencies.push(proof.latencyMs);
     }
 
-    // Calculate flush rate
-    const flushRate = flushCount / Math.max(1, (Date.now() - this.metrics.lastCaptureTime) / 1000);
+    // PHASE 7.0.5: Calculate flush rate with null safety
+    const elapsed = this.metrics.lastCaptureTime
+      ? Math.max(1, (Date.now() - this.metrics.lastCaptureTime) / 1000)
+      : 1;
+    const flushRate = flushCount / elapsed;
     this.metrics.proofFlushRate = Math.round(flushRate);
+
+    // PHASE 7.0.5: Record flush timestamp and duration
+    this.metrics.lastFlushTimestamp = new Date().toISOString();
+    this.metrics.lastFlushDurationMs = Date.now() - flushStart;
 
     // Clear batch buffer
     this.batchProcessingBuffer = [];
@@ -410,16 +423,17 @@ class EnforcementProofSystem {
       };
     }
 
-    // Check sequence consistency within batch
-    for (let i = 0; i < this.batchProcessingBuffer.length; i++) {
-      const entry = this.batchProcessingBuffer[i];
-      const expectedSeq = i + 1; // batchSequence starts at 1
-      if (entry.batchSequence !== expectedSeq) {
+    // Check relative sequence ordering within current buffer
+    // PHASE 7.0.5: Use relative check, not absolute from 1 (after flush, sequences > 1)
+    for (let i = 1; i < this.batchProcessingBuffer.length; i++) {
+      const prev = this.batchProcessingBuffer[i - 1];
+      const curr = this.batchProcessingBuffer[i];
+      if (curr.batchSequence !== prev.batchSequence + 1) {
         return {
           valid: false,
           entriesVerified: i,
           isAuthoritative: false,
-          error: `Batch sequence mismatch at index ${i}: expected ${expectedSeq}, got ${entry.batchSequence}`
+          error: `Batch sequence gap at index ${i}: expected ${prev.batchSequence + 1}, got ${curr.batchSequence}`
         };
       }
     }
@@ -453,7 +467,10 @@ class EnforcementProofSystem {
       realTimeLatencyMs: 0,
       batchQueueDepth: 0,
       batchFlushed: 0,
-      proofFlushRate: 0
+      proofFlushRate: 0,
+      batchAutoCompactCount: 0,
+      lastFlushTimestamp: null,
+      lastFlushDurationMs: 0
     };
   }
 }
