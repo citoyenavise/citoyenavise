@@ -1,0 +1,16 @@
+{
+  "name": "token:refreshed",
+  "version": "1.0.0",
+  "domain": "token",
+  "action": "refreshed",
+  "entity": "token",
+  "description": "Access token refreshed",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "userId": { "type": "string" },
+      "timestamp": { "type": "string" }
+    },
+    "required": ["userId", "timestamp"]
+  }
+}

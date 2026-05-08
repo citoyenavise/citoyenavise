@@ -1,0 +1,30 @@
+{
+  "name": "media",
+  "version": "1.0.0",
+  "description": "Media files and uploads management",
+  "dependencies": [],
+  "capabilities": [
+    "media:upload",
+    "media:view",
+    "media:manage"
+  ],
+  "events": [
+    "media:uploaded",
+    "media:deleted",
+    "media:processed"
+  ],
+  "routes": {
+    "prefix": "/api/v1/media",
+    "methods": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE"
+    ]
+  },
+  "lifecycle": {
+    "initRequired": true,
+    "readyRequired": true,
+    "healthChecks": true
+  }
+}

@@ -1,0 +1,575 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Event Schema Registry - Complete Event Type Definitions",
+  "version": "1.0.0",
+  "timestamp": "2026-05-07T00:00:00Z",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+
+  "event_types": {
+    "auth:attempt": {
+      "id": "auth:attempt",
+      "emitted_by": "auth",
+      "version": "1.0.0",
+      "description": "User authentication attempt",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "username": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["username", "timestamp"]
+      }
+    },
+
+    "auth:success": {
+      "id": "auth:success",
+      "emitted_by": "auth",
+      "listened_by": ["users", "admin"],
+      "version": "1.0.0",
+      "description": "Successful authentication",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "user_id": { "type": "string", "format": "uuid" },
+          "token": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["user_id", "token", "timestamp"]
+      }
+    },
+
+    "auth:failure": {
+      "id": "auth:failure",
+      "emitted_by": "auth",
+      "version": "1.0.0",
+      "description": "Failed authentication",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "username": { "type": "string" },
+          "reason": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["username", "reason", "timestamp"]
+      }
+    },
+
+    "auth:logout": {
+      "id": "auth:logout",
+      "emitted_by": "auth",
+      "version": "1.0.0",
+      "description": "User logout",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "user_id": { "type": "string", "format": "uuid" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["user_id", "timestamp"]
+      }
+    },
+
+    "user:created": {
+      "id": "user:created",
+      "emitted_by": "users",
+      "listened_by": ["profiles", "notifications", "analytics"],
+      "version": "1.0.0",
+      "description": "New user created",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "user_id": { "type": "string", "format": "uuid" },
+          "email": { "type": "string", "format": "email" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["user_id", "email", "timestamp"]
+      }
+    },
+
+    "user:updated": {
+      "id": "user:updated",
+      "emitted_by": "users",
+      "listened_by": ["notifications", "admin"],
+      "version": "1.0.0",
+      "description": "User profile updated",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "user_id": { "type": "string", "format": "uuid" },
+          "changes": { "type": "object" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["user_id", "changes", "timestamp"]
+      }
+    },
+
+    "user:deleted": {
+      "id": "user:deleted",
+      "emitted_by": "users",
+      "listened_by": ["admin"],
+      "version": "1.0.0",
+      "description": "User deleted",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "user_id": { "type": "string", "format": "uuid" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["user_id", "timestamp"]
+      }
+    },
+
+    "post:created": {
+      "id": "post:created",
+      "emitted_by": "posts",
+      "listened_by": ["search", "notifications", "analytics"],
+      "version": "1.0.0",
+      "description": "New post created",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "post_id": { "type": "string", "format": "uuid" },
+          "author_id": { "type": "string", "format": "uuid" },
+          "content": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["post_id", "author_id", "content", "timestamp"]
+      }
+    },
+
+    "post:updated": {
+      "id": "post:updated",
+      "emitted_by": "posts",
+      "listened_by": ["search", "notifications"],
+      "version": "1.0.0",
+      "description": "Post updated",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "post_id": { "type": "string", "format": "uuid" },
+          "content": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["post_id", "content", "timestamp"]
+      }
+    },
+
+    "post:deleted": {
+      "id": "post:deleted",
+      "emitted_by": "posts",
+      "listened_by": ["search", "notifications"],
+      "version": "1.0.0",
+      "description": "Post deleted",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "post_id": { "type": "string", "format": "uuid" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["post_id", "timestamp"]
+      }
+    },
+
+    "post:liked": {
+      "id": "post:liked",
+      "emitted_by": "posts",
+      "listened_by": ["notifications"],
+      "version": "1.0.0",
+      "description": "Post liked",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "post_id": { "type": "string", "format": "uuid" },
+          "user_id": { "type": "string", "format": "uuid" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["post_id", "user_id", "timestamp"]
+      }
+    },
+
+    "comment:created": {
+      "id": "comment:created",
+      "emitted_by": "comments",
+      "listened_by": ["search", "notifications", "analytics"],
+      "version": "1.0.0",
+      "description": "New comment created",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "comment_id": { "type": "string", "format": "uuid" },
+          "post_id": { "type": "string", "format": "uuid" },
+          "author_id": { "type": "string", "format": "uuid" },
+          "content": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["comment_id", "post_id", "author_id", "content", "timestamp"]
+      }
+    },
+
+    "comment:updated": {
+      "id": "comment:updated",
+      "emitted_by": "comments",
+      "listened_by": ["search"],
+      "version": "1.0.0",
+      "description": "Comment updated",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "comment_id": { "type": "string", "format": "uuid" },
+          "content": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["comment_id", "content", "timestamp"]
+      }
+    },
+
+    "comment:deleted": {
+      "id": "comment:deleted",
+      "emitted_by": "comments",
+      "listened_by": ["search"],
+      "version": "1.0.0",
+      "description": "Comment deleted",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "comment_id": { "type": "string", "format": "uuid" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["comment_id", "timestamp"]
+      }
+    },
+
+    "idea:created": {
+      "id": "idea:created",
+      "emitted_by": "ideas",
+      "version": "1.0.0",
+      "description": "New idea created",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "idea_id": { "type": "string", "format": "uuid" },
+          "author_id": { "type": "string", "format": "uuid" },
+          "title": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["idea_id", "author_id", "title", "timestamp"]
+      }
+    },
+
+    "idea:updated": {
+      "id": "idea:updated",
+      "emitted_by": "ideas",
+      "version": "1.0.0",
+      "description": "Idea updated",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "idea_id": { "type": "string", "format": "uuid" },
+          "title": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["idea_id", "title", "timestamp"]
+      }
+    },
+
+    "idea:voted": {
+      "id": "idea:voted",
+      "emitted_by": "ideas",
+      "version": "1.0.0",
+      "description": "Idea voted",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "idea_id": { "type": "string", "format": "uuid" },
+          "user_id": { "type": "string", "format": "uuid" },
+          "vote": { "type": "string", "enum": ["up", "down"] },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["idea_id", "user_id", "vote", "timestamp"]
+      }
+    },
+
+    "search:query": {
+      "id": "search:query",
+      "emitted_by": "search",
+      "version": "1.0.0",
+      "description": "Search query executed",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "query": { "type": "string" },
+          "result_count": { "type": "integer" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["query", "result_count", "timestamp"]
+      }
+    },
+
+    "search:indexed": {
+      "id": "search:indexed",
+      "emitted_by": "search",
+      "version": "1.0.0",
+      "description": "Content indexed",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "content_id": { "type": "string", "format": "uuid" },
+          "content_type": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["content_id", "content_type", "timestamp"]
+      }
+    },
+
+    "analytics:event_tracked": {
+      "id": "analytics:event_tracked",
+      "emitted_by": "analytics",
+      "version": "1.0.0",
+      "description": "Event tracked for analytics",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "user_id": { "type": "string", "format": "uuid" },
+          "event_type": { "type": "string" },
+          "metadata": { "type": "object" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["user_id", "event_type", "timestamp"]
+      }
+    },
+
+    "notification:sent": {
+      "id": "notification:sent",
+      "emitted_by": "notifications",
+      "version": "1.0.0",
+      "description": "Notification sent",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "notification_id": { "type": "string", "format": "uuid" },
+          "user_id": { "type": "string", "format": "uuid" },
+          "message": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["notification_id", "user_id", "message", "timestamp"]
+      }
+    },
+
+    "notification:read": {
+      "id": "notification:read",
+      "emitted_by": "notifications",
+      "version": "1.0.0",
+      "description": "Notification read",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "notification_id": { "type": "string", "format": "uuid" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["notification_id", "timestamp"]
+      }
+    },
+
+    "recommendation:generated": {
+      "id": "recommendation:generated",
+      "emitted_by": "recommendations",
+      "version": "1.0.0",
+      "description": "Recommendation generated",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "user_id": { "type": "string", "format": "uuid" },
+          "recommended_content_id": { "type": "string", "format": "uuid" },
+          "score": { "type": "number", "minimum": 0, "maximum": 1 },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["user_id", "recommended_content_id", "score", "timestamp"]
+      }
+    },
+
+    "admin:action": {
+      "id": "admin:action",
+      "emitted_by": "admin",
+      "version": "1.0.0",
+      "description": "Admin action performed",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "admin_id": { "type": "string", "format": "uuid" },
+          "action": { "type": "string" },
+          "target": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["admin_id", "action", "target", "timestamp"]
+      }
+    },
+
+    "db:query": {
+      "id": "db:query",
+      "emitted_by": "database",
+      "version": "1.0.0",
+      "description": "Database query executed",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "query_id": { "type": "string", "format": "uuid" },
+          "duration_ms": { "type": "integer" },
+          "rows_affected": { "type": "integer" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["query_id", "duration_ms", "rows_affected", "timestamp"]
+      }
+    },
+
+    "db:connected": {
+      "id": "db:connected",
+      "emitted_by": "database",
+      "version": "1.0.0",
+      "description": "Database connected",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["timestamp"]
+      }
+    },
+
+    "db:error": {
+      "id": "db:error",
+      "emitted_by": "database",
+      "version": "1.0.0",
+      "description": "Database error occurred",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "error_code": { "type": "string" },
+          "message": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["error_code", "message", "timestamp"]
+      }
+    },
+
+    "cache:hit": {
+      "id": "cache:hit",
+      "emitted_by": "cache",
+      "version": "1.0.0",
+      "description": "Cache hit",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "key": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["key", "timestamp"]
+      }
+    },
+
+    "cache:miss": {
+      "id": "cache:miss",
+      "emitted_by": "cache",
+      "version": "1.0.0",
+      "description": "Cache miss",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "key": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["key", "timestamp"]
+      }
+    },
+
+    "cache:set": {
+      "id": "cache:set",
+      "emitted_by": "cache",
+      "version": "1.0.0",
+      "description": "Cache entry set",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "key": { "type": "string" },
+          "ttl_ms": { "type": "integer" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["key", "ttl_ms", "timestamp"]
+      }
+    },
+
+    "log:entry": {
+      "id": "log:entry",
+      "emitted_by": "logger",
+      "version": "1.0.0",
+      "description": "Log entry created",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "level": { "type": "string", "enum": ["DEBUG", "INFO", "WARN", "ERROR"] },
+          "message": { "type": "string" },
+          "component": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["level", "message", "component", "timestamp"]
+      }
+    },
+
+    "event:emitted": {
+      "id": "event:emitted",
+      "emitted_by": "eventBus",
+      "version": "1.0.0",
+      "description": "Event emitted",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "event_id": { "type": "string", "format": "uuid" },
+          "event_type": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["event_id", "event_type", "timestamp"]
+      }
+    },
+
+    "event:validated": {
+      "id": "event:validated",
+      "emitted_by": "eventBus",
+      "version": "1.0.0",
+      "description": "Event validated",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "event_id": { "type": "string", "format": "uuid" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["event_id", "timestamp"]
+      }
+    },
+
+    "event:error": {
+      "id": "event:error",
+      "emitted_by": "eventBus",
+      "version": "1.0.0",
+      "description": "Event error",
+      "schema": {
+        "type": "object",
+        "properties": {
+          "event_id": { "type": "string", "format": "uuid" },
+          "error": { "type": "string" },
+          "timestamp": { "type": "string", "format": "date-time" }
+        },
+        "required": ["event_id", "error", "timestamp"]
+      }
+    }
+  },
+
+  "governance": {
+    "sealed": true,
+    "immutable": true,
+    "read_only": true,
+    "total_event_types": 45,
+    "review_period_days": 30,
+    "schema_validation": "STRICT"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "friends",
+  "version": "1.0.0",
+  "description": "Friend network management",
+  "dependencies": [],
+  "capabilities": [
+    "friend:manage",
+    "friend:view"
+  ],
+  "events": [
+    "friend:added",
+    "friend:removed"
+  ],
+  "routes": {
+    "prefix": "/api/v1/friends",
+    "methods": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE"
+    ]
+  },
+  "lifecycle": {
+    "initRequired": true,
+    "readyRequired": true,
+    "healthChecks": true
+  }
+}

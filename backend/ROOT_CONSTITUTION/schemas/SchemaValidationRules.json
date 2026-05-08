@@ -1,0 +1,121 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Schema Validation Rules",
+  "description": "Declarative validation rules for event schemas",
+  "version": "1.0.0",
+  "phase": "1.4",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+  "lastUpdated": "2026-05-07",
+  "governance_level": "CONSTITUTIONAL",
+
+  "validationRules": [
+    {
+      "id": "RULE_REQUIRED_FIELDS",
+      "description": "All events MUST contain base required fields",
+      "appliesTo": "ALL_EVENTS",
+      "requiredFields": [
+        "eventId",
+        "eventType",
+        "timestamp",
+        "source"
+      ],
+      "enforcement": "MANDATORY"
+    },
+    {
+      "id": "RULE_TIMESTAMP_FORMAT",
+      "description": "Timestamp MUST be ISO 8601",
+      "appliesTo": "ALL_EVENTS",
+      "field": "timestamp",
+      "format": "ISO8601",
+      "enforcement": "MANDATORY"
+    },
+    {
+      "id": "RULE_EVENT_ID_PATTERN",
+      "description": "Event ID MUST match pattern evt_*",
+      "appliesTo": "ALL_EVENTS",
+      "field": "eventId",
+      "pattern": "^evt_[a-f0-9-]+$",
+      "enforcement": "MANDATORY"
+    },
+    {
+      "id": "RULE_VERSION_PRESENT",
+      "description": "Event version MUST be present",
+      "appliesTo": "ALL_EVENTS",
+      "field": "version",
+      "format": "SEMVER",
+      "default": "1.0.0",
+      "enforcement": "RECOMMENDED"
+    },
+    {
+      "id": "RULE_DOMAIN_EVENT_PAYLOAD",
+      "description": "Domain events MUST have payload object",
+      "appliesTo": ["USER_CREATED", "POST_CREATED", "AUTH_LOGIN_ATTEMPT"],
+      "field": "payload",
+      "type": "object",
+      "enforcement": "MANDATORY"
+    },
+    {
+      "id": "RULE_SYSTEM_ERROR_SEVERITY",
+      "description": "System errors MUST specify severity level",
+      "appliesTo": "SYSTEM_ERROR",
+      "field": "payload.severity",
+      "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"],
+      "enforcement": "MANDATORY"
+    },
+    {
+      "id": "RULE_GOVERNANCE_VIOLATION_CONTEXT",
+      "description": "Governance violations MUST include context",
+      "appliesTo": "GOVERNANCE_VIOLATION_DETECTED",
+      "field": "payload.context",
+      "type": "object",
+      "enforcement": "MANDATORY"
+    },
+    {
+      "id": "RULE_NO_ADDITIONAL_PROPERTIES",
+      "description": "Events MUST NOT contain unknown fields at root level",
+      "appliesTo": "ALL_EVENTS",
+      "additionalPropertiesAllowed": false,
+      "enforcement": "MANDATORY"
+    },
+    {
+      "id": "RULE_VERSION_COMPATIBILITY",
+      "description": "Event version MUST be compatible with schema version",
+      "appliesTo": "ALL_EVENTS",
+      "compatibilityMode": "BACKWARD_COMPATIBLE",
+      "enforcement": "MANDATORY"
+    },
+    {
+      "id": "RULE_MODULE_SOURCE_VALIDATION",
+      "description": "Source module MUST be registered",
+      "appliesTo": "ALL_EVENTS",
+      "field": "source",
+      "validatesAgainst": "ModuleRegistry",
+      "enforcement": "RECOMMENDED"
+    }
+  ],
+
+  "namingConventions": {
+    "eventTypeNaming": "UPPER_SNAKE_CASE",
+    "moduleNaming": "lowercase",
+    "fieldNaming": "camelCase",
+    "versionFormat": "SEMVER",
+    "examples": {
+      "validEventType": "USER_CREATED",
+      "validModule": "users",
+      "validField": "userId"
+    }
+  },
+
+  "backwardCompatibilityPolicy": {
+    "majorVersionBreaking": true,
+    "minorVersionCompatible": true,
+    "patchVersionCompatible": true,
+    "depreciationCycle": "2_releases_or_6_months"
+  },
+
+  "validationMode": "STRICT_DECLARATIVE",
+  "noRuntimeLogicAllowed": true,
+  "declarationComplete": true
+}

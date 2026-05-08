@@ -1,0 +1,278 @@
+{
+  "version": "1.0.0",
+  "description": "Registry of recovery strategies for all failure types",
+  "sealed": true,
+  "lastUpdated": "2026-05-08",
+  "strategies": {
+    "VALIDATION_ERROR": {
+      "severity": "LOW",
+      "automatic": false,
+      "recoveryPath": "return_to_client",
+      "escalate": false,
+      "metrics": "validation_errors_counter"
+    },
+    "AUTHENTICATION_ERROR": {
+      "severity": "MEDIUM",
+      "automatic": false,
+      "recoveryPath": "return_to_client_with_auth_hint",
+      "escalate": "after_5_attempts_per_minute",
+      "metrics": "auth_failure_counter"
+    },
+    "AUTHORIZATION_ERROR": {
+      "severity": "MEDIUM",
+      "automatic": false,
+      "recoveryPath": "return_forbidden",
+      "escalate": "after_10_attempts_per_minute",
+      "metrics": "authz_failure_counter"
+    },
+    "RATE_LIMIT": {
+      "severity": "MEDIUM",
+      "automatic": true,
+      "recoveryPath": "retry_with_backoff",
+      "retryPolicy": {
+        "maxRetries": 3,
+        "initialBackoffMs": 1000,
+        "maxBackoffMs": 30000
+      },
+      "escalate": false,
+      "metrics": "rate_limit_counter"
+    },
+    "TIMEOUT": {
+      "severity": "HIGH",
+      "automatic": true,
+      "recoveryPath": "retry_then_fallback",
+      "retryPolicy": {
+        "maxRetries": 2,
+        "initialBackoffMs": 100,
+        "maxBackoffMs": 500
+      },
+      "fallback": "use_cached_or_degrade",
+      "escalate": "after_3_consecutive_timeouts",
+      "metrics": "timeout_counter"
+    },
+    "DATABASE_ERROR": {
+      "severity": "HIGH",
+      "automatic": true,
+      "recoveryPath": "circuit_breaker",
+      "circuitBreaker": {
+        "failureThreshold": 5,
+        "successThreshold": 1,
+        "timeoutSeconds": 30
+      },
+      "fallback": "use_cache_or_degrade",
+      "escalate": "immediate_on_critical",
+      "metrics": "db_error_counter",
+      "autoHeal": {
+        "trigger": "connection_pool_refresh",
+        "maxAttempts": 3
+      }
+    },
+    "CACHE_ERROR": {
+      "severity": "MEDIUM",
+      "automatic": true,
+      "recoveryPath": "continue_without_cache",
+      "escalate": false,
+      "metrics": "cache_error_counter",
+      "autoHeal": {
+        "trigger": "cache_restart",
+        "maxAttempts": 2
+      }
+    },
+    "DEPENDENCY_UNAVAILABLE": {
+      "severity": "CRITICAL",
+      "automatic": true,
+      "recoveryPath": "circuit_breaker_and_bulkhead",
+      "circuitBreaker": {
+        "failureThreshold": 3,
+        "successThreshold": 1,
+        "timeoutSeconds": 60
+      },
+      "bulkhead": {
+        "enabled": true,
+        "isolationScope": "per_module",
+        "timeoutMs": 5000
+      },
+      "fallback": "degrade_gracefully",
+      "escalate": "immediate",
+      "metrics": "dependency_unavailable_counter"
+    },
+    "SERVICE_ERROR": {
+      "severity": "HIGH",
+      "automatic": true,
+      "recoveryPath": "retry_with_exponential_backoff",
+      "retryPolicy": {
+        "maxRetries": 3,
+        "initialBackoffMs": 100,
+        "maxBackoffMs": 5000,
+        "multiplier": 2.0
+      },
+      "fallback": "degraded_mode",
+      "escalate": "after_3_retries_fail",
+      "metrics": "service_error_counter"
+    },
+    "MEMORY_ERROR": {
+      "severity": "CRITICAL",
+      "automatic": false,
+      "recoveryPath": "isolate_and_escalate",
+      "action": "module_isolation_and_restart",
+      "escalate": "immediate",
+      "metrics": "memory_error_counter",
+      "manual_intervention": true
+    },
+    "CASCADING_FAILURE": {
+      "severity": "CRITICAL",
+      "automatic": true,
+      "recoveryPath": "bulkhead_isolation_then_recovery",
+      "isolation": {
+        "scope": "affected_modules",
+        "timeout": 30
+      },
+      "recovery": {
+        "strategy": "staggered_restart",
+        "startWithDependencies": true
+      },
+      "escalate": "immediate",
+      "metrics": "cascading_failure_counter"
+    }
+  },
+  "fallbackStrategies": {
+    "cache_fallback": {
+      "description": "Use cached response if available",
+      "condition": "service_unavailable and cache_fresh",
+      "ttl_seconds": 300,
+      "notify_user": "showing_stale_data"
+    },
+    "degraded_mode": {
+      "description": "Continue with reduced features",
+      "disableFeatures": ["personalization", "advanced_filtering", "analytics"],
+      "keepFeatures": ["basic_crud", "search", "authentication"]
+    },
+    "read_only_mode": {
+      "description": "Allow reads only, block writes",
+      "condition": "write_backend_unavailable",
+      "enableReads": true,
+      "blockWrites": true,
+      "message": "System in read-only mode"
+    },
+    "fallback_to_secondary": {
+      "description": "Use secondary/replica system",
+      "condition": "primary_unavailable",
+      "requiresConfiguration": true,
+      "automated": "optional"
+    }
+  },
+  "circuitBreakerStates": {
+    "CLOSED": {
+      "description": "Normal operation",
+      "allows_requests": true,
+      "on_success": "stay_closed",
+      "on_failure": "increment_failure_count",
+      "transition_to_open_on": "failure_count >= threshold"
+    },
+    "OPEN": {
+      "description": "Circuit broken, failing fast",
+      "allows_requests": false,
+      "response": "immediate_error",
+      "timeout": "30 seconds",
+      "transition_to_half_open": "after_timeout"
+    },
+    "HALF_OPEN": {
+      "description": "Testing recovery",
+      "allows_requests": "limited (1 request)",
+      "on_success": "transition_to_closed",
+      "on_failure": "transition_to_open",
+      "max_test_requests": 3
+    }
+  },
+  "retryPolicies": {
+    "exponential_backoff": {
+      "formula": "initialBackoff * (multiplier ^ retryCount)",
+      "maxRetries": 3,
+      "initialBackoffMs": 100,
+      "maxBackoffMs": 5000,
+      "multiplier": 2.0,
+      "jitterMs": 0
+    },
+    "exponential_with_jitter": {
+      "formula": "(initialBackoff * (multiplier ^ retryCount)) + random(0, jitterMs)",
+      "maxRetries": 3,
+      "initialBackoffMs": 100,
+      "maxBackoffMs": 5000,
+      "multiplier": 2.0,
+      "jitterMs": 100
+    },
+    "linear_backoff": {
+      "formula": "initialBackoff + (increment * retryCount)",
+      "maxRetries": 5,
+      "initialBackoffMs": 100,
+      "incrementMs": 100,
+      "maxBackoffMs": 1000
+    },
+    "no_retry": {
+      "maxRetries": 0,
+      "immediate_failure": true
+    }
+  },
+  "degradationPaths": {
+    "missing_cache": {
+      "impact": "slower_queries",
+      "recovery": "rebuild_cache_on_background"
+    },
+    "slow_database": {
+      "impact": "timeout_on_slow_queries",
+      "recovery": "enable_query_timeout_fallback"
+    },
+    "slow_external_service": {
+      "impact": "timeout_on_external_calls",
+      "recovery": "circuit_breaker_activation"
+    },
+    "high_error_rate": {
+      "impact": "enable_degradation",
+      "recovery": "reduce_feature_set_and_retry"
+    },
+    "insufficient_resources": {
+      "impact": "queue_requests",
+      "recovery": "scale_resources_or_wait"
+    }
+  },
+  "recoveryMetrics": {
+    "recovery_time_objective_rtc": {
+      "tier1_critical": "5 seconds",
+      "tier2_primary": "10 seconds",
+      "tier3_secondary": "30 seconds",
+      "tier4_optional": "60 seconds"
+    },
+    "recovery_point_objective_rpo": {
+      "data_loss_tolerance": "0 transactions",
+      "state_inconsistency_tolerance": "none"
+    },
+    "tracked_metrics": [
+      "recovery_success_rate",
+      "recovery_time_actual",
+      "failed_recovery_attempts",
+      "fallback_activation_count"
+    ]
+  },
+  "failureImpactAssessment": {
+    "auth_module_down": {
+      "impact_level": "CRITICAL",
+      "cascade_risk": "all_modules",
+      "recovery_path": "immediate_circuit_breaker"
+    },
+    "database_down": {
+      "impact_level": "CRITICAL",
+      "cascade_risk": "all_read_write_operations",
+      "recovery_path": "cache_fallback_then_circuit_breaker"
+    },
+    "cache_down": {
+      "impact_level": "MEDIUM",
+      "cascade_risk": "performance_degradation",
+      "recovery_path": "continue_without_caching"
+    },
+    "external_service_down": {
+      "impact_level": "MEDIUM",
+      "cascade_risk": "limited_to_service_module",
+      "recovery_path": "circuit_breaker_and_fallback"
+    }
+  }
+}

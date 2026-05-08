@@ -1,39 +1,61 @@
-const routes = require('./routes');
-const { eventBus } = require('../../core/eventBus');
-const service = require('./service');
+/**
+ * Search Module - PHASE 2.2 Standardized
+ */
 
-function registerRoutes(app) {
-  app.use('/api/v1/search', routes);
+const routes = require("./routes");
+const contracts = require("./contracts");
+const events = require("./events");
+
+let isReady = false;
+
+async function init(context) {
+  try {
+    console.log("[search] Initializing...");
+    isReady = false;
+    return { initialized: true, moduleName: "search" };
+  } catch (error) {
+    throw new Error(`[search] Initialization failed: ${error.message}`);
+  }
 }
 
-function init() {
-  // Listen to events from other modules to invalidate cache
-  const invalidateCache = () => service.invalidateCache();
-
-  // Posts events
-  eventBus.on('post.created', invalidateCache);
-  eventBus.on('post.updated', invalidateCache);
-  eventBus.on('post.deleted', invalidateCache);
-
-  // Initiatives events
-  eventBus.on('initiative.created', invalidateCache);
-  eventBus.on('initiative.updated', invalidateCache);
-  eventBus.on('initiative.closed', invalidateCache);
-
-  // Articles events
-  eventBus.on('article.created', invalidateCache);
-  eventBus.on('article.updated', invalidateCache);
-
-  // Videos events
-  eventBus.on('video.created', invalidateCache);
-  eventBus.on('video.updated', invalidateCache);
-
-  // Users events (profile updates)
-  eventBus.on('user.updated', invalidateCache);
+async function ready() {
+  if (!isReady) {
+    isReady = true;
+    console.log("[search] Ready for requests");
+  }
+  return { ready: true };
 }
 
-module.exports = {
-  routes: registerRoutes,
-  init,
-  name: 'search',
-};
+async function shutdown() {
+  try {
+    console.log("[search] Shutting down...");
+    isReady = false;
+    return { shutdown: true };
+  } catch (error) {
+    console.error("[search] Shutdown error:", error.message);
+    return { shutdown: false, error: error.message };
+  }
+}
+
+async function health() {
+  return {
+    status: isReady ? "healthy" : "unhealthy",
+    details: {
+      ready: isReady,
+      moduleName: "search",
+      timestamp: new Date().toISOString(),
+    },
+  };
+}
+
+function getRoutes() { return routes; }
+function getEvents() { return events; }
+function getContracts() { return contracts; }
+
+module.exports.init = init;
+module.exports.ready = ready;
+module.exports.shutdown = shutdown;
+module.exports.health = health;
+module.exports.getRoutes = getRoutes;
+module.exports.getEvents = getEvents;
+module.exports.getContracts = getContracts;

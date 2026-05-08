@@ -1,0 +1,426 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Core Modules Manifest - Phase 2.1",
+  "version": "2.1.0",
+  "description": "Déclaration des 15 modules CORE avec hiérarchie, dépendances et services",
+  "metadata": {
+    "created": "2026-05-07T00:00:00Z",
+    "phase": "2.1",
+    "modules_count": 15,
+    "hierarchy_levels": 5
+  },
+  "modules": [
+    {
+      "id": "auth",
+      "displayName": "Module Authentification",
+      "version": "1.0.0",
+      "hierarchy_level": 1,
+      "description": "Gestion de l'authentification JWT et sessions",
+      "dependencies": [],
+      "requiredServices": ["logger", "database", "eventBus"],
+      "exposedServices": ["authService", "jwtService"],
+      "eventsEmitted": [
+        "auth:attempt",
+        "auth:success",
+        "auth:failure",
+        "auth:logout",
+        "auth:token_expired"
+      ],
+      "eventsListened": [],
+      "routes": {
+        "base": "/api/v1/auth",
+        "endpoints": [
+          "POST /register",
+          "POST /login",
+          "POST /refresh",
+          "POST /logout",
+          "GET /me"
+        ]
+      }
+    },
+    {
+      "id": "users",
+      "displayName": "Module Utilisateurs",
+      "version": "1.0.0",
+      "hierarchy_level": 2,
+      "description": "Gestion des profils utilisateurs et données",
+      "dependencies": ["auth"],
+      "requiredServices": ["logger", "database", "eventBus", "authService"],
+      "exposedServices": ["userService"],
+      "eventsEmitted": [
+        "user:created",
+        "user:updated",
+        "user:deleted",
+        "user:loaded",
+        "user:error"
+      ],
+      "eventsListened": ["auth:success"],
+      "routes": {
+        "base": "/api/v1/users",
+        "endpoints": [
+          "GET /",
+          "GET /:id",
+          "PUT /:id",
+          "DELETE /:id"
+        ]
+      }
+    },
+    {
+      "id": "profiles",
+      "displayName": "Module Profils",
+      "version": "1.0.0",
+      "hierarchy_level": 2,
+      "description": "Gestion des profils publics et données personnalisées",
+      "dependencies": ["auth", "users"],
+      "requiredServices": ["logger", "database", "eventBus", "userService"],
+      "exposedServices": ["profileService"],
+      "eventsEmitted": [
+        "profile:updated",
+        "profile:view_count_increased"
+      ],
+      "eventsListened": ["user:created", "user:updated"],
+      "routes": {
+        "base": "/api/v1/profiles",
+        "endpoints": [
+          "GET /:id",
+          "PUT /:id",
+          "GET /:id/stats"
+        ]
+      }
+    },
+    {
+      "id": "posts",
+      "displayName": "Module Posts",
+      "version": "1.0.0",
+      "hierarchy_level": 2,
+      "description": "Gestion des publications et contenu utilisateur",
+      "dependencies": ["auth", "users"],
+      "requiredServices": ["logger", "database", "eventBus", "userService"],
+      "exposedServices": ["postService"],
+      "eventsEmitted": [
+        "post:created",
+        "post:updated",
+        "post:deleted",
+        "post:published",
+        "post:commented"
+      ],
+      "eventsListened": ["user:created"],
+      "routes": {
+        "base": "/api/v1/posts",
+        "endpoints": [
+          "GET /",
+          "GET /:id",
+          "POST /",
+          "PUT /:id",
+          "DELETE /:id"
+        ]
+      }
+    },
+    {
+      "id": "ideas",
+      "displayName": "Module Idées",
+      "version": "1.0.0",
+      "hierarchy_level": 2,
+      "description": "Gestion des idées et propositions civiques",
+      "dependencies": ["auth", "users"],
+      "requiredServices": ["logger", "database", "eventBus", "userService"],
+      "exposedServices": ["ideaService"],
+      "eventsEmitted": [
+        "idea:created",
+        "idea:updated",
+        "idea:deleted",
+        "idea:approved",
+        "idea:commented"
+      ],
+      "eventsListened": ["user:created"],
+      "routes": {
+        "base": "/api/v1/ideas",
+        "endpoints": [
+          "GET /",
+          "GET /:id",
+          "POST /",
+          "PUT /:id",
+          "DELETE /:id"
+        ]
+      }
+    },
+    {
+      "id": "likes",
+      "displayName": "Module Likes",
+      "version": "1.0.0",
+      "hierarchy_level": 3,
+      "description": "Gestion des j'aime sur posts et idées",
+      "dependencies": ["auth", "users", "posts", "ideas"],
+      "requiredServices": ["logger", "database", "eventBus", "userService"],
+      "exposedServices": ["likeService"],
+      "eventsEmitted": [
+        "like:added",
+        "like:removed",
+        "like:count_updated"
+      ],
+      "eventsListened": ["post:created", "idea:created"],
+      "routes": {
+        "base": "/api/v1/likes",
+        "endpoints": [
+          "POST /post/:postId",
+          "DELETE /post/:postId",
+          "POST /idea/:ideaId",
+          "DELETE /idea/:ideaId"
+        ]
+      }
+    },
+    {
+      "id": "comments",
+      "displayName": "Module Commentaires",
+      "version": "1.0.0",
+      "hierarchy_level": 3,
+      "description": "Gestion des commentaires sur posts et idées",
+      "dependencies": ["auth", "users", "posts", "ideas"],
+      "requiredServices": ["logger", "database", "eventBus", "userService"],
+      "exposedServices": ["commentService"],
+      "eventsEmitted": [
+        "comment:created",
+        "comment:updated",
+        "comment:deleted",
+        "comment:replied"
+      ],
+      "eventsListened": ["post:created", "idea:created"],
+      "routes": {
+        "base": "/api/v1/comments",
+        "endpoints": [
+          "GET /post/:postId",
+          "POST /post/:postId",
+          "PUT /:id",
+          "DELETE /:id"
+        ]
+      }
+    },
+    {
+      "id": "popular_system",
+      "displayName": "Module Popular System",
+      "version": "1.0.0",
+      "hierarchy_level": 3,
+      "description": "Système de popularité et trending",
+      "dependencies": ["posts", "likes", "comments"],
+      "requiredServices": ["logger", "database", "cache", "eventBus"],
+      "exposedServices": ["popularService"],
+      "eventsEmitted": [
+        "popular:ranked",
+        "popular:trending_updated"
+      ],
+      "eventsListened": ["like:added", "comment:created", "post:created"],
+      "routes": {
+        "base": "/api/v1/popular",
+        "endpoints": [
+          "GET /trending",
+          "GET /top",
+          "GET /hot"
+        ]
+      }
+    },
+    {
+      "id": "search",
+      "displayName": "Module Recherche",
+      "version": "1.0.0",
+      "hierarchy_level": 3,
+      "description": "Recherche globale dans posts, idées et utilisateurs",
+      "dependencies": ["posts", "ideas", "users"],
+      "requiredServices": ["logger", "database", "cache", "eventBus"],
+      "exposedServices": ["searchService"],
+      "eventsEmitted": [
+        "search:indexed",
+        "search:query_logged"
+      ],
+      "eventsListened": ["post:created", "idea:created", "user:created"],
+      "routes": {
+        "base": "/api/v1/search",
+        "endpoints": [
+          "GET /",
+          "GET /suggestions",
+          "GET /advanced"
+        ]
+      }
+    },
+    {
+      "id": "map",
+      "displayName": "Module Carte",
+      "version": "1.0.0",
+      "hierarchy_level": 2,
+      "description": "Visualisation géographique des idées et utilisateurs",
+      "dependencies": ["users", "ideas"],
+      "requiredServices": ["logger", "database", "cache", "eventBus"],
+      "exposedServices": ["mapService"],
+      "eventsEmitted": [
+        "map:nodes_updated",
+        "map:cluster_changed"
+      ],
+      "eventsListened": ["idea:created", "user:created"],
+      "routes": {
+        "base": "/api/v1/map",
+        "endpoints": [
+          "GET /nodes",
+          "GET /clusters",
+          "GET /region/:region"
+        ]
+      }
+    },
+    {
+      "id": "education",
+      "displayName": "Module Éducation",
+      "version": "1.0.0",
+      "hierarchy_level": 1,
+      "description": "Ressources éducatives et guides civiques",
+      "dependencies": [],
+      "requiredServices": ["logger", "database", "eventBus"],
+      "exposedServices": ["educationService"],
+      "eventsEmitted": [
+        "education:content_viewed",
+        "education:quiz_completed"
+      ],
+      "eventsListened": [],
+      "routes": {
+        "base": "/api/v1/education",
+        "endpoints": [
+          "GET /",
+          "GET /:id",
+          "GET /quiz/:quizId"
+        ]
+      }
+    },
+    {
+      "id": "initiatives",
+      "displayName": "Module Initiatives",
+      "version": "1.0.0",
+      "hierarchy_level": 2,
+      "description": "Gestion des initiatives communautaires",
+      "dependencies": ["auth", "users"],
+      "requiredServices": ["logger", "database", "eventBus", "userService"],
+      "exposedServices": ["initiativeService"],
+      "eventsEmitted": [
+        "initiative:created",
+        "initiative:updated",
+        "initiative:joined",
+        "initiative:completed"
+      ],
+      "eventsListened": ["user:created"],
+      "routes": {
+        "base": "/api/v1/initiatives",
+        "endpoints": [
+          "GET /",
+          "GET /:id",
+          "POST /",
+          "PUT /:id",
+          "POST /:id/join"
+        ]
+      }
+    },
+    {
+      "id": "admin",
+      "displayName": "Module Admin",
+      "version": "1.0.0",
+      "hierarchy_level": 2,
+      "description": "Panneaux d'administration et modération",
+      "dependencies": ["auth"],
+      "requiredServices": ["logger", "database", "eventBus", "authService"],
+      "exposedServices": ["adminService"],
+      "eventsEmitted": [
+        "admin:action_logged",
+        "admin:user_banned",
+        "admin:content_removed"
+      ],
+      "eventsListened": ["auth:success"],
+      "routes": {
+        "base": "/api/v1/admin",
+        "endpoints": [
+          "GET /dashboard",
+          "GET /users",
+          "POST /users/:id/ban",
+          "POST /content/:id/remove"
+        ]
+      }
+    },
+    {
+      "id": "analytics",
+      "displayName": "Module Analytics",
+      "version": "1.0.0",
+      "hierarchy_level": 1,
+      "description": "Collecte et analyse des données",
+      "dependencies": [],
+      "requiredServices": ["logger", "database", "cache", "eventBus"],
+      "exposedServices": ["analyticsService"],
+      "eventsEmitted": [
+        "analytics:event_tracked",
+        "analytics:aggregated",
+        "analytics:report_generated"
+      ],
+      "eventsListened": [],
+      "routes": {
+        "base": "/api/v1/analytics",
+        "endpoints": [
+          "GET /dashboard",
+          "GET /events",
+          "POST /events",
+          "GET /reports/:reportId"
+        ]
+      }
+    },
+    {
+      "id": "reports",
+      "displayName": "Module Rapports",
+      "version": "1.0.0",
+      "hierarchy_level": 2,
+      "description": "Signalement et gestion des abus",
+      "dependencies": ["auth", "users"],
+      "requiredServices": ["logger", "database", "eventBus", "userService", "authService"],
+      "exposedServices": ["reportService"],
+      "eventsEmitted": [
+        "report:created",
+        "report:reviewed",
+        "report:resolved"
+      ],
+      "eventsListened": ["user:created"],
+      "routes": {
+        "base": "/api/v1/reports",
+        "endpoints": [
+          "GET /",
+          "POST /",
+          "GET /:id",
+          "PUT /:id/status"
+        ]
+      }
+    }
+  ],
+  "hierarchy": {
+    "level_0_infrastructure": {
+      "description": "Services d'infrastructure (logger, db, cache, eventBus)",
+      "modules": ["(core services - non-modules)"]
+    },
+    "level_1_standalone": {
+      "description": "Modules sans dépendances inter-modules",
+      "count": 3,
+      "modules": ["auth", "education", "analytics"]
+    },
+    "level_2_domain": {
+      "description": "Modules de domaine (dépendent de auth et users)",
+      "count": 7,
+      "modules": ["users", "profiles", "posts", "ideas", "map", "initiatives", "admin", "reports"]
+    },
+    "level_3_derived": {
+      "description": "Modules dérivés (dépendent de level 2)",
+      "count": 5,
+      "modules": ["likes", "comments", "popular_system", "search"]
+    },
+    "level_4_complex": {
+      "description": "Modules complexes avec dépendances croisées",
+      "count": 0,
+      "modules": []
+    }
+  },
+  "validation": {
+    "total_modules": 15,
+    "total_dependencies": 28,
+    "circular_dependencies_detected": 0,
+    "all_dependencies_resolvable": true,
+    "initialization_order_deterministic": true
+  }
+}

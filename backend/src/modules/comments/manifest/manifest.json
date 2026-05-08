@@ -1,0 +1,30 @@
+{
+  "name": "comments",
+  "version": "1.0.0",
+  "description": "Comments management and moderation",
+  "dependencies": [],
+  "capabilities": [
+    "comment:create",
+    "comment:read",
+    "comment:delete"
+  ],
+  "events": [
+    "comment:created",
+    "comment:deleted",
+    "comment:moderated"
+  ],
+  "routes": {
+    "prefix": "/api/v1/comments",
+    "methods": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE"
+    ]
+  },
+  "lifecycle": {
+    "initRequired": true,
+    "readyRequired": true,
+    "healthChecks": true
+  }
+}

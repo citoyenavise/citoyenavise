@@ -1,0 +1,16 @@
+{
+  "name": "feed:personalized",
+  "version": "1.0.0",
+  "domain": "feed",
+  "action": "personalized",
+  "entity": "feed",
+  "description": "Feed personalized for user",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "userId": { "type": "string" },
+      "timestamp": { "type": "string" }
+    },
+    "required": ["userId", "timestamp"]
+  }
+}

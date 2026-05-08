@@ -1,0 +1,194 @@
+{
+  "version": "1.0.0",
+  "description": "Policies for error recovery, escalation, and automatic remediation",
+  "sealed": true,
+  "lastUpdated": "2026-05-08",
+  "recoveryStrategies": {
+    "VALIDATION": {
+      "severity": "LOW",
+      "automatic": false,
+      "escalate": false,
+      "retry": false,
+      "action": "return_to_client",
+      "message": "Client must fix input and retry"
+    },
+    "AUTHENTICATION": {
+      "severity": "MEDIUM",
+      "automatic": false,
+      "escalate": false,
+      "retry": false,
+      "action": "return_to_client",
+      "message": "Client must re-authenticate",
+      "escalateIf": "repeated_failed_attempts > 5 in 1 minute"
+    },
+    "AUTHORIZATION": {
+      "severity": "MEDIUM",
+      "automatic": false,
+      "escalate": false,
+      "retry": false,
+      "action": "return_to_client",
+      "message": "Insufficient permissions for this operation",
+      "escalateIf": "suspicious_pattern detected (>10 per minute)"
+    },
+    "RATE_LIMIT": {
+      "severity": "MEDIUM",
+      "automatic": true,
+      "escalate": false,
+      "retry": true,
+      "action": "return_to_client_with_retry_header",
+      "retryAfterSeconds": 5,
+      "maxRetries": 3,
+      "backoffMs": 1000
+    },
+    "SERVICE_ERROR": {
+      "severity": "HIGH",
+      "automatic": true,
+      "escalate": true,
+      "retry": true,
+      "action": "retry_with_exponential_backoff",
+      "maxRetries": 3,
+      "backoffMs": 100,
+      "escalateAfter": "3 failed retries",
+      "escalationTarget": "monitoring_system"
+    },
+    "TIMEOUT": {
+      "severity": "HIGH",
+      "automatic": true,
+      "escalate": true,
+      "retry": true,
+      "action": "retry_with_exponential_backoff",
+      "maxRetries": 3,
+      "backoffMs": 100,
+      "escalateAfter": "3 failed retries",
+      "escalationTarget": "monitoring_system",
+      "additionalAction": "increase_timeout_for_next_attempt"
+    },
+    "DEPENDENCY_ERROR": {
+      "severity": "CRITICAL",
+      "automatic": true,
+      "escalate": true,
+      "retry": true,
+      "action": "trigger_circuit_breaker",
+      "circuitBreakerThreshold": 5,
+      "circuitBreakerWindow": "60 seconds",
+      "fallbackStrategy": "degraded_mode_if_available",
+      "escalateImmediately": true,
+      "escalationTarget": "incident_management"
+    },
+    "CONFIG_ERROR": {
+      "severity": "CRITICAL",
+      "automatic": false,
+      "escalate": true,
+      "retry": false,
+      "action": "block_startup",
+      "escalateImmediately": true,
+      "escalationTarget": "incident_management",
+      "requiresManualIntervention": true
+    }
+  },
+  "escalationPolicies": {
+    "LOW_SEVERITY": {
+      "escalate": false,
+      "action": "log_only",
+      "target": "application_logs"
+    },
+    "MEDIUM_SEVERITY": {
+      "escalate": true,
+      "escalateIf": "count > 10 in 5 minutes",
+      "action": "alert_and_log",
+      "target": ["monitoring_system", "alert_queue"],
+      "severity": "warning"
+    },
+    "HIGH_SEVERITY": {
+      "escalate": true,
+      "escalateIf": "count > 5 in 5 minutes",
+      "action": "immediate_alert",
+      "target": ["monitoring_system", "alert_queue", "incident_system"],
+      "severity": "critical",
+      "notifyOncall": true
+    },
+    "CRITICAL_SEVERITY": {
+      "escalate": true,
+      "escalateIf": "count > 1 in 1 minute",
+      "action": "immediate_escalation",
+      "target": ["monitoring_system", "incident_system", "pagerduty"],
+      "severity": "critical",
+      "notifyOncall": true,
+      "createIncident": true
+    }
+  },
+  "circuitBreaker": {
+    "enabled": true,
+    "strategy": "per-module",
+    "states": {
+      "CLOSED": {
+        "description": "Normal operation, requests pass through",
+        "failureThreshold": 5,
+        "failureWindow": 60,
+        "nextState": "OPEN"
+      },
+      "OPEN": {
+        "description": "Circuit is broken, fail fast",
+        "timeout": 30,
+        "nextState": "HALF_OPEN"
+      },
+      "HALF_OPEN": {
+        "description": "Testing if service recovered",
+        "testRequests": 1,
+        "successThreshold": 1,
+        "nextStateOnSuccess": "CLOSED",
+        "nextStateOnFailure": "OPEN"
+      }
+    },
+    "metrics": {
+      "track": ["failure_rate", "error_count", "latency"],
+      "reportingInterval": 60
+    }
+  },
+  "automatedRecovery": {
+    "enabled": true,
+    "strategies": {
+      "database_unavailable": {
+        "attempt": 1,
+        "action": "retry_with_connection_pool_refresh",
+        "attempt": 2,
+        "action": "trigger_failover_if_configured"
+      },
+      "cache_unavailable": {
+        "attempt": 1,
+        "action": "continue_without_cache",
+        "attempt": 2,
+        "action": "restart_cache_service"
+      },
+      "external_service_timeout": {
+        "attempt": 1,
+        "action": "retry_with_longer_timeout",
+        "attempt": 2,
+        "action": "use_cached_response_if_available",
+        "attempt": 3,
+        "action": "fail_with_degraded_response"
+      }
+    }
+  },
+  "observabilityRequirements": {
+    "allErrors": {
+      "mustLog": true,
+      "mustTrace": true,
+      "mustMetricate": true,
+      "fields": ["traceId", "requestId", "moduleId", "severity", "code", "timestamp"]
+    },
+    "escalatedErrors": {
+      "mustCreateAlert": true,
+      "mustCreateIncident": "if CRITICAL",
+      "notificationChannels": ["slack", "email", "pagerduty"]
+    }
+  },
+  "auditTrail": {
+    "enabled": true,
+    "captureFields": {
+      "errors": ["code", "severity", "category", "moduleId", "timestamp", "userId"],
+      "recoveryAttempts": ["strategy", "attempt", "result", "timestamp"],
+      "escalations": ["severity", "target", "timestamp", "notified"]
+    }
+  }
+}

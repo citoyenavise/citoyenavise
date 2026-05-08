@@ -1,0 +1,165 @@
+{
+  "registry_version": "1.0.0",
+  "description": "Central schema registry for all governance events",
+  "last_updated": "2026-05-08",
+  "schemas": {
+    "VIOLATION": {
+      "description": "Event emitted when a validation violation is detected",
+      "versions": {
+        "1.0.0": {
+          "status": "active",
+          "required_fields": ["message", "validator"],
+          "optional_fields": ["type", "details", "context"],
+          "field_types": {
+            "type": "string",
+            "message": "string",
+            "validator": "string",
+            "details": "object",
+            "context": "object"
+          }
+        }
+      },
+      "owner_module": "runtime-validation-engine",
+      "category": "GOVERNANCE_EVENTS"
+    },
+    "HEALING": {
+      "description": "Event emitted when an automatic correction is applied",
+      "versions": {
+        "1.0.0": {
+          "status": "active",
+          "required_fields": ["correctionId", "applied"],
+          "optional_fields": ["violationType", "reason", "strategy", "attempt", "details"],
+          "field_types": {
+            "correctionId": "string",
+            "violationType": "string",
+            "applied": "boolean",
+            "reason": "string",
+            "strategy": "string",
+            "attempt": "number",
+            "details": "object"
+          }
+        }
+      },
+      "owner_module": "self-healing-orchestrator",
+      "category": "HEALING_EVENTS"
+    },
+    "RECOVERY": {
+      "description": "Event emitted when a recovery action is initiated",
+      "versions": {
+        "1.0.0": {
+          "status": "active",
+          "required_fields": ["action", "status"],
+          "optional_fields": ["recoveryPath", "reason", "strategy", "escalationLevel"],
+          "field_types": {
+            "recoveryPath": "string",
+            "action": "string",
+            "status": "string",
+            "reason": "string",
+            "strategy": "string",
+            "escalationLevel": "number"
+          }
+        }
+      },
+      "owner_module": "recovery-orchestrator",
+      "category": "RECOVERY_EVENTS"
+    },
+    "HEALTH": {
+      "description": "Event emitted for system health status updates",
+      "versions": {
+        "1.0.0": {
+          "status": "active",
+          "required_fields": ["healthScore"],
+          "optional_fields": ["activeViolations", "degradationStatus", "cycleNumber", "windowSize"],
+          "field_types": {
+            "healthScore": "number",
+            "activeViolations": "number",
+            "degradationStatus": "string",
+            "cycleNumber": "number",
+            "windowSize": "number"
+          }
+        }
+      },
+      "owner_module": "degradation-monitor",
+      "category": "SYSTEM_EVENTS"
+    },
+    "SYSTEM_BOOT": {
+      "description": "Event emitted on system initialization",
+      "versions": {
+        "1.0.0": {
+          "status": "active",
+          "required_fields": ["phase", "timestamp"],
+          "optional_fields": ["details"],
+          "field_types": {
+            "phase": "string",
+            "timestamp": "string:iso8601",
+            "details": "object"
+          }
+        }
+      },
+      "owner_module": "autonomous-governance-orchestrator",
+      "category": "SYSTEM_EVENTS"
+    },
+    "SYSTEM_SHUTDOWN": {
+      "description": "Event emitted on system graceful shutdown",
+      "versions": {
+        "1.0.0": {
+          "status": "active",
+          "required_fields": ["reason", "timestamp"],
+          "optional_fields": ["details"],
+          "field_types": {
+            "reason": "string",
+            "timestamp": "string:iso8601",
+            "details": "object"
+          }
+        }
+      },
+      "owner_module": "autonomous-governance-orchestrator",
+      "category": "SYSTEM_EVENTS"
+    },
+    "MODULE_NONCOMPLIANCE": {
+      "description": "Event emitted when a module violates structural compliance rules",
+      "versions": {
+        "1.0.0": {
+          "status": "active",
+          "required_fields": ["moduleName", "violationType", "severity"],
+          "optional_fields": ["details", "remediation"],
+          "field_types": {
+            "moduleName": "string",
+            "violationType": "enum:MISSING_EXPORT|INVALID_STRUCTURE|SIZE_VIOLATION|NAMING_VIOLATION",
+            "severity": "enum:LOW|MEDIUM|HIGH|CRITICAL",
+            "details": "object",
+            "remediation": "string"
+          }
+        }
+      },
+      "owner_module": "architectural-conformance-analyzer",
+      "category": "GOVERNANCE_EVENTS"
+    },
+    "AUTO_CORRECTION": {
+      "description": "Event emitted when automatic correction completes",
+      "versions": {
+        "1.0.0": {
+          "status": "active",
+          "required_fields": ["correctionType", "success", "timestamp"],
+          "optional_fields": ["changes", "sideEffects"],
+          "field_types": {
+            "correctionType": "string",
+            "success": "boolean",
+            "timestamp": "string:iso8601",
+            "changes": "array",
+            "sideEffects": "array"
+          }
+        }
+      },
+      "owner_module": "auto-correction-engine",
+      "category": "HEALING_EVENTS"
+    }
+  },
+  "global_rules": {
+    "timestamp_mandatory": true,
+    "traceId_mandatory": true,
+    "severity_levels": ["INFO", "LOW", "MEDIUM", "HIGH", "CRITICAL"],
+    "max_payload_size_kb": 10,
+    "event_retention_days": 90
+  }
+}

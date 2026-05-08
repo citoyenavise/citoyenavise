@@ -95,7 +95,40 @@
       "Bash(curl -s http://localhost:3333/health)",
       "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Dave\\\\citoyenavise\\\\backend\\\\src\\\\database\\\\migrations\" -Filter \"*.sql\")",
       "Bash(Select-Object -ExpandProperty Name)",
-      "Bash(Sort-Object)"
+      "Bash(Sort-Object)",
+      "Bash(node src/BLUEPRINT_INTEGRATION_VERIFY.js)",
+      "Bash(cat)",
+      "Read(//mnt/c/Users/Dave/citoyenavise/backend/**)",
+      "Bash(Select-Object Name, PSIsContainer)",
+      "Bash(Get-ChildItem -Path \"c:\\\\Users\\\\Dave\\\\citoyenavise\\\\backend\" -Recurse -ErrorAction SilentlyContinue)",
+      "Bash(Measure-Object)",
+      "Bash(Select-Object -ExpandProperty Count)",
+      "Bash(sort -k2)",
+      "Bash(node -e \"try { const ci = require\\('./src/core/ci-governance'\\); console.log\\('✅ CI Governance module loads'\\); const sh = require\\('./src/core/self-healing'\\); console.log\\('✅ Self-Healing module loads'\\); const json = require\\('./PHASE_1_3_CONSTITUTIONAL_CONFORMANCE_REPORT.json'\\); console.log\\('✅ Conformance report valid JSON'\\); const junit = require\\('fs'\\).readFileSync\\('./PHASE_1_3_JUNIT_RESULTS.xml', 'utf8'\\); console.log\\('✅ JUnit report valid XML'\\); console.log\\('\\\\n🎯 PHASE 1.3 COMPLETE'\\); } catch\\(e\\) { console.error\\('Error:', e.message\\); }\")",
+      "Bash(node -e \"const ci = require\\('./src/core/ci-governance'\\); console.log\\('✅ CI Governance module loads'\\); const sh = require\\('./src/core/self-healing'\\); console.log\\('✅ Self-Healing module loads'\\); const fs = require\\('fs'\\); const conf = JSON.parse\\(fs.readFileSync\\('./PHASE_1_3_CONSTITUTIONAL_CONFORMANCE_REPORT.json'\\)\\); console.log\\('✅ Conformance report valid JSON'\\); const junit = fs.readFileSync\\('./PHASE_1_3_JUNIT_RESULTS.xml', 'utf8'\\); console.log\\('✅ JUnit report valid XML'\\); console.log\\('\\\\n🎯 PHASE 1.3 COMPLETE'\\)\")",
+      "PowerShell(New-Item -ItemType Directory -Path \"c:\\\\Users\\\\Dave\\\\citoyenavise\\\\backend\\\\ROOT_CONSTITUTION\\\\access-rules\" -Force)",
+      "PowerShell(head -20)",
+      "PowerShell(New-Item -ItemType Directory -Path \"c:\\\\Users\\\\Dave\\\\citoyenavise\\\\backend\\\\ROOT_CONSTITUTION\\\\observability\" -Force)",
+      "Bash(chmod +x /tmp/standardize_batch.sh)",
+      "Bash(bash /tmp/standardize_batch.sh)",
+      "Bash(node backend/src/core/ModuleStructureValidator.js)",
+      "Bash(node)",
+      "Bash(npx jest *)",
+      "Bash(timeout 30 node -e ' *)",
+      "Bash(cd /d c:\\\\Users\\\\Dave\\\\citoyenavise\\\\backend)",
+      "Bash(node -e \"try { const AGO = require\\('./src/core/AutonomousGovernanceOrchestrator'\\); console.log\\('✅ AutonomousGovernanceOrchestrator loaded'\\); const RVE = require\\('./src/core/validators/RuntimeValidationEngine'\\); console.log\\('✅ RuntimeValidationEngine loaded'\\); const loaders = require\\('./src/core/loaders'\\); console.log\\('✅ Loaders loaded'\\); console.log\\('✅ All modules loaded successfully'\\); } catch\\(e\\) { console.error\\('❌ Load error:', e.message\\); process.exit\\(1\\); }\")",
+      "Bash(rm -f c:\\\\Users\\\\Dave\\\\citoyenavise\\\\backend\\\\test-caags-*.js)",
+      "Bash(node src/tests/CAAGS.e2e.test.js)",
+      "Bash(node src/tests/Phase57-Hardening.test.js)",
+      "Read(//tmp/**)",
+      "Bash(node src/tests/HardenedEventBus.test.js)",
+      "PowerShell(cd 'c:\\\\Users\\\\Dave\\\\citoyenavise\\\\backend'; node src/tests/HardenedEventBus.test.js 2>&1 | Where-Object {$_ -match \"\\(PASSED|FAILED|Transport|All\\)\"})",
+      "PowerShell(cd 'c:\\\\Users\\\\Dave\\\\citoyenavise\\\\backend'; node src/tests/Phase57-BusinessLogic.test.js 2>&1 | Where-Object {$_ -match \"\\(PASSED|FAILED|Business|All\\)\"})",
+      "Bash(node src/tests/Phase60-DistributedConsistency.test.js)",
+      "Bash(node src/tests/Phase702-Enforcement.test.js)"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\Dave\\citoyenavise\\backend"
     ]
   }
 }

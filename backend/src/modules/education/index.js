@@ -1,48 +1,69 @@
 /**
- * Module Education - Contenus pédagogiques (vidéos, articles, quiz)
+ * Education Module - PHASE 2.2 Standardized
  */
 
-const videosModule = require('./videos');
-const articlesModule = require('./articles');
-const quizModule = require('./quiz');
-const { asyncHandler } = require('../../core/middleware/errorHandler');
+const routes = require('./routes');
+const contracts = require('./contracts');
+const events = require('./events');
 
-module.exports = {
-  name: 'education',
+let isReady = false;
 
-  /**
-   * Initialiser le module
-   */
-  init: () => {
-    // Les sous-modules ne nécessitent pas d'initialisation particulière
-    // mais on peut ajouter du code ici si besoin (ex: setup EventBus listeners)
-  },
+async function init(context) {
+  try {
+    console.log('[education] Initializing...');
+    isReady = false;
+    return { initialized: true, moduleName: 'education' };
+  } catch (error) {
+    throw new Error(`[education] Initialization failed: ${error.message}`);
+  }
+}
 
-  /**
-   * Enregistrer les routes
-   */
-  routes: (app) => {
-    // Sanity check - assurer que le module education existe
-    app.get('/api/v1/education', asyncHandler(async (req, res) => {
-      res.apiSuccess({
-        name: 'education',
-        status: 'active',
-        submodules: ['videos', 'articles', 'quiz'],
-      });
-    }));
+async function ready() {
+  if (!isReady) {
+    isReady = true;
+    console.log('[education] Ready for requests');
+  }
+  return { ready: true };
+}
 
-    // Enregistrer les sous-modules
-    videosModule.routes(app);
-    articlesModule.routes(app);
-    quizModule.routes(app);
-  },
+async function shutdown() {
+  try {
+    console.log('[education] Shutting down...');
+    isReady = false;
+    return { shutdown: true };
+  } catch (error) {
+    console.error('[education] Shutdown error:', error.message);
+    return { shutdown: false, error: error.message };
+  }
+}
 
-  /**
-   * Exporter les sous-modules pour accès direct
-   */
-  submodules: {
-    videos: videosModule,
-    articles: articlesModule,
-    quiz: quizModule,
-  },
-};
+async function health() {
+  return {
+    status: isReady ? 'healthy' : 'unhealthy',
+    details: {
+      ready: isReady,
+      moduleName: 'education',
+      timestamp: new Date().toISOString(),
+    },
+  };
+}
+
+function getRoutes() {
+  return routes;
+}
+
+function getEvents() {
+  return events;
+}
+
+function getContracts() {
+  return contracts;
+}
+
+module.exports.init = init;
+module.exports.ready = ready;
+module.exports.shutdown = shutdown;
+module.exports.health = health;
+module.exports.getRoutes = getRoutes;
+module.exports.getEvents = getEvents;
+module.exports.getContracts = getContracts;

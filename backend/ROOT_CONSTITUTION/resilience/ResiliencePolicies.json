@@ -1,0 +1,235 @@
+{
+  "version": "1.0.0",
+  "description": "Constitutional policies for system resilience, self-healing, and failure recovery",
+  "sealed": true,
+  "lastUpdated": "2026-05-08",
+  "resilienceModel": {
+    "type": "fault_tolerant_self_healing",
+    "strategy": "fail_safe_with_degradation",
+    "governance": "constitutional_enforcement"
+  },
+  "failureClassification": {
+    "transient": {
+      "examples": ["network_timeout", "temporary_unavailable", "rate_limit"],
+      "recovery": "automatic_retry",
+      "duration": "< 1 second",
+      "impact": "none_if_recovered"
+    },
+    "temporary": {
+      "examples": ["service_down", "database_slow", "cache_miss"],
+      "recovery": "fallback_or_degraded_mode",
+      "duration": "seconds to minutes",
+      "impact": "degraded_performance"
+    },
+    "persistent": {
+      "examples": ["dependency_broken", "config_error", "storage_full"],
+      "recovery": "manual_intervention_required",
+      "duration": "> minutes",
+      "impact": "partial_system_unavailable"
+    },
+    "critical": {
+      "examples": ["data_corruption", "security_breach", "cascading_failure"],
+      "recovery": "system_isolation_and_escalation",
+      "duration": "requires_investigation",
+      "impact": "potential_system_down"
+    }
+  },
+  "recoveryPriority": {
+    "tier1_critical_systems": {
+      "modules": ["auth", "users", "database", "core"],
+      "recovery_timeout": "5 seconds",
+      "fallback_required": true,
+      "escalation": "immediate"
+    },
+    "tier2_primary_features": {
+      "modules": ["posts", "notifications", "feed"],
+      "recovery_timeout": "10 seconds",
+      "fallback_required": true,
+      "escalation": "within 1 minute"
+    },
+    "tier3_secondary_features": {
+      "modules": ["analytics", "comments", "search", "moderation"],
+      "recovery_timeout": "30 seconds",
+      "fallback_required": "optional",
+      "escalation": "within 5 minutes"
+    },
+    "tier4_optional_features": {
+      "modules": ["ai_mascot", "webhooks", "reports"],
+      "recovery_timeout": "60 seconds",
+      "fallback_required": false,
+      "escalation": "within 15 minutes"
+    }
+  },
+  "recoveryStrategies": {
+    "retry_with_backoff": {
+      "description": "Automatic retry with exponential backoff",
+      "applicable_failures": ["transient", "temporary"],
+      "max_retries": 3,
+      "initial_backoff_ms": 100,
+      "max_backoff_ms": 5000,
+      "backoff_multiplier": 2.0
+    },
+    "fallback_to_cache": {
+      "description": "Use cached response if fresh",
+      "applicable_failures": ["temporary"],
+      "max_cache_age_seconds": 300,
+      "metrics": "track_cache_hit_rate"
+    },
+    "graceful_degradation": {
+      "description": "Continue with reduced functionality",
+      "applicable_failures": ["temporary", "persistent"],
+      "example": "continue_without_personalization"
+    },
+    "circuit_breaker": {
+      "description": "Stop calling failing dependency",
+      "applicable_failures": ["persistent", "critical"],
+      "states": ["CLOSED", "OPEN", "HALF_OPEN"],
+      "failure_threshold": 5,
+      "success_threshold": 1,
+      "timeout_seconds": 30
+    },
+    "bulkhead_isolation": {
+      "description": "Isolate failing module from others",
+      "applicable_failures": ["critical"],
+      "isolation_level": "per_module",
+      "timeout_to_isolation": "10 seconds"
+    },
+    "failover": {
+      "description": "Switch to backup system",
+      "applicable_failures": ["persistent", "critical"],
+      "requires_configuration": true,
+      "automatic": "conditional"
+    }
+  },
+  "systemDegradationLevels": {
+    "healthy": {
+      "level": 0,
+      "description": "All systems operational",
+      "latency": "< 100ms p95",
+      "error_rate": "< 0.1%",
+      "available_features": "all"
+    },
+    "degraded": {
+      "level": 1,
+      "description": "Some features reduced",
+      "latency": "< 500ms p95",
+      "error_rate": "< 1%",
+      "available_features": "core + primary only",
+      "disabled": ["ai_mascot", "personalization", "analytics"]
+    },
+    "limited": {
+      "level": 2,
+      "description": "Reduced functionality",
+      "latency": "< 2000ms p95",
+      "error_rate": "< 5%",
+      "available_features": "core only",
+      "disabled": ["secondary features", "caching"]
+    },
+    "critical": {
+      "level": 3,
+      "description": "Minimal functionality only",
+      "latency": "< 10000ms p95",
+      "error_rate": "< 10%",
+      "available_features": "authentication only",
+      "disabled": "all except auth"
+    }
+  },
+  "autoHealingRules": {
+    "enabled": true,
+    "scope": "LOW and MEDIUM severity issues only",
+    "actions": {
+      "restart_module": {
+        "condition": "module_unhealthy_for_30_seconds",
+        "action": "graceful_restart",
+        "retry_count": 3
+      },
+      "clear_cache": {
+        "condition": "cache_hit_rate_below_50_percent",
+        "action": "invalidate_cache",
+        "escalate_if_persists": "5_minutes"
+      },
+      "reset_circuit_breaker": {
+        "condition": "circuit_breaker_open_for_60_seconds",
+        "action": "attempt_half_open",
+        "retry_count": 5
+      },
+      "rebuild_connection_pool": {
+        "condition": "database_connection_errors_increasing",
+        "action": "refresh_pool_connections",
+        "max_attempts": 3
+      }
+    },
+    "constraints": {
+      "never_auto_heal": ["authentication_issues", "data_corruption", "security_breaches"],
+      "human_escalation_required": ["critical_severity", "repeated_failures"],
+      "maximum_auto_attempts": 5,
+      "rollback_if_fails": true
+    }
+  },
+  "failureObservability": {
+    "required_for_all_failures": [
+      "failure_type",
+      "affected_module",
+      "recovery_strategy_attempted",
+      "recovery_success",
+      "duration_ms",
+      "traceId",
+      "timestamp"
+    ],
+    "alert_on": {
+      "critical_failure": "immediate",
+      "persistent_failure": "after_30_seconds",
+      "repeated_failure": "after_5_occurrences",
+      "system_degradation": "after_1_minute"
+    ]
+  },
+  "cascadingFailureProtection": {
+    "enabled": true,
+    "rules": [
+      {
+        "trigger": "dependent_module_fails",
+        "action": "isolate_and_degrade",
+        "prevent_cascade": true
+      },
+      {
+        "trigger": "error_rate_exceeds_threshold",
+        "action": "activate_circuit_breaker",
+        "threshold_percent": 5
+      },
+      {
+        "trigger": "latency_exceeds_threshold",
+        "action": "enable_timeout_fallback",
+        "threshold_ms": 1000
+      }
+    ]
+  },
+  "systemHealthScoring": {
+    "enabled": true,
+    "calculation": "weighted_module_health",
+    "score_range": "0-100",
+    "degradation_triggers": {
+      "score_70_to_100": "healthy",
+      "score_50_to_69": "degraded",
+      "score_30_to_49": "limited",
+      "score_below_30": "critical"
+    ]
+  },
+  "rollbackMechanism": {
+    "enabled": true,
+    "trigger": "auto_heal_fails_3_times",
+    "action": "revert_to_previous_stable_state",
+    "requires_approval": false,
+    "notification": true
+  },
+  "postRecoveryValidation": {
+    "enabled": true,
+    "checks": [
+      "error_rate_normalized",
+      "latency_normalized",
+      "health_check_passing",
+      "no_cascading_failures"
+    ],
+    "timeout_seconds": 30,
+    "escalate_if_invalid": true
+  }
+}

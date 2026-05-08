@@ -1,0 +1,357 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Telemetry Rules",
+  "description": "Declarative rules governing telemetry collection, sampling, and alerting",
+  "version": "1.0.0",
+  "phase": "1.8",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+  "lastUpdated": "2026-05-07",
+  "governance_level": "CONSTITUTIONAL",
+
+  "samplingRules": {
+    "description": "Rules for telemetry data sampling",
+    "rules": [
+      {
+        "name": "LOG_SAMPLING",
+        "description": "Sampling rules for logs by severity",
+        "policy": {
+          "INFO": {
+            "sampleRate": 0.1,
+            "description": "Sample 10% of INFO logs"
+          },
+          "WARN": {
+            "sampleRate": 0.5,
+            "description": "Sample 50% of WARN logs"
+          },
+          "ERROR": {
+            "sampleRate": 1.0,
+            "description": "Collect 100% of ERROR logs"
+          },
+          "CRITICAL": {
+            "sampleRate": 1.0,
+            "description": "Collect 100% of CRITICAL logs"
+          }
+        }
+      },
+      {
+        "name": "TRACE_SAMPLING",
+        "description": "Sampling rules for distributed traces",
+        "policy": {
+          "successful_requests": {
+            "sampleRate": 0.01,
+            "description": "Sample 1% of successful request traces"
+          },
+          "failed_requests": {
+            "sampleRate": 1.0,
+            "description": "Collect 100% of failed request traces"
+          },
+          "slow_requests": {
+            "threshold_ms": 1000,
+            "sampleRate": 0.5,
+            "description": "Sample 50% of requests exceeding 1 second"
+          }
+        }
+      },
+      {
+        "name": "METRIC_SAMPLING",
+        "description": "Sampling rules for metrics",
+        "policy": {
+          "latency_metrics": {
+            "sampleRate": 1.0,
+            "description": "Collect all latency metrics (every operation)"
+          },
+          "throughput_metrics": {
+            "aggregationWindow_ms": 1000,
+            "description": "Aggregate throughput every second"
+          },
+          "error_metrics": {
+            "sampleRate": 1.0,
+            "description": "Collect all error metrics"
+          }
+        }
+      }
+    ]
+  },
+
+  "retentionRules": {
+    "description": "How long different telemetry data is retained",
+    "rules": [
+      {
+        "dataType": "LOGS",
+        "retention": {
+          "INFO": "7 days",
+          "WARN": "14 days",
+          "ERROR": "30 days",
+          "CRITICAL": "90 days"
+        }
+      },
+      {
+        "dataType": "METRICS",
+        "retention": {
+          "realtime": "5 minutes",
+          "hourly_aggregates": "7 days",
+          "daily_aggregates": "30 days",
+          "monthly_aggregates": "1 year"
+        }
+      },
+      {
+        "dataType": "TRACES",
+        "retention": {
+          "successful": "7 days",
+          "failed": "30 days",
+          "slow": "14 days"
+        }
+      },
+      {
+        "dataType": "EVENTS",
+        "retention": {
+          "system_events": "30 days",
+          "domain_events": "7 days",
+          "audit_events": "90 days"
+        }
+      }
+    ]
+  },
+
+  "aggregationRules": {
+    "description": "Rules for data aggregation and time-series bucketing",
+    "rules": [
+      {
+        "name": "TIME_SERIES_AGGREGATION",
+        "description": "Aggregate metrics by time windows",
+        "windows": [
+          {
+            "duration": "1 minute",
+            "retention": "7 days",
+            "functions": ["min", "max", "avg", "p50", "p95", "p99"]
+          },
+          {
+            "duration": "1 hour",
+            "retention": "30 days",
+            "functions": ["min", "max", "avg"]
+          },
+          {
+            "duration": "1 day",
+            "retention": "1 year",
+            "functions": ["min", "max", "avg"]
+          }
+        ]
+      },
+      {
+        "name": "MODULE_AGGREGATION",
+        "description": "Aggregate metrics by module",
+        "grouping": ["moduleId", "operation", "status"]
+      },
+      {
+        "name": "EVENT_AGGREGATION",
+        "description": "Aggregate events by type and module",
+        "grouping": ["eventType", "sourceModule", "severity"]
+      }
+    ]
+  },
+
+  "alertingRules": {
+    "description": "Thresholds and conditions for alerting (DECLARATIVE ONLY)",
+    "note": "These are ALERT DECLARATIONS, not alert implementations",
+    "alerts": [
+      {
+        "id": "ALERT_HIGH_LATENCY",
+        "name": "High request latency",
+        "condition": "request_latency_ms p99 > 2000",
+        "severity": "HIGH",
+        "action": "ALERT"
+      },
+      {
+        "id": "ALERT_HIGH_ERROR_RATE",
+        "name": "High error rate",
+        "condition": "error_rate > 5%",
+        "severity": "HIGH",
+        "action": "ALERT"
+      },
+      {
+        "id": "ALERT_THROUGHPUT_DROP",
+        "name": "Throughput degradation",
+        "condition": "requests_per_second < baseline * 0.8",
+        "severity": "MEDIUM",
+        "action": "ALERT"
+      },
+      {
+        "id": "ALERT_CRITICAL_ERROR",
+        "name": "Critical error occurred",
+        "condition": "log_level == CRITICAL",
+        "severity": "CRITICAL",
+        "action": "IMMEDIATE_ALERT"
+      },
+      {
+        "id": "ALERT_MODULE_UNAVAILABLE",
+        "name": "Module unavailable",
+        "condition": "module_availability < 99%",
+        "severity": "CRITICAL",
+        "action": "IMMEDIATE_ALERT"
+      },
+      {
+        "id": "ALERT_MEMORY_PRESSURE",
+        "name": "Memory usage high",
+        "condition": "memory_usage_bytes > memory_limit * 0.9",
+        "severity": "HIGH",
+        "action": "ALERT"
+      },
+      {
+        "id": "ALERT_ANOMALY_DETECTED",
+        "name": "System anomaly detected",
+        "condition": "deviation_from_baseline > 3 sigma",
+        "severity": "MEDIUM",
+        "action": "ALERT"
+      }
+    ]
+  },
+
+  "anomalyDetectionThresholds": {
+    "description": "Thresholds for lightweight anomaly detection",
+    "note": "These are THRESHOLD DECLARATIONS for anomaly scoring",
+    "thresholds": [
+      {
+        "metric": "request_latency_ms",
+        "detectionMethod": "BASELINE_DEVIATION",
+        "threshold": "3 sigma from baseline",
+        "action": "flag_as_anomaly"
+      },
+      {
+        "metric": "error_rate",
+        "detectionMethod": "THRESHOLD_CROSSING",
+        "threshold": "> 5%",
+        "action": "flag_as_anomaly"
+      },
+      {
+        "metric": "requests_per_second",
+        "detectionMethod": "BASELINE_DEVIATION",
+        "threshold": "< 0.8 * baseline",
+        "action": "flag_as_anomaly"
+      },
+      {
+        "metric": "module_availability",
+        "detectionMethod": "THRESHOLD_CROSSING",
+        "threshold": "< 99%",
+        "action": "flag_as_anomaly"
+      },
+      {
+        "metric": "event_processing_latency_ms",
+        "detectionMethod": "PERCENTILE_THRESHOLD",
+        "threshold": "p99 > 2x baseline p99",
+        "action": "flag_as_anomaly"
+      }
+    ]
+  },
+
+  "baselineCalculation": {
+    "description": "How baselines are determined for anomaly detection",
+    "rules": [
+      {
+        "rule": "ROLLING_BASELINE",
+        "description": "Calculate baseline from last 7 days of data",
+        "window": "7 days",
+        "updateFrequency": "hourly"
+      },
+      {
+        "rule": "TIME_OF_DAY_ADJUSTMENT",
+        "description": "Adjust baseline by time of day (peak vs. off-peak)",
+        "segments": ["00:00-06:00", "06:00-12:00", "12:00-18:00", "18:00-24:00"]
+      },
+      {
+        "rule": "WEEKEND_ADJUSTMENT",
+        "description": "Different baselines for weekends vs. weekdays"
+      },
+      {
+        "rule": "SEASONAL_ADJUSTMENT",
+        "description": "Account for seasonal variations"
+      }
+    ]
+  },
+
+  "correlationRules": {
+    "description": "Rules for correlating telemetry data across systems",
+    "rules": [
+      {
+        "rule": "TRACEID_CORRELATION",
+        "description": "Correlate all logs, metrics, and events by traceId"
+      },
+      {
+        "rule": "REQUESTID_CORRELATION",
+        "description": "Map request to module invocations and operations"
+      },
+      {
+        "rule": "MODULE_CORRELATION",
+        "description": "Link metrics from calling and called modules"
+      },
+      {
+        "rule": "EVENT_CAUSALITY_CORRELATION",
+        "description": "Build causal graph of events"
+      },
+      {
+        "rule": "CROSS_MODULE_LATENCY",
+        "description": "Track latency across module boundaries"
+      }
+    ]
+  },
+
+  "dataQualityRules": {
+    "description": "Rules for ensuring telemetry data quality",
+    "rules": [
+      {
+        "rule": "REQUIRED_FIELDS_PRESENT",
+        "description": "timestamp, level, traceId, requestId, moduleId mandatory in all logs"
+      },
+      {
+        "rule": "TIMESTAMP_FORMAT_VALID",
+        "description": "All timestamps in ISO8601 format"
+      },
+      {
+        "rule": "TRACEID_CONSISTENCY",
+        "description": "traceId consistent across all associated records"
+      },
+      {
+        "rule": "NO_DUPLICATE_EVENTS",
+        "description": "No duplicate events in same trace window"
+      },
+      {
+        "rule": "METRIC_VALUE_SANITY",
+        "description": "Metric values within expected ranges"
+      }
+    ]
+  },
+
+  "privacyRules": {
+    "description": "Privacy rules for sensitive telemetry data",
+    "rules": [
+      {
+        "rule": "NO_USER_PASSWORDS",
+        "description": "Never log user passwords in any form"
+      },
+      {
+        "rule": "NO_CREDIT_CARDS",
+        "description": "Never log credit card numbers"
+      },
+      {
+        "rule": "NO_PII",
+        "description": "Minimize personally identifiable information in logs"
+      },
+      {
+        "rule": "HASH_SENSITIVE_IDS",
+        "description": "Hash sensitive identifiers where possible"
+      }
+    ]
+  },
+
+  "totalSamplingRules": 3,
+  "totalRetentionRules": 4,
+  "totalAggregationRules": 3,
+  "totalAlerts": 7,
+  "totalAnomalyThresholds": 5,
+  "totalCorrelationRules": 5,
+  "totalDataQualityRules": 5,
+  "totalPrivacyRules": 4,
+  "declarationComplete": true,
+  "runtimeNote": "This schema is DECLARATIVE ONLY. Sampling, retention, and alerting logic are implemented separately, NOT here."
+}

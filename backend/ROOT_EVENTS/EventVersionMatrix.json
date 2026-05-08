@@ -1,0 +1,149 @@
+{
+  "matrix_version": "1.0.0",
+  "description": "Event versioning matrix with compatibility rules",
+  "last_updated": "2026-05-08",
+  "events": {
+    "VIOLATION": {
+      "current_version": "1.0.0",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "released": "2026-05-01",
+          "status": "active",
+          "backward_compatible_with": [],
+          "forward_compatible_with": [],
+          "deprecation_date": null,
+          "notes": "Initial version"
+        }
+      ],
+      "version_lifecycle": {
+        "1.0.0": "active"
+      }
+    },
+    "HEALING": {
+      "current_version": "1.0.0",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "released": "2026-05-01",
+          "status": "active",
+          "backward_compatible_with": [],
+          "forward_compatible_with": [],
+          "deprecation_date": null,
+          "notes": "Initial version"
+        }
+      ],
+      "version_lifecycle": {
+        "1.0.0": "active"
+      }
+    },
+    "RECOVERY": {
+      "current_version": "1.0.0",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "released": "2026-05-01",
+          "status": "active",
+          "backward_compatible_with": [],
+          "forward_compatible_with": [],
+          "deprecation_date": null,
+          "notes": "Initial version"
+        }
+      ],
+      "version_lifecycle": {
+        "1.0.0": "active"
+      }
+    },
+    "HEALTH": {
+      "current_version": "1.0.0",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "released": "2026-05-01",
+          "status": "active",
+          "backward_compatible_with": [],
+          "forward_compatible_with": [],
+          "deprecation_date": null,
+          "notes": "Initial version"
+        }
+      ],
+      "version_lifecycle": {
+        "1.0.0": "active"
+      }
+    },
+    "SYSTEM_BOOT": {
+      "current_version": "1.0.0",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "released": "2026-05-01",
+          "status": "active",
+          "backward_compatible_with": [],
+          "forward_compatible_with": [],
+          "deprecation_date": null,
+          "notes": "Initial version"
+        }
+      ],
+      "version_lifecycle": {
+        "1.0.0": "active"
+      }
+    },
+    "SYSTEM_SHUTDOWN": {
+      "current_version": "1.0.0",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "released": "2026-05-01",
+          "status": "active",
+          "backward_compatible_with": [],
+          "forward_compatible_with": [],
+          "deprecation_date": null,
+          "notes": "Initial version"
+        }
+      ],
+      "version_lifecycle": {
+        "1.0.0": "active"
+      }
+    },
+    "MODULE_NONCOMPLIANCE": {
+      "current_version": "1.0.0",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "released": "2026-05-01",
+          "status": "active",
+          "backward_compatible_with": [],
+          "forward_compatible_with": [],
+          "deprecation_date": null,
+          "notes": "Initial version"
+        }
+      ],
+      "version_lifecycle": {
+        "1.0.0": "active"
+      }
+    },
+    "AUTO_CORRECTION": {
+      "current_version": "1.0.0",
+      "versions": [
+        {
+          "version": "1.0.0",
+          "released": "2026-05-01",
+          "status": "active",
+          "backward_compatible_with": [],
+          "forward_compatible_with": [],
+          "deprecation_date": null,
+          "notes": "Initial version"
+        }
+      ],
+      "version_lifecycle": {
+        "1.0.0": "active"
+      }
+    }
+  },
+  "migration_rules": {
+    "automatic_upgrade_on_receive": true,
+    "strict_validation": true,
+    "reject_unknown_versions": true,
+    "log_all_migrations": true
+  }
+}

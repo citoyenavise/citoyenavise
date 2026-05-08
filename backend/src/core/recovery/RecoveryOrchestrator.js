@@ -1,11 +1,22 @@
 /**
- * RecoveryOrchestrator.js - Orchestrate recovery decisions and actions
- * PHASE 1.6: Recovery Layer
+ * RecoveryOrchestrator
+ * PHASE 5.7 v2 — BUSINESS LOGIC DOMAIN (Recovery + Idempotency)
+ *
+ * Business logic orchestrator for recovery with strict idempotency and timeout.
+ * Makes recovery decisions and coordinates remediation with PHASE 5.7 guarantees.
+ *
+ * PHASE 5.7 Guarantees:
+ * - Idempotency métier: eventId + traceId composite key (prevents double-recovery)
+ * - Recovery timeout: 30sec max global timeout (auto-escalate on timeout)
+ * - Concurrency cap: max 3 simultaneous recoveries (prevents cascading failures)
+ * - Guard validation: validateRecovery() before state changes
+ * - Failure tracking: escalateFailure() captures all timeouts + failures
+ * - Post-execution observability: Metrics recorded AFTER recovery completion
  *
  * Responsibility: Make recovery decisions and coordinate remediation
  * - Determine optimal recovery path
- * - Execute recovery procedures
- * - Apply remediation actions
+ * - Execute recovery procedures (with timeout)
+ * - Apply remediation actions (guarded)
  * - Verify recovery success
  * - Handle multi-phase recovery
  */
@@ -17,7 +28,11 @@ class RecoveryOrchestrator {
     this.gracefulShutdownManager = options.gracefulShutdownManager || null;
 
     this.recoveryPaths = new Map();
-    this.activeRecoveries = new Map(); // incident key → startTime (PHASE 5.7: for deduplication)
+
+    // PHASE 5.7 v2: Business-level idempotency (eventId + traceId)
+    this.activeRecoveries = new Map(); // idempotency key → startTime
+    this.recoveryIdempotencyWindow_ms = options.recoveryIdempotencyWindow_ms || 30000; // Match recovery timeout
+
     this.recoveryDecisions = [];
     this.failureHistory = []; // PHASE 5.7: track recovery failures for escalation
 
@@ -35,7 +50,9 @@ class RecoveryOrchestrator {
       pathsSelected: {},
       successfulRecoveries: 0,
       failedRecoveries: 0,
-      timedOutRecoveries: 0 // PHASE 5.7
+      timedOutRecoveries: 0, // PHASE 5.7
+      idempotencySkipped: 0, // PHASE 5.7 v2: Duplicate recovery prevention
+      concurrencyLimited: 0 // PHASE 5.7 v2: Concurrency cap enforcement
     };
 
     this._initializeRecoveryPaths();
@@ -190,22 +207,36 @@ class RecoveryOrchestrator {
   }
 
   /**
-   * PHASE 5.7: Execute recovery with timeout and deduplication
+   * PHASE 5.7 v2: Execute recovery with strict timeout and business-level idempotency
+   * CRITICAL: Idempotency key = eventId + traceId (prevents double-recovery)
    */
   async executeRecovery(error, context = {}) {
-    const incidentKey = context.traceId || (context.violation && context.violation.type) || error.message;
+    // PHASE 5.7 v2: Build idempotency key from eventId + traceId
+    const eventId = context.violation?.eventId || context.violation?.id || 'unknown';
+    const traceId = context.traceId || 'unknown';
+    const idempotencyKey = `${eventId}|${traceId}`;
 
-    // PHASE 5.7: Deduplication check
-    if (this.activeRecoveries.has(incidentKey)) {
-      return { skipped: true, reason: 'recovery_already_active', incidentKey };
+    // Clean expired idempotency entries
+    const now = Date.now();
+    for (const [key, timestamp] of this.activeRecoveries) {
+      if (now - timestamp > this.recoveryIdempotencyWindow_ms) {
+        this.activeRecoveries.delete(key);
+      }
     }
 
-    // PHASE 5.7: Concurrency cap
+    // PHASE 5.7 v2: Idempotency check (prevent double-recovery)
+    if (this.activeRecoveries.has(idempotencyKey)) {
+      this.metrics.idempotencySkipped = (this.metrics.idempotencySkipped || 0) + 1;
+      return { skipped: true, reason: 'recovery_already_active', idempotencyKey };
+    }
+
+    // PHASE 5.7 v2: Concurrency cap (prevent cascading failures)
     if (this.activeRecoveries.size >= this.maxConcurrentRecoveries) {
+      this.metrics.concurrencyLimited = (this.metrics.concurrencyLimited || 0) + 1;
       return { skipped: true, reason: 'max_concurrent_recoveries_reached' };
     }
 
-    this.activeRecoveries.set(incidentKey, Date.now());
+    this.activeRecoveries.set(idempotencyKey, now);
 
     try {
       const result = await Promise.race([
@@ -223,7 +254,9 @@ class RecoveryOrchestrator {
       }
       throw err;
     } finally {
-      this.activeRecoveries.delete(incidentKey);
+      // PHASE 5.7 v2: Don't remove immediately - let idempotencyWindow cleanup handle it
+      // This ensures duplicate recovery attempts within the window are rejected
+      // Cleanup happens at the START of next executeRecovery() call
     }
   }
 
@@ -554,7 +587,9 @@ class RecoveryOrchestrator {
       pathsSelected: {},
       successfulRecoveries: 0,
       failedRecoveries: 0,
-      timedOutRecoveries: 0 // PHASE 5.7
+      timedOutRecoveries: 0, // PHASE 5.7
+      idempotencySkipped: 0, // PHASE 5.7 v2
+      concurrencyLimited: 0 // PHASE 5.7 v2
     };
 
     return { reset: true };

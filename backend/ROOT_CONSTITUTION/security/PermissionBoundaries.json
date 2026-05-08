@@ -1,0 +1,191 @@
+{
+  "version": "1.0.0",
+  "description": "Constitutional boundaries for permission validation and enforcement",
+  "sealed": true,
+  "lastUpdated": "2026-05-08",
+  "permissionModel": {
+    "type": "capability_based",
+    "enforcement": "mandatory_on_all_endpoints",
+    "granularity": "endpoint_level"
+  },
+  "boundaryRules": {
+    "module_isolation": {
+      "enabled": true,
+      "rule": "module X cannot access module Y's data directly",
+      "enforcement": "dependency_injection_only"
+    },
+    "data_ownership": {
+      "enabled": true,
+      "rule": "user can only access own data (except admin)",
+      "enforcement": "ownership_check_on_all_queries"
+    },
+    "role_boundary": {
+      "enabled": true,
+      "rule": "user cannot escalate own privileges",
+      "enforcement": "immutable_role_in_jwt"
+    },
+    "capability_boundary": {
+      "enabled": true,
+      "rule": "capability grants only specific actions",
+      "enforcement": "explicit_capability_check"
+    }
+  },
+  "permissionValidation": {
+    "required": true,
+    "triggers": [
+      "before_any_endpoint_execution",
+      "before_data_access",
+      "before_state_modification",
+      "before_capability_check"
+    ],
+    "steps": [
+      {
+        "step": 1,
+        "action": "authenticate_user",
+        "validation": "jwt_valid_and_not_expired"
+      },
+      {
+        "step": 2,
+        "action": "extract_role",
+        "validation": "role_exists_and_valid"
+      },
+      {
+        "step": 3,
+        "action": "extract_capabilities",
+        "validation": "capabilities_match_role"
+      },
+      {
+        "step": 4,
+        "action": "validate_required_capability",
+        "validation": "required_capability_in_user_capabilities"
+      },
+      {
+        "step": 5,
+        "action": "check_ownership",
+        "validation": "user_owns_resource_or_is_admin",
+        "conditional": "if_required_by_endpoint"
+      },
+      {
+        "step": 6,
+        "action": "validate_data_access",
+        "validation": "user_has_right_to_access_data"
+      }
+    ]
+  },
+  "escalationBoundaries": {
+    "prohibited": [
+      "user cannot change own role",
+      "user cannot grant capabilities to self",
+      "user cannot modify audit logs",
+      "user cannot disable security checks"
+    ],
+    "enforcement": "code_level_validation"
+  },
+  "endpointProtection": {
+    "public_endpoints": [
+      "GET /posts",
+      "GET /posts/:id",
+      "GET /public_dashboard",
+      "POST /auth/register",
+      "POST /auth/login",
+      "GET /search"
+    ],
+    "authenticated_endpoints": [
+      "POST /posts",
+      "PUT /posts/:id",
+      "DELETE /posts/:id",
+      "GET /profile",
+      "PUT /profile"
+    ],
+    "admin_endpoints": [
+      "GET /admin/*",
+      "POST /admin/*",
+      "DELETE /admin/*"
+    ],
+    "moderator_endpoints": [
+      "GET /moderation/*",
+      "POST /moderation/review",
+      "POST /moderation/action"
+    ]
+  },
+  "fieldLevelPermissions": {
+    "user_profile": {
+      "public_fields": ["id", "username", "avatar", "bio"],
+      "authenticated_fields": ["email"],
+      "owner_fields": ["email", "preferences", "privacy_settings"],
+      "admin_fields": ["all"]
+    },
+    "user_audit": {
+      "public_fields": [],
+      "authenticated_fields": [],
+      "owner_fields": [],
+      "admin_fields": ["all"]
+    }
+  },
+  "dataAccessBoundaries": {
+    "user_posts": {
+      "creator": "can_read_write_delete",
+      "other_users": "can_read_only",
+      "moderator": "can_read_flag_delete",
+      "admin": "can_read_write_delete"
+    },
+    "user_comments": {
+      "creator": "can_read_write_delete",
+      "post_owner": "can_read_moderate_delete",
+      "moderator": "can_read_flag_delete",
+      "admin": "can_read_write_delete"
+    },
+    "audit_logs": {
+      "creator": "cannot_access",
+      "other_users": "cannot_access",
+      "moderator": "can_read_own_module",
+      "admin": "can_read_all"
+    }
+  },
+  "resourceOwnershipValidation": {
+    "enabled": true,
+    "required_for": ["PUT", "DELETE", "PATCH"],
+    "exceptions": ["admin", "moderator_on_flagged_content"],
+    "implementation": {
+      "step1": "extract_resource_owner",
+      "step2": "compare_with_authenticated_user",
+      "step3": "throw_403_if_not_owner_and_not_admin"
+    }
+  },
+  "timeboundPermissions": {
+    "enabled": false,
+    "feature": "future_use_for_temporary_access",
+    "example": "grant_capability_until_date"
+  },
+  "contextBasedPermissions": {
+    "ip_whitelist": {
+      "enabled": false,
+      "use_case": "admin_access_only_from_office"
+    },
+    "time_based": {
+      "enabled": false,
+      "use_case": "access_only_during_business_hours"
+    },
+    "location_based": {
+      "enabled": false,
+      "use_case": "geographic_access_restrictions"
+    }
+  },
+  "permissionAuditTrail": {
+    "enabled": true,
+    "captureFor": [
+      "permission_granted",
+      "permission_denied",
+      "authorization_failed",
+      "escalation_attempt"
+    ],
+    "fields": [
+      "timestamp",
+      "user_id",
+      "requested_permission",
+      "result",
+      "resource_id",
+      "module_id"
+    ]
+  }
+}

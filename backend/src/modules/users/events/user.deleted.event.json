@@ -1,0 +1,16 @@
+{
+  "name": "user:deleted",
+  "version": "1.0.0",
+  "domain": "user",
+  "action": "deleted",
+  "entity": "user",
+  "description": "User account deleted",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "userId": { "type": "string" },
+      "timestamp": { "type": "string" }
+    },
+    "required": ["userId", "timestamp"]
+  }
+}

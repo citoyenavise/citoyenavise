@@ -1,0 +1,177 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Runtime Dependency Rules",
+  "description": "Declarative rules governing runtime dependency constraints",
+  "version": "1.0.0",
+  "phase": "1.5",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+  "lastUpdated": "2026-05-07",
+  "governance_level": "CONSTITUTIONAL",
+
+  "dependencyRules": [
+    {
+      "id": "RULE_INFRASTRUCTURE_SINGLETON",
+      "name": "Infrastructure modules are singletons",
+      "applies_to": ["logger", "database", "cache", "eventBus"],
+      "constraint": "Each module must be instantiated exactly once",
+      "enforcement_level": "CRITICAL",
+      "violation_action": "BLOCK_INITIALIZATION"
+    },
+
+    {
+      "id": "RULE_NO_CIRCULAR_IMPORTS",
+      "name": "No circular dependency chains",
+      "applies_to": "ALL_MODULES",
+      "constraint": "Module A cannot import B if B imports A (transitively or directly)",
+      "enforcement_level": "CRITICAL",
+      "violation_action": "LOAD_TIME_FAILURE"
+    },
+
+    {
+      "id": "RULE_LEVEL_HIERARCHY",
+      "name": "Respect level hierarchy",
+      "applies_to": "ALL_MODULES",
+      "constraint": "Module at level N can only depend on modules at levels < N",
+      "enforcement_level": "CRITICAL",
+      "violation_action": "LOAD_TIME_FAILURE"
+    },
+
+    {
+      "id": "RULE_EVENTBUS_AVAILABLE",
+      "name": "EventBus must be available to all modules",
+      "applies_to": "ALL_MODULES",
+      "constraint": "EventBus (infrastructure singleton) must load before any domain module",
+      "enforcement_level": "CRITICAL",
+      "violation_action": "LOAD_TIME_FAILURE"
+    },
+
+    {
+      "id": "RULE_DATABASE_CONSISTENCY",
+      "name": "Database module consistency",
+      "applies_to": ["users", "posts", "analytics"],
+      "constraint": "All domain modules depending on database must use same connection pool",
+      "enforcement_level": "HIGH",
+      "violation_action": "RUNTIME_ALERT"
+    },
+
+    {
+      "id": "RULE_AUTH_BEFORE_DOMAIN",
+      "name": "Auth must initialize before domain modules",
+      "applies_to": "ALL_MODULES",
+      "constraint": "Auth module must load before users, posts, notifications",
+      "enforcement_level": "HIGH",
+      "violation_action": "INITIALIZATION_DELAY"
+    },
+
+    {
+      "id": "RULE_NO_LATERAL_DEPENDENCIES",
+      "name": "No lateral dependencies at same level",
+      "applies_to": "ALL_MODULES",
+      "constraint": "Modules at same level must not depend on each other",
+      "enforcement_level": "MEDIUM",
+      "violation_action": "RUNTIME_WARNING"
+    },
+
+    {
+      "id": "RULE_LOGGER_ALWAYS_AVAILABLE",
+      "name": "Logger must be universally accessible",
+      "applies_to": "ALL_MODULES",
+      "constraint": "Logger (infrastructure singleton) must load first",
+      "enforcement_level": "CRITICAL",
+      "violation_action": "LOAD_TIME_FAILURE"
+    },
+
+    {
+      "id": "RULE_NO_DEEP_NESTING",
+      "name": "Avoid dependency chain depth",
+      "applies_to": "ALL_MODULES",
+      "constraint": "Maximum dependency chain depth is 5 levels",
+      "enforcement_level": "MEDIUM",
+      "violation_action": "INITIALIZATION_WARNING"
+    },
+
+    {
+      "id": "RULE_GOVERNANCE_ISOLATION",
+      "name": "Governance layer isolation",
+      "applies_to": "governance",
+      "constraint": "Governance module observes but does not enforce runtime dependencies on domain modules",
+      "enforcement_level": "HIGH",
+      "violation_action": "ARCHITECTURE_VIOLATION"
+    }
+  ],
+
+  "dependencyVersioningRules": [
+    {
+      "id": "RULE_VERSION_COMPATIBILITY",
+      "name": "Version compatibility enforcement",
+      "applies_to": "ALL_DEPENDENCIES",
+      "constraint": "Dependent module version must be compatible with dependency module version",
+      "compatibility_mode": "SEMVER_BACKWARD_COMPATIBLE",
+      "enforcement_level": "HIGH"
+    },
+
+    {
+      "id": "RULE_VERSION_PINNING",
+      "name": "Infrastructure versions pinned",
+      "applies_to": ["logger", "database", "cache", "eventBus"],
+      "constraint": "Infrastructure modules use pinned versions (no floating)",
+      "enforcement_level": "CRITICAL"
+    }
+  ],
+
+  "isolationRules": [
+    {
+      "id": "RULE_MODULE_NAMESPACE",
+      "name": "Module namespace isolation",
+      "applies_to": "ALL_MODULES",
+      "constraint": "Each module must have isolated namespace (no global state sharing)"
+    },
+
+    {
+      "id": "RULE_CONFIG_ISOLATION",
+      "name": "Configuration isolation",
+      "applies_to": "ALL_MODULES",
+      "constraint": "Module configuration must not be accessible from other modules"
+    },
+
+    {
+      "id": "RULE_STATE_ISOLATION",
+      "name": "State isolation",
+      "applies_to": "ALL_MODULES",
+      "constraint": "Module internal state must not be directly accessible from other modules"
+    }
+  ],
+
+  "initializationOrder": {
+    "phase_0": ["logger"],
+    "phase_1": ["cache", "eventBus"],
+    "phase_2": ["database"],
+    "phase_3": ["auth"],
+    "phase_4": ["users", "posts"],
+    "phase_5": ["search", "analytics", "notifications"],
+    "phase_6": ["governance"]
+  },
+
+  "constraintEnforcementLevels": {
+    "CRITICAL": "System cannot start if violated",
+    "HIGH": "System starts but with reduced functionality",
+    "MEDIUM": "System operates but logs warnings"
+  },
+
+  "violationResponses": {
+    "LOAD_TIME_FAILURE": "Fail module loading, prevent system start",
+    "INITIALIZATION_DELAY": "Delay initialization until dependency satisfied",
+    "RUNTIME_ALERT": "Log alert but allow operation",
+    "RUNTIME_WARNING": "Log warning but allow operation",
+    "ARCHITECTURE_VIOLATION": "Log violation, escalate to governance"
+  },
+
+  "totalRules": 13,
+  "criticalRules": 6,
+  "highRules": 4,
+  "mediumRules": 3,
+  "declarationComplete": true,
+  "runtimeEnforcementNote": "These rules are ENFORCED by Phase 1.2 Dependency Enforcer at runtime."
+}

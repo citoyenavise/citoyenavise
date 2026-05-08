@@ -1,0 +1,307 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Metrics Schema",
+  "description": "Declarative structure for runtime and system metrics collection",
+  "version": "1.0.0",
+  "phase": "1.8",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+  "lastUpdated": "2026-05-07",
+  "governance_level": "CONSTITUTIONAL",
+
+  "metricFormat": {
+    "description": "Mandatory structure for all metric entries",
+    "required": ["timestamp", "metricId", "metricType", "moduleId", "value"],
+    "optional": ["unit", "labels", "tags", "baselines", "thresholds"],
+    "structure": {
+      "timestamp": {
+        "type": "string",
+        "format": "ISO8601",
+        "description": "Metric collection time"
+      },
+      "metricId": {
+        "type": "string",
+        "pattern": "^metric_[a-zA-Z0-9_]+$",
+        "description": "Unique metric identifier"
+      },
+      "metricType": {
+        "type": "string",
+        "enum": ["GAUGE", "COUNTER", "HISTOGRAM", "SUMMARY"],
+        "description": "Prometheus-style metric type"
+      },
+      "moduleId": {
+        "type": "string",
+        "description": "Source module emitting metric"
+      },
+      "value": {
+        "type": "number",
+        "description": "Metric value"
+      },
+      "unit": {
+        "type": "string",
+        "description": "Unit of measurement (ms, bytes, count, etc.)",
+        "optional": true
+      },
+      "labels": {
+        "type": "object",
+        "description": "Prometheus-style labels for grouping",
+        "optional": true
+      },
+      "tags": {
+        "type": "array",
+        "description": "Arbitrary tags for filtering",
+        "optional": true
+      },
+      "baselines": {
+        "type": "object",
+        "description": "Expected baseline values",
+        "optional": true
+      },
+      "thresholds": {
+        "type": "object",
+        "description": "Alert thresholds",
+        "optional": true
+      }
+    }
+  },
+
+  "runtimeMetrics": {
+    "description": "Metrics capturing runtime behavior",
+    "categories": [
+      {
+        "name": "LATENCY",
+        "metrics": [
+          {
+            "id": "request_latency_ms",
+            "type": "HISTOGRAM",
+            "description": "Request processing latency in milliseconds",
+            "unit": "ms"
+          },
+          {
+            "id": "module_call_latency_ms",
+            "type": "HISTOGRAM",
+            "description": "Latency of module-to-module calls",
+            "unit": "ms"
+          },
+          {
+            "id": "database_query_latency_ms",
+            "type": "HISTOGRAM",
+            "description": "Database operation latency",
+            "unit": "ms"
+          },
+          {
+            "id": "event_processing_latency_ms",
+            "type": "HISTOGRAM",
+            "description": "Time to process event from emission to completion",
+            "unit": "ms"
+          }
+        ]
+      },
+      {
+        "name": "THROUGHPUT",
+        "metrics": [
+          {
+            "id": "requests_per_second",
+            "type": "GAUGE",
+            "description": "Number of requests processed per second"
+          },
+          {
+            "id": "events_emitted_per_second",
+            "type": "GAUGE",
+            "description": "Number of events emitted per second"
+          },
+          {
+            "id": "database_operations_per_second",
+            "type": "GAUGE",
+            "description": "Database operations per second"
+          }
+        ]
+      },
+      {
+        "name": "ERRORS",
+        "metrics": [
+          {
+            "id": "error_rate_percent",
+            "type": "GAUGE",
+            "description": "Percentage of operations resulting in error",
+            "unit": "%"
+          },
+          {
+            "id": "errors_total",
+            "type": "COUNTER",
+            "description": "Total error count since startup"
+          },
+          {
+            "id": "critical_errors_total",
+            "type": "COUNTER",
+            "description": "Total critical errors since startup"
+          }
+        ]
+      },
+      {
+        "name": "AVAILABILITY",
+        "metrics": [
+          {
+            "id": "module_availability_percent",
+            "type": "GAUGE",
+            "description": "Module uptime percentage",
+            "unit": "%"
+          },
+          {
+            "id": "request_success_rate",
+            "type": "GAUGE",
+            "description": "Percentage of successful requests",
+            "unit": "%"
+          }
+        ]
+      }
+    ]
+  },
+
+  "systemMetrics": {
+    "description": "Metrics capturing system-level behavior (abstraction layer)",
+    "categories": [
+      {
+        "name": "RESOURCE_USAGE",
+        "metrics": [
+          {
+            "id": "memory_usage_bytes",
+            "type": "GAUGE",
+            "description": "Current memory usage (abstracted)",
+            "unit": "bytes"
+          },
+          {
+            "id": "cpu_usage_percent",
+            "type": "GAUGE",
+            "description": "CPU usage percentage (abstracted)",
+            "unit": "%"
+          }
+        ]
+      },
+      {
+        "name": "RESOURCE_LIMITS",
+        "metrics": [
+          {
+            "id": "memory_limit_bytes",
+            "type": "GAUGE",
+            "description": "Maximum available memory",
+            "unit": "bytes"
+          },
+          {
+            "id": "memory_available_bytes",
+            "type": "GAUGE",
+            "description": "Available memory remaining",
+            "unit": "bytes"
+          }
+        ]
+      }
+    ]
+  },
+
+  "businessMetrics": {
+    "description": "Optional application-specific metrics",
+    "note": "Business metrics are optional and defined per-application",
+    "examples": [
+      {
+        "id": "users_active_total",
+        "type": "GAUGE",
+        "description": "Total active users"
+      },
+      {
+        "id": "posts_created_total",
+        "type": "COUNTER",
+        "description": "Total posts created"
+      },
+      {
+        "id": "search_queries_total",
+        "type": "COUNTER",
+        "description": "Total search queries processed"
+      }
+    ]
+  },
+
+  "metricCollectionRules": {
+    "description": "Rules for metric collection and aggregation",
+    "rules": [
+      {
+        "rule": "CONTINUOUS_COLLECTION",
+        "description": "Runtime metrics collected continuously"
+      },
+      {
+        "rule": "PERIODIC_AGGREGATION",
+        "description": "Metrics aggregated at regular intervals (1m, 5m, 1h)"
+      },
+      {
+        "rule": "BASELINE_CALCULATION",
+        "description": "Calculate baseline values from historical data"
+      },
+      {
+        "rule": "DEVIATION_DETECTION",
+        "description": "Detect deviations from baseline (for anomaly detection)"
+      },
+      {
+        "rule": "PERCENTILE_TRACKING",
+        "description": "Track p50, p95, p99 percentiles for latency metrics"
+      }
+    ]
+  },
+
+  "labelScheme": {
+    "description": "Standard labels for metric grouping",
+    "labels": [
+      {
+        "name": "module",
+        "description": "Module emitting metric"
+      },
+      {
+        "name": "operation",
+        "description": "Type of operation"
+      },
+      {
+        "name": "status",
+        "description": "Success or failure status"
+      },
+      {
+        "name": "severity",
+        "description": "Error severity if applicable"
+      },
+      {
+        "name": "environment",
+        "description": "Environment (dev, staging, prod)"
+      }
+    ]
+  },
+
+  "retentionPolicy": {
+    "description": "How long metrics are retained",
+    "policies": {
+      "realtime": {
+        "retention_duration": "5 minutes",
+        "granularity": "second",
+        "purpose": "Live dashboards"
+      },
+      "shortterm": {
+        "retention_duration": "7 days",
+        "granularity": "minute",
+        "purpose": "Recent trend analysis"
+      },
+      "mediumterm": {
+        "retention_duration": "30 days",
+        "granularity": "hour",
+        "purpose": "Weekly/monthly reports"
+      },
+      "longterm": {
+        "retention_duration": "1 year",
+        "granularity": "day",
+        "purpose": "Yearly comparisons"
+      }
+    }
+  },
+
+  "totalRuntimeMetrics": 13,
+  "totalSystemMetrics": 5,
+  "totalLabels": 5,
+  "declarationComplete": true,
+  "runtimeNote": "This schema is DECLARATIVE ONLY. No collection logic, no aggregation implementation."
+}

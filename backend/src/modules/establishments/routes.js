@@ -1,13 +1,7 @@
-/**
- * Routes
- */
-
 const express = require('express');
-const { asyncHandler } = require('../../core/middleware/errorHandler');
-const controller = require('./controller');
-
 const router = express.Router();
+const controller = require('./controllers/establishments.controller');
 
-// À implémenter
+router.get('/', (req, res, next) => controller.getAll(req, res, next));
 
 module.exports = router;

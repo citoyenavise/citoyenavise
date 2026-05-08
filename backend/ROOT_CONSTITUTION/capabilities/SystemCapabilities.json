@@ -1,0 +1,257 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "System Capabilities Model",
+  "description": "Abstract declaration of module capabilities and permissions",
+  "version": "1.0.0",
+  "phase": "1.5",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+  "lastUpdated": "2026-05-07",
+  "governance_level": "CONSTITUTIONAL",
+
+  "capabilityModel": {
+    "logger": {
+      "description": "Logging infrastructure singleton",
+      "capabilities": [
+        {
+          "id": "CAP_LOG_WRITE",
+          "description": "Write log entries",
+          "type": "ACTION",
+          "restrictionLevel": "NONE",
+          "requiresApproval": false
+        },
+        {
+          "id": "CAP_LOG_QUERY",
+          "description": "Query log entries",
+          "type": "READ",
+          "restrictionLevel": "NONE",
+          "requiresApproval": false
+        }
+      ]
+    },
+
+    "database": {
+      "description": "Database service singleton",
+      "capabilities": [
+        {
+          "id": "CAP_DB_READ",
+          "description": "Read from database",
+          "type": "READ",
+          "restrictionLevel": "ROLE_BASED",
+          "requiresApproval": false
+        },
+        {
+          "id": "CAP_DB_WRITE",
+          "description": "Write to database",
+          "type": "ACTION",
+          "restrictionLevel": "ROLE_BASED",
+          "requiresApproval": false
+        },
+        {
+          "id": "CAP_DB_SCHEMA_MODIFY",
+          "description": "Modify schema",
+          "type": "ADMIN",
+          "restrictionLevel": "ADMIN_ONLY",
+          "requiresApproval": true
+        }
+      ]
+    },
+
+    "auth": {
+      "description": "Authentication and authorization",
+      "capabilities": [
+        {
+          "id": "CAP_AUTH_LOGIN",
+          "description": "Authenticate user",
+          "type": "ACTION",
+          "restrictionLevel": "NONE",
+          "requiresApproval": false
+        },
+        {
+          "id": "CAP_AUTH_PERMISSION_CHECK",
+          "description": "Check user permissions",
+          "type": "READ",
+          "restrictionLevel": "NONE",
+          "requiresApproval": false
+        },
+        {
+          "id": "CAP_AUTH_TOKEN_ISSUE",
+          "description": "Issue auth tokens",
+          "type": "ACTION",
+          "restrictionLevel": "NONE",
+          "requiresApproval": false
+        }
+      ]
+    },
+
+    "users": {
+      "description": "User management",
+      "capabilities": [
+        {
+          "id": "CAP_USER_CREATE",
+          "description": "Create user",
+          "type": "ACTION",
+          "restrictionLevel": "ROLE_BASED",
+          "requiresApproval": false
+        },
+        {
+          "id": "CAP_USER_READ",
+          "description": "Read user data",
+          "type": "READ",
+          "restrictionLevel": "OWNER_OR_ADMIN",
+          "requiresApproval": false
+        },
+        {
+          "id": "CAP_USER_UPDATE",
+          "description": "Update user",
+          "type": "ACTION",
+          "restrictionLevel": "OWNER_OR_ADMIN",
+          "requiresApproval": false
+        },
+        {
+          "id": "CAP_USER_DELETE",
+          "description": "Delete user",
+          "type": "ACTION",
+          "restrictionLevel": "ADMIN_ONLY",
+          "requiresApproval": true
+        }
+      ]
+    },
+
+    "posts": {
+      "description": "Post management",
+      "capabilities": [
+        {
+          "id": "CAP_POST_CREATE",
+          "description": "Create post",
+          "type": "ACTION",
+          "restrictionLevel": "AUTHENTICATED",
+          "requiresApproval": false
+        },
+        {
+          "id": "CAP_POST_READ",
+          "description": "Read post",
+          "type": "READ",
+          "restrictionLevel": "PUBLIC",
+          "requiresApproval": false
+        },
+        {
+          "id": "CAP_POST_UPDATE",
+          "description": "Update post",
+          "type": "ACTION",
+          "restrictionLevel": "OWNER_OR_ADMIN",
+          "requiresApproval": false
+        },
+        {
+          "id": "CAP_POST_DELETE",
+          "description": "Delete post",
+          "type": "ACTION",
+          "restrictionLevel": "OWNER_OR_ADMIN",
+          "requiresApproval": false
+        }
+      ]
+    },
+
+    "search": {
+      "description": "Full-text search",
+      "capabilities": [
+        {
+          "id": "CAP_SEARCH_QUERY",
+          "description": "Execute search query",
+          "type": "READ",
+          "restrictionLevel": "AUTHENTICATED",
+          "requiresApproval": false
+        },
+        {
+          "id": "CAP_SEARCH_INDEX_REBUILD",
+          "description": "Rebuild search index",
+          "type": "ADMIN",
+          "restrictionLevel": "ADMIN_ONLY",
+          "requiresApproval": true
+        }
+      ]
+    },
+
+    "analytics": {
+      "description": "Analytics and metrics",
+      "capabilities": [
+        {
+          "id": "CAP_ANALYTICS_TRACK",
+          "description": "Track analytics event",
+          "type": "ACTION",
+          "restrictionLevel": "NONE",
+          "requiresApproval": false
+        },
+        {
+          "id": "CAP_ANALYTICS_REPORT",
+          "description": "View analytics reports",
+          "type": "READ",
+          "restrictionLevel": "ROLE_BASED",
+          "requiresApproval": false
+        }
+      ]
+    },
+
+    "notifications": {
+      "description": "Notification service",
+      "capabilities": [
+        {
+          "id": "CAP_NOTIFICATION_SEND",
+          "description": "Send notification",
+          "type": "ACTION",
+          "restrictionLevel": "NONE",
+          "requiresApproval": false
+        },
+        {
+          "id": "CAP_NOTIFICATION_MANAGE_PREFERENCES",
+          "description": "Manage notification preferences",
+          "type": "ACTION",
+          "restrictionLevel": "AUTHENTICATED",
+          "requiresApproval": false
+        }
+      ]
+    },
+
+    "governance": {
+      "description": "Governance layer",
+      "capabilities": [
+        {
+          "id": "CAP_GOVERNANCE_VALIDATE",
+          "description": "Validate governance rules",
+          "type": "READ",
+          "restrictionLevel": "ADMIN_ONLY",
+          "requiresApproval": false
+        },
+        {
+          "id": "CAP_GOVERNANCE_ENFORCE",
+          "description": "Enforce governance rules",
+          "type": "ACTION",
+          "restrictionLevel": "ADMIN_ONLY",
+          "requiresApproval": true
+        }
+      ]
+    }
+  },
+
+  "restrictionLevels": {
+    "NONE": "No restrictions",
+    "PUBLIC": "Available to public",
+    "AUTHENTICATED": "Requires authentication",
+    "ROLE_BASED": "Requires specific role",
+    "OWNER_OR_ADMIN": "Only owner or admin",
+    "ADMIN_ONLY": "Admin only"
+  },
+
+  "capabilityTypes": {
+    "READ": "Read/query operations",
+    "ACTION": "Modifying operations",
+    "ADMIN": "Administrative operations"
+  },
+
+  "totalModules": 9,
+  "totalCapabilities": 36,
+  "capabilitiesRequiringApproval": 7,
+  "declarationComplete": true,
+  "runtimeEnforcementNote": "These capabilities are ABSTRACT declarations. Runtime enforcement happens in Phase 1.2 Enforcement Layer."
+}

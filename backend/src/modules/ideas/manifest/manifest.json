@@ -1,0 +1,31 @@
+{
+  "name": "ideas",
+  "version": "1.0.0",
+  "description": "Ideas and proposals management",
+  "dependencies": [],
+  "capabilities": [
+    "idea:create",
+    "idea:view",
+    "idea:vote"
+  ],
+  "events": [
+    "idea:created",
+    "idea:updated",
+    "idea:deleted",
+    "idea:voted"
+  ],
+  "routes": {
+    "prefix": "/api/v1/ideas",
+    "methods": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE"
+    ]
+  },
+  "lifecycle": {
+    "initRequired": true,
+    "readyRequired": true,
+    "healthChecks": true
+  }
+}

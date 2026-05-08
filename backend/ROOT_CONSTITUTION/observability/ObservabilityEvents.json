@@ -1,0 +1,463 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Observability Events Registry",
+  "description": "Declaration of observability system events (PHASE 1.8)",
+  "version": "1.0.0",
+  "phase": "1.8",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+  "lastUpdated": "2026-05-07",
+  "governance_level": "CONSTITUTIONAL",
+
+  "observabilityEvents": {
+    "log_emitted": {
+      "eventId": "log_emitted",
+      "description": "A log entry has been emitted",
+      "category": "OBSERVABILITY",
+      "level": 0,
+      "emittedBy": "logger",
+      "versions": ["1.0.0"],
+      "isPublished": false,
+      "isSingleton": false,
+      "payload": {
+        "logLevel": "INFO | WARN | ERROR | CRITICAL",
+        "message": "Log message text",
+        "traceId": "Trace identifier",
+        "requestId": "Request identifier",
+        "moduleId": "Source module",
+        "timestamp": "ISO8601 timestamp"
+      },
+      "purpose": "Track all log emissions for telemetry aggregation"
+    },
+
+    "metric_recorded": {
+      "eventId": "metric_recorded",
+      "description": "A metric has been recorded",
+      "category": "OBSERVABILITY",
+      "level": 0,
+      "emittedBy": "observability",
+      "versions": ["1.0.0"],
+      "isPublished": false,
+      "isSingleton": false,
+      "payload": {
+        "metricId": "metric_request_latency_ms",
+        "metricType": "GAUGE | COUNTER | HISTOGRAM | SUMMARY",
+        "value": "Numeric metric value",
+        "unit": "ms | bytes | count | %",
+        "moduleId": "Module emitting metric",
+        "labels": "Prometheus-style labels",
+        "timestamp": "ISO8601 timestamp"
+      },
+      "purpose": "Track all metrics for time-series aggregation"
+    },
+
+    "trace_started": {
+      "eventId": "trace_started",
+      "description": "A new trace has been started",
+      "category": "OBSERVABILITY",
+      "level": 0,
+      "emittedBy": "observability",
+      "versions": ["1.0.0"],
+      "isPublished": false,
+      "isSingleton": false,
+      "payload": {
+        "traceId": "Unique trace identifier",
+        "rootSpanId": "Root span in trace",
+        "operationName": "Name of operation",
+        "startTime": "ISO8601 start timestamp",
+        "entryModule": "First module in trace"
+      },
+      "purpose": "Mark beginning of request execution lifecycle"
+    },
+
+    "trace_completed": {
+      "eventId": "trace_completed",
+      "description": "A trace has completed execution",
+      "category": "OBSERVABILITY",
+      "level": 0,
+      "emittedBy": "observability",
+      "versions": ["1.0.0"],
+      "isPublished": false,
+      "isSingleton": false,
+      "payload": {
+        "traceId": "Completed trace identifier",
+        "status": "COMPLETED | FAILED | TIMEOUT",
+        "startTime": "ISO8601 start timestamp",
+        "endTime": "ISO8601 end timestamp",
+        "duration_ms": "Total execution time in milliseconds",
+        "spanCount": "Number of spans in trace",
+        "moduleCount": "Number of modules visited"
+      },
+      "purpose": "Mark end of request execution lifecycle and record metrics"
+    },
+
+    "anomaly_detected": {
+      "eventId": "anomaly_detected",
+      "description": "An anomaly has been detected in system behavior",
+      "category": "OBSERVABILITY",
+      "level": 0,
+      "emittedBy": "observability",
+      "versions": ["1.0.0"],
+      "isPublished": true,
+      "isSingleton": false,
+      "payload": {
+        "anomalyId": "Unique anomaly identifier",
+        "anomalyType": "LATENCY_SPIKE | ERROR_BURST | THROUGHPUT_DROP | DEVIATION",
+        "metric": "Affected metric name",
+        "expectedValue": "Expected baseline value",
+        "actualValue": "Actual observed value",
+        "deviation": "Deviation from baseline (sigma or percent)",
+        "severity": "LOW | MEDIUM | HIGH | CRITICAL",
+        "timestamp": "ISO8601 detection timestamp"
+      },
+      "purpose": "Signal anomalous behavior for alerts and diagnostics"
+    },
+
+    "performance_degradation_detected": {
+      "eventId": "performance_degradation_detected",
+      "description": "System performance has degraded significantly",
+      "category": "OBSERVABILITY",
+      "level": 0,
+      "emittedBy": "observability",
+      "versions": ["1.0.0"],
+      "isPublished": true,
+      "isSingleton": false,
+      "payload": {
+        "degradationId": "Unique degradation identifier",
+        "degradationType": "LATENCY_INCREASE | THROUGHPUT_DECREASE | ERROR_RATE_INCREASE",
+        "metric": "Affected metric name",
+        "baselineValue": "Historical baseline value",
+        "currentValue": "Current measured value",
+        "degradationPercent": "Percentage decrease from baseline",
+        "affectedModules": "Array of affected module names",
+        "estimatedRecoveryTime_minutes": "Predicted recovery duration",
+        "severity": "LOW | MEDIUM | HIGH | CRITICAL",
+        "timestamp": "ISO8601 detection timestamp"
+      },
+      "purpose": "Signal performance degradation for operational alerts"
+    }
+  },
+
+  "eventHierarchy": {
+    "infrastructure": {
+      "level": 0,
+      "events": ["log_emitted", "metric_recorded"]
+    },
+    "trace_lifecycle": {
+      "level": 0,
+      "events": ["trace_started", "trace_completed"]
+    },
+    "anomaly_detection": {
+      "level": 0,
+      "events": ["anomaly_detected", "performance_degradation_detected"]
+    }
+  },
+
+  "resilienceEvents": {
+    "failure_detected": {
+      "eventId": "failure_detected",
+      "description": "A failure has been detected in the system",
+      "category": "RESILIENCE",
+      "level": 0,
+      "emittedBy": "runtime_enforcers",
+      "versions": ["1.0.0"],
+      "isPublished": true,
+      "isSingleton": false,
+      "payload": {
+        "failureId": "Unique failure identifier",
+        "failureType": "VALIDATION_FAILURE | DEPENDENCY_FAILURE | SECURITY_VIOLATION | ...",
+        "sourceModule": "Module where failure occurred",
+        "timestamp": "ISO8601 detection timestamp",
+        "traceId": "Associated trace identifier"
+      },
+      "purpose": "Signal failure detection for observability and recovery"
+    },
+
+    "failure_classified": {
+      "eventId": "failure_classified",
+      "description": "A failure has been classified by taxonomy",
+      "category": "RESILIENCE",
+      "level": 0,
+      "emittedBy": "runtime_enforcers",
+      "versions": ["1.0.0"],
+      "isPublished": false,
+      "isSingleton": false,
+      "payload": {
+        "failureId": "Failure identifier",
+        "failureType": "Classified failure type from taxonomy",
+        "severity": "LOW | MEDIUM | HIGH | CRITICAL",
+        "sourceModule": "Module where failure occurred",
+        "recoverable": "Boolean indicating if recovery is possible",
+        "timestamp": "ISO8601 classification timestamp"
+      },
+      "purpose": "Record failure classification for routing and handling"
+    },
+
+    "failure_escalated": {
+      "eventId": "failure_escalated",
+      "description": "A failure has been escalated to recovery system",
+      "category": "RESILIENCE",
+      "level": 0,
+      "emittedBy": "runtime_enforcers",
+      "versions": ["1.0.0"],
+      "isPublished": true,
+      "isSingleton": false,
+      "payload": {
+        "failureId": "Escalated failure identifier",
+        "originalSeverity": "Original severity level",
+        "escalatedSeverity": "Escalated severity level",
+        "escalationReason": "Reason for escalation",
+        "recoveryEngineMode": "Normal or emergency",
+        "timestamp": "ISO8601 escalation timestamp",
+        "traceId": "Associated trace"
+      },
+      "purpose": "Signal failure escalation to recovery layer"
+    },
+
+    "recovery_triggered": {
+      "eventId": "recovery_triggered",
+      "description": "A recovery process has been triggered",
+      "category": "RESILIENCE",
+      "level": 0,
+      "emittedBy": "recovery_engine",
+      "versions": ["1.0.0"],
+      "isPublished": true,
+      "isSingleton": false,
+      "payload": {
+        "recoveryId": "Unique recovery operation identifier",
+        "failureId": "Associated failure identifier",
+        "recoveryStrategy": "RETRY | ROLLBACK | ISOLATE | COMPENSATE | SHUTDOWN",
+        "expectedDuration_ms": "Expected recovery time",
+        "timestamp": "ISO8601 trigger timestamp",
+        "traceId": "Associated trace"
+      },
+      "purpose": "Record recovery operation initiation"
+    },
+
+    "system_degraded": {
+      "eventId": "system_degraded",
+      "description": "System has transitioned to degraded state",
+      "category": "RESILIENCE",
+      "level": 0,
+      "emittedBy": "recovery_engine",
+      "versions": ["1.0.0"],
+      "isPublished": true,
+      "isSingleton": false,
+      "payload": {
+        "degradationId": "Unique degradation identifier",
+        "degradationType": "PARTIAL | SIGNIFICANT | CRITICAL",
+        "affectedModules": "Array of degraded module names",
+        "degradationPercent": "Functionality lost percentage",
+        "estimatedRecoveryTime_minutes": "Expected time to full recovery",
+        "timestamp": "ISO8601 degradation timestamp"
+      },
+      "purpose": "Signal system degradation state for operational awareness"
+    },
+
+    "system_restored": {
+      "eventId": "system_restored",
+      "description": "System has recovered from degraded state",
+      "category": "RESILIENCE",
+      "level": 0,
+      "emittedBy": "recovery_engine",
+      "versions": ["1.0.0"],
+      "isPublished": true,
+      "isSingleton": false,
+      "payload": {
+        "degradationId": "Original degradation identifier",
+        "recoveryId": "Associated recovery identifier",
+        "restoredModules": "Array of restored module names",
+        "recoveryDuration_ms": "Total recovery time",
+        "dataLoss": "Any data lost during recovery (if applicable)",
+        "timestamp": "ISO8601 restoration timestamp",
+        "traceId": "Associated trace"
+      },
+      "purpose": "Signal system recovery and restoration to normal state"
+    }
+  },
+
+  "eventConsumption": {
+    "log_emitted": {
+      "consumedBy": ["observability", "governance"],
+      "purpose": "Aggregation, auditing"
+    },
+    "metric_recorded": {
+      "consumedBy": ["observability", "governance"],
+      "purpose": "Time-series storage, alerting"
+    },
+    "trace_started": {
+      "consumedBy": ["observability"],
+      "purpose": "Trace initialization, context setup"
+    },
+    "trace_completed": {
+      "consumedBy": ["observability", "governance"],
+      "purpose": "Trace finalization, metrics recording"
+    },
+    "anomaly_detected": {
+      "consumedBy": ["governance", "recovery"],
+      "purpose": "Alerting, system recovery"
+    },
+    "performance_degradation_detected": {
+      "consumedBy": ["governance", "recovery"],
+      "purpose": "Operational alerts, system response"
+    },
+    "failure_detected": {
+      "consumedBy": ["observability", "enforcement", "recovery"],
+      "purpose": "Failure tracking, classification, recovery"
+    },
+    "failure_classified": {
+      "consumedBy": ["enforcement", "recovery"],
+      "purpose": "Routing based on failure type and severity"
+    },
+    "failure_escalated": {
+      "consumedBy": ["recovery", "governance"],
+      "purpose": "Recovery initiation, escalation tracking"
+    },
+    "recovery_triggered": {
+      "consumedBy": ["observability", "governance"],
+      "purpose": "Recovery tracking, compliance auditing"
+    },
+    "system_degraded": {
+      "consumedBy": ["governance", "observability"],
+      "purpose": "Operational alerting, state tracking"
+    },
+    "system_restored": {
+      "consumedBy": ["governance", "observability"],
+      "purpose": "Recovery confirmation, state restoration"
+    }
+  },
+
+  "eventPublishingPolicy": {
+    "internal_only": ["log_emitted", "metric_recorded", "trace_started", "trace_completed", "failure_classified"],
+    "published_to_external": ["anomaly_detected", "performance_degradation_detected", "failure_detected", "failure_escalated", "recovery_triggered", "system_degraded", "system_restored"],
+    "audit_trail_required": ["anomaly_detected", "performance_degradation_detected", "failure_escalated", "recovery_triggered", "system_degraded", "system_restored"]
+  },
+
+  "correlationRules": {
+    "rules": [
+      {
+        "rule": "TRACE_CORRELATION",
+        "description": "All observability events with same traceId form correlated chain",
+        "applies_to": ["log_emitted", "metric_recorded", "trace_started", "trace_completed", "failure_detected", "failure_escalated", "recovery_triggered", "system_restored"]
+      },
+      {
+        "rule": "REQUEST_CORRELATION",
+        "description": "All events with same requestId represent single request lifecycle",
+        "applies_to": ["log_emitted", "metric_recorded", "trace_started", "trace_completed"]
+      },
+      {
+        "rule": "ANOMALY_CAUSALITY",
+        "description": "anomaly_detected event must have preceding metric_recorded or trace_completed",
+        "applies_to": ["anomaly_detected"]
+      },
+      {
+        "rule": "DEGRADATION_CAUSALITY",
+        "description": "performance_degradation_detected must follow metric_recorded events showing degradation",
+        "applies_to": ["performance_degradation_detected"]
+      },
+      {
+        "rule": "FAILURE_CAUSALITY",
+        "description": "failure_classified must follow failure_detected for same failureId",
+        "applies_to": ["failure_detected", "failure_classified"]
+      },
+      {
+        "rule": "ESCALATION_CAUSALITY",
+        "description": "failure_escalated must follow failure_classified for same failureId",
+        "applies_to": ["failure_classified", "failure_escalated"]
+      },
+      {
+        "rule": "RECOVERY_CAUSALITY",
+        "description": "recovery_triggered must follow failure_escalated for same failureId",
+        "applies_to": ["failure_escalated", "recovery_triggered"]
+      },
+      {
+        "rule": "DEGRADATION_RECOVERY_CORRELATION",
+        "description": "system_restored must correlate with preceding system_degraded event",
+        "applies_to": ["system_degraded", "system_restored"]
+      }
+    ]
+  },
+
+  "eventVersioning": {
+    "policy": "BACKWARD_COMPATIBLE_WITHIN_MAJOR",
+    "deprecation_cycle": "2_releases_or_6_months",
+    "events": {
+      "log_emitted": {
+        "currentVersion": "1.0.0",
+        "deprecatedVersions": [],
+        "nextBreakingVersion": "2.0.0"
+      },
+      "metric_recorded": {
+        "currentVersion": "1.0.0",
+        "deprecatedVersions": [],
+        "nextBreakingVersion": "2.0.0"
+      },
+      "trace_started": {
+        "currentVersion": "1.0.0",
+        "deprecatedVersions": [],
+        "nextBreakingVersion": "2.0.0"
+      },
+      "trace_completed": {
+        "currentVersion": "1.0.0",
+        "deprecatedVersions": [],
+        "nextBreakingVersion": "2.0.0"
+      },
+      "anomaly_detected": {
+        "currentVersion": "1.0.0",
+        "deprecatedVersions": [],
+        "nextBreakingVersion": "2.0.0"
+      },
+      "performance_degradation_detected": {
+        "currentVersion": "1.0.0",
+        "deprecatedVersions": [],
+        "nextBreakingVersion": "2.0.0"
+      },
+      "failure_detected": {
+        "currentVersion": "1.0.0",
+        "deprecatedVersions": [],
+        "nextBreakingVersion": "2.0.0",
+        "addedInPhase": "1.9"
+      },
+      "failure_classified": {
+        "currentVersion": "1.0.0",
+        "deprecatedVersions": [],
+        "nextBreakingVersion": "2.0.0",
+        "addedInPhase": "1.9"
+      },
+      "failure_escalated": {
+        "currentVersion": "1.0.0",
+        "deprecatedVersions": [],
+        "nextBreakingVersion": "2.0.0",
+        "addedInPhase": "1.9"
+      },
+      "recovery_triggered": {
+        "currentVersion": "1.0.0",
+        "deprecatedVersions": [],
+        "nextBreakingVersion": "2.0.0",
+        "addedInPhase": "1.9"
+      },
+      "system_degraded": {
+        "currentVersion": "1.0.0",
+        "deprecatedVersions": [],
+        "nextBreakingVersion": "2.0.0",
+        "addedInPhase": "1.9"
+      },
+      "system_restored": {
+        "currentVersion": "1.0.0",
+        "deprecatedVersions": [],
+        "nextBreakingVersion": "2.0.0",
+        "addedInPhase": "1.9"
+      }
+    }
+  },
+
+  "totalEvents": 12,
+  "totalObservabilityEvents": 6,
+  "totalResilienceEvents": 6,
+  "totalInternal": 5,
+  "totalPublished": 7,
+  "totalCorrelationRules": 8,
+  "declarationComplete": true,
+  "runtimeNote": "These events are DECLARATIVE ONLY. No event emission logic, no handling implementation here."
+}

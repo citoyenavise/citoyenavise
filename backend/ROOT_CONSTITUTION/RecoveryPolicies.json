@@ -1,0 +1,359 @@
+{
+  "declaration": "RecoveryPolicies",
+  "version": "1.0.0",
+  "phase": "1.6",
+  "purpose": "Define recovery procedures for each error category and severity combination",
+  "lastUpdated": "2026-05-07",
+  "recoveryPolicies": [
+    {
+      "policyId": "POLICY_VALIDATION_FAILURE",
+      "errorCategory": "ERR_VALIDATION_FAILURE",
+      "applicableSeverities": ["MEDIUM", "HIGH", "CRITICAL"],
+      "name": "Validation Failure Recovery",
+      "description": "Recover from validation rule violations",
+      "steps": [
+        {
+          "step": 1,
+          "action": "Analyze validation failure",
+          "component": "FailureAnalyzer",
+          "timeout_ms": 1000,
+          "details": "Determine which invariant was violated and why"
+        },
+        {
+          "step": 2,
+          "action": "Determine recovery path",
+          "component": "RecoveryOrchestrator",
+          "timeout_ms": 500,
+          "details": "Select appropriate recovery based on severity and error type"
+        },
+        {
+          "step": 3,
+          "action": "Apply remediation",
+          "component": "RemediationEngine",
+          "timeout_ms": 5000,
+          "details": "Execute recovery action (rollback, retry, or compensate)"
+        },
+        {
+          "step": 4,
+          "action": "Verify recovery",
+          "component": "HealthRestorer",
+          "timeout_ms": 2000,
+          "details": "Confirm system returned to healthy state"
+        }
+      ],
+      "retryStrategy": {
+        "enabled": true,
+        "maxAttempts": 3,
+        "backoffMultiplier": 2,
+        "initialDelay_ms": 100
+      }
+    },
+    {
+      "policyId": "POLICY_ENFORCEMENT_BLOCKED",
+      "errorCategory": "ERR_ENFORCEMENT_BLOCKED",
+      "applicableSeverities": ["MEDIUM", "HIGH"],
+      "name": "Enforcement Blocked Recovery",
+      "description": "Recover from operations blocked by enforcement rules",
+      "steps": [
+        {
+          "step": 1,
+          "action": "Identify blocked operation",
+          "component": "FailureAnalyzer",
+          "timeout_ms": 500,
+          "details": "Determine which operation was blocked and why"
+        },
+        {
+          "step": 2,
+          "action": "Check if operation is necessary",
+          "component": "RecoveryOrchestrator",
+          "timeout_ms": 1000,
+          "details": "Evaluate if operation can be deferred, modified, or skipped"
+        },
+        {
+          "step": 3,
+          "action": "Apply remediation",
+          "component": "RemediationEngine",
+          "timeout_ms": 2000,
+          "details": "Modify operation to comply with rules or compensate"
+        }
+      ],
+      "retryStrategy": {
+        "enabled": true,
+        "maxAttempts": 2,
+        "backoffMultiplier": 1.5,
+        "initialDelay_ms": 500
+      }
+    },
+    {
+      "policyId": "POLICY_RESOURCE_EXHAUSTION",
+      "errorCategory": "ERR_RESOURCE_EXHAUSTION",
+      "applicableSeverities": ["HIGH", "CRITICAL"],
+      "name": "Resource Exhaustion Recovery",
+      "description": "Recover from resource limit violations",
+      "steps": [
+        {
+          "step": 1,
+          "action": "Analyze resource usage",
+          "component": "FailureAnalyzer",
+          "timeout_ms": 1000,
+          "details": "Identify which resource is exhausted and current usage"
+        },
+        {
+          "step": 2,
+          "action": "Trigger resource cleanup",
+          "component": "RemediationEngine",
+          "timeout_ms": 3000,
+          "details": "Clear caches, close connections, run garbage collection"
+        },
+        {
+          "step": 3,
+          "action": "Isolate heavy consumers",
+          "component": "IsolationStrategy",
+          "timeout_ms": 2000,
+          "details": "Pause or throttle modules consuming excessive resources"
+        },
+        {
+          "step": 4,
+          "action": "Verify resource availability",
+          "component": "HealthRestorer",
+          "timeout_ms": 1000,
+          "details": "Confirm resources are now available"
+        }
+      ],
+      "retryStrategy": {
+        "enabled": true,
+        "maxAttempts": 5,
+        "backoffMultiplier": 1,
+        "initialDelay_ms": 500
+      }
+    },
+    {
+      "policyId": "POLICY_STATE_INCONSISTENCY",
+      "errorCategory": "ERR_STATE_INCONSISTENCY",
+      "applicableSeverities": ["HIGH", "CRITICAL"],
+      "name": "State Inconsistency Recovery",
+      "description": "Recover from state machine violations",
+      "steps": [
+        {
+          "step": 1,
+          "action": "Analyze state mismatch",
+          "component": "FailureAnalyzer",
+          "timeout_ms": 1000,
+          "details": "Determine expected vs actual state"
+        },
+        {
+          "step": 2,
+          "action": "Determine recovery path",
+          "component": "RecoveryOrchestrator",
+          "timeout_ms": 1000,
+          "details": "Decide between rollback or compensation"
+        },
+        {
+          "step": 3,
+          "action": "Rollback or compensate",
+          "component": "RollbackManager",
+          "timeout_ms": 5000,
+          "details": "Revert transaction or apply compensating action"
+        },
+        {
+          "step": 4,
+          "action": "Verify state consistency",
+          "component": "HealthRestorer",
+          "timeout_ms": 2000,
+          "details": "Confirm state machine returned to valid state"
+        }
+      ],
+      "retryStrategy": {
+        "enabled": true,
+        "maxAttempts": 2,
+        "backoffMultiplier": 2,
+        "initialDelay_ms": 1000
+      }
+    },
+    {
+      "policyId": "POLICY_CASCADE_FAILURE",
+      "errorCategory": "ERR_CASCADE_FAILURE",
+      "applicableSeverities": ["CRITICAL"],
+      "name": "Cascade Failure Recovery",
+      "description": "Recover from failures spreading across module boundaries",
+      "steps": [
+        {
+          "step": 1,
+          "action": "Identify cascade path",
+          "component": "FailureAnalyzer",
+          "timeout_ms": 2000,
+          "details": "Trace which modules are affected and propagation path"
+        },
+        {
+          "step": 2,
+          "action": "Activate isolation barriers",
+          "component": "IsolationStrategy",
+          "timeout_ms": 3000,
+          "details": "Cut off error propagation at module boundaries"
+        },
+        {
+          "step": 3,
+          "action": "Recover root cause",
+          "component": "RemediationEngine",
+          "timeout_ms": 10000,
+          "details": "Fix the originating error in root module"
+        },
+        {
+          "step": 4,
+          "action": "Recover dependent modules",
+          "component": "RollbackManager",
+          "timeout_ms": 15000,
+          "details": "Restore affected modules in dependency order"
+        },
+        {
+          "step": 5,
+          "action": "System health check",
+          "component": "HealthRestorer",
+          "timeout_ms": 5000,
+          "details": "Verify all modules returned to healthy state"
+        }
+      ],
+      "retryStrategy": {
+        "enabled": false,
+        "maxAttempts": 1,
+        "backoffMultiplier": null,
+        "initialDelay_ms": null
+      }
+    },
+    {
+      "policyId": "POLICY_DEPENDENCY_VIOLATION",
+      "errorCategory": "ERR_DEPENDENCY_VIOLATION",
+      "applicableSeverities": ["HIGH", "CRITICAL"],
+      "name": "Dependency Violation Recovery",
+      "description": "Recover from dependency constraint violations",
+      "steps": [
+        {
+          "step": 1,
+          "action": "Analyze dependency problem",
+          "component": "FailureAnalyzer",
+          "timeout_ms": 1000,
+          "details": "Identify which dependency rule was violated"
+        },
+        {
+          "step": 2,
+          "action": "Isolate problematic service",
+          "component": "IsolationStrategy",
+          "timeout_ms": 2000,
+          "details": "Prevent further dependency violations"
+        },
+        {
+          "step": 3,
+          "action": "Apply remediation",
+          "component": "RemediationEngine",
+          "timeout_ms": 5000,
+          "details": "Resolve dependency constraint or break cycle"
+        },
+        {
+          "step": 4,
+          "action": "Reinitialize dependencies",
+          "component": "RollbackManager",
+          "timeout_ms": 5000,
+          "details": "Restore correct dependency ordering"
+        }
+      ],
+      "retryStrategy": {
+        "enabled": true,
+        "maxAttempts": 3,
+        "backoffMultiplier": 2,
+        "initialDelay_ms": 500
+      }
+    },
+    {
+      "policyId": "POLICY_VERSION_INCOMPATIBILITY",
+      "errorCategory": "ERR_VERSION_INCOMPATIBILITY",
+      "applicableSeverities": ["MEDIUM", "HIGH"],
+      "name": "Version Incompatibility Recovery",
+      "description": "Recover from version compatibility issues",
+      "steps": [
+        {
+          "step": 1,
+          "action": "Identify version mismatch",
+          "component": "FailureAnalyzer",
+          "timeout_ms": 1000,
+          "details": "Determine which versions are incompatible"
+        },
+        {
+          "step": 2,
+          "action": "Check compatibility matrix",
+          "component": "RecoveryOrchestrator",
+          "timeout_ms": 500,
+          "details": "Look up known compatibility workarounds"
+        },
+        {
+          "step": 3,
+          "action": "Apply adapter or workaround",
+          "component": "RemediationEngine",
+          "timeout_ms": 2000,
+          "details": "Use compatibility layer or defer operation"
+        }
+      ],
+      "retryStrategy": {
+        "enabled": true,
+        "maxAttempts": 2,
+        "backoffMultiplier": 1.5,
+        "initialDelay_ms": 1000
+      }
+    },
+    {
+      "policyId": "POLICY_BOOTSTRAP_FAILURE",
+      "errorCategory": "ERR_BOOTSTRAP_FAILURE",
+      "applicableSeverities": ["CRITICAL"],
+      "name": "Bootstrap Failure Recovery",
+      "description": "Recover from system initialization failures",
+      "steps": [
+        {
+          "step": 1,
+          "action": "Analyze bootstrap error",
+          "component": "FailureAnalyzer",
+          "timeout_ms": 2000,
+          "details": "Identify which bootstrap phase failed"
+        },
+        {
+          "step": 2,
+          "action": "Attempt phase retry",
+          "component": "RemediationEngine",
+          "timeout_ms": 5000,
+          "details": "Retry the failed bootstrap phase"
+        },
+        {
+          "step": 3,
+          "action": "If retry fails, rollback",
+          "component": "RollbackManager",
+          "timeout_ms": 10000,
+          "details": "Revert to previous stable state"
+        },
+        {
+          "step": 4,
+          "action": "Full system restart",
+          "component": "HealthRestorer",
+          "timeout_ms": 30000,
+          "details": "Perform complete system initialization"
+        }
+      ],
+      "retryStrategy": {
+        "enabled": false,
+        "maxAttempts": 1,
+        "backoffMultiplier": null,
+        "initialDelay_ms": null
+      }
+    }
+  ],
+  "generalPrinciples": [
+    "Analyze before acting — understand the root cause",
+    "Fail safely — prevent cascade when isolating",
+    "Prefer remediation — fix the root cause, not symptoms",
+    "Validate recovery — verify health after actions",
+    "Escalate on failure — if recovery exhausted, alert humans"
+  ],
+  "guarantees": [
+    "Every error category has recovery policies",
+    "Each policy has explicit steps",
+    "Timeouts prevent hanging recovery",
+    "Retry strategies are bounded"
+  ]
+}

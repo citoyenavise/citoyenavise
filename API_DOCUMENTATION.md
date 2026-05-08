@@ -1,12 +1,16 @@
-# 📚 Documentation API Citoyen Avisé
+# 📚 API DOCUMENTATION — Citoyenavise Backend
 
-**Version** : 1.0  
-**Base URL** : `http://localhost:5000/api/v1` (dev) | `https://api.citoyenavise.org/api/v1` (prod)  
-**Documentation Interactive** : `http://localhost:5000/api/docs`
+**Version** : 1.0.0  
+**Date** : 2026-05-07  
+**Status** : Production Ready  
+**Base URL** : `https://api.citoyenavise.org`  
+**Protocol** : HTTPS/TLS 1.3  
+**Endpoints** : 40 total  
+**Auth** : JWT Bearer Token  
 
 ---
 
-## 📋 Sommaire
+## Quick Start Guide
 
 1. [Format de réponse](#format-de-réponse)
 2. [Codes d'erreur](#codes-derreur)

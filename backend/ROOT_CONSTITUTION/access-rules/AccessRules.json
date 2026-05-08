@@ -1,0 +1,485 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Access Control Rules",
+  "description": "Declarative access control policies governing module permissions and capability usage",
+  "version": "1.0.0",
+  "phase": "1.7",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+  "lastUpdated": "2026-05-07",
+  "governance_level": "CONSTITUTIONAL",
+
+  "moduleAccessPolicies": {
+    "logger": {
+      "isolationLevel": 0,
+      "allowedCapabilities": ["CAP_LOG_WRITE", "CAP_LOG_QUERY"],
+      "restrictionLevel": "NONE",
+      "accessibleBy": "ALL_MODULES",
+      "canInitiate": [],
+      "mustPrecede": ["cache", "eventBus", "database"],
+      "escalationRule": "NONE"
+    },
+
+    "cache": {
+      "isolationLevel": 0,
+      "allowedCapabilities": ["CAP_CACHE_READ", "CAP_CACHE_WRITE", "CAP_CACHE_INVALIDATE"],
+      "restrictionLevel": "NONE",
+      "accessibleBy": ["auth", "users", "posts", "search", "analytics"],
+      "canInitiate": [],
+      "mustPrecede": ["auth", "users", "posts"],
+      "escalationRule": "NONE"
+    },
+
+    "eventBus": {
+      "isolationLevel": 0,
+      "allowedCapabilities": ["CAP_EVENT_EMIT", "CAP_EVENT_SUBSCRIBE", "CAP_EVENT_CONSUME"],
+      "restrictionLevel": "NONE",
+      "accessibleBy": "ALL_MODULES",
+      "canInitiate": [],
+      "mustPrecede": "ALL_MODULES",
+      "escalationRule": "NONE"
+    },
+
+    "database": {
+      "isolationLevel": 0,
+      "allowedCapabilities": ["CAP_DB_READ", "CAP_DB_WRITE", "CAP_DB_SCHEMA_MODIFY"],
+      "restrictionLevel": "ROLE_BASED",
+      "accessibleBy": ["auth", "users", "posts", "search", "analytics", "notifications", "governance"],
+      "canInitiate": [],
+      "mustPrecede": ["auth", "users", "posts"],
+      "escalationRule": "SCHEMA_MODIFY_REQUIRES_ADMIN"
+    },
+
+    "auth": {
+      "isolationLevel": 1,
+      "allowedCapabilities": ["CAP_AUTH_LOGIN", "CAP_AUTH_PERMISSION_CHECK", "CAP_AUTH_TOKEN_ISSUE"],
+      "restrictionLevel": "AUTHENTICATED",
+      "accessibleBy": ["users", "posts", "search", "notifications", "governance"],
+      "canInitiate": ["users", "posts"],
+      "mustPrecede": ["users", "posts", "notifications"],
+      "escalationRule": "PERMISSION_DENIED_ESCALATE"
+    },
+
+    "users": {
+      "isolationLevel": 2,
+      "allowedCapabilities": ["CAP_USER_CREATE", "CAP_USER_READ", "CAP_USER_UPDATE", "CAP_USER_DELETE"],
+      "restrictionLevel": "OWNER_OR_ADMIN",
+      "accessibleBy": ["posts", "search", "notifications", "governance"],
+      "canInitiate": ["posts"],
+      "mustPrecede": ["posts", "search", "notifications"],
+      "escalationRule": "USER_DELETE_REQUIRES_AUDIT"
+    },
+
+    "posts": {
+      "isolationLevel": 2,
+      "allowedCapabilities": ["CAP_POST_CREATE", "CAP_POST_READ", "CAP_POST_UPDATE", "CAP_POST_DELETE"],
+      "restrictionLevel": "OWNER_OR_ADMIN",
+      "accessibleBy": ["search", "analytics", "notifications", "governance"],
+      "canInitiate": [],
+      "mustPrecede": ["search", "analytics"],
+      "escalationRule": "POST_DELETE_REQUIRES_AUDIT"
+    },
+
+    "search": {
+      "isolationLevel": 3,
+      "allowedCapabilities": ["CAP_SEARCH_QUERY", "CAP_SEARCH_INDEX_REBUILD"],
+      "restrictionLevel": "AUTHENTICATED",
+      "accessibleBy": [],
+      "canInitiate": [],
+      "mustPrecede": [],
+      "escalationRule": "INDEX_REBUILD_REQUIRES_ADMIN"
+    },
+
+    "analytics": {
+      "isolationLevel": 3,
+      "allowedCapabilities": ["CAP_ANALYTICS_TRACK", "CAP_ANALYTICS_REPORT"],
+      "restrictionLevel": "ROLE_BASED",
+      "accessibleBy": [],
+      "canInitiate": [],
+      "mustPrecede": [],
+      "escalationRule": "REPORT_VIEW_REQUIRES_ROLE"
+    },
+
+    "notifications": {
+      "isolationLevel": 3,
+      "allowedCapabilities": ["CAP_NOTIFICATION_SEND", "CAP_NOTIFICATION_MANAGE_PREFERENCES"],
+      "restrictionLevel": "AUTHENTICATED",
+      "accessibleBy": [],
+      "canInitiate": [],
+      "mustPrecede": [],
+      "escalationRule": "NONE"
+    },
+
+    "governance": {
+      "isolationLevel": 4,
+      "allowedCapabilities": ["CAP_GOVERNANCE_VALIDATE", "CAP_GOVERNANCE_ENFORCE"],
+      "restrictionLevel": "ADMIN_ONLY",
+      "accessibleBy": [],
+      "canInitiate": [],
+      "mustPrecede": [],
+      "escalationRule": "ENFORCE_REQUIRES_APPROVAL"
+    }
+  },
+
+  "capabilityBindings": {
+    "CAP_LOG_WRITE": {
+      "module": "logger",
+      "type": "ACTION",
+      "restrictionLevel": "NONE",
+      "requiresIdentity": false,
+      "requiresApproval": false,
+      "auditTrail": true
+    },
+
+    "CAP_LOG_QUERY": {
+      "module": "logger",
+      "type": "READ",
+      "restrictionLevel": "NONE",
+      "requiresIdentity": false,
+      "requiresApproval": false,
+      "auditTrail": true
+    },
+
+    "CAP_DB_READ": {
+      "module": "database",
+      "type": "READ",
+      "restrictionLevel": "ROLE_BASED",
+      "requiresIdentity": true,
+      "requiresApproval": false,
+      "auditTrail": true
+    },
+
+    "CAP_DB_WRITE": {
+      "module": "database",
+      "type": "ACTION",
+      "restrictionLevel": "ROLE_BASED",
+      "requiresIdentity": true,
+      "requiresApproval": false,
+      "auditTrail": true
+    },
+
+    "CAP_DB_SCHEMA_MODIFY": {
+      "module": "database",
+      "type": "ADMIN",
+      "restrictionLevel": "ADMIN_ONLY",
+      "requiresIdentity": true,
+      "requiresApproval": true,
+      "auditTrail": true
+    },
+
+    "CAP_AUTH_LOGIN": {
+      "module": "auth",
+      "type": "ACTION",
+      "restrictionLevel": "NONE",
+      "requiresIdentity": false,
+      "requiresApproval": false,
+      "auditTrail": true
+    },
+
+    "CAP_AUTH_PERMISSION_CHECK": {
+      "module": "auth",
+      "type": "READ",
+      "restrictionLevel": "AUTHENTICATED",
+      "requiresIdentity": true,
+      "requiresApproval": false,
+      "auditTrail": false
+    },
+
+    "CAP_AUTH_TOKEN_ISSUE": {
+      "module": "auth",
+      "type": "ACTION",
+      "restrictionLevel": "NONE",
+      "requiresIdentity": false,
+      "requiresApproval": false,
+      "auditTrail": true
+    },
+
+    "CAP_USER_CREATE": {
+      "module": "users",
+      "type": "ACTION",
+      "restrictionLevel": "ROLE_BASED",
+      "requiresIdentity": true,
+      "requiresApproval": false,
+      "auditTrail": true
+    },
+
+    "CAP_USER_READ": {
+      "module": "users",
+      "type": "READ",
+      "restrictionLevel": "OWNER_OR_ADMIN",
+      "requiresIdentity": true,
+      "requiresApproval": false,
+      "auditTrail": false
+    },
+
+    "CAP_USER_UPDATE": {
+      "module": "users",
+      "type": "ACTION",
+      "restrictionLevel": "OWNER_OR_ADMIN",
+      "requiresIdentity": true,
+      "requiresApproval": false,
+      "auditTrail": true
+    },
+
+    "CAP_USER_DELETE": {
+      "module": "users",
+      "type": "ADMIN",
+      "restrictionLevel": "ADMIN_ONLY",
+      "requiresIdentity": true,
+      "requiresApproval": true,
+      "auditTrail": true
+    },
+
+    "CAP_POST_CREATE": {
+      "module": "posts",
+      "type": "ACTION",
+      "restrictionLevel": "AUTHENTICATED",
+      "requiresIdentity": true,
+      "requiresApproval": false,
+      "auditTrail": true
+    },
+
+    "CAP_POST_READ": {
+      "module": "posts",
+      "type": "READ",
+      "restrictionLevel": "PUBLIC",
+      "requiresIdentity": false,
+      "requiresApproval": false,
+      "auditTrail": false
+    },
+
+    "CAP_POST_UPDATE": {
+      "module": "posts",
+      "type": "ACTION",
+      "restrictionLevel": "OWNER_OR_ADMIN",
+      "requiresIdentity": true,
+      "requiresApproval": false,
+      "auditTrail": true
+    },
+
+    "CAP_POST_DELETE": {
+      "module": "posts",
+      "type": "ADMIN",
+      "restrictionLevel": "OWNER_OR_ADMIN",
+      "requiresIdentity": true,
+      "requiresApproval": false,
+      "auditTrail": true
+    },
+
+    "CAP_SEARCH_QUERY": {
+      "module": "search",
+      "type": "READ",
+      "restrictionLevel": "AUTHENTICATED",
+      "requiresIdentity": true,
+      "requiresApproval": false,
+      "auditTrail": false
+    },
+
+    "CAP_SEARCH_INDEX_REBUILD": {
+      "module": "search",
+      "type": "ADMIN",
+      "restrictionLevel": "ADMIN_ONLY",
+      "requiresIdentity": true,
+      "requiresApproval": true,
+      "auditTrail": true
+    },
+
+    "CAP_ANALYTICS_TRACK": {
+      "module": "analytics",
+      "type": "ACTION",
+      "restrictionLevel": "NONE",
+      "requiresIdentity": false,
+      "requiresApproval": false,
+      "auditTrail": false
+    },
+
+    "CAP_ANALYTICS_REPORT": {
+      "module": "analytics",
+      "type": "READ",
+      "restrictionLevel": "ROLE_BASED",
+      "requiresIdentity": true,
+      "requiresApproval": false,
+      "auditTrail": false
+    },
+
+    "CAP_NOTIFICATION_SEND": {
+      "module": "notifications",
+      "type": "ACTION",
+      "restrictionLevel": "NONE",
+      "requiresIdentity": false,
+      "requiresApproval": false,
+      "auditTrail": false
+    },
+
+    "CAP_NOTIFICATION_MANAGE_PREFERENCES": {
+      "module": "notifications",
+      "type": "ACTION",
+      "restrictionLevel": "AUTHENTICATED",
+      "requiresIdentity": true,
+      "requiresApproval": false,
+      "auditTrail": true
+    },
+
+    "CAP_GOVERNANCE_VALIDATE": {
+      "module": "governance",
+      "type": "READ",
+      "restrictionLevel": "ADMIN_ONLY",
+      "requiresIdentity": true,
+      "requiresApproval": false,
+      "auditTrail": true
+    },
+
+    "CAP_GOVERNANCE_ENFORCE": {
+      "module": "governance",
+      "type": "ADMIN",
+      "restrictionLevel": "ADMIN_ONLY",
+      "requiresIdentity": true,
+      "requiresApproval": true,
+      "auditTrail": true
+    }
+  },
+
+  "isolationLevels": {
+    "0": {
+      "name": "INFRASTRUCTURE",
+      "description": "Core infrastructure, no restrictions",
+      "modules": ["logger", "cache", "eventBus"],
+      "accessControl": "NONE",
+      "canAccess": "ALL_MODULES"
+    },
+
+    "0b": {
+      "name": "INFRASTRUCTURE_CORE",
+      "description": "Core database, role-based restrictions",
+      "modules": ["database"],
+      "accessControl": "ROLE_BASED",
+      "canAccess": ["auth", "users", "posts", "search", "analytics", "notifications", "governance"]
+    },
+
+    "1": {
+      "name": "DOMAIN_CORE",
+      "description": "Core domain logic, authentication required",
+      "modules": ["auth"],
+      "accessControl": "AUTHENTICATED",
+      "canAccess": ["users", "posts", "search", "notifications", "governance"]
+    },
+
+    "2": {
+      "name": "DOMAIN",
+      "description": "Domain entities, owner/admin restrictions",
+      "modules": ["users", "posts"],
+      "accessControl": "OWNER_OR_ADMIN",
+      "canAccess": ["search", "analytics", "notifications", "governance"]
+    },
+
+    "3": {
+      "name": "DERIVED",
+      "description": "Derived services, read-only or role-based",
+      "modules": ["search", "analytics", "notifications"],
+      "accessControl": "AUTHENTICATED_OR_ROLE_BASED",
+      "canAccess": ["governance"]
+    },
+
+    "4": {
+      "name": "GOVERNANCE",
+      "description": "Governance layer, admin-only",
+      "modules": ["governance"],
+      "accessControl": "ADMIN_ONLY",
+      "canAccess": []
+    }
+  },
+
+  "escalationRules": {
+    "NONE": {
+      "description": "No escalation required",
+      "action": "ALLOW"
+    },
+
+    "PERMISSION_DENIED_ESCALATE": {
+      "description": "Permission denied should be escalated to governance",
+      "action": "ESCALATE_TO_GOVERNANCE",
+      "severity": "HIGH"
+    },
+
+    "SCHEMA_MODIFY_REQUIRES_ADMIN": {
+      "description": "Schema modifications require admin approval",
+      "action": "REQUIRE_APPROVAL",
+      "approver": "ADMIN_ONLY",
+      "severity": "CRITICAL"
+    },
+
+    "USER_DELETE_REQUIRES_AUDIT": {
+      "description": "User deletion requires audit trail verification",
+      "action": "REQUIRE_AUDIT",
+      "severity": "HIGH"
+    },
+
+    "POST_DELETE_REQUIRES_AUDIT": {
+      "description": "Post deletion requires audit trail verification",
+      "action": "REQUIRE_AUDIT",
+      "severity": "MEDIUM"
+    },
+
+    "INDEX_REBUILD_REQUIRES_ADMIN": {
+      "description": "Search index rebuild requires admin approval",
+      "action": "REQUIRE_APPROVAL",
+      "approver": "ADMIN_ONLY",
+      "severity": "HIGH"
+    },
+
+    "REPORT_VIEW_REQUIRES_ROLE": {
+      "description": "Analytics report view requires specific role",
+      "action": "REQUIRE_ROLE",
+      "severity": "MEDIUM"
+    },
+
+    "ENFORCE_REQUIRES_APPROVAL": {
+      "description": "Governance enforcement requires admin approval",
+      "action": "REQUIRE_APPROVAL",
+      "approver": "ADMIN_ONLY",
+      "severity": "CRITICAL"
+    }
+  },
+
+  "accessViolationResponses": {
+    "LOW": {
+      "description": "Low severity violation (e.g., unauthorized READ)",
+      "action": "LOG_AND_CONTINUE",
+      "recovery": "NONE"
+    },
+
+    "MEDIUM": {
+      "description": "Medium severity violation (e.g., unauthorized UPDATE)",
+      "action": "LOG_AND_ALERT",
+      "recovery": "RETRY_OR_FALLBACK"
+    },
+
+    "HIGH": {
+      "description": "High severity violation (e.g., unauthorized DELETE, SCHEMA_MODIFY)",
+      "action": "BLOCK_AND_ESCALATE",
+      "recovery": "ESCALATE_ONLY"
+    },
+
+    "CRITICAL": {
+      "description": "Critical severity violation (e.g., unauthorized ADMIN actions)",
+      "action": "BLOCK_AND_SHUTDOWN",
+      "recovery": "SYSTEM_HALT_OR_ROLLBACK"
+    }
+  },
+
+  "defaultAccessDeniedBehavior": {
+    "logViolation": true,
+    "blockOperation": true,
+    "emitEvent": "access_violation_blocked",
+    "escalateToGovernance": true,
+    "auditTrailRequired": true
+  },
+
+  "totalModules": 11,
+  "totalCapabilities": 31,
+  "totalIsolationLevels": 6,
+  "totalEscalationRules": 7,
+  "declarationComplete": true,
+  "runtimeEnforcementNote": "These access rules are INTERPRETED by Phase 1.7 SecurityGuard at runtime. No logic here, purely declarative."
+}

@@ -1,0 +1,28 @@
+{
+  "name": "analytics",
+  "version": "1.0.0",
+  "description": "Analytics and dashboard metrics",
+  "dependencies": [],
+  "capabilities": [
+    "analytics:view_metrics",
+    "analytics:generate_report"
+  ],
+  "events": [
+    "analytics:event_tracked",
+    "analytics:dashboard_generated"
+  ],
+  "routes": {
+    "prefix": "/api/v1/analytics",
+    "methods": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE"
+    ]
+  },
+  "lifecycle": {
+    "initRequired": true,
+    "readyRequired": true,
+    "healthChecks": true
+  }
+}

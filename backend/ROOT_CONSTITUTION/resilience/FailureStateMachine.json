@@ -1,0 +1,267 @@
+{
+  "version": "1.0.0",
+  "description": "State machine for failure detection, classification, recovery, and resolution",
+  "sealed": true,
+  "lastUpdated": "2026-05-08",
+  "systemStates": {
+    "HEALTHY": {
+      "code": 1,
+      "description": "All systems operational",
+      "metrics": {
+        "error_rate": "< 0.1%",
+        "latency_p95": "< 100ms",
+        "availability": "> 99.9%"
+      },
+      "transitions": {
+        "on_error_detected": "DETECTING",
+        "on_cascading_error": "ERROR_DETECTED"
+      }
+    },
+    "DETECTING": {
+      "code": 2,
+      "description": "Error detected, classifying severity",
+      "timeout_seconds": 5,
+      "transitions": {
+        "on_transient_error": "TRANSIENT_FAILURE",
+        "on_temporary_error": "TEMPORARY_FAILURE",
+        "on_persistent_error": "PERSISTENT_FAILURE",
+        "on_critical_error": "CRITICAL_FAILURE",
+        "on_recovery_success": "HEALTHY"
+      }
+    },
+    "TRANSIENT_FAILURE": {
+      "code": 3,
+      "description": "Transient error, automatic retry",
+      "recovery_strategy": "retry_with_backoff",
+      "timeout_seconds": 1,
+      "transitions": {
+        "on_retry_success": "HEALTHY",
+        "on_retry_exhausted": "TEMPORARY_FAILURE",
+        "on_critical_pattern": "ERROR_DETECTED"
+      }
+    },
+    "TEMPORARY_FAILURE": {
+      "code": 4,
+      "description": "Temporary failure, fallback or degradation",
+      "recovery_strategy": "fallback_or_degrade",
+      "timeout_seconds": 30,
+      "transitions": {
+        "on_fallback_success": "DEGRADED",
+        "on_fallback_timeout": "DEGRADED",
+        "on_persistent_timeout": "PERSISTENT_FAILURE",
+        "on_critical_pattern": "CRITICAL_FAILURE"
+      }
+    },
+    "PERSISTENT_FAILURE": {
+      "code": 5,
+      "description": "Persistent failure, requires intervention",
+      "recovery_strategy": "circuit_breaker_and_escalation",
+      "timeout_seconds": 60,
+      "transitions": {
+        "on_circuit_open": "ISOLATED",
+        "on_manual_fix": "RECOVERY_VALIDATION",
+        "on_system_critical": "CRITICAL_FAILURE"
+      }
+    },
+    "CRITICAL_FAILURE": {
+      "code": 6,
+      "description": "Critical failure, isolation and escalation",
+      "recovery_strategy": "bulkhead_isolation",
+      "timeout_seconds": 10,
+      "transitions": {
+        "on_isolation_complete": "ISOLATED",
+        "on_escalation_required": "ESCALATED"
+      }
+    },
+    "DEGRADED": {
+      "code": 7,
+      "description": "System degraded but operational",
+      "available_features": "core + critical only",
+      "timeout_seconds": 300,
+      "transitions": {
+        "on_recovery_started": "RECOVERY_VALIDATION",
+        "on_degradation_timeout": "PERSISTENT_FAILURE",
+        "on_cascading_error": "CRITICAL_FAILURE"
+      }
+    },
+    "ISOLATED": {
+      "code": 8,
+      "description": "Failed module isolated, circuit open",
+      "timeout_seconds": 30,
+      "transitions": {
+        "on_half_open_attempt": "RECOVERY_VALIDATION",
+        "on_health_check_pass": "RECOVERY_VALIDATION",
+        "on_escalation_required": "ESCALATED"
+      }
+    },
+    "RECOVERY_VALIDATION": {
+      "code": 9,
+      "description": "Validating recovery success",
+      "validation_checks": [
+        "error_rate_normalized",
+        "latency_normalized",
+        "health_check_passing",
+        "no_cascading_failures"
+      ],
+      "timeout_seconds": 30,
+      "transitions": {
+        "on_all_checks_pass": "HEALTHY",
+        "on_check_fails": "RECOVERY_FAILED",
+        "on_timeout": "RECOVERY_FAILED"
+      }
+    },
+    "RECOVERY_FAILED": {
+      "code": 10,
+      "description": "Recovery attempt failed",
+      "max_auto_attempts": 3,
+      "transitions": {
+        "on_retry_attempt": "RECOVERY_VALIDATION",
+        "on_max_attempts_exceeded": "ESCALATED",
+        "on_manual_intervention": "ESCALATED"
+      }
+    },
+    "ESCALATED": {
+      "code": 11,
+      "description": "Critical issue escalated to operations",
+      "requires_manual_intervention": true,
+      "notification": "immediate",
+      "transitions": {
+        "on_fix_applied": "RECOVERY_VALIDATION",
+        "on_system_restart": "RECOVERY_VALIDATION"
+      }
+    }
+  },
+  "transitionRules": {
+    "HEALTHY_to_DETECTING": {
+      "trigger": "error_exception_caught",
+      "condition": "error.severity in [LOW, MEDIUM, HIGH, CRITICAL]",
+      "action": "classify_error"
+    },
+    "DETECTING_to_TRANSIENT_FAILURE": {
+      "trigger": "error_classified",
+      "condition": "error.type = TRANSIENT and retry_count < max_retries",
+      "action": "initiate_retry"
+    },
+    "TRANSIENT_FAILURE_to_HEALTHY": {
+      "trigger": "retry_success",
+      "condition": "response.success = true",
+      "action": "reset_failure_counters"
+    },
+    "TRANSIENT_FAILURE_to_TEMPORARY_FAILURE": {
+      "trigger": "retry_exhausted",
+      "condition": "retry_count >= max_retries",
+      "action": "activate_fallback"
+    },
+    "TEMPORARY_FAILURE_to_DEGRADED": {
+      "trigger": "fallback_activated",
+      "condition": "fallback_strategy_available",
+      "action": "enable_degraded_mode"
+    },
+    "TEMPORARY_FAILURE_to_PERSISTENT_FAILURE": {
+      "trigger": "timeout_exceeded",
+      "condition": "recovery_time > timeout_threshold",
+      "action": "escalate_to_persistent"
+    },
+    "PERSISTENT_FAILURE_to_ISOLATED": {
+      "trigger": "circuit_breaker_opened",
+      "condition": "failure_count >= threshold",
+      "action": "open_circuit_and_isolate"
+    },
+    "ISOLATED_to_RECOVERY_VALIDATION": {
+      "trigger": "timeout_reached",
+      "condition": "circuit_breaker_timeout_expired",
+      "action": "attempt_half_open"
+    },
+    "RECOVERY_VALIDATION_to_HEALTHY": {
+      "trigger": "all_checks_pass",
+      "condition": "error_rate_normal and latency_normal and health_ok",
+      "action": "close_circuit_and_resume"
+    },
+    "RECOVERY_VALIDATION_to_ESCALATED": {
+      "trigger": "validation_failed",
+      "condition": "repeated_failures > max_attempts",
+      "action": "escalate_to_oncall"
+    }
+  },
+  "failureClassificationLogic": {
+    "step1_identify": "extract error code and type",
+    "step2_severity": "map to severity level (LOW, MEDIUM, HIGH, CRITICAL)",
+    "step3_duration": "estimate time to recovery",
+    "step4_scope": "determine impact (module, system, cascade)",
+    "step5_strategy": "select recovery strategy",
+    "step6_escalation": "determine escalation level"
+  },
+  "stateMetrics": {
+    "HEALTHY": {
+      "healthScore": 100,
+      "cascadeRisk": 0,
+      "recoveryNeeded": false
+    },
+    "DETECTING": {
+      "healthScore": 90,
+      "cascadeRisk": "low",
+      "recoveryNeeded": "conditional"
+    },
+    "TRANSIENT_FAILURE": {
+      "healthScore": 80,
+      "cascadeRisk": "low",
+      "recoveryNeeded": true
+    },
+    "TEMPORARY_FAILURE": {
+      "healthScore": 60,
+      "cascadeRisk": "medium",
+      "recoveryNeeded": true
+    },
+    "PERSISTENT_FAILURE": {
+      "healthScore": 40,
+      "cascadeRisk": "high",
+      "recoveryNeeded": true
+    },
+    "CRITICAL_FAILURE": {
+      "healthScore": 10,
+      "cascadeRisk": "very_high",
+      "recoveryNeeded": "urgent"
+    },
+    "DEGRADED": {
+      "healthScore": 50,
+      "cascadeRisk": "medium",
+      "recoveryNeeded": true
+    },
+    "ISOLATED": {
+      "healthScore": 30,
+      "cascadeRisk": "high",
+      "recoveryNeeded": true
+    },
+    "ESCALATED": {
+      "healthScore": 20,
+      "cascadeRisk": "critical",
+      "recoveryNeeded": "urgent"
+    }
+  },
+  "obsoletion": {
+    "failure_detection_timeout": "5 seconds",
+    "classification_timeout": "10 seconds",
+    "recovery_attempt_timeout": "varies_by_tier",
+    "total_system_recovery_timeout": "5-60 seconds depending on severity"
+  },
+  "auditTrail": {
+    "enabled": true,
+    "captureFor": [
+      "state_transition",
+      "recovery_attempt",
+      "escalation_decision",
+      "system_degradation",
+      "recovery_success",
+      "recovery_failure"
+    ],
+    "fields": [
+      "timestamp",
+      "from_state",
+      "to_state",
+      "trigger",
+      "duration_ms",
+      "traceId",
+      "module_id"
+    ]
+  }
+}

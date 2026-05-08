@@ -1,0 +1,240 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Logging Schema",
+  "description": "Declarative structure for structured logging across system",
+  "version": "1.0.0",
+  "phase": "1.8",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+  "lastUpdated": "2026-05-07",
+  "governance_level": "CONSTITUTIONAL",
+
+  "logFormat": {
+    "description": "Mandatory structure for all log entries",
+    "required": ["timestamp", "level", "traceId", "requestId", "moduleId", "message"],
+    "optional": ["userId", "sessionId", "context", "metadata", "errorCode", "stackTrace"],
+    "structure": {
+      "timestamp": {
+        "type": "string",
+        "format": "ISO8601",
+        "description": "Log creation time in UTC"
+      },
+      "level": {
+        "type": "string",
+        "enum": ["INFO", "WARN", "ERROR", "CRITICAL"],
+        "description": "Log severity level"
+      },
+      "traceId": {
+        "type": "string",
+        "pattern": "^trace_[a-zA-Z0-9_-]+$",
+        "description": "Global trace identifier for request lifecycle"
+      },
+      "requestId": {
+        "type": "string",
+        "pattern": "^req_[a-zA-Z0-9_-]+$",
+        "description": "Request scoped identifier"
+      },
+      "moduleId": {
+        "type": "string",
+        "description": "Source module name (logger, database, auth, users, posts, etc.)"
+      },
+      "message": {
+        "type": "string",
+        "description": "Log message text"
+      },
+      "userId": {
+        "type": "string",
+        "description": "Associated user identifier (optional)"
+      },
+      "sessionId": {
+        "type": "string",
+        "description": "Session identifier (optional)"
+      },
+      "context": {
+        "type": "object",
+        "description": "Additional context data (optional)"
+      },
+      "metadata": {
+        "type": "object",
+        "description": "Structured metadata (optional)"
+      },
+      "errorCode": {
+        "type": "string",
+        "description": "Error code if applicable (optional)"
+      },
+      "stackTrace": {
+        "type": "string",
+        "description": "Stack trace for errors (optional)"
+      }
+    }
+  },
+
+  "severityLevels": {
+    "INFO": {
+      "priority": 0,
+      "description": "Informational messages",
+      "retention_days": 7,
+      "aggregation": "ALLOWED",
+      "examples": ["Module initialized", "Request started", "Task completed"]
+    },
+    "WARN": {
+      "priority": 1,
+      "description": "Warning messages",
+      "retention_days": 14,
+      "aggregation": "ALLOWED",
+      "examples": ["Slow operation detected", "Resource threshold warning", "Deprecated API usage"]
+    },
+    "ERROR": {
+      "priority": 2,
+      "description": "Error conditions",
+      "retention_days": 30,
+      "aggregation": "DISALLOWED",
+      "examples": ["Operation failed", "Resource exhausted", "Invalid request"]
+    },
+    "CRITICAL": {
+      "priority": 3,
+      "description": "Critical system failures",
+      "retention_days": 90,
+      "aggregation": "DISALLOWED",
+      "examples": ["System shutdown", "Data corruption detected", "Security breach"]
+    }
+  },
+
+  "traceIdPropagation": {
+    "description": "Rules for traceId propagation across system",
+    "rules": [
+      {
+        "rule": "MANDATORY_IN_ALL_LOGS",
+        "description": "traceId MUST be present in every log entry"
+      },
+      {
+        "rule": "PROPAGATE_THROUGH_MODULES",
+        "description": "traceId must be propagated through module boundaries"
+      },
+      {
+        "rule": "PRESERVE_ACROSS_ASYNC",
+        "description": "traceId must be preserved across async/await boundaries"
+      },
+      {
+        "rule": "INCLUDE_IN_EVENTS",
+        "description": "traceId should be included in all emitted events"
+      },
+      {
+        "rule": "CORRELATION_KEY",
+        "description": "traceId is primary key for log correlation"
+      }
+    ]
+  },
+
+  "requestIdMapping": {
+    "description": "Mapping of requestId to execution context",
+    "lifecycle": [
+      {
+        "stage": "REQUEST_ARRIVAL",
+        "action": "Generate unique requestId",
+        "propagate": true
+      },
+      {
+        "stage": "REQUEST_ROUTING",
+        "action": "Associate requestId with target module",
+        "propagate": true
+      },
+      {
+        "stage": "REQUEST_PROCESSING",
+        "action": "Log all operations under requestId context",
+        "propagate": true
+      },
+      {
+        "stage": "REQUEST_COMPLETION",
+        "action": "Finalize requestId context, link to traceId",
+        "propagate": false
+      }
+    ]
+  },
+
+  "logAggregation": {
+    "description": "Rules for log aggregation and batching",
+    "rules": {
+      "INFO": {
+        "batch_size": 100,
+        "batch_timeout_ms": 5000,
+        "compression": "ALLOWED"
+      },
+      "WARN": {
+        "batch_size": 50,
+        "batch_timeout_ms": 2000,
+        "compression": "ALLOWED"
+      },
+      "ERROR": {
+        "batch_size": 10,
+        "batch_timeout_ms": 1000,
+        "compression": "DISALLOWED"
+      },
+      "CRITICAL": {
+        "batch_size": 1,
+        "batch_timeout_ms": 0,
+        "compression": "DISALLOWED"
+      }
+    }
+  },
+
+  "logDestinations": {
+    "description": "Where logs are sent (declarative routing)",
+    "destinations": [
+      {
+        "name": "stderr",
+        "levels": ["ERROR", "CRITICAL"],
+        "immediate": true
+      },
+      {
+        "name": "stdout",
+        "levels": ["INFO", "WARN"],
+        "immediate": false
+      },
+      {
+        "name": "audit_trail",
+        "levels": ["CRITICAL"],
+        "immediate": true
+      },
+      {
+        "name": "structured_log_file",
+        "levels": ["INFO", "WARN", "ERROR", "CRITICAL"],
+        "immediate": false
+      }
+    ]
+  },
+
+  "fieldNamingConventions": {
+    "description": "Naming rules for log fields",
+    "rules": [
+      {
+        "field_type": "identifiers",
+        "convention": "camelCase or UPPER_SNAKE_CASE",
+        "examples": ["traceId", "REQUEST_ID", "moduleId"]
+      },
+      {
+        "field_type": "timestamps",
+        "convention": "ISO8601 format",
+        "examples": ["2026-05-07T10:30:45.123Z"]
+      },
+      {
+        "field_type": "severities",
+        "convention": "UPPER_CASE",
+        "examples": ["INFO", "WARN", "ERROR", "CRITICAL"]
+      },
+      {
+        "field_type": "module_names",
+        "convention": "lowercase",
+        "examples": ["logger", "database", "auth", "users"]
+      }
+    ]
+  },
+
+  "totalRules": 6,
+  "severityLevels": 4,
+  "mandatoryFields": 6,
+  "optionalFields": 6,
+  "declarationComplete": true,
+  "runtimeNote": "This schema is DECLARATIVE ONLY. No runtime logic, no implementation details."
+}

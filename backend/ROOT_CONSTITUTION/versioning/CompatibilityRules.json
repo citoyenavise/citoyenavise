@@ -1,0 +1,159 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Compatibility Rules - Version Compatibility Matrix",
+  "version": "1.0.0",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+
+  "compatibility_matrix": {
+    "1.0.0": {
+      "compatible_with": ["1.0.0", "1.1.x", "1.2.x", "1.3.x"],
+      "incompatible_with": ["2.0.0+"],
+      "breaking_changes_in_2.0": [
+        "Event schema structure change",
+        "Service interface refactoring"
+      ]
+    }
+  },
+
+  "event_schema_compatibility": {
+    "1.0.0": {
+      "events": 45,
+      "breaking_changes": [],
+      "additions": [],
+      "deprecations": []
+    }
+  },
+
+  "service_interface_compatibility": {
+    "1.0.0": {
+      "services": 18,
+      "breaking_changes": [],
+      "additions": [],
+      "deprecations": []
+    }
+  },
+
+  "module_compatibility": {
+    "logger": {
+      "version": "1.0.0",
+      "depends_on": [],
+      "backward_compatible": true,
+      "forward_compatible": true
+    },
+    "database": {
+      "version": "1.0.0",
+      "depends_on": [],
+      "backward_compatible": true,
+      "forward_compatible": true
+    },
+    "cache": {
+      "version": "1.0.0",
+      "depends_on": [],
+      "backward_compatible": true,
+      "forward_compatible": true
+    },
+    "auth": {
+      "version": "1.0.0",
+      "depends_on": [],
+      "backward_compatible": true,
+      "forward_compatible": true
+    },
+    "eventBus": {
+      "version": "1.0.0",
+      "depends_on": [],
+      "backward_compatible": true,
+      "forward_compatible": true
+    },
+    "users": {
+      "version": "1.0.0",
+      "depends_on": ["auth"],
+      "backward_compatible": true,
+      "forward_compatible": true
+    },
+    "posts": {
+      "version": "1.0.0",
+      "depends_on": ["auth", "users"],
+      "backward_compatible": true,
+      "forward_compatible": true
+    },
+    "comments": {
+      "version": "1.0.0",
+      "depends_on": ["auth", "users", "posts"],
+      "backward_compatible": true,
+      "forward_compatible": true
+    },
+    "ideas": {
+      "version": "1.0.0",
+      "depends_on": ["auth", "users"],
+      "backward_compatible": true,
+      "forward_compatible": true
+    },
+    "search": {
+      "version": "1.0.0",
+      "depends_on": ["users", "posts", "comments"],
+      "backward_compatible": true,
+      "forward_compatible": true
+    },
+    "analytics": {
+      "version": "1.0.0",
+      "depends_on": ["users", "posts"],
+      "backward_compatible": true,
+      "forward_compatible": true
+    },
+    "notifications": {
+      "version": "1.0.0",
+      "depends_on": ["users", "posts", "comments"],
+      "backward_compatible": true,
+      "forward_compatible": true
+    },
+    "recommendations": {
+      "version": "1.0.0",
+      "depends_on": ["users", "posts", "analytics"],
+      "backward_compatible": true,
+      "forward_compatible": true
+    },
+    "admin": {
+      "version": "1.0.0",
+      "depends_on": ["users", "posts"],
+      "backward_compatible": true,
+      "forward_compatible": true
+    }
+  },
+
+  "compatibility_checking_rules": {
+    "rule_1": "Module can depend on module with higher or equal MAJOR version",
+    "rule_2": "Module can depend on module with lower MINOR/PATCH if MAJOR same",
+    "rule_3": "Service interfaces must maintain backward compatibility within MAJOR version",
+    "rule_4": "Event schemas must maintain backward compatibility within MAJOR version",
+    "rule_5": "Breaking changes must increment MAJOR version"
+  },
+
+  "compatibility_validation": {
+    "validation_rule": "All dependencies must have compatible versions",
+    "enforcement": "MANDATORY",
+    "check_frequency": "On every bootstrap and module update"
+  },
+
+  "upgrade_paths": {
+    "1.0.0_to_1.1.0": {
+      "breaking_changes": false,
+      "migration_required": false,
+      "upgrade_strategy": "In-place upgrade"
+    },
+    "1.x_to_2.0.0": {
+      "breaking_changes": true,
+      "migration_required": true,
+      "upgrade_strategy": "Requires migration guide"
+    }
+  },
+
+  "governance": {
+    "sealed": true,
+    "immutable": true,
+    "read_only": true,
+    "compatibility_rules_version": "1.0.0",
+    "last_updated": "2026-05-07"
+  }
+}

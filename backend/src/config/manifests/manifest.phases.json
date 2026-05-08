@@ -1,0 +1,195 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Phases Manifest",
+  "version": "1.0.0",
+  "description": "Déclaration des phases d'implémentation du système",
+  "phases": {
+    "phase1": {
+      "id": "phase1",
+      "name": "Phase 1 - Blueprint et Fondations",
+      "status": "in_progress",
+      "progress": 100,
+      "description": "Création de la structure Blueprint avec orchestrateur, machine à états, invariants, événements et conventions",
+      "startDate": "2026-05-07",
+      "expectedEndDate": "2026-05-07",
+      "components": [
+        {
+          "name": "Orchestrator",
+          "path": "/core/orchestrator",
+          "status": "completed",
+          "files": [
+            "Orchestrator.js",
+            "OrchestratorEvents.js",
+            "OrchestratorContext.js",
+            "index.js"
+          ]
+        },
+        {
+          "name": "State Machine",
+          "path": "/core/state-machine",
+          "status": "completed",
+          "files": [
+            "StateMachine.js",
+            "State.js",
+            "Transition.js",
+            "Guard.js",
+            "SideEffect.js",
+            "index.js"
+          ]
+        },
+        {
+          "name": "Events System",
+          "path": "/core/events",
+          "status": "completed",
+          "files": [
+            "EventTypes.js",
+            "EventSchema.js",
+            "EventValidator.js",
+            "index.js"
+          ]
+        },
+        {
+          "name": "Logging",
+          "path": "/core/logging",
+          "status": "completed",
+          "files": [
+            "Logger.js"
+          ]
+        },
+        {
+          "name": "Invariants",
+          "path": "/core/invariants",
+          "status": "completed",
+          "files": [
+            "Invariant.js"
+          ]
+        },
+        {
+          "name": "Conventions",
+          "path": "/core/conventions",
+          "status": "completed",
+          "files": [
+            "Conventions.js"
+          ]
+        },
+        {
+          "name": "Versioning",
+          "path": "/core/versioning",
+          "status": "completed",
+          "files": [
+            "VersionManager.js"
+          ]
+        },
+        {
+          "name": "Config Manifests",
+          "path": "/config/manifests",
+          "status": "in_progress",
+          "files": [
+            "manifest.modules.json",
+            "manifest.states.json",
+            "manifest.phases.json"
+          ]
+        }
+      ]
+    },
+    "phase2": {
+      "id": "phase2",
+      "name": "Phase 2 - Module Manifest (0-4)",
+      "status": "pending",
+      "progress": 0,
+      "description": "Déclaration des 5 modules fondamentaux avec contrats, états, événements et versions",
+      "expectedStartDate": "2026-05-08",
+      "expectedEndDate": "2026-05-10",
+      "modules": [
+        {
+          "id": "auth",
+          "version": "1.0.0",
+          "status": "pending",
+          "priority": 0
+        },
+        {
+          "id": "users",
+          "version": "1.0.0",
+          "status": "pending",
+          "priority": 1,
+          "dependencies": ["auth"]
+        },
+        {
+          "id": "posts",
+          "version": "1.0.0",
+          "status": "pending",
+          "priority": 2,
+          "dependencies": ["auth", "users"]
+        },
+        {
+          "id": "notifications",
+          "version": "1.0.0",
+          "status": "pending",
+          "priority": 3,
+          "dependencies": ["users"]
+        },
+        {
+          "id": "analytics",
+          "version": "1.0.0",
+          "status": "pending",
+          "priority": 4,
+          "dependencies": []
+        }
+      ]
+    },
+    "phase3": {
+      "id": "phase3",
+      "name": "Phase 3 - Module Implementation",
+      "status": "pending",
+      "progress": 0,
+      "description": "Implémentation des modules avec leurs services, contrôleurs et routes",
+      "expectedStartDate": "2026-05-11",
+      "expectedEndDate": "2026-05-25",
+      "tasks": [
+        "Implémenter le module auth",
+        "Implémenter le module users",
+        "Implémenter le module posts",
+        "Implémenter le module notifications",
+        "Implémenter le module analytics"
+      ]
+    },
+    "phase4": {
+      "id": "phase4",
+      "name": "Phase 4 - Integration Testing",
+      "status": "pending",
+      "progress": 0,
+      "description": "Tests d'intégration entre modules et avec le système core",
+      "expectedStartDate": "2026-05-26",
+      "expectedEndDate": "2026-06-02",
+      "testScopes": [
+        "Module interaction tests",
+        "State machine transition tests",
+        "Event flow tests",
+        "Invariant validation tests",
+        "End-to-end scenarios"
+      ]
+    },
+    "phase5": {
+      "id": "phase5",
+      "name": "Phase 5 - Production Deployment",
+      "status": "pending",
+      "progress": 0,
+      "description": "Préparation et déploiement en production",
+      "expectedStartDate": "2026-06-03",
+      "expectedEndDate": "2026-06-10",
+      "tasks": [
+        "Performance testing",
+        "Security audit",
+        "Documentation",
+        "Deployment preparation",
+        "Production release"
+      ]
+    }
+  },
+  "metadata": {
+    "created": "2026-05-07T00:00:00Z",
+    "updatedAt": "2026-05-07T00:00:00Z",
+    "systemVersion": "1.0.0",
+    "totalPhases": 5
+  }
+}

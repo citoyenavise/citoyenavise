@@ -1,0 +1,28 @@
+{
+  "name": "settings",
+  "version": "1.0.0",
+  "description": "User and system settings",
+  "dependencies": [],
+  "capabilities": [
+    "setting:view",
+    "setting:update"
+  ],
+  "events": [
+    "setting:changed",
+    "setting:updated"
+  ],
+  "routes": {
+    "prefix": "/api/v1/settings",
+    "methods": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE"
+    ]
+  },
+  "lifecycle": {
+    "initRequired": true,
+    "readyRequired": true,
+    "healthChecks": true
+  }
+}

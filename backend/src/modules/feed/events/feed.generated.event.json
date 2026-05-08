@@ -1,0 +1,17 @@
+{
+  "name": "feed:generated",
+  "version": "1.0.0",
+  "domain": "feed",
+  "action": "generated",
+  "entity": "feed",
+  "description": "Feed generated for user",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "userId": { "type": "string" },
+      "itemCount": { "type": "integer" },
+      "timestamp": { "type": "string" }
+    },
+    "required": ["userId", "itemCount", "timestamp"]
+  }
+}

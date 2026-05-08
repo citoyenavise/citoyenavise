@@ -1,0 +1,28 @@
+{
+  "name": "public_dashboard",
+  "version": "1.0.0",
+  "description": "Public analytics dashboard",
+  "dependencies": [],
+  "capabilities": [
+    "dashboard:view",
+    "dashboard:access"
+  ],
+  "events": [
+    "dashboard:viewed",
+    "dashboard:updated"
+  ],
+  "routes": {
+    "prefix": "/api/v1/public_dashboard",
+    "methods": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE"
+    ]
+  },
+  "lifecycle": {
+    "initRequired": true,
+    "readyRequired": true,
+    "healthChecks": true
+  }
+}

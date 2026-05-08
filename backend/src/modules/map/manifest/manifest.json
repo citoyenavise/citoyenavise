@@ -1,0 +1,28 @@
+{
+  "name": "map",
+  "version": "1.0.0",
+  "description": "Geospatial mapping and visualization",
+  "dependencies": [],
+  "capabilities": [
+    "map:view",
+    "map:filter"
+  ],
+  "events": [
+    "map:viewed",
+    "map:filtered"
+  ],
+  "routes": {
+    "prefix": "/api/v1/map",
+    "methods": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE"
+    ]
+  },
+  "lifecycle": {
+    "initRequired": true,
+    "readyRequired": true,
+    "healthChecks": true
+  }
+}

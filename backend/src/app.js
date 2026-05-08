@@ -1,5 +1,6 @@
 /**
  * Application Express
+ * PHASE 2.1 — Intégration du SystemBootstrap (11 étapes orchestrées)
  */
 
 const express = require('express');
@@ -7,16 +8,18 @@ const cors = require('cors');
 const helmet = require('helmet');
 const compression = require('compression');
 const swaggerUi = require('swagger-ui-express');
-const config = require('./config');
+const SystemBootstrap = require('./SystemBootstrap');
 const logger = require('./core/utils/logger');
 
-// Validate configuration at startup
+// Valider la configuration au startup
+const config = require('./config');
 try {
   config.validate();
 } catch (err) {
   logger.error('Configuration validation failed', { meta: { error: err.message } });
   process.exit(1);
 }
+
 const { errorHandler, notFound, asyncHandler } = require('./core/middleware/errorHandler');
 const { authOptional } = require('./core/middleware/auth');
 const { healthCheck } = require('./core/services/database');
@@ -25,6 +28,9 @@ const requestLogger = require('./core/middleware/requestLogger');
 const { getGlobalLimiter, getAuthLimiter } = require('./core/middleware/rateLimit');
 const moduleLoader = require('./moduleLoader');
 const migrationRunner = require('./database/migrationRunner');
+
+// PHASE 2.1 — Bootstrap global
+let bootstrap = null;
 
 // Initialize Sentry (if configured)
 let Sentry = null;
@@ -264,33 +270,169 @@ if (Sentry) {
 app.use(errorHandler);
 
 // Initialize and start server
+// PHASE 2.1 — Intégration du SystemBootstrap (11 étapes)
 async function startServer() {
   try {
-    // Run pending migrations
+    // ═══════════════════════════════════════════════════════════════════
+    // PHASE 2.1 — ÉTAPES 1-8 : Bootstrap du Système
+    // ═══════════════════════════════════════════════════════════════════
+
+    console.log('\n' + '═'.repeat(70));
+    console.log('🚀 PHASE 2.1 — BOOTSTRAP SYSTÈME');
+    console.log('═'.repeat(70) + '\n');
+
+    // Initialiser le bootstrap (étapes 1-8)
+    bootstrap = new SystemBootstrap({ sessionId: null });
+    const bootstrapReport = await bootstrap.initialize();
+
+    // Vérifier qu'il n'y a pas eu de violations d'invariants
+    if (bootstrapReport.invariants.violations > 0) {
+      logger.error('❌ Bootstrap échoué : invariants violés', {
+        meta: { violations: bootstrapReport.invariants.details },
+      });
+      process.exit(1);
+    }
+
+    logger.info(`✅ Bootstrap complété (${bootstrapReport.duration}ms)`, {
+      meta: {
+        modules: bootstrapReport.modules.total,
+        services: bootstrapReport.services.total,
+        phase: bootstrapReport.phase,
+      },
+    });
+
+    // ═══════════════════════════════════════════════════════════════════
+    // DATABASE MIGRATIONS (avant route mounting)
+    // ═══════════════════════════════════════════════════════════════════
+
     logger.info('🔄 Running database migrations...');
     await migrationRunner.runPendingMigrations();
     logger.info('✅ Migrations complete');
+
+    // ═══════════════════════════════════════════════════════════════════
+    // ÉTAPE 9 : Route Mounting (via moduleLoader)
+    // ═══════════════════════════════════════════════════════════════════
+
+    logger.info('📡 Mounting module routes...');
+    const moduleStats = moduleLoader.loadRoutes(app);
+
+    if (moduleStats.missing.length > 0 || moduleStats.incomplete.length > 0) {
+      logger.warn('⚠️  Module loading had issues', {
+        meta: {
+          missing: moduleStats.missing,
+          incomplete: moduleStats.incomplete,
+        },
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    // ÉTAPE 11 : Start Server
+    // ═══════════════════════════════════════════════════════════════════
+
+    const PORT = config.PORT;
+    const server = app.listen(PORT, () => {
+      logger.info(`\n✅ Backend API ready on http://localhost:${PORT}`, {
+        meta: {
+          port: PORT,
+          env: process.env.NODE_ENV,
+          bootstrapTime: bootstrapReport.duration,
+        },
+      });
+
+      console.log('\n' + '═'.repeat(70));
+      console.log('✅ SYSTÈME PRÊT (PHASE READY)');
+      console.log('═'.repeat(70) + '\n');
+    });
+
+    // ═══════════════════════════════════════════════════════════════════
+    // CAAGS — Autonomous Governance Loop (event-driven, non-blocking)
+    // PHASE 5.5: Event-driven architecture with HardenedEventBus
+    // ═══════════════════════════════════════════════════════════════════
+    let caags = null;
+    let eventBus = null;
+    setImmediate(async () => {
+      try {
+        // Create HardenedEventBus for event-driven governance
+        const {
+          createHardenedEventBus,
+          createMonitoringStack
+        } = require('./core/governance/events');
+
+        // Initialize hardened event bus with schema validation
+        eventBus = createHardenedEventBus({});
+        logger.info('✅ HardenedEventBus initialized', {
+          meta: { phase: 'PHASE 5.5', mode: 'event-driven' }
+        });
+
+        // Initialize monitoring stack (metrics, alerts, dashboard)
+        const monitoring = createMonitoringStack({
+          auditTrail: eventBus.auditTrail
+        });
+        logger.info('✅ Event Monitoring Stack initialized', {
+          meta: { components: ['MetricsCollector', 'AlertEngine', 'AlertDispatcher', 'Dashboard'] }
+        });
+
+        // Initialize CAAGS with event bus
+        const AutonomousGovernanceOrchestrator = require('./core/AutonomousGovernanceOrchestrator');
+        caags = new AutonomousGovernanceOrchestrator({});
+        await caags.initialize({ eventBus });
+
+        // Start CAAGS in event-driven mode
+        caags.start(eventBus);
+
+        logger.info('✅ CAAGS Governance Loop active (event-driven mode, no polling)', {
+          meta: { phase: 'CAAGS', mode: 'event-driven', pollingDisabled: true }
+        });
+      } catch (err) {
+        logger.warn('⚠️  CAAGS startup failed (non-fatal, governance disabled)', {
+          meta: { error: err.message }
+        });
+      }
+    });
+
+    // ═══════════════════════════════════════════════════════════════════
+    // Graceful Shutdown
+    // ═══════════════════════════════════════════════════════════════════
+
+    process.on('SIGTERM', () => {
+      logger.info('SIGTERM received, shutting down gracefully...');
+
+      // Stop CAAGS first
+      if (caags) {
+        try {
+          caags.stop();
+        } catch (err) {
+          logger.warn('Error stopping CAAGS', { meta: { error: err.message } });
+        }
+      }
+
+      // Stop event bus (flushes audit trail, stops monitoring)
+      if (eventBus) {
+        try {
+          if (eventBus.stop) {
+            eventBus.stop();
+          }
+        } catch (err) {
+          logger.warn('Error stopping eventBus', { meta: { error: err.message } });
+        }
+      }
+
+      server.close(() => {
+        logger.info('Server closed');
+        process.exit(0);
+      });
+    });
+
   } catch (err) {
-    logger.error('❌ Migration failed', { meta: { error: err.message } });
+    logger.error('❌ Server startup failed', {
+      meta: {
+        error: err.message,
+        phase: bootstrap ? bootstrap.state.phase : 'INIT',
+        stack: err.stack,
+      },
+    });
     process.exit(1);
   }
-
-  // Start server
-  const PORT = config.PORT;
-  const server = app.listen(PORT, () => {
-    logger.info(`🚀 Backend API running on http://localhost:${PORT}`, {
-      meta: { port: PORT, env: process.env.NODE_ENV },
-    });
-  });
-
-  // Graceful shutdown
-  process.on('SIGTERM', () => {
-    logger.info('SIGTERM received, shutting down gracefully...');
-    server.close(() => {
-      logger.info('Server closed');
-      process.exit(0);
-    });
-  });
 }
 
 // Start if this is the main module

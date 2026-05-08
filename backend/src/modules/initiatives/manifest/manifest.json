@@ -1,0 +1,30 @@
+{
+  "name": "initiatives",
+  "version": "1.0.0",
+  "description": "Civic initiatives and campaigns",
+  "dependencies": [],
+  "capabilities": [
+    "initiative:view",
+    "initiative:join",
+    "initiative:manage"
+  ],
+  "events": [
+    "initiative:created",
+    "initiative:updated",
+    "initiative:completed"
+  ],
+  "routes": {
+    "prefix": "/api/v1/initiatives",
+    "methods": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE"
+    ]
+  },
+  "lifecycle": {
+    "initRequired": true,
+    "readyRequired": true,
+    "healthChecks": true
+  }
+}

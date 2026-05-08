@@ -1,0 +1,217 @@
+{
+  "version": "1.0.0",
+  "description": "Rules for monitoring and measuring system stability",
+  "sealed": true,
+  "lastUpdated": "2026-05-08",
+  "stabilityMetrics": {
+    "error_rate": {
+      "measurement": "failed_requests / total_requests",
+      "healthy_threshold": "< 0.1%",
+      "degraded_threshold": "< 1%",
+      "critical_threshold": "> 5%",
+      "window": "1 minute rolling"
+    },
+    "latency_p95": {
+      "measurement": "95th percentile of response time",
+      "healthy_threshold": "< 100ms",
+      "degraded_threshold": "< 500ms",
+      "critical_threshold": "> 2000ms",
+      "window": "1 minute rolling"
+    },
+    "availability": {
+      "measurement": "uptime / total_time",
+      "healthy_threshold": "> 99.9%",
+      "degraded_threshold": "> 99%",
+      "critical_threshold": "< 90%",
+      "window": "1 hour rolling"
+    },
+    "recovery_success_rate": {
+      "measurement": "successful_recoveries / total_recovery_attempts",
+      "healthy_threshold": "> 95%",
+      "degraded_threshold": "> 80%",
+      "critical_threshold": "< 50%",
+      "window": "1 hour rolling"
+    },
+    "failure_detection_time": {
+      "measurement": "time from failure to detection",
+      "healthy_threshold": "< 1 second",
+      "degraded_threshold": "< 5 seconds",
+      "critical_threshold": "> 30 seconds",
+      "window": "per_failure"
+    },
+    "mean_time_to_recovery": {
+      "measurement": "average time to recover from failure",
+      "healthy_threshold": "< 5 seconds",
+      "degraded_threshold": "< 30 seconds",
+      "critical_threshold": "> 60 seconds",
+      "window": "1 hour rolling"
+    }
+  },
+  "healthScoreCalculation": {
+    "formula": "weighted_average of normalized metrics",
+    "weights": {
+      "error_rate": 0.3,
+      "latency_p95": 0.25,
+      "availability": 0.25,
+      "recovery_success_rate": 0.2
+    },
+    "scoring": {
+      "90-100": "healthy",
+      "70-89": "degraded",
+      "50-69": "limited",
+      "below_50": "critical"
+    }
+  },
+  "degradationDetection": {
+    "rules": [
+      {
+        "metric": "error_rate",
+        "condition": "increases_by_50%_in_5_minutes",
+        "action": "trigger_investigation"
+      },
+      {
+        "metric": "latency_p95",
+        "condition": "increases_by_2x_in_5_minutes",
+        "action": "enable_timeout_fallback"
+      },
+      {
+        "metric": "availability",
+        "condition": "below_99%_for_5_minutes",
+        "action": "trigger_investigation_and_escalate"
+      },
+      {
+        "metric": "recovery_success_rate",
+        "condition": "below_80%_for_10_minutes",
+        "action": "escalate_and_request_manual_intervention"
+      }
+    ]
+  },
+  "cascadingFailureDetection": {
+    "enabled": true,
+    "rules": [
+      {
+        "pattern": "multiple_modules_failing_within_10_seconds",
+        "action": "activate_bulkhead_isolation",
+        "notification": "immediate"
+      },
+      {
+        "pattern": "error_rate_affecting_all_modules",
+        "action": "investigate_common_dependency",
+        "notification": "immediate"
+      },
+      {
+        "pattern": "recovery_failures_repeating",
+        "action": "prevent_infinite_retry_loop",
+        "max_attempts": 5
+      }
+    ]
+  },
+  "moduleHealthTracking": {
+    "enabled": true,
+    "metrics_per_module": [
+      "error_rate",
+      "latency_p95",
+      "failure_count",
+      "recovery_attempts",
+      "circuit_breaker_state"
+    ],
+    "health_score": "per_module_0_to_100",
+    "aggregation": "weighted_average_for_system_health"
+  },
+  "preventiveMeasures": {
+    "proactive_detection": {
+      "monitor": ["error_rate_trends", "latency_trends", "resource_usage"],
+      "predict": "failures before they occur",
+      "action": "scale_or_prepare_fallback"
+    },
+    "load_shedding": {
+      "trigger": "error_rate > 5% or latency_p95 > 1000ms",
+      "action": "drop_non_critical_requests",
+      "priority": "based_on_capability_tier"
+    },
+    "request_queuing": {
+      "trigger": "system_overloaded",
+      "queue_type": "FIFO_with_priority",
+      "max_queue_size": "1000_requests",
+      "aging_timeout": "30_seconds"
+    }
+  },
+  "runbookAutomation": {
+    "enabled": true,
+    "runbooks": {
+      "high_error_rate": {
+        "steps": [
+          "alert_oncall",
+          "investigate_error_logs",
+          "identify_root_cause",
+          "activate_circuit_breaker_if_dependency",
+          "enable_fallback_if_available"
+        ]
+      },
+      "high_latency": {
+        "steps": [
+          "check_database_slow_queries",
+          "check_external_service_latency",
+          "enable_query_timeout_fallback",
+          "scale_resources_if_possible"
+        ]
+      },
+      "cascading_failure": {
+        "steps": [
+          "activate_bulkhead_isolation",
+          "identify_common_dependency",
+          "restart_dependency_if_applicable",
+          "monitor_for_cascade_propagation"
+        ]
+      }
+    }
+  },
+  "systemResilience": {
+    "target": {
+      "availability": "99.99%",
+      "mean_time_to_recovery": "< 30 seconds",
+      "recovery_success_rate": "> 95%",
+      "zero_silent_failures": true
+    },
+    "measurement": {
+      "daily_metrics": true,
+      "weekly_reports": true,
+      "quarterly_reviews": true
+    }
+  },
+  "testingStrategy": {
+    "chaos_engineering": {
+      "enabled": true,
+      "test_failures": [
+        "module_restart",
+        "dependency_latency_spike",
+        "database_connection_drop",
+        "cascading_failure_simulation"
+      ],
+      "frequency": "weekly",
+      "measurement": "system_recovery_capability"
+    },
+    "load_testing": {
+      "enabled": true,
+      "scenarios": [
+        "normal_load",
+        "spike_load",
+        "sustained_high_load",
+        "load_with_failures"
+      ],
+      "measurement": "degradation_and_recovery"
+    }
+  },
+  "postIncidentReview": {
+    "enabled": true,
+    "trigger": "after_critical_failure",
+    "analysis": [
+      "root_cause",
+      "detection_time",
+      "recovery_time",
+      "impact_scope",
+      "prevention_measures"
+    ],
+    "improvement": "update_runbooks_and_governance"
+  }
+}

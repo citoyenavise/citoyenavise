@@ -1,0 +1,456 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "States Manifest - Phase 2",
+  "version": "1.0.0",
+  "description": "Déclaration des états et transitions du système",
+  "states": {
+    "IDLE": {
+      "id": "IDLE",
+      "type": "normal",
+      "displayName": "Inactif",
+      "description": "État initial du système ou d'un module",
+      "allowedTransitions": [
+        "AUTHENTICATING",
+        "LOADING",
+        "CREATING",
+        "COLLECTING"
+      ],
+      "timeout": null,
+      "metadata": {
+        "isInitial": true,
+        "canBeReached": true
+      }
+    },
+    "AUTHENTICATING": {
+      "id": "AUTHENTICATING",
+      "type": "normal",
+      "displayName": "Authentification",
+      "description": "Tentative d'authentification en cours",
+      "allowedTransitions": [
+        "AUTHENTICATED",
+        "FAILED"
+      ],
+      "timeout": 5000,
+      "metadata": {
+        "isInitial": false,
+        "moduleName": "auth"
+      }
+    },
+    "AUTHENTICATED": {
+      "id": "AUTHENTICATED",
+      "type": "normal",
+      "displayName": "Authentifié",
+      "description": "Utilisateur authentifié avec succès",
+      "allowedTransitions": [
+        "IDLE",
+        "EXPIRED"
+      ],
+      "timeout": null,
+      "metadata": {
+        "isInitial": false,
+        "moduleName": "auth"
+      }
+    },
+    "FAILED": {
+      "id": "FAILED",
+      "type": "normal",
+      "displayName": "Échoué",
+      "description": "Une opération a échoué",
+      "allowedTransitions": [
+        "IDLE"
+      ],
+      "timeout": 2000,
+      "metadata": {
+        "isInitial": false,
+        "isFinal": true
+      }
+    },
+    "LOADING": {
+      "id": "LOADING",
+      "type": "normal",
+      "displayName": "Chargement",
+      "description": "Données en cours de chargement",
+      "allowedTransitions": [
+        "LOADED",
+        "ERROR"
+      ],
+      "timeout": 10000,
+      "metadata": {
+        "isInitial": false,
+        "moduleName": "users"
+      }
+    },
+    "LOADED": {
+      "id": "LOADED",
+      "type": "normal",
+      "displayName": "Chargé",
+      "description": "Données chargées avec succès",
+      "allowedTransitions": [
+        "IDLE",
+        "UPDATING"
+      ],
+      "timeout": null,
+      "metadata": {
+        "isInitial": false,
+        "moduleName": "users"
+      }
+    },
+    "CREATING": {
+      "id": "CREATING",
+      "type": "normal",
+      "displayName": "Création",
+      "description": "Création d'une ressource",
+      "allowedTransitions": [
+        "CREATED",
+        "ERROR"
+      ],
+      "timeout": 5000,
+      "metadata": {
+        "isInitial": false,
+        "moduleName": "posts"
+      }
+    },
+    "CREATED": {
+      "id": "CREATED",
+      "type": "normal",
+      "displayName": "Créé",
+      "description": "Ressource créée avec succès",
+      "allowedTransitions": [
+        "IDLE",
+        "UPDATING",
+        "DELETING"
+      ],
+      "timeout": null,
+      "metadata": {
+        "isInitial": false,
+        "moduleName": "posts"
+      }
+    },
+    "UPDATING": {
+      "id": "UPDATING",
+      "type": "normal",
+      "displayName": "Mise à jour",
+      "description": "Mise à jour en cours",
+      "allowedTransitions": [
+        "LOADED",
+        "CREATED",
+        "ERROR"
+      ],
+      "timeout": 5000,
+      "metadata": {
+        "isInitial": false
+      }
+    },
+    "DELETING": {
+      "id": "DELETING",
+      "type": "normal",
+      "displayName": "Suppression",
+      "description": "Suppression en cours",
+      "allowedTransitions": [
+        "IDLE",
+        "ERROR"
+      ],
+      "timeout": 5000,
+      "metadata": {
+        "isInitial": false,
+        "moduleName": "posts"
+      }
+    },
+    "ERROR": {
+      "id": "ERROR",
+      "type": "normal",
+      "displayName": "Erreur",
+      "description": "État d'erreur",
+      "allowedTransitions": [
+        "IDLE"
+      ],
+      "timeout": 2000,
+      "metadata": {
+        "isInitial": false,
+        "isFinal": true
+      }
+    },
+    "COLLECTING": {
+      "id": "COLLECTING",
+      "type": "normal",
+      "displayName": "Collecte",
+      "description": "Collecte de données",
+      "allowedTransitions": [
+        "PROCESSING",
+        "ERROR"
+      ],
+      "timeout": null,
+      "metadata": {
+        "isInitial": false,
+        "moduleName": "analytics"
+      }
+    },
+    "PROCESSING": {
+      "id": "PROCESSING",
+      "type": "normal",
+      "displayName": "Traitement",
+      "description": "Traitement des données",
+      "allowedTransitions": [
+        "AGGREGATING",
+        "ERROR"
+      ],
+      "timeout": 30000,
+      "metadata": {
+        "isInitial": false,
+        "moduleName": "analytics"
+      }
+    },
+    "AGGREGATING": {
+      "id": "AGGREGATING",
+      "type": "normal",
+      "displayName": "Agrégation",
+      "description": "Agrégation des données",
+      "allowedTransitions": [
+        "IDLE",
+        "ERROR"
+      ],
+      "timeout": 30000,
+      "metadata": {
+        "isInitial": false,
+        "moduleName": "analytics"
+      }
+    },
+    "EXPIRED": {
+      "id": "EXPIRED",
+      "type": "final",
+      "displayName": "Expiré",
+      "description": "Session ou token expiré",
+      "allowedTransitions": [
+        "IDLE"
+      ],
+      "timeout": null,
+      "metadata": {
+        "isInitial": false,
+        "isFinal": true,
+        "moduleName": "auth"
+      }
+    },
+    "PENDING": {
+      "id": "PENDING",
+      "type": "normal",
+      "displayName": "En Attente",
+      "description": "Notification en attente d'envoi",
+      "allowedTransitions": [
+        "SENT",
+        "ERROR"
+      ],
+      "timeout": null,
+      "metadata": {
+        "isInitial": false,
+        "moduleName": "notifications"
+      }
+    },
+    "SENT": {
+      "id": "SENT",
+      "type": "normal",
+      "displayName": "Envoyé",
+      "description": "Notification envoyée",
+      "allowedTransitions": [
+        "DELIVERED",
+        "ERROR"
+      ],
+      "timeout": null,
+      "metadata": {
+        "isInitial": false,
+        "moduleName": "notifications"
+      }
+    },
+    "DELIVERED": {
+      "id": "DELIVERED",
+      "type": "normal",
+      "displayName": "Livré",
+      "description": "Notification livrée au destinataire",
+      "allowedTransitions": [
+        "READ",
+        "ERROR"
+      ],
+      "timeout": null,
+      "metadata": {
+        "isInitial": false,
+        "moduleName": "notifications"
+      }
+    },
+    "READ": {
+      "id": "READ",
+      "type": "final",
+      "displayName": "Lu",
+      "description": "Notification lue par le destinataire",
+      "allowedTransitions": [
+        "IDLE"
+      ],
+      "timeout": null,
+      "metadata": {
+        "isInitial": false,
+        "isFinal": true,
+        "moduleName": "notifications"
+      }
+    }
+  },
+  "transitions": [
+    {
+      "fromState": "IDLE",
+      "toState": "AUTHENTICATING",
+      "event": "auth:attempt",
+      "guards": ["isValidCredentials"],
+      "sideEffects": ["logAuthAttempt"]
+    },
+    {
+      "fromState": "AUTHENTICATING",
+      "toState": "AUTHENTICATED",
+      "event": "auth:success",
+      "guards": ["isValidToken"],
+      "sideEffects": ["storeToken", "loadUserProfile"]
+    },
+    {
+      "fromState": "AUTHENTICATING",
+      "toState": "FAILED",
+      "event": "auth:failure",
+      "guards": [],
+      "sideEffects": ["logFailure", "clearCredentials"]
+    },
+    {
+      "fromState": "IDLE",
+      "toState": "LOADING",
+      "event": "user:load",
+      "guards": ["isAuthenticated"],
+      "sideEffects": ["startLoadingAnimation"]
+    },
+    {
+      "fromState": "LOADING",
+      "toState": "LOADED",
+      "event": "user:loaded",
+      "guards": ["hasValidData"],
+      "sideEffects": ["cacheUserData", "updateUI"]
+    },
+    {
+      "fromState": "IDLE",
+      "toState": "CREATING",
+      "event": "post:create",
+      "guards": ["isAuthenticated", "hasPostContent"],
+      "sideEffects": ["validatePostContent", "startCreatingAnimation"]
+    },
+    {
+      "fromState": "CREATING",
+      "toState": "CREATED",
+      "event": "post:created",
+      "guards": ["hasValidPostId"],
+      "sideEffects": ["emitPostCreatedEvent", "updateFeed"]
+    },
+    {
+      "fromState": "AUTHENTICATED",
+      "toState": "EXPIRED",
+      "event": "auth:token_expired",
+      "guards": [],
+      "sideEffects": ["clearSession", "logExpiration"]
+    },
+    {
+      "fromState": "IDLE",
+      "toState": "PENDING",
+      "event": "notification:created",
+      "guards": ["hasNotificationData"],
+      "sideEffects": ["initNotification", "scheduleDelivery"]
+    },
+    {
+      "fromState": "PENDING",
+      "toState": "SENT",
+      "event": "notification:sent",
+      "guards": ["isValidRecipient"],
+      "sideEffects": ["logNotificationSent", "updateDeliveryQueue"]
+    },
+    {
+      "fromState": "SENT",
+      "toState": "DELIVERED",
+      "event": "notification:delivered",
+      "guards": ["deliveryConfirmed"],
+      "sideEffects": ["logDeliveryConfirm", "triggerAnalytics"]
+    },
+    {
+      "fromState": "DELIVERED",
+      "toState": "READ",
+      "event": "notification:read",
+      "guards": ["userAcknowledged"],
+      "sideEffects": ["logNotificationRead", "updateNotificationStatus"]
+    },
+    {
+      "fromState": "IDLE",
+      "toState": "COLLECTING",
+      "event": "analytics:event_tracked",
+      "guards": ["isValidEvent"],
+      "sideEffects": ["storeEvent", "updateEventCounter"]
+    },
+    {
+      "fromState": "COLLECTING",
+      "toState": "PROCESSING",
+      "event": "analytics:aggregated",
+      "guards": ["enoughDataCollected"],
+      "sideEffects": ["prepareDataForProcessing", "logAggregation"]
+    },
+    {
+      "fromState": "PROCESSING",
+      "toState": "AGGREGATING",
+      "event": "analytics:report_generated",
+      "guards": ["reportReady"],
+      "sideEffects": ["generateAnalyticsReport", "cacheReport"]
+    },
+    {
+      "fromState": "LOADING",
+      "toState": "ERROR",
+      "event": "user:error",
+      "guards": [],
+      "sideEffects": ["logLoadError", "notifyUser"]
+    },
+    {
+      "fromState": "CREATING",
+      "toState": "ERROR",
+      "event": "post:error",
+      "guards": [],
+      "sideEffects": ["logCreationError", "rollbackChanges"]
+    },
+    {
+      "fromState": "PENDING",
+      "toState": "ERROR",
+      "event": "notification:failed",
+      "guards": [],
+      "sideEffects": ["logNotificationFailure", "retryQueue"]
+    },
+    {
+      "fromState": "SENT",
+      "toState": "ERROR",
+      "event": "notification:failed",
+      "guards": [],
+      "sideEffects": ["logDeliveryFailure", "retryQueue"]
+    },
+    {
+      "fromState": "COLLECTING",
+      "toState": "ERROR",
+      "event": "analytics:error",
+      "guards": [],
+      "sideEffects": ["logAnalyticsError", "pauseCollection"]
+    },
+    {
+      "fromState": "PROCESSING",
+      "toState": "ERROR",
+      "event": "analytics:error",
+      "guards": [],
+      "sideEffects": ["logProcessingError", "pauseProcessing"]
+    },
+    {
+      "fromState": "AGGREGATING",
+      "toState": "ERROR",
+      "event": "analytics:error",
+      "guards": [],
+      "sideEffects": ["logAggregatingError", "pauseAggregation"]
+    }
+  ],
+  "metadata": {
+    "created": "2026-05-07T00:00:00Z",
+    "updatedAt": "2026-05-07T00:00:00Z",
+    "version": "1.0.0",
+    "phase": 2
+  }
+}

@@ -1,0 +1,184 @@
+{
+  "version": "1.0.0",
+  "description": "Constitutional rules for module dependencies and interaction patterns",
+  "sealed": true,
+  "lastUpdated": "2026-05-08",
+  "dependencyModel": {
+    "type": "explicitly_declared",
+    "location": "module/manifest.json dependencies array",
+    "validation": "enforced_at_runtime",
+    "changes": "require_manifest_update"
+  },
+  "dependencyRules": {
+    "no_circular_dependencies": {
+      "enabled": true,
+      "detection": "build_time",
+      "enforcement": "fail_build_if_detected"
+    },
+    "no_implicit_dependencies": {
+      "enabled": true,
+      "rule": "all_dependencies_must_be_declared",
+      "detection": "static_analysis",
+      "enforcement": "code_audit"
+    },
+    "no_cross_module_service_calls": {
+      "enabled": true,
+      "rule": "modules_cannot_require_other_modules_directly",
+      "only_allowed": "via_dependency_injection",
+      "detection": "static_analysis"
+    },
+    "no_shared_state": {
+      "enabled": true,
+      "rule": "modules_cannot_modify_each_others_state",
+      "enforcement": "data_isolation"
+    }
+  },
+  "dependencyDeclaration": {
+    "location": "module/manifest.json",
+    "format": {
+      "dependencies": [
+        {
+          "name": "core",
+          "type": "internal",
+          "required": "true",
+          "usage": "database, logger, errors"
+        },
+        {
+          "name": "auth",
+          "type": "module",
+          "required": "false",
+          "usage": "get_current_user"
+        }
+      ]
+    }
+  },
+  "dependencyTypes": {
+    "core": {
+      "description": "Framework and system libraries",
+      "examples": ["database", "logger", "cache", "eventBus"],
+      "access": "all_modules",
+      "version": "pinned"
+    },
+    "module": {
+      "description": "Dependencies on other backend modules",
+      "access": "via_manifest_declaration",
+      "version": "dynamic",
+      "lifetime": "injected_at_init"
+    },
+    "external": {
+      "description": "External services and APIs",
+      "access": "centralized_through_adapters",
+      "version": "managed_externally"
+    }
+  },
+  "dependencyInjection": {
+    "pattern": "constructor_injection",
+    "method": "init(context) receives all dependencies",
+    "lifetime": "singleton_per_module",
+    "lazy_loading": "not_allowed"
+  },
+  "runtimeDependencyValidation": {
+    "enabled": true,
+    "checks": [
+      "all_declared_dependencies_available",
+      "no_undeclared_dependencies_used",
+      "dependency_versions_compatible"
+    ]
+  },
+  "dependencyGraphIntegrity": {
+    "enabled": true,
+    "validation": [
+      "no_circular_dependencies",
+      "all_dependencies_reachable",
+      "no_missing_dependencies"
+    ],
+    "failure_action": "prevent_module_load"
+  },
+  "allowedDependencyPatterns": {
+    "core_to_module": {
+      "allowed": true,
+      "description": "Core framework can depend on any module"
+    },
+    "module_to_core": {
+      "allowed": true,
+      "description": "Modules must depend on core"
+    },
+    "module_to_module": {
+      "allowed": true,
+      "conditional": "if_explicitly_declared_in_manifest",
+      "rule": "no_circular_dependencies"
+    }
+  },
+  "forbiddenDependencyPatterns": {
+    "indirect_module_dependency": {
+      "description": "Module A requires Module B which requires Module C",
+      "forbidden": true,
+      "enforcement": "static_analysis"
+    },
+    "runtime_require": {
+      "description": "require() called at runtime for modules",
+      "forbidden": true,
+      "enforcement": "code_audit"
+    },
+    "shared_mutable_state": {
+      "description": "Two modules modifying shared state",
+      "forbidden": true,
+      "enforcement": "data_isolation"
+    }
+  },
+  "dependencyVersioning": {
+    "strategy": "pinned_versions",
+    "updates": "manual_and_tested",
+    "breaking_changes": "require_major_version_bump",
+    "deprecation_policy": "3_months_notice"
+  },
+  "coreModuleDependencies": {
+    "all_modules_must_depend_on": [
+      "core/database",
+      "core/logger",
+      "core/eventBus",
+      "core/errors"
+    ],
+    "automatically_injected": true
+  },
+  "optionalDependencies": {
+    "cache": {
+      "modules": ["analytics", "posts", "feed"],
+      "optional": true,
+      "fallback": "continue_without_cache"
+    },
+    "external_service": {
+      "modules": ["webhooks"],
+      "optional": true,
+      "fallback": "queue_for_retry"
+    }
+  },
+  "dependencyUpdates": {
+    "process": [
+      "1. Update manifest.json",
+      "2. Update package.json if applicable",
+      "3. Update init() method signature",
+      "4. Run dependency validation",
+      "5. Run full test suite",
+      "6. Deploy with monitoring"
+    ]
+  },
+  "dependencyAudit": {
+    "frequency": "weekly",
+    "checks": [
+      "find_circular_dependencies",
+      "find_undeclared_dependencies",
+      "find_unused_dependencies",
+      "check_version_compatibility"
+    ],
+    "report": "generated_and_reviewed"
+  },
+  "breakingChangePolicy": {
+    "rule": "breaking_changes_forbidden_without_migration",
+    "process": [
+      "deprecation_period_3_months",
+      "migration_guide_provided",
+      "old_version_supported_during_migration"
+    ]
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "name": "ai_mascot",
+  "version": "1.0.0",
+  "description": "AI mascot and conversational interface",
+  "dependencies": [],
+  "capabilities": [
+    "mascot:chat",
+    "mascot:learn"
+  ],
+  "events": [
+    "mascot:interaction",
+    "mascot:learned"
+  ],
+  "routes": {
+    "prefix": "/api/v1/ai_mascot",
+    "methods": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE"
+    ]
+  },
+  "lifecycle": {
+    "initRequired": true,
+    "readyRequired": true,
+    "healthChecks": true
+  }
+}

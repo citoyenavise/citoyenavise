@@ -1,0 +1,124 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Event Identity - Event Tracing and Causality",
+  "version": "1.0.0",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+
+  "event_identity_scheme": {
+    "event_id": {
+      "format": "uuid",
+      "required": true,
+      "generated_at_emission": true,
+      "unique": true,
+      "immutable": true
+    },
+    "event_type": {
+      "format": "module:event_name",
+      "required": true,
+      "declared_in_manifest": true,
+      "validated_against_schema": true
+    },
+    "source_module": {
+      "format": "module_id",
+      "required": true,
+      "tracked_in_audit": true
+    },
+    "causality_chain": {
+      "format": "array of event_ids",
+      "required": false,
+      "tracks_event_causality": true,
+      "enables_root_cause_analysis": true
+    },
+    "request_id": {
+      "format": "uuid",
+      "required": false,
+      "context_from_request": true,
+      "links_to_request": true
+    },
+    "timestamp": {
+      "format": "iso8601",
+      "required": true,
+      "monotonically_increasing": true,
+      "server_generated": true
+    },
+    "version": {
+      "format": "semantic",
+      "required": true,
+      "matches_event_schema_version": true
+    }
+  },
+
+  "event_identity_lifecycle": {
+    "creation": {
+      "point": "Module emits event",
+      "action": "Generate event_id (uuid)",
+      "action": "Set event_type from manifest",
+      "action": "Set source_module",
+      "action": "Capture request_id if exists",
+      "action": "Set timestamp",
+      "action": "Set version"
+    },
+    "validation": {
+      "point": "EventBus receives event",
+      "action": "Validate event_type exists in SchemaRegistry",
+      "action": "Validate payload against schema",
+      "action": "Check source_module allowed to emit",
+      "action": "Verify timestamp is valid"
+    },
+    "propagation": {
+      "point": "EventBus dispatches to listeners",
+      "action": "Pass event_id unchanged",
+      "action": "Record event_id in listener audit",
+      "action": "Include in distributed trace",
+      "action": "Link to request_id if exists"
+    },
+    "tracking": {
+      "point": "Throughout system",
+      "action": "Maintain event_id in causality_chain",
+      "action": "Log event_id with all operations",
+      "action": "Link related events via causality_chain"
+    }
+  },
+
+  "event_causality_rules": {
+    "parent_event": "Original event that triggered cascade",
+    "child_events": "Events emitted as result of parent",
+    "causality_graph": "Complete cause-effect relationships",
+    "root_cause_analysis": "Trace back to original triggering event",
+    "impact_analysis": "Forward trace to all affected events"
+  },
+
+  "event_idempotency": {
+    "idempotent_events": "Events with idempotency flag marked in manifest",
+    "event_deduplication": "Same event_id means duplicate (handled via cache)",
+    "replay_safety": "Idempotent events can be replayed without side effects",
+    "deduplication_key": "Based on event_id",
+    "deduplication_window": "7 days (configurable)"
+  },
+
+  "event_retention_policy": {
+    "event_id_retention": "Indefinite (audit trail)",
+    "event_payload_retention": "30 days (searchable)",
+    "event_causality_retention": "30 days",
+    "causality_graph_retention": "30 days (for root cause analysis)"
+  },
+
+  "event_identity_validation": {
+    "unique_event_ids": "No duplicate event_ids in system",
+    "event_type_declared": "All event_types in SchemaRegistry",
+    "source_module_valid": "Source module exists and is initialized",
+    "schema_version_match": "Event version matches SchemaRegistry",
+    "causality_chain_valid": "All referenced events exist"
+  },
+
+  "governance": {
+    "sealed": true,
+    "immutable": true,
+    "read_only": true,
+    "event_identity_scheme_version": "1.0.0",
+    "scheme_validated": true,
+    "total_event_types_tracked": 45
+  }
+}

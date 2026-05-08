@@ -1,0 +1,173 @@
+{
+  "declaration": "SeverityLevels",
+  "version": "1.0.0",
+  "phase": "1.6",
+  "purpose": "Define error severity levels and their corresponding recovery actions",
+  "lastUpdated": "2026-05-07",
+  "severityLevels": [
+    {
+      "level": "CRITICAL",
+      "numericValue": 4,
+      "description": "System failure imminent or ongoing",
+      "systemImpact": "Affects multiple modules or core functionality",
+      "recoveryUrge": "Immediate — restore within seconds",
+      "recoveryApproach": "Full system recovery required",
+      "escalationRequired": true,
+      "alertChannels": ["critical-alert", "on-call", "leadership"],
+      "timelineExpectation_seconds": 5,
+      "characteristics": [
+        "Service unavailable",
+        "Data corruption risk",
+        "Cascade failure in progress",
+        "Core invariant violated"
+      ],
+      "examples": [
+        "Multiple critical invariant violations",
+        "Database connection pool exhausted",
+        "Memory usage critical (>90%)",
+        "Unrecoverable state detected"
+      ],
+      "recoveryActions": [
+        "Initiate full system restart if needed",
+        "Activate isolation strategies",
+        "Trigger backup/redundancy",
+        "Escalate to leadership"
+      ]
+    },
+    {
+      "level": "HIGH",
+      "numericValue": 3,
+      "description": "Significant system degradation",
+      "systemImpact": "Affects important functionality, may impact users",
+      "recoveryUrge": "Urgent — restore within 1-2 minutes",
+      "recoveryApproach": "Targeted component recovery",
+      "escalationRequired": false,
+      "alertChannels": ["high-alert", "on-call"],
+      "timelineExpectation_seconds": 60,
+      "characteristics": [
+        "Module failure",
+        "Performance degradation",
+        "Resource limits approached",
+        "Validation cycle slow"
+      ],
+      "examples": [
+        "Service fails to respond",
+        "High violation count in validation",
+        "Memory usage elevated (70-89%)",
+        "Slow cascade failure starting"
+      ],
+      "recoveryActions": [
+        "Restart affected service",
+        "Clear resource caches",
+        "Trigger garbage collection",
+        "Monitor for escalation"
+      ]
+    },
+    {
+      "level": "MEDIUM",
+      "numericValue": 2,
+      "description": "System operating with warnings",
+      "systemImpact": "Affects specific features, may require user action",
+      "recoveryUrge": "Standard — restore within 5-10 minutes",
+      "recoveryApproach": "Targeted repair or workaround",
+      "escalationRequired": false,
+      "alertChannels": ["warning"],
+      "timelineExpectation_seconds": 300,
+      "characteristics": [
+        "Specific operation fails",
+        "Warning-level violations",
+        "Resource usage elevated",
+        "Performance impacted"
+      ],
+      "examples": [
+        "Single service shows warnings",
+        "Version compatibility issues",
+        "Memory usage moderate (50-69%)",
+        "Increased error rate in one module"
+      ],
+      "recoveryActions": [
+        "Log and monitor",
+        "Attempt graceful recovery",
+        "Retry failed operations",
+        "Check logs for root cause"
+      ]
+    },
+    {
+      "level": "LOW",
+      "numericValue": 1,
+      "description": "Minor issues that do not affect system operation",
+      "systemImpact": "Negligible impact on functionality",
+      "recoveryUrge": "Deferred — fix during maintenance window",
+      "recoveryApproach": "Logging and monitoring only",
+      "escalationRequired": false,
+      "alertChannels": ["info"],
+      "timelineExpectation_seconds": 3600,
+      "characteristics": [
+        "Informational logging",
+        "Deprecation warnings",
+        "Normal resource usage",
+        "Expected validation patterns"
+      ],
+      "examples": [
+        "Deprecated API used",
+        "Cache miss patterns",
+        "Normal validation warnings",
+        "Expected operation timing"
+      ],
+      "recoveryActions": [
+        "Record metric",
+        "Update monitoring dashboard",
+        "Schedule maintenance if needed",
+        "Review trends"
+      ]
+    },
+    {
+      "level": "INFO",
+      "numericValue": 0,
+      "description": "Informational message, no action required",
+      "systemImpact": "No impact on functionality",
+      "recoveryUrge": "None — informational only",
+      "recoveryApproach": "Logging and metrics only",
+      "escalationRequired": false,
+      "alertChannels": ["metrics"],
+      "timelineExpectation_seconds": 0,
+      "characteristics": [
+        "Status updates",
+        "Normal operation tracking",
+        "Audit trail entries",
+        "Performance baseline"
+      ],
+      "examples": [
+        "Service started successfully",
+        "Validation cycle completed",
+        "Bootstrap phase finished",
+        "Normal operation detected"
+      ],
+      "recoveryActions": [
+        "No action required",
+        "Update metrics and dashboards",
+        "Archive audit trail"
+      ]
+    }
+  ],
+  "escalationMapping": {
+    "INFO": { "nextLevel": "LOW", "escalateAfter_count": null },
+    "LOW": { "nextLevel": "MEDIUM", "escalateAfter_count": 10 },
+    "MEDIUM": { "nextLevel": "HIGH", "escalateAfter_count": 5 },
+    "HIGH": { "nextLevel": "CRITICAL", "escalateAfter_count": 3 },
+    "CRITICAL": { "nextLevel": "CRITICAL", "escalateAfter_count": null }
+  },
+  "responseTimeByLevel": {
+    "CRITICAL": "0-5 seconds",
+    "HIGH": "5-60 seconds",
+    "MEDIUM": "60-300 seconds",
+    "LOW": "300+ seconds",
+    "INFO": "No time requirement"
+  },
+  "guarantees": [
+    "Every severity level is defined",
+    "Response timeline is clear",
+    "Escalation paths are specified",
+    "Alert channels are appropriate"
+  ]
+}

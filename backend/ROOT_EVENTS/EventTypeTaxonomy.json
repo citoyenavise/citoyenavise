@@ -1,0 +1,202 @@
+{
+  "taxonomy_version": "1.0.0",
+  "description": "Event type classification taxonomy for governance system",
+  "last_updated": "2026-05-08",
+  "categories": {
+    "SYSTEM_EVENTS": {
+      "description": "Core system lifecycle and health events",
+      "priority": 4,
+      "retention_days": 90,
+      "types": [
+        {
+          "name": "SYSTEM_BOOT",
+          "description": "Emitted on system initialization",
+          "owner": "autonomous-governance-orchestrator",
+          "severity_default": "INFO",
+          "actionable": false
+        },
+        {
+          "name": "SYSTEM_SHUTDOWN",
+          "description": "Emitted on graceful shutdown",
+          "owner": "autonomous-governance-orchestrator",
+          "severity_default": "INFO",
+          "actionable": false
+        },
+        {
+          "name": "SYSTEM_ERROR",
+          "description": "Emitted on critical system errors",
+          "owner": "autonomous-governance-orchestrator",
+          "severity_default": "CRITICAL",
+          "actionable": true
+        },
+        {
+          "name": "HEALTH",
+          "description": "Periodic health status updates",
+          "owner": "degradation-monitor",
+          "severity_default": "INFO",
+          "actionable": false
+        }
+      ]
+    },
+    "GOVERNANCE_EVENTS": {
+      "description": "Architectural compliance and validation events",
+      "priority": 3,
+      "retention_days": 90,
+      "types": [
+        {
+          "name": "VIOLATION",
+          "description": "Validation violation detected",
+          "owner": "runtime-validation-engine",
+          "severity_default": "MEDIUM",
+          "actionable": true
+        },
+        {
+          "name": "MODULE_NONCOMPLIANCE",
+          "description": "Module structural compliance violation",
+          "owner": "architectural-conformance-analyzer",
+          "severity_default": "HIGH",
+          "actionable": true
+        },
+        {
+          "name": "SCHEMA_INVALID",
+          "description": "Event schema validation failed",
+          "owner": "event-validation-engine",
+          "severity_default": "CRITICAL",
+          "actionable": true
+        },
+        {
+          "name": "POLICY_BREACH",
+          "description": "Governance policy breach detected",
+          "owner": "governance-validator",
+          "severity_default": "HIGH",
+          "actionable": true
+        }
+      ]
+    },
+    "HEALING_EVENTS": {
+      "description": "Automatic correction and degradation management events",
+      "priority": 2,
+      "retention_days": 60,
+      "types": [
+        {
+          "name": "HEALING",
+          "description": "Automatic correction applied",
+          "owner": "self-healing-orchestrator",
+          "severity_default": "LOW",
+          "actionable": true
+        },
+        {
+          "name": "AUTO_CORRECTION",
+          "description": "Auto-correction completed",
+          "owner": "auto-correction-engine",
+          "severity_default": "LOW",
+          "actionable": false
+        },
+        {
+          "name": "DEGRADATION_TRIGGERED",
+          "description": "System degradation initiated",
+          "owner": "degradation-monitor",
+          "severity_default": "MEDIUM",
+          "actionable": true
+        },
+        {
+          "name": "HEALING_PATTERN_DETECTED",
+          "description": "Recurring violation pattern identified",
+          "owner": "violation-pattern-analyzer",
+          "severity_default": "MEDIUM",
+          "actionable": true
+        }
+      ]
+    },
+    "RECOVERY_EVENTS": {
+      "description": "Recovery orchestration and resilience events",
+      "priority": 1,
+      "retention_days": 90,
+      "types": [
+        {
+          "name": "RECOVERY",
+          "description": "Recovery action initiated",
+          "owner": "recovery-orchestrator",
+          "severity_default": "HIGH",
+          "actionable": true
+        },
+        {
+          "name": "MODULE_RESTART",
+          "description": "Module restart triggered",
+          "owner": "recovery-orchestrator",
+          "severity_default": "HIGH",
+          "actionable": true
+        },
+        {
+          "name": "FALLBACK_ACTIVATED",
+          "description": "Fallback mechanism activated",
+          "owner": "recovery-orchestrator",
+          "severity_default": "HIGH",
+          "actionable": true
+        },
+        {
+          "name": "ESCALATION",
+          "description": "Violation escalated to recovery layer",
+          "owner": "self-healing-orchestrator",
+          "severity_default": "CRITICAL",
+          "actionable": true
+        }
+      ]
+    },
+    "DOMAIN_EVENTS": {
+      "description": "Application-level domain events (future use)",
+      "priority": 0,
+      "retention_days": 30,
+      "types": [
+        {
+          "name": "COMMENT_CREATED",
+          "description": "Comment created in application",
+          "owner": "comments-module",
+          "severity_default": "INFO",
+          "actionable": false
+        },
+        {
+          "name": "USER_UPDATED",
+          "description": "User profile updated",
+          "owner": "users-module",
+          "severity_default": "INFO",
+          "actionable": false
+        },
+        {
+          "name": "POST_DELETED",
+          "description": "Post deleted from application",
+          "owner": "posts-module",
+          "severity_default": "INFO",
+          "actionable": false
+        }
+      ]
+    }
+  },
+  "routing_rules": {
+    "SYSTEM_EVENTS": {
+      "route_to": ["audit-trail", "monitoring"],
+      "require_response": false,
+      "critical_on_failure": true
+    },
+    "GOVERNANCE_EVENTS": {
+      "route_to": ["healing", "recovery", "audit-trail"],
+      "require_response": true,
+      "critical_on_failure": true
+    },
+    "HEALING_EVENTS": {
+      "route_to": ["healing-orchestrator", "audit-trail"],
+      "require_response": false,
+      "critical_on_failure": false
+    },
+    "RECOVERY_EVENTS": {
+      "route_to": ["recovery-orchestrator", "audit-trail"],
+      "require_response": true,
+      "critical_on_failure": true
+    },
+    "DOMAIN_EVENTS": {
+      "route_to": ["domain-modules"],
+      "require_response": false,
+      "critical_on_failure": false
+    }
+  }
+}

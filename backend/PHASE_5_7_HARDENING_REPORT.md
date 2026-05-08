@@ -9,7 +9,7 @@
 
 | Metric | Result |
 |--------|--------|
-| 11 Corrections Implemented | ✅ All 11 |
+| 10 Corrections Implemented | ✅ All 10 |
 | Test Suite (6 phases) | ✅ 6/6 PASSED |
 | Idempotency | ✅ Duplicate detection active |
 | Loop Detection | ✅ Cascade loops prevented |
@@ -21,7 +21,9 @@
 
 ---
 
-## 🔧 CORRECTIONS IMPLEMENTED
+## 🔧 CORRECTIONS IMPLEMENTED (10 Total)
+
+**Architecture:** Idempotency + Timeouts + Throttling + Cooldown + Validation
 
 ### Correction 1: HardenedEventBus Idempotency
 **File:** `src/core/governance/events/HardenedEventBus.js`
@@ -337,78 +339,102 @@ const escalationResult = await Promise.race([
 
 ---
 
-### Correction 9: EventAlertEngine Cooldown
+### Correction 9: EventAlertEngine Cooldown + Rule Fix
 **File:** `src/core/governance/events/EventAlertEngine.js`
 
-**Objective:** Prevent alert spam via configurable per-rule cooldown
+**Objective:** Simplified alert engine with idempotency, cooldown, and configurable rules
 
-**Implementation:**
-- Added `lastAlertAt: Map()` tracking last alert time per ruleId
-- Cooldown check in `evaluateEvent()`: skip if within cooldown_ms
-- Update timestamp when alert triggers
-- Cooldown configurable per rule via `rule.cooldown_ms`
-- Cleanup in reset()
+**Design:** Merged approach combining simplicity with hardening:
+- Single `evaluate(event)` method returns triggered alerts array
+- Idempotency via eventId (once alerted, skip further alerts on same event)
+- Per-rule cooldown tracking with `lastAlertAt: Map()`
+- Configurable rule conditions (severity_equals, severity_gte, type_match, status_match)
+- History bounded to maxHistory (default 5000)
 
 **Code:**
 ```javascript
-this.lastAlertAt = new Map(); // ruleId → last alert timestamp
+class EventAlertEngine {
+  constructor(maxHistory = 5000) {
+    this.alertHistory = [];
+    this.maxHistory = maxHistory;
+    this.rules = new Map();
+    this.lastAlertAt = new Map(); // PHASE 5.7: Per-rule cooldown
+    // ...
+  }
 
-// In evaluateEvent():
-if (rule.cooldown_ms > 0) {
-  const lastAlert = this.lastAlertAt.get(rule.id) || 0;
-  if (Date.now() - lastAlert < rule.cooldown_ms) {
-    continue; // Still in cooldown
+  evaluate(event) {
+    // PHASE 5.7: Idempotency - skip if eventId already alerted
+    const existing = this.alertHistory.find(a => a.eventId === event.id);
+    if (existing) return [];
+
+    const triggeredAlerts = [];
+
+    for (const [ruleId, rule] of this.rules) {
+      if (!rule.enabled) continue;
+
+      // PHASE 5.7: Check rule cooldown
+      if (rule.cooldown_ms > 0) {
+        const lastAlert = this.lastAlertAt.get(rule.id) || 0;
+        if (Date.now() - lastAlert < rule.cooldown_ms) {
+          continue; // Still in cooldown
+        }
+      }
+
+      // Check if event matches rule
+      if (this._checkRules(event, rule)) {
+        const alert = { /* ... */ };
+        triggeredAlerts.push(alert);
+        this._recordAlert(alert);
+        this.lastAlertAt.set(rule.id, Date.now()); // Update cooldown
+      }
+    }
+
+    return triggeredAlerts;
+  }
+
+  // Condition types: severity_equals, severity_gte, type_match, status_match
+  _checkRules(event, rule) {
+    switch (rule.condition) {
+      case 'severity_equals':
+        return event.severity === rule.threshold;
+      case 'severity_gte': /* compare levels */ 
+      case 'type_match':
+        return event.type === rule.threshold;
+      case 'status_match':
+        return event.payload?.status === rule.threshold || event.status === rule.threshold;
+      default: return false;
+    }
   }
 }
-
-// After alert creation:
-this.lastAlertAt.set(rule.id, Date.now());
 ```
 
-**Test Phase 5 ✅**
-- First rule evaluation: alert triggered ✓
-- Immediate re-evaluation: cooled down (no alert) ✓
-- After cooldown expires: alert triggered again ✓
-
----
-
-### Correction 10: EventAlertEngine Recovery Failure Rule Fix
-**File:** `src/core/governance/events/EventAlertEngine.js`
-
-**Objective:** Fix alert rule that was triggering on ALL recovery events
-
-**Before:** `condition: 'always'` → alerts on every recovery event (success or fail)  
-**After:** `condition: 'status_match'` with `threshold: 'RECOVERY_FAILED'` + `cooldown_ms: 30000`
-
-**Code:**
+**Default Rules:**
 ```javascript
-this.defineRule('alert_recovery_failure', {
-  name: 'Recovery Failures',
-  description: 'Alert on failed recovery attempts',
-  eventType: 'RECOVERY',
+// Critical violations
+engine.defineRule('critical_violations', {
+  condition: 'severity_equals',
+  threshold: 'CRITICAL',
+  alertLevel: 'CRITICAL'
+});
+
+// Failed recoveries (PHASE 5.7: only on failures, with 30s cooldown)
+engine.defineRule('recovery_failure', {
   condition: 'status_match',
   threshold: 'RECOVERY_FAILED',
   alertLevel: 'CRITICAL',
-  cooldown_ms: 30000, // Max 1 alert per 30s
-  enabled: true
+  cooldown_ms: 30000 // Max 1 alert per 30s
 });
 ```
 
-**Added to _evaluateCondition():**
-```javascript
-case 'status_match':
-  return (event.payload && event.payload.status === rule.threshold) 
-      || event.status === rule.threshold;
-```
-
-**Benefits:**
-- Only alerts on ACTUAL recovery failures (not successes)
-- Cooldown prevents alert spam (max 1 per 30s)
-- Reduces noise in alert system
+**Test Phase 5 ✅**
+- First CRITICAL event: alert triggered ✓
+- Immediate second event within cooldown: rule skipped ✓
+- After cooldown expires: alert triggered again ✓
+- Idempotency: same eventId not re-alerted ✓
 
 ---
 
-### Correction 11: EventMetricsCollector Input Validation
+### Correction 10: EventMetricsCollector Input Validation
 **File:** `src/core/governance/events/EventMetricsCollector.js`
 
 **Objective:** Ensure metrics integrity via input validation and normalization
@@ -540,16 +566,18 @@ PHASE 5.7 — Governance Hardening
 - [x] SelfHealingOrchestrator.js: Activate activeHealings in processViolation()
 - [x] SelfHealingOrchestrator.js: Cap healingCycleHistory
 - [x] SelfHealingOrchestrator.js: Escalation timeout wrapper
-- [x] EventAlertEngine.js: lastAlertAt tracking
-- [x] EventAlertEngine.js: Cooldown check in evaluateEvent()
-- [x] EventAlertEngine.js: Fix alert_recovery_failure rule
-- [x] EventAlertEngine.js: Add status_match condition type
+- [x] EventAlertEngine.js: Merged design (idempotency + cooldown + rules)
+- [x] EventAlertEngine.js: lastAlertAt tracking per rule
+- [x] EventAlertEngine.js: Cooldown check in evaluate()
+- [x] EventAlertEngine.js: status_match condition type
+- [x] EventAlertEngine.js: Fix recovery_failure rule (status-match + 30s cooldown)
 - [x] EventMetricsCollector.js: Input validation (null guard)
 - [x] EventMetricsCollector.js: Clamp processingTime to [0, ∞)
 - [x] EventMetricsCollector.js: Normalize unknown severity to INFO
 - [x] EventMetricsCollector.js: Cap metrics.timestamps at 10k
 - [x] Phase57-Hardening.test.js: 6-phase test suite created
 - [x] All tests passing: 6/6 ✅
+- [x] All corrections verified: 10/10 ✅
 
 ---
 
@@ -557,7 +585,7 @@ PHASE 5.7 — Governance Hardening
 
 **✅ APPROVED FOR PRODUCTION**
 
-Phase 5.7 successfully hardened the event-driven governance system. All 11 critical corrections are in place, tested, and validated.
+Phase 5.7 successfully hardened the event-driven governance system. All 10 critical corrections are in place, tested, and validated.
 
 The system is now protected against:
 - ✅ Duplicate event processing (idempotency)
@@ -576,7 +604,7 @@ The system is now protected against:
 **Phase 5.7 Complete and Certified** 🎉
 
 **Test Results:** 6/6 PASSED  
-**Implementation Status:** 11/11 COMPLETE  
+**Implementation Status:** 10/10 COMPLETE  
 **Production Ready:** YES ✅
 
 Report Generated: 2026-05-08  

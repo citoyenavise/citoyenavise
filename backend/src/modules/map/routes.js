@@ -1,24 +1,7 @@
-/**
- * Routes carte interactive (GeoJSON)
- */
-
 const express = require('express');
-const { asyncHandler } = require('../../core/middleware/errorHandler');
-const { requireRole } = require('../../core/middleware/auth');
-const mapController = require('./controller');
-
 const router = express.Router();
+const controller = require('./controllers/map.controller');
 
-// Get nodes as GeoJSON
-router.get('/nodes', asyncHandler(mapController.getNodes));
-
-// Create node (admin only)
-router.post('/nodes', requireRole('admin'), asyncHandler(mapController.createNode));
-
-// Update node (admin only)
-router.put('/nodes/:id', requireRole('admin'), asyncHandler(mapController.updateNode));
-
-// Delete node (admin only)
-router.delete('/nodes/:id', requireRole('admin'), asyncHandler(mapController.deleteNode));
+router.get('/', (req, res, next) => controller.getAll(req, res, next));
 
 module.exports = router;

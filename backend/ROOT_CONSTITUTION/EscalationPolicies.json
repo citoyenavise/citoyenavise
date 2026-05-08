@@ -1,0 +1,372 @@
+{
+  "declaration": "EscalationPolicies",
+  "version": "1.0.0",
+  "phase": "1.6",
+  "purpose": "Define when and how to escalate issues to humans",
+  "lastUpdated": "2026-05-07",
+  "escalationPolicies": [
+    {
+      "policyId": "ESCALATE_CRITICAL_INVARIANT",
+      "name": "Critical Invariant Violation",
+      "description": "Escalate when core invariant is violated",
+      "triggerCondition": "CRITICAL severity violation of 8 core invariants",
+      "invariants": [
+        "INV_NO_CASCADE_FAILURES",
+        "INV_TYPE_SAFETY",
+        "INV_PERMISSION_ENFORCEMENT",
+        "INV_EVENT_PROPAGATION",
+        "INV_STATE_MACHINE_CORRECTNESS",
+        "INV_DATA_CONSISTENCY",
+        "INV_MODULE_ISOLATION",
+        "INV_SERVICE_AVAILABILITY"
+      ],
+      "escalationThreshold": {
+        "condition": "Any CRITICAL violation",
+        "action": "Immediate escalation"
+      },
+      "escalationLevels": [
+        {
+          "level": 1,
+          "recipient": "on-call-engineer",
+          "channels": ["pagerduty", "email", "sms"],
+          "message": "CRITICAL: {invariant} violated - {description}",
+          "responseTime_min": 5,
+          "actions": [
+            "Acknowledge alert",
+            "Investigate root cause",
+            "Begin recovery"
+          ]
+        },
+        {
+          "level": 2,
+          "condition": "Not resolved within 10 minutes",
+          "recipient": "engineering-lead",
+          "channels": ["pagerduty", "slack", "email"],
+          "message": "ESCALATION: {invariant} still violated after 10 min",
+          "responseTime_min": 2,
+          "actions": [
+            "Review recovery attempts",
+            "Prepare rollback plan",
+            "Consider system restart"
+          ]
+        },
+        {
+          "level": 3,
+          "condition": "Not resolved within 30 minutes",
+          "recipient": "engineering-manager",
+          "channels": ["pagerduty", "slack", "email", "phone"],
+          "message": "CRITICAL ESCALATION: Unresolved {invariant} violation",
+          "responseTime_min": 1,
+          "actions": [
+            "Executive decision making",
+            "Resource allocation",
+            "Customer communication"
+          ]
+        }
+      ]
+    },
+    {
+      "policyId": "ESCALATE_RECOVERY_EXHAUSTED",
+      "name": "Recovery Exhausted",
+      "description": "Escalate when automatic recovery cannot fix the issue",
+      "triggerCondition": "Automated recovery attempts exhausted",
+      "escalationThreshold": {
+        "maxRetries": "3",
+        "condition": "All recovery attempts failed",
+        "action": "Immediate escalation"
+      },
+      "escalationLevels": [
+        {
+          "level": 1,
+          "recipient": "on-call-engineer",
+          "channels": ["email", "slack", "pagerduty"],
+          "message": "Recovery failed: {errorCategory} - {details}",
+          "responseTime_min": 10,
+          "actions": [
+            "Investigate failure reason",
+            "Attempt manual recovery",
+            "Consider escalation"
+          ]
+        },
+        {
+          "level": 2,
+          "condition": "Manual recovery also failing",
+          "recipient": "engineering-lead",
+          "channels": ["pagerduty", "slack", "email"],
+          "message": "Manual recovery failed - expert needed",
+          "responseTime_min": 5,
+          "actions": [
+            "Deep root cause analysis",
+            "Execute fallback procedure",
+            "Prepare incident report"
+          ]
+        }
+      ]
+    },
+    {
+      "policyId": "ESCALATE_REPEATED_FAILURES",
+      "name": "Repeated Failures",
+      "description": "Escalate when errors repeat frequently despite recovery",
+      "triggerCondition": "Same error type repeats multiple times",
+      "escalationThreshold": {
+        "countWindow_min": 5,
+        "maxOccurrences": 3,
+        "condition": "Same error 3+ times in 5 minutes",
+        "action": "Escalation"
+      },
+      "escalationLevels": [
+        {
+          "level": 1,
+          "recipient": "team-lead",
+          "channels": ["slack", "email"],
+          "message": "Recurring error: {errorCategory} ({count} times in 5 min)",
+          "responseTime_min": 15,
+          "actions": [
+            "Identify pattern",
+            "Look for common cause",
+            "Plan targeted fix"
+          ]
+        },
+        {
+          "level": 2,
+          "condition": "Still occurring after 20 minutes",
+          "recipient": "engineering-lead",
+          "channels": ["pagerduty", "slack"],
+          "message": "Unresolved recurring error detected",
+          "responseTime_min": 5,
+          "actions": [
+            "Code review for root cause",
+            "Deploy hotfix",
+            "Monitor closely"
+          ]
+        }
+      ]
+    },
+    {
+      "policyId": "ESCALATE_CASCADE_DETECTED",
+      "name": "Cascade Failure Detected",
+      "description": "Escalate when failure cascading across modules",
+      "triggerCondition": "Error spreading to multiple modules",
+      "escalationThreshold": {
+        "affectedModules": 2,
+        "condition": "2+ modules affected",
+        "action": "Immediate escalation"
+      },
+      "escalationLevels": [
+        {
+          "level": 1,
+          "recipient": "on-call-engineer",
+          "channels": ["pagerduty", "email", "sms"],
+          "message": "CASCADE: {rootModule} failure affecting {affectedCount} modules",
+          "responseTime_min": 3,
+          "actions": [
+            "Identify cascade path",
+            "Activate isolation",
+            "Stop further spread"
+          ]
+        },
+        {
+          "level": 2,
+          "condition": "3+ modules affected",
+          "recipient": "engineering-lead",
+          "channels": ["pagerduty", "slack", "phone"],
+          "message": "CRITICAL: Cascade affecting {affectedCount} modules",
+          "responseTime_min": 2,
+          "actions": [
+            "Review isolation effectiveness",
+            "Consider full system restart",
+            "Notify stakeholders"
+          ]
+        }
+      ]
+    },
+    {
+      "policyId": "ESCALATE_RESOURCE_CRITICAL",
+      "name": "Critical Resource Depletion",
+      "description": "Escalate when critical resources nearly exhausted",
+      "triggerCondition": "Critical resources at high utilization",
+      "escalationThreshold": {
+        "memory": "85% utilization",
+        "connections": "95% utilization",
+        "threads": "90% utilization",
+        "condition": "Any critical resource near limit",
+        "action": "High priority escalation"
+      },
+      "escalationLevels": [
+        {
+          "level": 1,
+          "recipient": "team-lead",
+          "channels": ["slack", "email"],
+          "message": "Resource warning: {resource} at {utilization}%",
+          "responseTime_min": 20,
+          "actions": [
+            "Monitor utilization trend",
+            "Check for resource leaks",
+            "Plan scaling if needed"
+          ]
+        },
+        {
+          "level": 2,
+          "condition": "Resource reaches 98% utilization",
+          "recipient": "engineering-lead",
+          "channels": ["pagerduty", "slack"],
+          "message": "CRITICAL: {resource} nearly exhausted at {utilization}%",
+          "responseTime_min": 5,
+          "actions": [
+            "Immediately scale resource",
+            "Activate circuit breakers",
+            "Prepare fallback"
+          ]
+        }
+      ]
+    },
+    {
+      "policyId": "ESCALATE_DATA_INTEGRITY",
+      "name": "Data Integrity Concern",
+      "description": "Escalate when data consistency is compromised",
+      "triggerCondition": "Data consistency violations detected",
+      "escalationThreshold": {
+        "condition": "INV_DATA_CONSISTENCY violated",
+        "action": "Immediate critical escalation"
+      },
+      "escalationLevels": [
+        {
+          "level": 1,
+          "recipient": "database-team + on-call-engineer",
+          "channels": ["pagerduty", "email", "sms"],
+          "message": "Data integrity violation: {details}",
+          "responseTime_min": 2,
+          "actions": [
+            "Stop write operations if necessary",
+            "Verify data consistency",
+            "Plan recovery/repair"
+          ]
+        },
+        {
+          "level": 2,
+          "condition": "Data corruption confirmed",
+          "recipient": "engineering-manager + CTO",
+          "channels": ["pagerduty", "phone", "email"],
+          "message": "CRITICAL: Data corruption detected and confirmed",
+          "responseTime_min": 1,
+          "actions": [
+            "Executive decision on rollback",
+            "Customer communication plan",
+            "Forensic analysis"
+          ]
+        }
+      ]
+    },
+    {
+      "policyId": "ESCALATE_SECURITY_CONCERN",
+      "name": "Security Boundary Violation",
+      "description": "Escalate when security/permission boundaries violated",
+      "triggerCondition": "Unauthorized access or permission violation",
+      "escalationThreshold": {
+        "condition": "INV_PERMISSION_ENFORCEMENT violated",
+        "action": "Immediate critical escalation"
+      },
+      "escalationLevels": [
+        {
+          "level": 1,
+          "recipient": "security-team + on-call-engineer",
+          "channels": ["pagerduty", "email", "sms"],
+          "message": "Security: Unauthorized {action} by {actor}",
+          "responseTime_min": 1,
+          "actions": [
+            "Block further attempts",
+            "Audit access logs",
+            "Notify security"
+          ]
+        },
+        {
+          "level": 2,
+          "condition": "Multiple violations or breach confirmed",
+          "recipient": "CISO + engineering-manager",
+          "channels": ["pagerduty", "phone", "direct"],
+          "message": "CRITICAL SECURITY: Breach or intrusion detected",
+          "responseTime_min": 1,
+          "actions": [
+            "Activate incident response",
+            "Isolate affected systems",
+            "Forensic investigation"
+          ]
+        }
+      ]
+    },
+    {
+      "policyId": "ESCALATE_BOOTSTRAP_FAILURE",
+      "name": "Bootstrap Failure",
+      "description": "Escalate when system cannot initialize",
+      "triggerCondition": "System bootstrap fails or times out",
+      "escalationThreshold": {
+        "condition": "ERR_BOOTSTRAP_FAILURE",
+        "action": "Immediate escalation"
+      },
+      "escalationLevels": [
+        {
+          "level": 1,
+          "recipient": "on-call-engineer + devops",
+          "channels": ["pagerduty", "email", "sms"],
+          "message": "Bootstrap failed at phase: {phase}",
+          "responseTime_min": 3,
+          "actions": [
+            "Review bootstrap logs",
+            "Check dependencies",
+            "Attempt recovery"
+          ]
+        },
+        {
+          "level": 2,
+          "condition": "Bootstrap still failing after 10 minutes",
+          "recipient": "engineering-lead + devops-lead",
+          "channels": ["pagerduty", "phone"],
+          "message": "CRITICAL: System cannot start",
+          "responseTime_min": 2,
+          "actions": [
+            "Rollback to last known good",
+            "Execute disaster recovery",
+            "Notify stakeholders"
+          ]
+        }
+      ]
+    }
+  ],
+  "escalationGlobalSettings": {
+    "maximumWaitTime_sec": {
+      "CRITICAL": 5,
+      "HIGH": 30,
+      "MEDIUM": 300
+    },
+    "notificationChannels": {
+      "pagerduty": "Immediate alert to on-call engineer",
+      "email": "Email notification",
+      "slack": "Team notification",
+      "sms": "SMS for critical alerts",
+      "phone": "Phone call for urgent matters"
+    },
+    "escalationTracking": {
+      "logAllEscalations": true,
+      "trackResolutionTime": true,
+      "autoGenerateIncidents": true,
+      "postMortemOnCritical": true
+    },
+    "deescalationRules": {
+      "condition": "Issue resolved and no new issues in 10 min",
+      "action": "Remove from escalation, update status",
+      "notifyResolved": true
+    }
+  },
+  "communicationTemplates": {
+    "level1_message": "[{severity}] {category}: {description} (Ref: {incidentId})",
+    "level2_message": "ESCALATION: {category} unresolved for {duration} - {description}",
+    "level3_message": "CRITICAL ESCALATION: {category} requires executive attention"
+  },
+  "guarantees": [
+    "Every error severity has escalation rules",
+    "Response times are bounded",
+    "Escalation paths are clear and explicit",
+    "Human involvement is guaranteed for critical issues",
+    "All escalations are tracked and logged"
+  ]
+}

@@ -1,0 +1,229 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Event Types Registry",
+  "description": "Exhaustive declaration of all system events",
+  "version": "1.0.0",
+  "phase": "1.4",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+  "lastUpdated": "2026-05-07",
+  "governance_level": "CONSTITUTIONAL",
+
+  "eventCategories": {
+    "SYSTEM": {
+      "description": "Core system lifecycle events",
+      "eventTypes": [
+        {
+          "id": "SYSTEM_INITIALIZED",
+          "description": "System initialization complete",
+          "version": "1.0.0",
+          "compatibility": ["1.0.0"]
+        },
+        {
+          "id": "SYSTEM_READY",
+          "description": "System ready for operations",
+          "version": "1.0.0",
+          "compatibility": ["1.0.0"]
+        },
+        {
+          "id": "SYSTEM_SHUTDOWN",
+          "description": "System shutdown initiated",
+          "version": "1.0.0",
+          "compatibility": ["1.0.0"]
+        },
+        {
+          "id": "SYSTEM_ERROR",
+          "description": "System-level error occurred",
+          "version": "1.0.0",
+          "compatibility": ["1.0.0"]
+        }
+      ]
+    },
+
+    "MODULE": {
+      "description": "Module lifecycle and state events",
+      "eventTypes": [
+        {
+          "id": "MODULE_LOADED",
+          "description": "Module loaded successfully",
+          "version": "1.0.0",
+          "compatibility": ["1.0.0"]
+        },
+        {
+          "id": "MODULE_INITIALIZED",
+          "description": "Module initialized",
+          "version": "1.0.0",
+          "compatibility": ["1.0.0"]
+        },
+        {
+          "id": "MODULE_READY",
+          "description": "Module ready for service",
+          "version": "1.0.0",
+          "compatibility": ["1.0.0"]
+        },
+        {
+          "id": "MODULE_UNLOADED",
+          "description": "Module unloaded",
+          "version": "1.0.0",
+          "compatibility": ["1.0.0"]
+        },
+        {
+          "id": "MODULE_ERROR",
+          "description": "Module error",
+          "version": "1.0.0",
+          "compatibility": ["1.0.0"]
+        },
+        {
+          "id": "MODULE_STATE_CHANGED",
+          "description": "Module state transition",
+          "version": "1.0.0",
+          "compatibility": ["1.0.0"]
+        }
+      ]
+    },
+
+    "DOMAIN": {
+      "description": "Domain-level business events",
+      "modules": {
+        "auth": [
+          {
+            "id": "AUTH_LOGIN_ATTEMPT",
+            "description": "User login attempted",
+            "version": "1.0.0",
+            "compatibility": ["1.0.0"]
+          },
+          {
+            "id": "AUTH_LOGIN_SUCCESS",
+            "description": "User login successful",
+            "version": "1.0.0",
+            "compatibility": ["1.0.0"]
+          },
+          {
+            "id": "AUTH_LOGIN_FAILED",
+            "description": "User login failed",
+            "version": "1.0.0",
+            "compatibility": ["1.0.0"]
+          },
+          {
+            "id": "AUTH_LOGOUT",
+            "description": "User logout",
+            "version": "1.0.0",
+            "compatibility": ["1.0.0"]
+          }
+        ],
+
+        "users": [
+          {
+            "id": "USER_CREATED",
+            "description": "User profile created",
+            "version": "1.0.0",
+            "compatibility": ["1.0.0"]
+          },
+          {
+            "id": "USER_UPDATED",
+            "description": "User profile updated",
+            "version": "1.0.0",
+            "compatibility": ["1.0.0"]
+          },
+          {
+            "id": "USER_DELETED",
+            "description": "User profile deleted",
+            "version": "1.0.0",
+            "compatibility": ["1.0.0"]
+          }
+        ],
+
+        "posts": [
+          {
+            "id": "POST_CREATED",
+            "description": "Post published",
+            "version": "1.0.0",
+            "compatibility": ["1.0.0"]
+          },
+          {
+            "id": "POST_UPDATED",
+            "description": "Post updated",
+            "version": "1.0.0",
+            "compatibility": ["1.0.0"]
+          },
+          {
+            "id": "POST_DELETED",
+            "description": "Post deleted",
+            "version": "1.0.0",
+            "compatibility": ["1.0.0"]
+          }
+        ],
+
+        "analytics": [
+          {
+            "id": "ANALYTICS_EVENT_TRACKED",
+            "description": "Analytics event logged",
+            "version": "1.0.0",
+            "compatibility": ["1.0.0"]
+          },
+          {
+            "id": "ANALYTICS_METRIC_CALCULATED",
+            "description": "Metric calculated",
+            "version": "1.0.0",
+            "compatibility": ["1.0.0"]
+          }
+        ]
+      }
+    },
+
+    "GOVERNANCE": {
+      "description": "Governance and compliance events",
+      "eventTypes": [
+        {
+          "id": "GOVERNANCE_VIOLATION_DETECTED",
+          "description": "Governance rule violation",
+          "version": "1.0.0",
+          "compatibility": ["1.0.0"]
+        },
+        {
+          "id": "GOVERNANCE_VIOLATION_RESOLVED",
+          "description": "Governance violation resolved",
+          "version": "1.0.0",
+          "compatibility": ["1.0.0"]
+        },
+        {
+          "id": "GOVERNANCE_RULE_ENFORCED",
+          "description": "Governance rule enforced",
+          "version": "1.0.0",
+          "compatibility": ["1.0.0"]
+        }
+      ]
+    },
+
+    "INFRASTRUCTURE": {
+      "description": "Infrastructure and operational events",
+      "eventTypes": [
+        {
+          "id": "DATABASE_CONNECTED",
+          "description": "Database connection established",
+          "version": "1.0.0",
+          "compatibility": ["1.0.0"]
+        },
+        {
+          "id": "DATABASE_DISCONNECTED",
+          "description": "Database connection lost",
+          "version": "1.0.0",
+          "compatibility": ["1.0.0"]
+        },
+        {
+          "id": "CACHE_INVALIDATED",
+          "description": "Cache invalidated",
+          "version": "1.0.0",
+          "compatibility": ["1.0.0"]
+        }
+      ]
+    }
+  },
+
+  "totalEventTypes": 45,
+  "versioningStrategy": "SEMVER",
+  "compatibilityPolicy": "BACKWARD_COMPATIBLE_WITHIN_MAJOR",
+  "eventNamingConvention": "MODULE_EVENT_NAME or CATEGORY_EVENT_NAME",
+  "declarationComplete": true
+}

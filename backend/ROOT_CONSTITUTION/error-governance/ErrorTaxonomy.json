@@ -1,0 +1,201 @@
+{
+  "version": "1.0.0",
+  "description": "Constitutional definition of error taxonomy, codes, and severity levels",
+  "sealed": true,
+  "lastUpdated": "2026-05-08",
+  "errorCategories": {
+    "VALIDATION": {
+      "code": 4000,
+      "severity": "LOW",
+      "description": "Input validation failures",
+      "examples": [
+        "missing_required_field",
+        "invalid_format",
+        "value_out_of_range",
+        "type_mismatch"
+      ],
+      "httpStatus": 400,
+      "retryable": false
+    },
+    "AUTHENTICATION": {
+      "code": 4010,
+      "severity": "MEDIUM",
+      "description": "Authentication failures",
+      "examples": [
+        "invalid_credentials",
+        "expired_token",
+        "invalid_token",
+        "missing_credentials"
+      ],
+      "httpStatus": 401,
+      "retryable": false
+    },
+    "AUTHORIZATION": {
+      "code": 4030,
+      "severity": "MEDIUM",
+      "description": "Authorization and permission failures",
+      "examples": [
+        "insufficient_permissions",
+        "resource_forbidden",
+        "capability_denied",
+        "role_required"
+      ],
+      "httpStatus": 403,
+      "retryable": false
+    },
+    "NOT_FOUND": {
+      "code": 4040,
+      "severity": "LOW",
+      "description": "Resource not found",
+      "examples": [
+        "resource_deleted",
+        "invalid_id",
+        "endpoint_not_found",
+        "version_not_found"
+      ],
+      "httpStatus": 404,
+      "retryable": false
+    },
+    "CONFLICT": {
+      "code": 4090,
+      "severity": "LOW",
+      "description": "Resource state conflicts",
+      "examples": [
+        "duplicate_resource",
+        "version_conflict",
+        "state_conflict",
+        "already_exists"
+      ],
+      "httpStatus": 409,
+      "retryable": false
+    },
+    "RATE_LIMIT": {
+      "code": 4290,
+      "severity": "MEDIUM",
+      "description": "Rate limiting and quota exceeded",
+      "examples": [
+        "quota_exceeded",
+        "too_many_requests",
+        "rate_limit_exceeded",
+        "too_many_attempts"
+      ],
+      "httpStatus": 429,
+      "retryable": true
+    },
+    "SERVICE_ERROR": {
+      "code": 5000,
+      "severity": "HIGH",
+      "description": "Internal service errors",
+      "examples": [
+        "database_error",
+        "service_unavailable",
+        "internal_error",
+        "unexpected_error"
+      ],
+      "httpStatus": 500,
+      "retryable": true
+    },
+    "TIMEOUT": {
+      "code": 5040,
+      "severity": "HIGH",
+      "description": "Operation timeouts",
+      "examples": [
+        "query_timeout",
+        "service_timeout",
+        "operation_timeout",
+        "deadline_exceeded"
+      ],
+      "httpStatus": 504,
+      "retryable": true
+    },
+    "DEPENDENCY_ERROR": {
+      "code": 5020,
+      "severity": "CRITICAL",
+      "description": "External dependency failures",
+      "examples": [
+        "database_unavailable",
+        "cache_unavailable",
+        "service_unavailable",
+        "external_service_down"
+      ],
+      "httpStatus": 503,
+      "retryable": true
+    },
+    "CONFIG_ERROR": {
+      "code": 5030,
+      "severity": "CRITICAL",
+      "description": "Configuration or environment errors",
+      "examples": [
+        "missing_config",
+        "invalid_config",
+        "environment_error",
+        "initialization_failed"
+      ],
+      "httpStatus": 500,
+      "retryable": false
+    }
+  },
+  "severityLevels": {
+    "LOW": {
+      "level": 1,
+      "color": "yellow",
+      "action": "log",
+      "escalate": false,
+      "examples": ["validation errors", "not found", "conflicts"]
+    },
+    "MEDIUM": {
+      "level": 2,
+      "color": "orange",
+      "action": "warn",
+      "escalate": true,
+      "escalateThreshold": 10,
+      "examples": ["auth errors", "rate limits", "transient failures"]
+    },
+    "HIGH": {
+      "level": 3,
+      "color": "red",
+      "action": "error",
+      "escalate": true,
+      "escalateThreshold": 5,
+      "examples": ["service errors", "timeouts", "db failures"]
+    },
+    "CRITICAL": {
+      "level": 4,
+      "color": "darkred",
+      "action": "error",
+      "escalate": true,
+      "escalateThreshold": 1,
+      "examples": ["dependency down", "config errors", "system down"]
+    }
+  },
+  "mandatoryErrorFields": {
+    "code": "string (e.g., 'VALIDATION_ERROR')",
+    "message": "string (user-friendly message)",
+    "category": "string (from errorCategories)",
+    "severity": "string (LOW, MEDIUM, HIGH, CRITICAL)",
+    "moduleId": "string (module that originated error)",
+    "timestamp": "ISO 8601 timestamp",
+    "traceId": "string (for distributed tracing)",
+    "requestId": "string (for request tracking)",
+    "details": "object (optional, context-specific data)",
+    "originalError": "string (optional, stack trace or original error)"
+  },
+  "errorPropagationRules": {
+    "validation": "do not escalate, log as LOW",
+    "authentication": "escalate if repeated (>5 per minute), log as MEDIUM",
+    "authorization": "escalate if suspicious pattern (>10 per minute), log as MEDIUM",
+    "serviceError": "escalate immediately, log as HIGH",
+    "dependencyError": "escalate immediately, trigger circuit breaker, log as CRITICAL",
+    "configError": "block startup, escalate immediately, log as CRITICAL"
+  },
+  "recoveryStrategies": {
+    "VALIDATION": "return error to client, no retry",
+    "AUTHENTICATION": "return error to client, suggest re-login",
+    "AUTHORIZATION": "return error to client, no retry",
+    "RATE_LIMIT": "return error with retry-after header",
+    "SERVICE_ERROR": "retry with exponential backoff, escalate after 3 retries",
+    "TIMEOUT": "retry with exponential backoff, escalate after 3 retries",
+    "DEPENDENCY_ERROR": "fail-fast, escalate immediately, trigger circuit breaker",
+    "CONFIG_ERROR": "block startup, escalate immediately"
+  }
+}

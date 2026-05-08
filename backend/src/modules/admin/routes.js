@@ -11,7 +11,7 @@ const validateRequest = require("../../middlewares/validateRequest");
 
 const { PERMISSIONS } = require("./permissions");
 const { createListUsersSchema, updateRoleSchema, banUserSchema } = require("./schema");
-const { AdminController } = require("./controller");
+const AdminController = require("./controllers/admin.controller");
 
 // List users
 router.get(

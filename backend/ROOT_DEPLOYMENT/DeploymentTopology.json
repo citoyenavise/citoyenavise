@@ -1,0 +1,253 @@
+{
+  "version": "1.0.0",
+  "description": "Constitutional definition of deployment topology and infrastructure mapping",
+  "sealed": true,
+  "lastUpdated": "2026-05-08",
+  "deploymentModel": {
+    "type": "multi_environment_zero_friction",
+    "strategy": "immutable_infrastructure",
+    "governance": "constitutional_enforcement"
+  },
+  "environments": {
+    "development": {
+      "type": "local_development",
+      "purpose": "Feature development and testing",
+      "isolation": "per_developer",
+      "autoscaling": false,
+      "replicas": 1,
+      "monitoring": "basic",
+      "backup": false,
+      "cost_tier": "minimal"
+    },
+    "staging": {
+      "type": "pre_production",
+      "purpose": "Integration testing and release validation",
+      "isolation": "shared_staging",
+      "autoscaling": false,
+      "replicas": 2,
+      "monitoring": "full",
+      "backup": true,
+      "data_freshness": "24_hours_old",
+      "cost_tier": "standard"
+    },
+    "production": {
+      "type": "live_customer_facing",
+      "purpose": "Customer-facing production system",
+      "isolation": "complete_isolation",
+      "autoscaling": true,
+      "replicas": 3,
+      "monitoring": "advanced_plus_alerting",
+      "backup": true,
+      "backup_frequency": "hourly",
+      "disaster_recovery": true,
+      "data_freshness": "realtime",
+      "cost_tier": "premium",
+      "sla": "99.9% availability"
+    }
+  },
+  "deploymentRegions": {
+    "primary": {
+      "region": "us-east-1",
+      "purpose": "Primary deployment region",
+      "replicas": 3,
+      "failover": false
+    },
+    "secondary": {
+      "region": "eu-west-1",
+      "purpose": "Disaster recovery and failover",
+      "replicas": 1,
+      "enabled": false,
+      "enable_condition": "primary_region_down"
+    }
+  },
+  "serviceDeploymentMapping": {
+    "tier1_critical": {
+      "services": ["auth", "users", "core"],
+      "deployment_strategy": "blue_green",
+      "health_check_frequency": "every_10_seconds",
+      "auto_scaling": {
+        "enabled": true,
+        "min_instances": 3,
+        "max_instances": 10,
+        "scale_up_threshold": "cpu > 70%",
+        "scale_down_threshold": "cpu < 30%"
+      },
+      "rollback_condition": "health_check_failing_5_consecutive"
+    },
+    "tier2_primary": {
+      "services": ["posts", "feed", "notifications", "comments"],
+      "deployment_strategy": "canary",
+      "health_check_frequency": "every_30_seconds",
+      "auto_scaling": {
+        "enabled": true,
+        "min_instances": 2,
+        "max_instances": 5,
+        "scale_up_threshold": "cpu > 75%",
+        "scale_down_threshold": "cpu < 25%"
+      },
+      "rollback_condition": "error_rate > 1%"
+    },
+    "tier3_secondary": {
+      "services": ["analytics", "search", "moderation"],
+      "deployment_strategy": "rolling",
+      "health_check_frequency": "every_60_seconds",
+      "auto_scaling": {
+        "enabled": true,
+        "min_instances": 1,
+        "max_instances": 3,
+        "scale_up_threshold": "cpu > 80%",
+        "scale_down_threshold": "cpu < 20%"
+      },
+      "rollback_condition": "error_rate > 5%"
+    },
+    "tier4_optional": {
+      "services": ["ai_mascot", "webhooks", "reports"],
+      "deployment_strategy": "rolling",
+      "health_check_frequency": "every_120_seconds",
+      "auto_scaling": {
+        "enabled": false,
+        "min_instances": 1,
+        "max_instances": 2
+      },
+      "rollback_condition": "service_unavailable"
+    }
+  },
+  "deploymentStrategies": {
+    "blue_green": {
+      "description": "Zero-downtime deployment with instant rollback",
+      "used_for": "critical_services",
+      "process": [
+        "deploy_new_version_to_green",
+        "health_check_on_green",
+        "switch_traffic_to_green",
+        "keep_blue_running_for_instant_rollback",
+        "monitor_for_30_seconds",
+        "remove_blue_if_stable"
+      ],
+      "rollback_time": "< 10 seconds"
+    },
+    "canary": {
+      "description": "Gradual rollout with automatic rollback",
+      "used_for": "primary_services",
+      "process": [
+        "deploy_to_1_canary_instance",
+        "route_5%_traffic_to_canary",
+        "monitor_metrics_for_2_minutes",
+        "if_healthy_increase_to_25%",
+        "monitor_for_5_minutes",
+        "if_healthy_complete_rollout",
+        "if_unhealthy_rollback_automatically"
+      ],
+      "rollback_time": "< 30 seconds"
+    },
+    "rolling": {
+      "description": "Instance-by-instance update",
+      "used_for": "secondary_services",
+      "process": [
+        "take_instance_1_offline",
+        "deploy_new_version",
+        "health_check_and_bring_online",
+        "repeat_for_all_instances",
+        "monitor_overall_health"
+      ],
+      "rollback_time": "< 5 minutes"
+    }
+  },
+  "runtimeIsolation": {
+    "modules": {
+      "isolation_level": "process_boundary",
+      "resource_limits": {
+        "memory": "512MB_per_module",
+        "cpu": "0.5_cores_per_module",
+        "disk": "100MB_temp_per_module"
+      },
+      "restart_policy": "on_failure"
+    },
+    "databases": {
+      "isolation_level": "schema_level",
+      "read_replicas": true,
+      "backup_frequency": "hourly",
+      "point_in_time_recovery": true
+    },
+    "cache": {
+      "isolation_level": "namespace_level",
+      "ttl": "5_minutes",
+      "eviction_policy": "LRU"
+    }
+  },
+  "containerOrchestration": {
+    "platform": "kubernetes",
+    "cluster_size": {
+      "development": "1_node",
+      "staging": "2_nodes",
+      "production": "5_nodes"
+    },
+    "pod_templates": {
+      "module_pod": {
+        "replicas_default": 3,
+        "cpu_request": "0.5",
+        "cpu_limit": "1.0",
+        "memory_request": "512Mi",
+        "memory_limit": "1Gi",
+        "health_check": {
+          "liveness_probe": "http_get_/health",
+          "readiness_probe": "http_get_/ready",
+          "probe_interval": "10_seconds",
+          "failure_threshold": 3
+        }
+      }
+    }
+  },
+  "environmentVariables": {
+    "development": {
+      "LOG_LEVEL": "DEBUG",
+      "CACHE_ENABLED": false,
+      "OBSERVABILITY_ENABLED": true,
+      "FEATURE_FLAGS": "all_enabled"
+    },
+    "staging": {
+      "LOG_LEVEL": "INFO",
+      "CACHE_ENABLED": true,
+      "OBSERVABILITY_ENABLED": true,
+      "FEATURE_FLAGS": "production_like"
+    },
+    "production": {
+      "LOG_LEVEL": "WARN",
+      "CACHE_ENABLED": true,
+      "OBSERVABILITY_ENABLED": true,
+      "FEATURE_FLAGS": "stable_only"
+    }
+  },
+  "healthChecks": {
+    "liveness": {
+      "interval_seconds": 10,
+      "timeout_seconds": 5,
+      "failure_threshold": 3,
+      "endpoint": "GET /health"
+    },
+    "readiness": {
+      "interval_seconds": 5,
+      "timeout_seconds": 3,
+      "failure_threshold": 2,
+      "endpoint": "GET /ready"
+    },
+    "startup": {
+      "interval_seconds": 5,
+      "timeout_seconds": 10,
+      "max_attempts": 30,
+      "endpoint": "GET /startup"
+    }
+  },
+  "loadBalancing": {
+    "algorithm": "round_robin_with_health_awareness",
+    "stickiness": "5_minute_session",
+    "connection_timeout": "30_seconds",
+    "request_timeout": "60_seconds"
+  },
+  "networkPolicies": {
+    "ingress": "only_from_api_gateway",
+    "egress": "only_to_approved_services",
+    "inter_module": "only_declared_dependencies",
+    "external": "only_to_configured_endpoints"
+  }
+}

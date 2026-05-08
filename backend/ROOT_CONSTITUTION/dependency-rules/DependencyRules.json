@@ -1,0 +1,169 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Dependency Rules - Strict Module Dependency Constraints",
+  "version": "1.0.0",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+
+  "rules": [
+    {
+      "id": "rule_hierarchy_levels",
+      "name": "Hierarchy Level Enforcement",
+      "description": "Each module can only depend on modules at same level or lower",
+      "severity": "CRITICAL",
+      "enforcement": "MANDATORY",
+      "rule": "dependency.level <= module.level"
+    },
+
+    {
+      "id": "rule_no_cycles",
+      "name": "No Circular Dependencies",
+      "description": "Detect and prevent circular dependency chains",
+      "severity": "CRITICAL",
+      "enforcement": "MANDATORY",
+      "rule": "DFS cycle detection passes"
+    },
+
+    {
+      "id": "rule_services_available",
+      "name": "Required Services Available",
+      "description": "Every required service must be exposed by dependencies",
+      "severity": "CRITICAL",
+      "enforcement": "MANDATORY",
+      "rule": "For each required_service: exists(dependency.exposed_services)"
+    },
+
+    {
+      "id": "rule_events_emitted",
+      "name": "Events Must Be Declared",
+      "description": "Every event emission must be declared in manifest",
+      "severity": "HIGH",
+      "enforcement": "MANDATORY",
+      "rule": "emit(X) => X in module.eventsEmitted"
+    },
+
+    {
+      "id": "rule_events_listened",
+      "name": "Events Must Be Listened Correctly",
+      "description": "Listened events must be emitted by dependencies",
+      "severity": "HIGH",
+      "enforcement": "MANDATORY",
+      "rule": "listen(X) => exists(dependency.eventsEmitted contains X)"
+    },
+
+    {
+      "id": "rule_critical_modules_first",
+      "name": "Critical Modules Initialize First",
+      "description": "Critical=true modules must be initialized before non-critical",
+      "severity": "HIGH",
+      "enforcement": "MANDATORY",
+      "rule": "init_order: critical modules before non-critical"
+    },
+
+    {
+      "id": "rule_di_container_coherence",
+      "name": "DI Container Coherence",
+      "description": "All exposed services must be registered in DI container",
+      "severity": "CRITICAL",
+      "enforcement": "MANDATORY",
+      "rule": "For each exposedService: di.register(service)"
+    },
+
+    {
+      "id": "rule_module_isolation",
+      "name": "Module Isolation",
+      "description": "Modules must not share mutable state",
+      "severity": "CRITICAL",
+      "enforcement": "MANDATORY",
+      "rule": "No shared mutable state between modules"
+    },
+
+    {
+      "id": "rule_event_schema_validation",
+      "name": "Event Schema Validation",
+      "description": "All emitted events must conform to declared schema",
+      "severity": "HIGH",
+      "enforcement": "MANDATORY",
+      "rule": "emit(event) => validate(event, schema[event.type])"
+    },
+
+    {
+      "id": "rule_service_singleton",
+      "name": "Core Services Are Singletons",
+      "description": "Core infrastructure services (logger, db, cache) must be singletons",
+      "severity": "CRITICAL",
+      "enforcement": "MANDATORY",
+      "rule": "logger, database, cache, eventBus are singleton instances"
+    }
+  ],
+
+  "dependency_matrix": {
+    "logger": {
+      "can_depend_on": [],
+      "can_be_depended_on_by": "all"
+    },
+    "database": {
+      "can_depend_on": [],
+      "can_be_depended_on_by": "all"
+    },
+    "cache": {
+      "can_depend_on": [],
+      "can_be_depended_on_by": "all"
+    },
+    "auth": {
+      "can_depend_on": [],
+      "can_be_depended_on_by": ["users", "posts", "comments", "admin"]
+    },
+    "eventBus": {
+      "can_depend_on": [],
+      "can_be_depended_on_by": "all"
+    },
+    "users": {
+      "can_depend_on": ["auth"],
+      "can_be_depended_on_by": ["posts", "comments", "search", "analytics", "notifications", "recommendations", "admin"]
+    },
+    "posts": {
+      "can_depend_on": ["auth", "users"],
+      "can_be_depended_on_by": ["comments", "search", "analytics", "notifications", "recommendations", "admin"]
+    },
+    "comments": {
+      "can_depend_on": ["auth", "users", "posts"],
+      "can_be_depended_on_by": ["search", "analytics", "notifications"]
+    },
+    "ideas": {
+      "can_depend_on": ["auth", "users"],
+      "can_be_depended_on_by": []
+    },
+    "search": {
+      "can_depend_on": ["users", "posts", "comments"],
+      "can_be_depended_on_by": []
+    },
+    "analytics": {
+      "can_depend_on": ["users", "posts"],
+      "can_be_depended_on_by": ["recommendations"]
+    },
+    "notifications": {
+      "can_depend_on": ["users", "posts", "comments"],
+      "can_be_depended_on_by": []
+    },
+    "recommendations": {
+      "can_depend_on": ["users", "posts", "analytics"],
+      "can_be_depended_on_by": []
+    },
+    "admin": {
+      "can_depend_on": ["users", "posts"],
+      "can_be_depended_on_by": []
+    }
+  },
+
+  "governance": {
+    "sealed": true,
+    "immutable": true,
+    "read_only": true,
+    "total_rules": 10,
+    "critical_rules": 6,
+    "high_rules": 4,
+    "enforcement_level": "STRICT"
+  }
+}

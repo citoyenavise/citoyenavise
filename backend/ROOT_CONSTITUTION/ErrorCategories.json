@@ -1,0 +1,146 @@
+{
+  "declaration": "ErrorCategories",
+  "version": "1.0.0",
+  "phase": "1.6",
+  "purpose": "Classify all possible errors in the system for targeted recovery",
+  "lastUpdated": "2026-05-07",
+  "categories": [
+    {
+      "categoryId": "ERR_VALIDATION_FAILURE",
+      "name": "Validation Failure",
+      "description": "Invariant or rule validation failed",
+      "scope": "Rule Enforcement",
+      "causeMechanism": "Rule violated during validation cycle",
+      "detectableBy": ["ValidationMetricsCollector", "RuntimeValidationEngine"],
+      "recoveryTrigger": "automatic",
+      "examples": [
+        "INV_NO_CASCADE_FAILURES violated",
+        "INV_TYPE_SAFETY violated",
+        "INV_PERMISSION_ENFORCEMENT violated"
+      ]
+    },
+    {
+      "categoryId": "ERR_ENFORCEMENT_BLOCKED",
+      "name": "Enforcement Blocked",
+      "description": "Operation blocked by enforcement engine",
+      "scope": "Operation Execution",
+      "causeMechanism": "Operation violates governance rules",
+      "detectableBy": ["RuntimeEnforcementEngine", "GovernanceAuditLogger"],
+      "recoveryTrigger": "automatic",
+      "examples": [
+        "Module creation exceeds max_modules limit",
+        "Service injection violates dependency rules",
+        "Access denied by permission boundary"
+      ]
+    },
+    {
+      "categoryId": "ERR_RESOURCE_EXHAUSTION",
+      "name": "Resource Exhaustion",
+      "description": "System resource limits exceeded",
+      "scope": "Capability Management",
+      "causeMechanism": "Resource usage exceeds configured limits",
+      "detectableBy": ["CapabilityValidator", "CapabilityEnforcer"],
+      "recoveryTrigger": "automatic",
+      "examples": [
+        "Memory utilization exceeds threshold",
+        "Connection pool exhausted",
+        "CPU utilization critical"
+      ]
+    },
+    {
+      "categoryId": "ERR_STATE_INCONSISTENCY",
+      "name": "State Inconsistency",
+      "description": "System state does not match expected invariants",
+      "scope": "Data Consistency",
+      "causeMechanism": "State transition violated state machine",
+      "detectableBy": ["StateTransitionEnforcer", "BootstrapInvariantValidator"],
+      "recoveryTrigger": "automatic",
+      "examples": [
+        "Service in invalid state",
+        "State machine transition guard failed",
+        "Transaction rollback required"
+      ]
+    },
+    {
+      "categoryId": "ERR_CASCADE_FAILURE",
+      "name": "Cascade Failure",
+      "description": "Failure spreading across module boundaries",
+      "scope": "Module Isolation",
+      "causeMechanism": "Error propagating to dependent modules",
+      "detectableBy": ["RuntimeTraceCollector", "InvariantViolationReporter"],
+      "recoveryTrigger": "automatic",
+      "examples": [
+        "Service A failure impacts Service B",
+        "Database connection failure spreads to all consumers",
+        "Event handler exception propagates upward"
+      ]
+    },
+    {
+      "categoryId": "ERR_DEPENDENCY_VIOLATION",
+      "name": "Dependency Violation",
+      "description": "Module dependency constraints violated",
+      "scope": "Dependency Management",
+      "causeMechanism": "Dependency rule or cycle detected",
+      "detectableBy": ["DependencyValidator", "DependencyEnforcer"],
+      "recoveryTrigger": "automatic",
+      "examples": [
+        "Circular dependency detected",
+        "Service injection cycle",
+        "Dependency rule constraint violated"
+      ]
+    },
+    {
+      "categoryId": "ERR_VERSION_INCOMPATIBILITY",
+      "name": "Version Incompatibility",
+      "description": "Version compatibility constraints violated",
+      "scope": "Version Management",
+      "causeMechanism": "Component versions incompatible",
+      "detectableBy": ["VersionCompatibilityValidator"],
+      "recoveryTrigger": "automatic",
+      "examples": [
+        "API version mismatch",
+        "Deprecated service used",
+        "Breaking change detected"
+      ]
+    },
+    {
+      "categoryId": "ERR_BOOTSTRAP_FAILURE",
+      "name": "Bootstrap Failure",
+      "description": "System initialization failed",
+      "scope": "System Initialization",
+      "causeMechanism": "Bootstrap phase failed",
+      "detectableBy": ["BootstrapTraceReporter", "ConstitutionLoaderManager"],
+      "recoveryTrigger": "automatic",
+      "examples": [
+        "Constitution loading failed",
+        "Schema registry initialization failed",
+        "Service startup failed"
+      ]
+    },
+    {
+      "categoryId": "ERR_UNKNOWN",
+      "name": "Unknown Error",
+      "description": "Error category cannot be determined",
+      "scope": "Error Handling",
+      "causeMechanism": "Unclassified error",
+      "detectableBy": ["RuntimeTraceCollector", "GovernanceAuditLogger"],
+      "recoveryTrigger": "manual",
+      "examples": [
+        "Unexpected exception",
+        "Network timeout",
+        "I/O failure"
+      ]
+    }
+  ],
+  "errorClassification": {
+    "automatic": "Errors recoverable without human intervention",
+    "manual": "Errors requiring human investigation",
+    "critical": "Errors that may require system shutdown"
+  },
+  "guarantees": [
+    "Every error has a defined category",
+    "Every category has recovery procedures",
+    "Categories map to detection mechanisms",
+    "Recovery triggers are explicit"
+  ]
+}

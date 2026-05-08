@@ -10,7 +10,8 @@
   "scripts": {
     "start": "node src/app.js",
     "dev": "nodemon src/app.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "ci:governance": "node -e \"const { runCIPipeline } = require('./src/core/ci-governance'); runCIPipeline({ save: true }).then(r => { console.log(r.success ? '✅ CI PASS' : '❌ CI FAIL', 'exitCode:', r.exitCode); process.exit(r.exitCode); }).catch(e => { console.error(e.message); process.exit(1); })\""
   },
   "keywords": [
     "civique",

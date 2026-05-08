@@ -1,0 +1,16 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Create Post Response",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "title": { "type": "string" },
+    "content": { "type": "string" },
+    "type": { "type": "string" },
+    "category": { "type": "string" },
+    "status": { "type": "string" },
+    "userId": { "type": "string" },
+    "createdAt": { "type": "string" }
+  },
+  "required": ["id", "title", "content", "type", "category", "status", "userId", "createdAt"]
+}

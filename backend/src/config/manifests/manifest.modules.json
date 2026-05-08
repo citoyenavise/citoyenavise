@@ -1,0 +1,315 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Module Manifest - Phase 2",
+  "version": "1.0.0",
+  "description": "Déclaration des modules fondamentaux du système",
+  "modules": [
+    {
+      "id": "auth",
+      "displayName": "Module d'Authentification",
+      "version": "1.0.0",
+      "status": "pending",
+      "phase": 2,
+      "description": "Gestion de l'authentification et des sessions utilisateur",
+      "contract": {
+        "input": [
+          {
+            "name": "credentials",
+            "type": "object",
+            "required": true,
+            "description": "Identifiants de l'utilisateur",
+            "schema": {
+              "type": "object",
+              "required": ["username", "password"],
+              "properties": {
+                "username": { "type": "string", "minLength": 1 },
+                "password": { "type": "string", "minLength": 8 },
+                "rememberMe": { "type": "boolean" }
+              }
+            }
+          }
+        ],
+        "output": [
+          {
+            "name": "token",
+            "type": "string",
+            "description": "Token JWT d'authentification",
+            "format": "JWT",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          },
+          {
+            "name": "user",
+            "type": "object",
+            "description": "Informations utilisateur",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "username": { "type": "string" },
+                "email": { "type": "string", "format": "email" },
+                "roles": { "type": "array", "items": { "type": "string" } }
+              }
+            }
+          }
+        ]
+      },
+      "states": [
+        "IDLE",
+        "AUTHENTICATING",
+        "AUTHENTICATED",
+        "FAILED",
+        "EXPIRED"
+      ],
+      "events": [
+        "auth:attempt",
+        "auth:success",
+        "auth:failure",
+        "auth:logout",
+        "auth:token_expired"
+      ],
+      "dependencies": []
+    },
+    {
+      "id": "users",
+      "displayName": "Module Utilisateurs",
+      "version": "1.0.0",
+      "status": "pending",
+      "phase": 2,
+      "description": "Gestion des profils et données utilisateur",
+      "contract": {
+        "input": [
+          {
+            "name": "userId",
+            "type": "string",
+            "required": true,
+            "description": "Identifiant utilisateur",
+            "format": "UUID",
+            "example": "123e4567-e89b-12d3-a456-426614174000"
+          }
+        ],
+        "output": [
+          {
+            "name": "profile",
+            "type": "object",
+            "description": "Profil utilisateur complet",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "username": { "type": "string" },
+                "email": { "type": "string", "format": "email" },
+                "avatar": { "type": "string", "format": "uri" },
+                "bio": { "type": "string" },
+                "joinDate": { "type": "string", "format": "date-time" },
+                "preferences": { "type": "object" }
+              }
+            }
+          }
+        ]
+      },
+      "states": [
+        "IDLE",
+        "LOADING",
+        "LOADED",
+        "UPDATING",
+        "ERROR"
+      ],
+      "events": [
+        "user:created",
+        "user:updated",
+        "user:deleted",
+        "user:loaded",
+        "user:error"
+      ],
+      "dependencies": ["auth"]
+    },
+    {
+      "id": "posts",
+      "displayName": "Module Posts",
+      "version": "1.0.0",
+      "status": "pending",
+      "phase": 2,
+      "description": "Gestion des publications et contenu utilisateur",
+      "contract": {
+        "input": [
+          {
+            "name": "postData",
+            "type": "object",
+            "required": true,
+            "description": "Données du post",
+            "schema": {
+              "type": "object",
+              "required": ["content"],
+              "properties": {
+                "content": { "type": "string", "minLength": 1, "maxLength": 5000 },
+                "tags": { "type": "array", "items": { "type": "string" } },
+                "images": { "type": "array", "items": { "type": "string", "format": "uri" } },
+                "visibility": { "enum": ["PUBLIC", "PRIVATE", "FRIENDS"] }
+              }
+            }
+          }
+        ],
+        "output": [
+          {
+            "name": "post",
+            "type": "object",
+            "description": "Post créé avec ID et metadata",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "authorId": { "type": "string" },
+                "content": { "type": "string" },
+                "createdAt": { "type": "string", "format": "date-time" },
+                "likes": { "type": "integer" },
+                "comments": { "type": "integer" }
+              }
+            }
+          }
+        ]
+      },
+      "states": [
+        "IDLE",
+        "CREATING",
+        "CREATED",
+        "UPDATING",
+        "DELETING",
+        "ERROR"
+      ],
+      "events": [
+        "post:created",
+        "post:updated",
+        "post:deleted",
+        "post:liked",
+        "post:commented"
+      ],
+      "dependencies": ["users", "auth"]
+    },
+    {
+      "id": "notifications",
+      "displayName": "Module Notifications",
+      "version": "1.0.0",
+      "status": "pending",
+      "phase": 2,
+      "description": "Système de notifications en temps réel",
+      "contract": {
+        "input": [
+          {
+            "name": "notificationData",
+            "type": "object",
+            "required": true,
+            "description": "Données de notification",
+            "schema": {
+              "type": "object",
+              "required": ["recipientId", "title", "body"],
+              "properties": {
+                "recipientId": { "type": "string" },
+                "title": { "type": "string", "minLength": 1 },
+                "body": { "type": "string", "minLength": 1 },
+                "type": { "enum": ["INFO", "WARNING", "ERROR", "SUCCESS"] },
+                "actionUrl": { "type": "string", "format": "uri" }
+              }
+            }
+          }
+        ],
+        "output": [
+          {
+            "name": "notification",
+            "type": "object",
+            "description": "Notification créée",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "id": { "type": "string" },
+                "recipientId": { "type": "string" },
+                "status": { "enum": ["PENDING", "SENT", "DELIVERED", "READ"] },
+                "createdAt": { "type": "string", "format": "date-time" },
+                "deliveredAt": { "type": "string", "format": "date-time" }
+              }
+            }
+          }
+        ]
+      },
+      "states": [
+        "IDLE",
+        "PENDING",
+        "SENT",
+        "DELIVERED",
+        "READ"
+      ],
+      "events": [
+        "notification:created",
+        "notification:sent",
+        "notification:delivered",
+        "notification:read",
+        "notification:failed"
+      ],
+      "dependencies": ["users"]
+    },
+    {
+      "id": "analytics",
+      "displayName": "Module Analytics",
+      "version": "1.0.0",
+      "status": "pending",
+      "phase": 2,
+      "description": "Collecte et analyse des données d'utilisation",
+      "contract": {
+        "input": [
+          {
+            "name": "eventData",
+            "type": "object",
+            "required": true,
+            "description": "Données d'événement à tracker",
+            "schema": {
+              "type": "object",
+              "required": ["eventName", "userId"],
+              "properties": {
+                "eventName": { "type": "string" },
+                "userId": { "type": "string" },
+                "timestamp": { "type": "string", "format": "date-time" },
+                "properties": { "type": "object" }
+              }
+            }
+          }
+        ],
+        "output": [
+          {
+            "name": "analytics",
+            "type": "object",
+            "description": "Données d'analytics agrégées",
+            "schema": {
+              "type": "object",
+              "properties": {
+                "totalEvents": { "type": "integer" },
+                "uniqueUsers": { "type": "integer" },
+                "timeRange": { "type": "object", "properties": { "start": { "type": "string" }, "end": { "type": "string" } } },
+                "eventBreakdown": { "type": "object" },
+                "topEvents": { "type": "array" }
+              }
+            }
+          }
+        ]
+      },
+      "states": [
+        "IDLE",
+        "COLLECTING",
+        "PROCESSING",
+        "AGGREGATING",
+        "ERROR"
+      ],
+      "events": [
+        "analytics:event_tracked",
+        "analytics:aggregated",
+        "analytics:report_generated",
+        "analytics:error"
+      ],
+      "dependencies": []
+    }
+  ],
+  "metadata": {
+    "created": "2026-05-07T00:00:00Z",
+    "updatedAt": "2026-05-07T00:00:00Z",
+    "version": "1.0.0",
+    "phase": 2
+  }
+}

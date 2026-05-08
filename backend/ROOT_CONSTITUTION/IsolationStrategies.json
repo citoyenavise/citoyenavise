@@ -1,0 +1,372 @@
+{
+  "declaration": "IsolationStrategies",
+  "version": "1.0.0",
+  "phase": "1.6",
+  "purpose": "Define how to isolate modules and prevent cascade failures",
+  "lastUpdated": "2026-05-07",
+  "isolationStrategies": [
+    {
+      "strategyId": "ISOLATION_CIRCUIT_BREAKER",
+      "name": "Circuit Breaker",
+      "description": "Stop calling failing services to prevent cascade",
+      "applicableErrors": [
+        "ERR_CASCADE_FAILURE",
+        "ERR_RESOURCE_EXHAUSTION",
+        "ERR_SERVICE_AVAILABILITY"
+      ],
+      "mechanism": {
+        "states": [
+          {
+            "state": "CLOSED",
+            "description": "Normal operation, requests flow through",
+            "successThreshold": "0.95",
+            "transitions": {
+              "toOPEN": "Failure rate exceeds threshold"
+            }
+          },
+          {
+            "state": "OPEN",
+            "description": "Reject all requests immediately",
+            "duration_ms": 30000,
+            "transitions": {
+              "toHALF_OPEN": "After timeout period"
+            }
+          },
+          {
+            "state": "HALF_OPEN",
+            "description": "Allow limited requests to test recovery",
+            "testRequestLimit": 5,
+            "transitions": {
+              "toCLOSED": "Test requests succeed",
+              "toOPEN": "Test requests fail"
+            }
+          }
+        ]
+      },
+      "configuration": {
+        "failureThreshold": 0.5,
+        "successThreshold": 0.95,
+        "openTimeout_ms": 30000,
+        "halfOpenTestRequests": 5
+      },
+      "benefits": [
+        "Prevents cascade to downstream services",
+        "Allows upstream to handle gracefully",
+        "Enables automatic recovery detection",
+        "Bounded impact of failures"
+      ]
+    },
+    {
+      "strategyId": "ISOLATION_TIMEOUT",
+      "name": "Request Timeout",
+      "description": "Prevent blocking waiting for unresponsive services",
+      "applicableErrors": [
+        "ERR_CASCADE_FAILURE",
+        "ERR_RESOURCE_EXHAUSTION"
+      ],
+      "mechanism": {
+        "description": "Kill hanging requests after timeout",
+        "configurations": [
+          {
+            "serviceType": "critical",
+            "timeout_ms": 1000,
+            "rationale": "Critical services must respond quickly"
+          },
+          {
+            "serviceType": "standard",
+            "timeout_ms": 5000,
+            "rationale": "Standard services have relaxed timeout"
+          },
+          {
+            "serviceType": "background",
+            "timeout_ms": 30000,
+            "rationale": "Background tasks have generous timeout"
+          }
+        ],
+        "onTimeout": [
+          "Cancel pending operation",
+          "Release resources",
+          "Log timeout event",
+          "Trigger fallback"
+        ]
+      },
+      "benefits": [
+        "Prevents indefinite blocking",
+        "Releases resources from hanging operations",
+        "Bounds latency for clients",
+        "Enables quick cascade detection"
+      ]
+    },
+    {
+      "strategyId": "ISOLATION_BULKHEAD",
+      "name": "Bulkhead Pattern",
+      "description": "Partition resources to prevent cross-module impact",
+      "applicableErrors": [
+        "ERR_CASCADE_FAILURE",
+        "ERR_RESOURCE_EXHAUSTION",
+        "ERR_MODULE_ISOLATION"
+      ],
+      "mechanism": {
+        "description": "Separate resource pools for each module",
+        "resourceTypes": [
+          {
+            "resource": "thread_pool",
+            "modules": ["service-A", "service-B", "service-C"],
+            "configPerModule": {
+              "service-A": { "threads": 20, "maxQueue": 100 },
+              "service-B": { "threads": 20, "maxQueue": 100 },
+              "service-C": { "threads": 10, "maxQueue": 50 }
+            },
+            "guarantee": "Failure in service-A cannot exhaust threads for service-B"
+          },
+          {
+            "resource": "connection_pool",
+            "modules": ["db-reader", "db-writer", "cache"],
+            "configPerModule": {
+              "db-reader": { "connections": 30 },
+              "db-writer": { "connections": 10 },
+              "cache": { "connections": 5 }
+            },
+            "guarantee": "Heavy reader cannot starve writer"
+          },
+          {
+            "resource": "memory_allocation",
+            "modules": ["service-A", "service-B", "service-C"],
+            "configPerModule": {
+              "service-A": { "maxMB": 200, "hardLimit": true },
+              "service-B": { "maxMB": 200, "hardLimit": true },
+              "service-C": { "maxMB": 100, "hardLimit": true }
+            },
+            "guarantee": "Service A cannot exhaust memory for service C"
+          }
+        ]
+      },
+      "benefits": [
+        "Limits blast radius of failures",
+        "Prevents resource starvation",
+        "Enables partial system recovery",
+        "Improves availability"
+      ]
+    },
+    {
+      "strategyId": "ISOLATION_RATE_LIMIT",
+      "name": "Rate Limiting",
+      "description": "Control request rate to prevent overwhelming services",
+      "applicableErrors": [
+        "ERR_RESOURCE_EXHAUSTION",
+        "ERR_CASCADE_FAILURE"
+      ],
+      "mechanism": {
+        "description": "Throttle incoming requests",
+        "algorithms": [
+          {
+            "algorithm": "token_bucket",
+            "bucketCapacity": 1000,
+            "refillRate_per_sec": 100,
+            "behavior": "Drop excess requests"
+          },
+          {
+            "algorithm": "sliding_window",
+            "windowSize_ms": 1000,
+            "maxRequests": 100,
+            "behavior": "Reject requests exceeding window limit"
+          },
+          {
+            "algorithm": "leaky_bucket",
+            "bucketCapacity": 50,
+            "leakRate_per_sec": 10,
+            "behavior": "Queue excess requests, discard if queue full"
+          }
+        ],
+        "applyAt": [
+          "service-entry-point",
+          "database-connections",
+          "external-api-calls",
+          "event-processing"
+        ]
+      },
+      "benefits": [
+        "Prevents overwhelming downstream systems",
+        "Maintains predictable performance",
+        "Enables graceful degradation",
+        "Bounds resource consumption"
+      ]
+    },
+    {
+      "strategyId": "ISOLATION_QUARANTINE",
+      "name": "Quarantine Pattern",
+      "description": "Move failing components to isolated environment",
+      "applicableErrors": [
+        "ERR_CASCADE_FAILURE",
+        "ERR_BOOTSTRAP_FAILURE",
+        "ERR_STATE_INCONSISTENCY"
+      ],
+      "mechanism": {
+        "description": "Automatically isolate and monitor failing services",
+        "stages": [
+          {
+            "stage": "DETECTION",
+            "trigger": "Service fails N checks in a row",
+            "threshold": 3,
+            "description": "Identify unhealthy service"
+          },
+          {
+            "stage": "ISOLATION",
+            "action": "Move service to quarantine",
+            "duration_ms": 60000,
+            "description": "Stop requests to quarantined service, route to healthy replicas"
+          },
+          {
+            "stage": "MONITORING",
+            "action": "Intensive monitoring of quarantined service",
+            "checkInterval_ms": 1000,
+            "description": "Determine when service is ready to rejoin"
+          },
+          {
+            "stage": "REINTEGRATION",
+            "condition": "Service passes health checks",
+            "checksRequired": 5,
+            "description": "Gradually return traffic to recovered service"
+          }
+        ]
+      },
+      "benefits": [
+        "Prevents bad service from impacting others",
+        "Allows recovery without stopping entire system",
+        "Provides intensive monitoring to unstable components",
+        "Enables gradual reintegration"
+      ]
+    },
+    {
+      "strategyId": "ISOLATION_FALLBACK",
+      "name": "Fallback Handler",
+      "description": "Provide alternative implementation when primary fails",
+      "applicableErrors": [
+        "ERR_CASCADE_FAILURE",
+        "ERR_SERVICE_AVAILABILITY",
+        "ERR_RESOURCE_EXHAUSTION"
+      ],
+      "mechanism": {
+        "description": "Use fallback implementation or stale cache",
+        "fallbackOptions": [
+          {
+            "fallbackType": "cached_response",
+            "description": "Return last known good response",
+            "staleness_tolerance_sec": 300,
+            "applicableTo": ["read-only operations", "non-critical data"]
+          },
+          {
+            "fallbackType": "default_value",
+            "description": "Return safe default value",
+            "applicableTo": ["configuration queries", "feature flags"]
+          },
+          {
+            "fallbackType": "partial_response",
+            "description": "Return available subset of data",
+            "applicableTo": ["aggregated queries", "composite operations"]
+          },
+          {
+            "fallbackType": "secondary_service",
+            "description": "Route to backup/secondary service",
+            "applicableTo": ["read operations", "non-critical writes"]
+          }
+        ],
+        "selectionLogic": "Attempt primary → fallback1 → fallback2 → error"
+      },
+      "benefits": [
+        "Improves availability",
+        "Reduces perceived latency",
+        "Enables graceful degradation",
+        "Prevents user-facing errors"
+      ]
+    },
+    {
+      "strategyId": "ISOLATION_CELL",
+      "name": "Cell-Based Architecture",
+      "description": "Deploy independent cells that can fail independently",
+      "applicableErrors": [
+        "ERR_CASCADE_FAILURE",
+        "ERR_BOOTSTRAP_FAILURE"
+      ],
+      "mechanism": {
+        "description": "Partition system into independent cells",
+        "cellStructure": {
+          "cells": [
+            {
+              "cellId": "cell-1",
+              "contains": ["service-A", "service-B", "cache"],
+              "isolation": "Complete resource separation",
+              "failureImpact": "Only cell-1 affected"
+            },
+            {
+              "cellId": "cell-2",
+              "contains": ["service-C", "service-D", "cache"],
+              "isolation": "Complete resource separation",
+              "failureImpact": "Only cell-2 affected"
+            },
+            {
+              "cellId": "cell-3",
+              "contains": ["service-E", "service-F", "cache"],
+              "isolation": "Complete resource separation",
+              "failureImpact": "Only cell-3 affected"
+            }
+          ],
+          "routing": "Load balance across healthy cells",
+          "failover": "Route traffic around failing cells"
+        }
+      },
+      "benefits": [
+        "Limits blast radius to single cell",
+        "Enables parallel recovery",
+        "Maintains availability with partial system failure",
+        "Scales with redundancy"
+      ]
+    }
+  ],
+  "isolationDecisionTree": {
+    "description": "Guide for selecting isolation strategy",
+    "decision_path": [
+      {
+        "condition": "Service continuously failing?",
+        "yes": "Apply CIRCUIT_BREAKER",
+        "no": "Continue"
+      },
+      {
+        "condition": "Requests hanging indefinitely?",
+        "yes": "Apply TIMEOUT",
+        "no": "Continue"
+      },
+      {
+        "condition": "Resource exhaustion spreading?",
+        "yes": "Apply BULKHEAD",
+        "no": "Continue"
+      },
+      {
+        "condition": "Request rate overwhelming?",
+        "yes": "Apply RATE_LIMIT",
+        "no": "Continue"
+      },
+      {
+        "condition": "Service severely degraded?",
+        "yes": "Apply QUARANTINE",
+        "no": "Continue"
+      },
+      {
+        "condition": "Critical operation, fallback available?",
+        "yes": "Apply FALLBACK",
+        "no": "Continue"
+      },
+      {
+        "condition": "Multiple cell failure possible?",
+        "yes": "Apply CELL architecture",
+        "no": "Continue"
+      }
+    ]
+  },
+  "guarantees": [
+    "Each isolation strategy is independent",
+    "Strategies can be combined",
+    "Blast radius is explicitly bounded",
+    "Failure prevents cascade to other components"
+  ]
+}

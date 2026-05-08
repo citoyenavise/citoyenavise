@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Get User Response",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "email": { "type": "string" },
+    "username": { "type": "string" },
+    "role": { "type": "string" },
+    "isVerified": { "type": "boolean" },
+    "profile": {
+      "type": ["object", "null"],
+      "properties": {
+        "id": { "type": "string" },
+        "bio": { "type": ["string", "null"] },
+        "avatarUrl": { "type": ["string", "null"] },
+        "location": { "type": ["string", "null"] },
+        "interests": { "type": ["array", "null"] },
+        "followersCount": { "type": "integer" },
+        "postsCount": { "type": "integer" }
+      }
+    }
+  },
+  "required": ["id", "email", "username", "role"]
+}

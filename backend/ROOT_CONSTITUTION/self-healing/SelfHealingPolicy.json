@@ -1,0 +1,153 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Self-Healing Governance Policy",
+  "description": "Policies governing automatic violation detection, analysis, and remediation",
+  "version": "1.0.0",
+  "phase": "1.3-healing",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+  "lastUpdated": "2026-05-07",
+  "governance_level": "CONSTITUTIONAL",
+
+  "constraints": {
+    "auditTrailMandatory": true,
+    "noHealingWithoutAudit": "Every healing action must be logged to SelfHealingAuditTrail BEFORE execution",
+    "allowedAutoCorrection": [
+      "LOW",
+      "MEDIUM"
+    ],
+    "forbiddenAutoCorrection": [
+      "HIGH",
+      "CRITICAL"
+    ],
+    "escalationRequired": [
+      "HIGH",
+      "CRITICAL"
+    ],
+    "maxCorrectionAttempts": 3,
+    "correctionTimeout_ms": 5000
+  },
+
+  "correctionStrategies": [
+    {
+      "id": "STRATEGY_NAMING_VIOLATION",
+      "violationType": "NAMING_VIOLATION",
+      "applicableSeverities": [
+        "LOW"
+      ],
+      "action": "LOG_AND_ALERT",
+      "autoCorrect": false,
+      "description": "Log violation to audit trail, generate alert for developer review. Never modify source files.",
+      "rollbackCapable": false
+    },
+    {
+      "id": "STRATEGY_MISSING_EXPORT_PATTERN",
+      "violationType": "MISSING_EXPORT_PATTERN",
+      "applicableSeverities": [
+        "MEDIUM"
+      ],
+      "action": "LOG_AND_ALERT",
+      "autoCorrect": false,
+      "description": "Log violation, flag file for developer review. May suggest correct pattern in alert.",
+      "rollbackCapable": false
+    },
+    {
+      "id": "STRATEGY_LINE_COUNT_EXCEEDED",
+      "violationType": "LINE_COUNT_EXCEEDED",
+      "applicableSeverities": [
+        "MEDIUM"
+      ],
+      "action": "LOG_AND_SUGGEST_REFACTORING",
+      "autoCorrect": false,
+      "description": "Log violation, generate refactoring suggestions for breaking up file",
+      "rollbackCapable": false
+    },
+    {
+      "id": "STRATEGY_UNDECLARED_DEPENDENCY",
+      "violationType": "UNDECLARED_DEPENDENCY",
+      "applicableSeverities": [
+        "MEDIUM"
+      ],
+      "action": "LOG_AND_SUGGEST_UPDATE",
+      "autoCorrect": false,
+      "description": "Log violation, suggest constitution update to DependencyRules.json",
+      "rollbackCapable": false
+    }
+  ],
+
+  "escalationRules": [
+    {
+      "severity": "HIGH",
+      "action": "DELEGATE_TO_RECOVERY_ORCHESTRATOR",
+      "recoveryPath": "RETRY_OR_ISOLATE",
+      "description": "HIGH severity violations escalate to Recovery Layer for retry or isolation strategy"
+    },
+    {
+      "severity": "CRITICAL",
+      "action": "DELEGATE_TO_RECOVERY_ORCHESTRATOR",
+      "recoveryPath": "ESCALATE",
+      "description": "CRITICAL severity violations escalate to Recovery Layer for human intervention"
+    }
+  ],
+
+  "patternAnalysis": {
+    "enabled": true,
+    "minOccurrencesForPattern": 3,
+    "predictionConfidenceLevels": [
+      "LOW",
+      "MEDIUM",
+      "HIGH"
+    ],
+    "description": "Detect recurring violation patterns and predict future violations"
+  },
+
+  "degradationMonitoring": {
+    "enabled": true,
+    "samplingInterval_ms": 30000,
+    "windowSize": 10,
+    "degradationThreshold_percent": 20,
+    "healthScoreAlgorithm": "100 - (violationRate * 40) - (cyclePenalty * 30) - (activeViolationsPenalty * 30)",
+    "alertOnDegradation": true,
+    "description": "Monitor system health proactively, detect degradation trends before critical violation"
+  },
+
+  "auditTrail": {
+    "format": "JSONL",
+    "persistence": "appendFileSync to self_healing_audit.jsonl",
+    "maxInMemoryEntries": 10000,
+    "immutable": true,
+    "neverDelete": true,
+    "mandatory": true,
+    "logTypes": [
+      "VIOLATION_RECEIVED",
+      "CORRECTION_ATTEMPT",
+      "CORRECTION_OUTCOME",
+      "ESCALATION",
+      "PATTERN_DETECTION",
+      "DEGRADATION_EVENT"
+    ],
+    "description": "Immutable audit trail of all violation detection, analysis, and healing decisions"
+  },
+
+  "integrations": {
+    "recoveryOrchestrator": {
+      "module": "backend/src/core/recovery/RecoveryOrchestrator.js",
+      "phase": "1.6",
+      "injection": "optional via constructor",
+      "usage": "Delegate HIGH/CRITICAL violations for recovery path selection"
+    },
+    "runtimeValidationEngine": {
+      "module": "backend/src/core/validators/RuntimeValidationEngine.js",
+      "phase": "1.3-validators",
+      "injection": "violations fed from validators",
+      "usage": "Process violation stream from continuous validation"
+    },
+    "governanceAuditLogger": {
+      "module": "backend/src/core/observability/GovernanceAuditLogger.js",
+      "phase": "1.5",
+      "injection": "read-only reference to existing audit logger",
+      "usage": "Correlate governance decisions with healing actions"
+    }
+  }
+}

@@ -1,0 +1,379 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Module Manifest - Complete System Declaration",
+  "version": "1.0.0",
+  "timestamp": "2026-05-07T00:00:00Z",
+  "description": "Read-only module definitions for Citoyenavise - Phase 1.1",
+
+  "metadata": {
+    "sealed": true,
+    "immutable": true,
+    "read_only": true,
+    "execution_allowed": false,
+    "governance_level": "CONSTITUTIONAL"
+  },
+
+  "modules": {
+    "logger": {
+      "id": "logger",
+      "name": "Logger Module",
+      "type": "INFRASTRUCTURE",
+      "level": 0,
+      "version": "1.0.0",
+      "status": "STABLE",
+      "sealed": true,
+      "description": "Centralized logging infrastructure",
+      "dependencies": [],
+      "exposed_services": ["logger"],
+      "required_services": [],
+      "events_emitted": ["log:entry"],
+      "events_listened": [],
+      "critical": true,
+      "idempotent": true,
+      "versioning": {
+        "semantic_version": "1.0.0",
+        "compatibility_level": "STRICT",
+        "breaking_changes": []
+      }
+    },
+
+    "database": {
+      "id": "database",
+      "name": "Database Module",
+      "type": "INFRASTRUCTURE",
+      "level": 0,
+      "version": "1.0.0",
+      "status": "STABLE",
+      "sealed": true,
+      "description": "PostgreSQL database service with replication",
+      "dependencies": [],
+      "exposed_services": ["database", "queryCache"],
+      "required_services": ["logger"],
+      "events_emitted": ["db:query", "db:connected", "db:error"],
+      "events_listened": [],
+      "critical": true,
+      "idempotent": true,
+      "configuration": {
+        "pool_size": 100,
+        "connection_timeout_ms": 2000,
+        "replication_enabled": true
+      },
+      "versioning": {
+        "semantic_version": "1.0.0",
+        "compatibility_level": "STRICT",
+        "breaking_changes": []
+      }
+    },
+
+    "cache": {
+      "id": "cache",
+      "name": "Cache Module",
+      "type": "INFRASTRUCTURE",
+      "level": 0,
+      "version": "1.0.0",
+      "status": "STABLE",
+      "sealed": true,
+      "description": "Redis distributed cache",
+      "dependencies": [],
+      "exposed_services": ["cache"],
+      "required_services": ["logger"],
+      "events_emitted": ["cache:hit", "cache:miss", "cache:set"],
+      "events_listened": [],
+      "critical": false,
+      "idempotent": true,
+      "configuration": {
+        "ttl_default_ms": 300000,
+        "max_memory_mb": 512
+      },
+      "versioning": {
+        "semantic_version": "1.0.0",
+        "compatibility_level": "BACKWARD_COMPATIBLE",
+        "breaking_changes": []
+      }
+    },
+
+    "auth": {
+      "id": "auth",
+      "name": "Authentication Module",
+      "type": "DOMAIN",
+      "level": 1,
+      "version": "1.0.0",
+      "status": "STABLE",
+      "sealed": true,
+      "description": "JWT authentication and session management",
+      "dependencies": [],
+      "exposed_services": ["authService", "jwtService"],
+      "required_services": ["logger", "database", "eventBus"],
+      "events_emitted": ["auth:attempt", "auth:success", "auth:failure", "auth:logout"],
+      "events_listened": [],
+      "critical": true,
+      "idempotent": false,
+      "configuration": {
+        "token_lifetime_hours": 24,
+        "jwt_algorithm": "HS256",
+        "session_secure": true,
+        "session_httponly": true
+      },
+      "versioning": {
+        "semantic_version": "1.0.0",
+        "compatibility_level": "STRICT",
+        "breaking_changes": []
+      }
+    },
+
+    "eventBus": {
+      "id": "eventBus",
+      "name": "Event Bus Module",
+      "type": "INFRASTRUCTURE",
+      "level": 1,
+      "version": "1.0.0",
+      "status": "STABLE",
+      "sealed": true,
+      "description": "Distributed event bus with schema validation",
+      "dependencies": [],
+      "exposed_services": ["eventBus"],
+      "required_services": ["logger"],
+      "events_emitted": ["event:emitted", "event:validated", "event:error"],
+      "events_listened": [],
+      "critical": true,
+      "idempotent": true,
+      "configuration": {
+        "throughput_target_events_per_sec": 100,
+        "listener_timeout_sec": 5,
+        "retry_policy": "exponential_backoff",
+        "max_retries": 3
+      },
+      "versioning": {
+        "semantic_version": "1.0.0",
+        "compatibility_level": "STRICT",
+        "breaking_changes": []
+      }
+    },
+
+    "users": {
+      "id": "users",
+      "name": "Users Module",
+      "type": "DOMAIN",
+      "level": 2,
+      "version": "1.0.0",
+      "status": "STABLE",
+      "sealed": true,
+      "description": "User management and profiles",
+      "dependencies": ["auth"],
+      "exposed_services": ["userService"],
+      "required_services": ["logger", "database", "eventBus", "authService"],
+      "events_emitted": ["user:created", "user:updated", "user:deleted"],
+      "events_listened": ["auth:success"],
+      "critical": true,
+      "idempotent": false,
+      "configuration": {
+        "cache_ttl_ms": 300000
+      },
+      "versioning": {
+        "semantic_version": "1.0.0",
+        "compatibility_level": "BACKWARD_COMPATIBLE",
+        "breaking_changes": []
+      }
+    },
+
+    "posts": {
+      "id": "posts",
+      "name": "Posts Module",
+      "type": "DOMAIN",
+      "level": 2,
+      "version": "1.0.0",
+      "status": "STABLE",
+      "sealed": true,
+      "description": "Post management and content",
+      "dependencies": ["auth", "users"],
+      "exposed_services": ["postService"],
+      "required_services": ["logger", "database", "eventBus", "userService"],
+      "events_emitted": ["post:created", "post:updated", "post:deleted", "post:liked"],
+      "events_listened": ["auth:success", "user:created"],
+      "critical": true,
+      "idempotent": false,
+      "configuration": {
+        "cache_ttl_ms": 600000
+      },
+      "versioning": {
+        "semantic_version": "1.0.0",
+        "compatibility_level": "BACKWARD_COMPATIBLE",
+        "breaking_changes": []
+      }
+    },
+
+    "comments": {
+      "id": "comments",
+      "name": "Comments Module",
+      "type": "DOMAIN",
+      "level": 2,
+      "version": "1.0.0",
+      "status": "STABLE",
+      "sealed": true,
+      "description": "Comment management and discussions",
+      "dependencies": ["auth", "users", "posts"],
+      "exposed_services": ["commentService"],
+      "required_services": ["logger", "database", "eventBus"],
+      "events_emitted": ["comment:created", "comment:updated", "comment:deleted"],
+      "events_listened": ["post:created"],
+      "critical": true,
+      "idempotent": false,
+      "versioning": {
+        "semantic_version": "1.0.0",
+        "compatibility_level": "BACKWARD_COMPATIBLE",
+        "breaking_changes": []
+      }
+    },
+
+    "ideas": {
+      "id": "ideas",
+      "name": "Ideas Module",
+      "type": "DOMAIN",
+      "level": 2,
+      "version": "1.0.0",
+      "status": "STABLE",
+      "sealed": true,
+      "description": "Ideas and proposals management",
+      "dependencies": ["auth", "users"],
+      "exposed_services": ["ideaService"],
+      "required_services": ["logger", "database", "eventBus"],
+      "events_emitted": ["idea:created", "idea:updated", "idea:voted"],
+      "events_listened": ["user:created"],
+      "critical": false,
+      "idempotent": false,
+      "versioning": {
+        "semantic_version": "1.0.0",
+        "compatibility_level": "BACKWARD_COMPATIBLE",
+        "breaking_changes": []
+      }
+    },
+
+    "search": {
+      "id": "search",
+      "name": "Search Module",
+      "type": "DERIVED",
+      "level": 3,
+      "version": "1.0.0",
+      "status": "STABLE",
+      "sealed": true,
+      "description": "Full-text search and indexing",
+      "dependencies": ["users", "posts", "comments"],
+      "exposed_services": ["searchService"],
+      "required_services": ["logger", "database", "eventBus"],
+      "events_emitted": ["search:query", "search:indexed"],
+      "events_listened": ["post:created", "comment:created"],
+      "critical": false,
+      "idempotent": true,
+      "versioning": {
+        "semantic_version": "1.0.0",
+        "compatibility_level": "BACKWARD_COMPATIBLE",
+        "breaking_changes": []
+      }
+    },
+
+    "analytics": {
+      "id": "analytics",
+      "name": "Analytics Module",
+      "type": "DERIVED",
+      "level": 3,
+      "version": "1.0.0",
+      "status": "STABLE",
+      "sealed": true,
+      "description": "Event collection and analysis",
+      "dependencies": ["users", "posts"],
+      "exposed_services": ["analyticsService"],
+      "required_services": ["logger", "database", "eventBus"],
+      "events_emitted": ["analytics:event_tracked"],
+      "events_listened": ["user:created", "post:created", "comment:created"],
+      "critical": false,
+      "idempotent": true,
+      "versioning": {
+        "semantic_version": "1.0.0",
+        "compatibility_level": "BACKWARD_COMPATIBLE",
+        "breaking_changes": []
+      }
+    },
+
+    "notifications": {
+      "id": "notifications",
+      "name": "Notifications Module",
+      "type": "COMPLEX",
+      "level": 4,
+      "version": "1.0.0",
+      "status": "STABLE",
+      "sealed": true,
+      "description": "Notifications and alerts system",
+      "dependencies": ["users", "posts", "comments"],
+      "exposed_services": ["notificationService"],
+      "required_services": ["logger", "database", "eventBus"],
+      "events_emitted": ["notification:sent", "notification:read"],
+      "events_listened": ["post:created", "comment:created", "user:updated"],
+      "critical": false,
+      "idempotent": true,
+      "versioning": {
+        "semantic_version": "1.0.0",
+        "compatibility_level": "BACKWARD_COMPATIBLE",
+        "breaking_changes": []
+      }
+    },
+
+    "recommendations": {
+      "id": "recommendations",
+      "name": "Recommendations Module",
+      "type": "COMPLEX",
+      "level": 4,
+      "version": "1.0.0",
+      "status": "STABLE",
+      "sealed": true,
+      "description": "ML-based recommendations engine",
+      "dependencies": ["users", "posts", "analytics"],
+      "exposed_services": ["recommendationService"],
+      "required_services": ["logger", "database", "eventBus"],
+      "events_emitted": ["recommendation:generated"],
+      "events_listened": ["user:created", "post:created"],
+      "critical": false,
+      "idempotent": true,
+      "versioning": {
+        "semantic_version": "1.0.0",
+        "compatibility_level": "BACKWARD_COMPATIBLE",
+        "breaking_changes": []
+      }
+    },
+
+    "admin": {
+      "id": "admin",
+      "name": "Admin Module",
+      "type": "COMPLEX",
+      "level": 4,
+      "version": "1.0.0",
+      "status": "STABLE",
+      "sealed": true,
+      "description": "System administration and control",
+      "dependencies": ["users", "posts"],
+      "exposed_services": ["adminService"],
+      "required_services": ["logger", "database", "eventBus", "authService"],
+      "events_emitted": ["admin:action"],
+      "events_listened": ["user:created", "post:created"],
+      "critical": false,
+      "idempotent": false,
+      "configuration": {
+        "requires_role": "ADMIN"
+      },
+      "versioning": {
+        "semantic_version": "1.0.0",
+        "compatibility_level": "STRICT",
+        "breaking_changes": []
+      }
+    }
+  },
+
+  "governance": {
+    "sealed": true,
+    "immutable": true,
+    "read_only": true,
+    "review_period_days": 30,
+    "approval_required": true,
+    "change_control": "STRICT",
+    "audit_trail": "ENABLED"
+  }
+}

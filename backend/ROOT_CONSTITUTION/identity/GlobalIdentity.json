@@ -1,0 +1,163 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Global Identity - System-Wide Identity Management",
+  "version": "1.0.0",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+
+  "system_identity": {
+    "system_id": "citoyenavise",
+    "system_version": "1.0.0",
+    "environment": "production",
+    "region": "global",
+    "deployment_id": "2026-05-07-production",
+    "build_timestamp": "2026-05-07T14:00:00Z"
+  },
+
+  "module_identities": {
+    "logger": {
+      "module_id": "logger",
+      "instance_id": "logger-001",
+      "version": "1.0.0",
+      "type": "INFRASTRUCTURE",
+      "health_status": "OPERATIONAL"
+    },
+    "database": {
+      "module_id": "database",
+      "instance_id": "database-001",
+      "version": "1.0.0",
+      "type": "INFRASTRUCTURE",
+      "health_status": "OPERATIONAL",
+      "connection_pool": "postgresql-pool-001"
+    },
+    "cache": {
+      "module_id": "cache",
+      "instance_id": "cache-001",
+      "version": "1.0.0",
+      "type": "INFRASTRUCTURE",
+      "health_status": "OPERATIONAL",
+      "cluster_id": "redis-cluster-001"
+    },
+    "auth": {
+      "module_id": "auth",
+      "instance_id": "auth-001",
+      "version": "1.0.0",
+      "type": "DOMAIN",
+      "health_status": "OPERATIONAL"
+    },
+    "eventBus": {
+      "module_id": "eventBus",
+      "instance_id": "eventbus-001",
+      "version": "1.0.0",
+      "type": "INFRASTRUCTURE",
+      "health_status": "OPERATIONAL"
+    },
+    "users": {
+      "module_id": "users",
+      "instance_id": "users-001",
+      "version": "1.0.0",
+      "type": "DOMAIN",
+      "health_status": "OPERATIONAL"
+    },
+    "posts": {
+      "module_id": "posts",
+      "instance_id": "posts-001",
+      "version": "1.0.0",
+      "type": "DOMAIN",
+      "health_status": "OPERATIONAL"
+    },
+    "comments": {
+      "module_id": "comments",
+      "instance_id": "comments-001",
+      "version": "1.0.0",
+      "type": "DOMAIN",
+      "health_status": "OPERATIONAL"
+    },
+    "ideas": {
+      "module_id": "ideas",
+      "instance_id": "ideas-001",
+      "version": "1.0.0",
+      "type": "DOMAIN",
+      "health_status": "OPERATIONAL"
+    },
+    "search": {
+      "module_id": "search",
+      "instance_id": "search-001",
+      "version": "1.0.0",
+      "type": "DERIVED",
+      "health_status": "OPERATIONAL"
+    },
+    "analytics": {
+      "module_id": "analytics",
+      "instance_id": "analytics-001",
+      "version": "1.0.0",
+      "type": "DERIVED",
+      "health_status": "OPERATIONAL"
+    },
+    "notifications": {
+      "module_id": "notifications",
+      "instance_id": "notifications-001",
+      "version": "1.0.0",
+      "type": "COMPLEX",
+      "health_status": "OPERATIONAL"
+    },
+    "recommendations": {
+      "module_id": "recommendations",
+      "instance_id": "recommendations-001",
+      "version": "1.0.0",
+      "type": "COMPLEX",
+      "health_status": "OPERATIONAL"
+    },
+    "admin": {
+      "module_id": "admin",
+      "instance_id": "admin-001",
+      "version": "1.0.0",
+      "type": "COMPLEX",
+      "health_status": "OPERATIONAL"
+    }
+  },
+
+  "service_identities": {
+    "logger_service": {
+      "service_id": "logger",
+      "exposed_by": "logger",
+      "type": "SINGLETON",
+      "health_status": "OPERATIONAL"
+    },
+    "database_service": {
+      "service_id": "database",
+      "exposed_by": "database",
+      "type": "SINGLETON",
+      "health_status": "OPERATIONAL"
+    },
+    "cache_service": {
+      "service_id": "cache",
+      "exposed_by": "cache",
+      "type": "SINGLETON",
+      "health_status": "OPERATIONAL"
+    },
+    "auth_service": {
+      "service_id": "authService",
+      "exposed_by": "auth",
+      "type": "SINGLETON",
+      "health_status": "OPERATIONAL"
+    },
+    "eventbus_service": {
+      "service_id": "eventBus",
+      "exposed_by": "eventBus",
+      "type": "SINGLETON",
+      "health_status": "OPERATIONAL"
+    }
+  },
+
+  "governance": {
+    "sealed": true,
+    "immutable": true,
+    "read_only": true,
+    "identity_verified": true,
+    "all_modules_identified": true,
+    "total_modules": 15,
+    "total_services": 18
+  }
+}

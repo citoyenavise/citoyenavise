@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Get Post Response",
+  "type": "object",
+  "properties": {
+    "id": { "type": "string" },
+    "userId": { "type": "string" },
+    "title": { "type": "string" },
+    "content": { "type": "string" },
+    "type": { "type": "string" },
+    "category": { "type": "string" },
+    "status": { "type": "string" },
+    "likesCount": { "type": "integer" },
+    "viewsCount": { "type": "integer" },
+    "createdAt": { "type": "string" },
+    "updatedAt": { "type": ["string", "null"] }
+  },
+  "required": ["id", "userId", "title", "content", "type", "category", "status"]
+}

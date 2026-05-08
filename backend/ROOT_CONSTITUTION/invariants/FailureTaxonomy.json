@@ -1,0 +1,305 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Failure Taxonomy",
+  "description": "Declarative classification of all possible system failures",
+  "version": "1.0.0",
+  "phase": "1.9",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+  "lastUpdated": "2026-05-07",
+  "governance_level": "CONSTITUTIONAL",
+
+  "failureLevels": {
+    "LOW": {
+      "priority": 0,
+      "description": "Minor failures with no system impact",
+      "systemImpact": "NONE",
+      "userImpact": "NONE",
+      "examples": ["Transient network hiccup", "Temporary cache miss", "Non-critical log write failure"]
+    },
+    "MEDIUM": {
+      "priority": 1,
+      "description": "Recoverable failures with partial functionality impact",
+      "systemImpact": "PARTIAL",
+      "userImpact": "DEGRADED",
+      "examples": ["Temporary module unavailability", "Partial data loss", "Slow query"]
+    },
+    "HIGH": {
+      "priority": 2,
+      "description": "Serious failures requiring immediate intervention",
+      "systemImpact": "SIGNIFICANT",
+      "userImpact": "UNAVAILABLE",
+      "examples": ["Module crash", "Security violation", "Data corruption"]
+    },
+    "CRITICAL": {
+      "priority": 3,
+      "description": "Catastrophic failures threatening system integrity",
+      "systemImpact": "TOTAL",
+      "userImpact": "TOTAL_UNAVAILABLE",
+      "examples": ["System core failure", "Constitution violation", "Unrecoverable state"]
+    }
+  },
+
+  "failureTypes": {
+    "VALIDATION_FAILURE": {
+      "id": "VALIDATION_FAILURE",
+      "description": "Input or state validation failed",
+      "category": "STRUCTURAL",
+      "sourceLayer": "RuntimeValidationEngine",
+      "recoverability": "CONDITIONAL",
+      "examples": [
+        "Schema validation failed",
+        "Event contract violation",
+        "State precondition not met",
+        "Dependency constraint violated"
+      ],
+      "detectionMechanism": "Validator rejection"
+    },
+
+    "DEPENDENCY_FAILURE": {
+      "id": "DEPENDENCY_FAILURE",
+      "description": "Module dependency is unavailable or violated",
+      "category": "ARCHITECTURAL",
+      "sourceLayer": "RuntimeEnforcementEngine",
+      "recoverability": "CONDITIONAL",
+      "examples": [
+        "Required module not initialized",
+        "Circular dependency detected",
+        "Module isolation boundary crossed",
+        "Dependency version mismatch"
+      ],
+      "detectionMechanism": "Dependency enforcer rejection"
+    },
+
+    "SECURITY_VIOLATION": {
+      "id": "SECURITY_VIOLATION",
+      "description": "Security policy or access control violated",
+      "category": "SECURITY",
+      "sourceLayer": "SecurityGuard",
+      "recoverability": "NON_RECOVERABLE",
+      "examples": [
+        "Unauthorized capability usage",
+        "Module boundary violation",
+        "Identity verification failed",
+        "Approval requirement bypassed"
+      ],
+      "detectionMechanism": "SecurityGuard enforcement block"
+    },
+
+    "EVENT_CONTRACT_FAILURE": {
+      "id": "EVENT_CONTRACT_FAILURE",
+      "description": "Event contract or causality violated",
+      "category": "SEMANTIC",
+      "sourceLayer": "EventBus",
+      "recoverability": "CONDITIONAL",
+      "examples": [
+        "Event emitted by unauthorized module",
+        "Event payload mismatch",
+        "Event causality violated",
+        "Event ordering invariant broken"
+      ],
+      "detectionMechanism": "EventBus validator rejection"
+    },
+
+    "SCHEMA_MISMATCH": {
+      "id": "SCHEMA_MISMATCH",
+      "description": "Data structure does not conform to declared schema",
+      "category": "STRUCTURAL",
+      "sourceLayer": "RuntimeValidationEngine",
+      "recoverability": "NON_RECOVERABLE",
+      "examples": [
+        "Event payload schema mismatch",
+        "Log structure violation",
+        "Metric format violation",
+        "Trace structure incomplete"
+      ],
+      "detectionMechanism": "Schema validator rejection"
+    },
+
+    "MODULE_INIT_FAILURE": {
+      "id": "MODULE_INIT_FAILURE",
+      "description": "Module initialization sequence failed",
+      "category": "LIFECYCLE",
+      "sourceLayer": "RuntimeLoaders",
+      "recoverability": "NON_RECOVERABLE",
+      "examples": [
+        "Module failed to load",
+        "Bootstrap invariant violated",
+        "Module preconditions not met",
+        "State machine initialization failed"
+      ],
+      "detectionMechanism": "Bootstrap validator"
+    },
+
+    "STATE_TRANSITION_FAILURE": {
+      "id": "STATE_TRANSITION_FAILURE",
+      "description": "Invalid state transition attempted",
+      "category": "LIFECYCLE",
+      "sourceLayer": "StateTransitionEnforcer",
+      "recoverability": "CONDITIONAL",
+      "examples": [
+        "State precondition not satisfied",
+        "State postcondition violated",
+        "Transition not allowed from current state",
+        "Concurrent state modification"
+      ],
+      "detectionMechanism": "State enforcer rejection"
+    },
+
+    "OBSERVABILITY_FAILURE": {
+      "id": "OBSERVABILITY_FAILURE",
+      "description": "Observability or tracing infrastructure failed",
+      "category": "INFRASTRUCTURE",
+      "sourceLayer": "ObservabilityEngine",
+      "recoverability": "CONDITIONAL",
+      "examples": [
+        "Log emission failed",
+        "Metric recording failed",
+        "Trace creation failed",
+        "Event causality tracking failed"
+      ],
+      "detectionMechanism": "Observability component error"
+    }
+  },
+
+  "failureAttributes": {
+    "id": {
+      "type": "string",
+      "pattern": "^failure_[a-zA-Z0-9_-]+$",
+      "description": "Unique failure identifier"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "VALIDATION_FAILURE",
+        "DEPENDENCY_FAILURE",
+        "SECURITY_VIOLATION",
+        "EVENT_CONTRACT_FAILURE",
+        "SCHEMA_MISMATCH",
+        "MODULE_INIT_FAILURE",
+        "STATE_TRANSITION_FAILURE",
+        "OBSERVABILITY_FAILURE"
+      ],
+      "description": "Failure type from taxonomy"
+    },
+    "severity": {
+      "type": "string",
+      "enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"],
+      "description": "Failure severity level"
+    },
+    "sourceModule": {
+      "type": "string",
+      "description": "Module where failure originated"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "ISO8601",
+      "description": "Failure detection timestamp"
+    },
+    "traceId": {
+      "type": "string",
+      "description": "Associated trace identifier for causality"
+    },
+    "recoverable": {
+      "type": "boolean",
+      "description": "Whether failure allows recovery attempt"
+    },
+    "sourceLayer": {
+      "type": "string",
+      "description": "Runtime layer where failure was detected"
+    },
+    "category": {
+      "type": "string",
+      "enum": ["STRUCTURAL", "ARCHITECTURAL", "SECURITY", "SEMANTIC", "LIFECYCLE", "INFRASTRUCTURE"],
+      "description": "Failure category for routing"
+    }
+  },
+
+  "failureMapping": {
+    "description": "Maps failure type to severity and default recoverability",
+    "mappings": [
+      {
+        "failureType": "VALIDATION_FAILURE",
+        "defaultSeverity": "MEDIUM",
+        "recoverable": true,
+        "category": "STRUCTURAL"
+      },
+      {
+        "failureType": "DEPENDENCY_FAILURE",
+        "defaultSeverity": "HIGH",
+        "recoverable": false,
+        "category": "ARCHITECTURAL"
+      },
+      {
+        "failureType": "SECURITY_VIOLATION",
+        "defaultSeverity": "CRITICAL",
+        "recoverable": false,
+        "category": "SECURITY"
+      },
+      {
+        "failureType": "EVENT_CONTRACT_FAILURE",
+        "defaultSeverity": "HIGH",
+        "recoverable": false,
+        "category": "SEMANTIC"
+      },
+      {
+        "failureType": "SCHEMA_MISMATCH",
+        "defaultSeverity": "HIGH",
+        "recoverable": false,
+        "category": "STRUCTURAL"
+      },
+      {
+        "failureType": "MODULE_INIT_FAILURE",
+        "defaultSeverity": "CRITICAL",
+        "recoverable": false,
+        "category": "LIFECYCLE"
+      },
+      {
+        "failureType": "STATE_TRANSITION_FAILURE",
+        "defaultSeverity": "MEDIUM",
+        "recoverable": true,
+        "category": "LIFECYCLE"
+      },
+      {
+        "failureType": "OBSERVABILITY_FAILURE",
+        "defaultSeverity": "LOW",
+        "recoverable": true,
+        "category": "INFRASTRUCTURE"
+      }
+    ]
+  },
+
+  "failureProperties": {
+    "description": "Properties that define failure behavior",
+    "properties": [
+      {
+        "property": "detectability",
+        "values": ["IMMEDIATE", "DELAYED", "EVENTUAL"],
+        "description": "When failure is detected after occurrence"
+      },
+      {
+        "property": "scope",
+        "values": ["LOCAL", "MODULE", "SYSTEM"],
+        "description": "Scope of failure impact"
+      },
+      {
+        "property": "cascadability",
+        "values": ["ISOLATED", "LOCAL_CASCADE", "SYSTEM_CASCADE"],
+        "description": "Whether failure propagates to other modules"
+      },
+      {
+        "property": "persistence",
+        "values": ["TRANSIENT", "PERSISTENT"],
+        "description": "Whether failure condition persists"
+      }
+    ]
+  },
+
+  "totalLevels": 4,
+  "totalTypes": 8,
+  "totalAttributes": 8,
+  "totalCategories": 6,
+  "declarationComplete": true,
+  "runtimeNote": "This taxonomy is DECLARATIVE ONLY. No failure detection logic, no classification implementation, no handling behavior defined here."
+}

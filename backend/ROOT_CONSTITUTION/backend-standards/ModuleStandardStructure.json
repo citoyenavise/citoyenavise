@@ -1,0 +1,292 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Module Standard Structure",
+  "description": "Standardized folder and file layout for all backend modules (PHASE 2)",
+  "version": "1.0.0",
+  "phase": "2.1",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+  "lastUpdated": "2026-05-07",
+  "governance_level": "CONSTITUTIONAL",
+
+  "moduleStructure": {
+    "location": "backend/src/modules/{moduleName}/",
+    "folders": {
+      "manifest": {
+        "description": "Module metadata and configuration",
+        "files": ["manifest.json"],
+        "required": true,
+        "purpose": "Declare module version, dependencies, capabilities"
+      },
+      "contracts": {
+        "description": "Request/response/event contracts",
+        "files": ["index.js", "*.schema.json"],
+        "required": true,
+        "purpose": "Define all contracts for the module"
+      },
+      "events": {
+        "description": "Module event declarations",
+        "files": ["index.js", "*.event.json"],
+        "required": true,
+        "purpose": "Declare all events emitted by module"
+      },
+      "services": {
+        "description": "Business logic and services",
+        "files": ["*.service.js", "*.test.js"],
+        "required": true,
+        "purpose": "Core service implementations"
+      },
+      "controllers": {
+        "description": "HTTP request handlers",
+        "files": ["*.controller.js", "*.test.js"],
+        "required": true,
+        "purpose": "API endpoint handlers"
+      },
+      "validation": {
+        "description": "Input validation rules",
+        "files": ["*.rules.js", "*.schema.json"],
+        "required": true,
+        "purpose": "Validate requests and events"
+      },
+      "observability": {
+        "description": "Logging, metrics, tracing",
+        "files": ["index.js"],
+        "required": true,
+        "purpose": "Module observability configuration"
+      },
+      "tests": {
+        "description": "Test files",
+        "files": ["*.test.js", "*.spec.js"],
+        "required": true,
+        "purpose": "Unit and integration tests"
+      }
+    },
+    "rootFiles": {
+      "index.js": {
+        "description": "Module export point",
+        "required": true,
+        "exports": ["init()", "ready()", "shutdown()", "health()"]
+      },
+      "routes.js": {
+        "description": "API route definitions",
+        "required": true,
+        "purpose": "Define HTTP routes"
+      },
+      "manifest.json": {
+        "description": "Module metadata",
+        "required": true,
+        "contains": ["name", "version", "dependencies", "capabilities", "events"]
+      }
+    }
+  },
+
+  "standardized_layout": {
+    "directory_tree": {
+      "moduleName": {
+        "manifest": {
+          "manifest.json": "Module configuration"
+        },
+        "contracts": {
+          "index.js": "Export all contracts",
+          "*.request.schema.json": "Request schemas",
+          "*.response.schema.json": "Response schemas",
+          "*.event.schema.json": "Event schemas"
+        },
+        "events": {
+          "index.js": "Export all events",
+          "*.event.json": "Event declarations"
+        },
+        "services": {
+          "*.service.js": "Business logic services",
+          "*.service.test.js": "Service tests"
+        },
+        "controllers": {
+          "*.controller.js": "HTTP handlers",
+          "*.controller.test.js": "Controller tests"
+        },
+        "validation": {
+          "index.js": "Export validation rules",
+          "*.rules.js": "Validation logic",
+          "*.schema.json": "Validation schemas"
+        },
+        "observability": {
+          "index.js": "Observability configuration"
+        },
+        "tests": {
+          "integration.test.js": "Integration tests",
+          "setup.js": "Test setup"
+        },
+        "index.js": "Module export",
+        "routes.js": "Route definitions",
+        "manifest.json": "Module metadata"
+      }
+    }
+  },
+
+  "mandatory_exports": {
+    "index.js_must_export": [
+      {
+        "name": "init",
+        "type": "async function",
+        "signature": "init(context)",
+        "description": "Initialize module",
+        "required": true
+      },
+      {
+        "name": "ready",
+        "type": "async function",
+        "signature": "ready()",
+        "description": "Mark module as ready",
+        "required": true
+      },
+      {
+        "name": "shutdown",
+        "type": "async function",
+        "signature": "shutdown()",
+        "description": "Graceful shutdown",
+        "required": true
+      },
+      {
+        "name": "health",
+        "type": "async function",
+        "signature": "health()",
+        "description": "Return health status",
+        "required": true
+      },
+      {
+        "name": "getRoutes",
+        "type": "function",
+        "signature": "getRoutes()",
+        "description": "Return module routes",
+        "required": true
+      },
+      {
+        "name": "getEvents",
+        "type": "function",
+        "signature": "getEvents()",
+        "description": "Return module events",
+        "required": true
+      },
+      {
+        "name": "getContracts",
+        "type": "function",
+        "signature": "getContracts()",
+        "description": "Return module contracts",
+        "required": true
+      }
+    ]
+  },
+
+  "naming_conventions": {
+    "files": {
+      "service_files": "{entity}.service.js",
+      "controller_files": "{entity}.controller.js",
+      "test_files": "{name}.test.js or {name}.spec.js",
+      "schema_files": "{entity}.{type}.schema.json",
+      "event_files": "{eventName}.event.json"
+    },
+    "exports": {
+      "class_names": "PascalCase (e.g., UserService)",
+      "function_names": "camelCase (e.g., createUser)",
+      "constants": "UPPER_SNAKE_CASE (e.g., DEFAULT_TIMEOUT)"
+    },
+    "folders": {
+      "folder_names": "lowercase_with_underscores (e.g., validation, observability)"
+    }
+  },
+
+  "module_lifecycle_interface": {
+    "required_functions": {
+      "init": {
+        "signature": "async init(context: ModuleContext): Promise<InitResult>",
+        "responsibility": "Initialize module state, load data, register routes",
+        "must_throw": "If initialization fails",
+        "must_complete": "Before ready() can be called"
+      },
+      "ready": {
+        "signature": "async ready(): Promise<ReadyResult>",
+        "responsibility": "Mark module as ready to handle requests",
+        "must_throw": "If preconditions not met",
+        "must_complete": "Before requests routed to module"
+      },
+      "shutdown": {
+        "signature": "async shutdown(): Promise<ShutdownResult>",
+        "responsibility": "Graceful shutdown, cleanup resources",
+        "must_throw": "If cleanup fails (logs error, continues)",
+        "must_complete": "Before process exits"
+      },
+      "health": {
+        "signature": "async health(): Promise<HealthStatus>",
+        "responsibility": "Return current health status",
+        "must_return": "{ status: 'healthy'|'degraded'|'unhealthy', details: {...} }",
+        "must_complete": "In <1 second"
+      }
+    }
+  },
+
+  "manifest_format": {
+    "structure": {
+      "name": "string (module identifier)",
+      "version": "string (semver)",
+      "description": "string",
+      "dependencies": ["array of module names"],
+      "capabilities": ["array of capability identifiers"],
+      "events": ["array of event names emitted"],
+      "routes": {
+        "prefix": "string (/api/v1/{moduleName})",
+        "methods": ["GET", "POST", "PUT", "DELETE"]
+      },
+      "lifecycle": {
+        "initRequired": "boolean",
+        "readyRequired": "boolean",
+        "healthChecks": "boolean"
+      }
+    }
+  },
+
+  "folder_requirements": {
+    "contracts": "MUST exist and contain all request/response/event schemas",
+    "events": "MUST exist and contain all event declarations",
+    "services": "MUST exist and contain business logic",
+    "controllers": "MUST exist and contain HTTP handlers",
+    "validation": "MUST exist and contain validation rules",
+    "observability": "MUST exist and contain observability config",
+    "tests": "MUST exist and contain test files",
+    "manifest": "MUST exist and contain manifest.json"
+  },
+
+  "validation_rules": {
+    "no_custom_layouts": "All modules MUST follow standard structure",
+    "no_root_services": "No .js files in root except index.js, routes.js",
+    "no_duplicate_exports": "index.js must export exactly 7 mandatory functions",
+    "manifest_required": "manifest.json MUST be valid JSON and conform to schema",
+    "test_coverage": "All services and controllers MUST have tests"
+  },
+
+  "enforcement": {
+    "when": "During module initialization",
+    "by": "ModuleStructureValidator (new, Phase 2.1)",
+    "action_if_invalid": "Throw error, prevent module load",
+    "tolerance": "ZERO (strict enforcement)",
+    "checklist": [
+      "Required folders exist",
+      "Required files present",
+      "index.js exports all 7 mandatory functions",
+      "manifest.json valid",
+      "No custom files in root",
+      "All scripts follow naming convention"
+    ]
+  },
+
+  "migration_from_current": {
+    "status": "PHASE 2.1 will apply standardization to all existing modules",
+    "approach": "Automated refactoring + manual review",
+    "breaking_changes": "None (backward compatible)",
+    "timeline": "1-2 weeks for 30+ modules"
+  },
+
+  "total_modules": 30,
+  "standardization_complete": false,
+  "runtimeNote": "This is a DECLARATION of the standard structure. Implementation via ModuleStructureValidator (Phase 2.1) enforces compliance."
+}

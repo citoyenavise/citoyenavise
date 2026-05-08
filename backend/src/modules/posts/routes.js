@@ -5,7 +5,7 @@
 const express = require('express');
 const { asyncHandler } = require('../../core/middleware/errorHandler');
 const { authRequired, authOptional } = require('../../core/middleware/auth');
-const postsController = require('./controller');
+const postsController = require('./controllers/posts.controller');
 
 const router = express.Router();
 

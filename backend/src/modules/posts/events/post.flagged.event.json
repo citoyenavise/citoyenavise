@@ -1,0 +1,18 @@
+{
+  "name": "post:flagged",
+  "version": "1.0.0",
+  "domain": "post",
+  "action": "flagged",
+  "entity": "post",
+  "description": "Post flagged for moderation",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "postId": { "type": "string" },
+      "reason": { "type": "string" },
+      "reportedBy": { "type": "string" },
+      "timestamp": { "type": "string" }
+    },
+    "required": ["postId", "reason", "reportedBy", "timestamp"]
+  }
+}

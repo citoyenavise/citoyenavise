@@ -1,0 +1,100 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Deprecation Policy - Deprecation and Sunset Management",
+  "version": "1.0.0",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+
+  "deprecation_lifecycle": {
+    "active": {
+      "status": "Fully supported",
+      "behavior": "Works as designed",
+      "duration": "Until deprecation announced",
+      "action_required": "None"
+    },
+    "deprecated": {
+      "status": "Supported but will be removed",
+      "behavior": "Works but discouraged",
+      "duration": "2 releases or 6 months",
+      "action_required": "Migrate to replacement",
+      "deprecation_notice_format": "Clear warning in logs and documentation"
+    },
+    "sunset": {
+      "status": "Removed",
+      "behavior": "No longer available",
+      "duration": "After deprecation period ends",
+      "action_required": "Mandatory migration completed"
+    }
+  },
+
+  "deprecation_announcement": {
+    "required_information": [
+      "What is deprecated",
+      "When it will be removed",
+      "Why it is being removed",
+      "What to use instead",
+      "Migration guide"
+    ],
+    "channels": [
+      "Changelog entry",
+      "Release notes",
+      "Log warnings",
+      "Documentation update",
+      "Developer email"
+    ]
+  },
+
+  "deprecation_enforcement": {
+    "during_deprecated_period": {
+      "action": "Log deprecation warning",
+      "frequency": "Every usage",
+      "severity": "WARNING"
+    },
+    "after_sunset": {
+      "action": "Reject with error",
+      "frequency": "Every usage",
+      "severity": "ERROR",
+      "response": "Exit with code 1"
+    }
+  },
+
+  "current_deprecations": {
+    "none": "No current deprecations as of 2026-05-07"
+  },
+
+  "planned_deprecations": {
+    "none": "No planned deprecations"
+  },
+
+  "deprecation_notice_format": {
+    "template": "DEPRECATION NOTICE: {item} is deprecated as of version {version} and will be removed in version {removal_version}. Reason: {reason}. Replacement: {replacement}. Migration guide: {guide_url}",
+    "example": "DEPRECATION NOTICE: auth:token_expired event is deprecated as of version 1.2.0 and will be removed in version 2.0.0. Reason: Token refresh handled by auth service. Replacement: Use auth:logout event instead. Migration guide: https://docs.citoyenavise.org/migration-guides/token-events"
+  },
+
+  "deprecation_removal_checklist": {
+    "step_1": "Announce deprecation in changelog",
+    "step_2": "Add deprecation warnings to logs",
+    "step_3": "Update documentation",
+    "step_4": "Email users",
+    "step_5": "Wait 2 releases or 6 months",
+    "step_6": "Remove deprecated functionality",
+    "step_7": "Update changelog with removal",
+    "step_8": "Release with major version bump"
+  },
+
+  "backward_compatibility_guarantee": {
+    "within_major_version": "Full backward compatibility",
+    "across_major_versions": "Deprecation period provided",
+    "minimum_notice": "2 releases or 6 months"
+  },
+
+  "governance": {
+    "sealed": true,
+    "immutable": true,
+    "read_only": true,
+    "deprecation_policy_version": "1.0.0",
+    "policy_effective_date": "2026-05-07",
+    "next_review_date": "2026-08-07"
+  }
+}

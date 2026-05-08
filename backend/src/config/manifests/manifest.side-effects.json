@@ -1,0 +1,595 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Side-Effects Manifest - Phase 2",
+  "version": "1.0.0",
+  "description": "Déclaration des side-effects (actions) du système",
+  "sideEffects": [
+    {
+      "id": "logAuthAttempt",
+      "displayName": "Log Tentative Auth",
+      "description": "Enregistre la tentative d'authentification",
+      "module": "auth",
+      "executeFunction": "logger.info('Auth attempt', context.credentials.username)",
+      "isAsync": false,
+      "parameters": [
+        {
+          "name": "credentials",
+          "type": "object",
+          "required": true,
+          "description": "Identifiants utilisés"
+        }
+      ]
+    },
+    {
+      "id": "storeToken",
+      "displayName": "Stocker Token",
+      "description": "Stocke le token JWT en cache/session",
+      "module": "auth",
+      "executeFunction": "sessionManager.setToken(context.token)",
+      "isAsync": true,
+      "parameters": [
+        {
+          "name": "token",
+          "type": "string",
+          "required": true,
+          "description": "Token JWT à stocker"
+        }
+      ]
+    },
+    {
+      "id": "loadUserProfile",
+      "displayName": "Charger Profil Utilisateur",
+      "description": "Charge le profil utilisateur après authentification",
+      "module": "auth",
+      "executeFunction": "userService.loadProfile(context.userId)",
+      "isAsync": true,
+      "parameters": [
+        {
+          "name": "userId",
+          "type": "string",
+          "required": true,
+          "description": "ID de l'utilisateur"
+        }
+      ]
+    },
+    {
+      "id": "logFailure",
+      "displayName": "Log Echec",
+      "description": "Enregistre l'échec d'authentification",
+      "module": "auth",
+      "executeFunction": "logger.warning('Auth failure', context.error)",
+      "isAsync": false,
+      "parameters": [
+        {
+          "name": "error",
+          "type": "string",
+          "required": true,
+          "description": "Message d'erreur"
+        }
+      ]
+    },
+    {
+      "id": "clearCredentials",
+      "displayName": "Effacer Identifiants",
+      "description": "Efface les identifiants stockés après échec",
+      "module": "auth",
+      "executeFunction": "sessionManager.clearCredentials()",
+      "isAsync": false,
+      "parameters": []
+    },
+    {
+      "id": "clearSession",
+      "displayName": "Effacer Session",
+      "description": "Efface la session complète lors de l'expiration",
+      "module": "auth",
+      "executeFunction": "sessionManager.clearSession()",
+      "isAsync": true,
+      "parameters": []
+    },
+    {
+      "id": "logExpiration",
+      "displayName": "Log Expiration",
+      "description": "Enregistre l'expiration du token",
+      "module": "auth",
+      "executeFunction": "logger.info('Token expired')",
+      "isAsync": false,
+      "parameters": []
+    },
+    {
+      "id": "startLoadingAnimation",
+      "displayName": "Démarrer Animation Chargement",
+      "description": "Démarre l'animation de chargement côté client",
+      "module": "users",
+      "executeFunction": "ui.startLoader()",
+      "isAsync": false,
+      "parameters": []
+    },
+    {
+      "id": "cacheUserData",
+      "displayName": "Mettre en Cache Données Utilisateur",
+      "description": "Cache les données utilisateur pour accès rapide",
+      "module": "users",
+      "executeFunction": "cache.set('user_profile', context.profile)",
+      "isAsync": true,
+      "parameters": [
+        {
+          "name": "profile",
+          "type": "object",
+          "required": true,
+          "description": "Profil utilisateur"
+        }
+      ]
+    },
+    {
+      "id": "updateUI",
+      "displayName": "Mettre à Jour UI",
+      "description": "Met à jour l'interface utilisateur",
+      "module": "users",
+      "executeFunction": "ui.updateUserProfile(context.profile)",
+      "isAsync": false,
+      "parameters": [
+        {
+          "name": "profile",
+          "type": "object",
+          "required": true,
+          "description": "Profil utilisateur"
+        }
+      ]
+    },
+    {
+      "id": "validatePostContent",
+      "displayName": "Valider Contenu Post",
+      "description": "Valide le contenu du post avant création",
+      "module": "posts",
+      "executeFunction": "postValidator.validate(context.postData)",
+      "isAsync": false,
+      "parameters": [
+        {
+          "name": "postData",
+          "type": "object",
+          "required": true,
+          "description": "Contenu du post"
+        }
+      ]
+    },
+    {
+      "id": "startCreatingAnimation",
+      "displayName": "Démarrer Animation Création",
+      "description": "Démarre l'animation de création",
+      "module": "posts",
+      "executeFunction": "ui.startCreationLoader()",
+      "isAsync": false,
+      "parameters": []
+    },
+    {
+      "id": "emitPostCreatedEvent",
+      "displayName": "Émettre Événement Post Créé",
+      "description": "Émet l'événement de création de post",
+      "module": "posts",
+      "executeFunction": "eventBus.emit('post:created', context.post)",
+      "isAsync": false,
+      "parameters": [
+        {
+          "name": "post",
+          "type": "object",
+          "required": true,
+          "description": "Post créé"
+        }
+      ]
+    },
+    {
+      "id": "updateFeed",
+      "displayName": "Mettre à Jour Feed",
+      "description": "Met à jour le feed avec le nouveau post",
+      "module": "posts",
+      "executeFunction": "feedService.addPost(context.post)",
+      "isAsync": true,
+      "parameters": [
+        {
+          "name": "post",
+          "type": "object",
+          "required": true,
+          "description": "Post à ajouter"
+        }
+      ]
+    },
+    {
+      "id": "logLoadError",
+      "displayName": "Log Erreur Chargement",
+      "description": "Enregistre l'erreur de chargement",
+      "module": "users",
+      "executeFunction": "logger.error('Loading failed', context.error)",
+      "isAsync": false,
+      "parameters": [
+        {
+          "name": "error",
+          "type": "string",
+          "required": true,
+          "description": "Message d'erreur"
+        }
+      ]
+    },
+    {
+      "id": "notifyUser",
+      "displayName": "Notifier Utilisateur",
+      "description": "Notifie l'utilisateur d'une erreur",
+      "module": "users",
+      "executeFunction": "notificationService.error(context.message)",
+      "isAsync": true,
+      "parameters": [
+        {
+          "name": "message",
+          "type": "string",
+          "required": true,
+          "description": "Message d'erreur"
+        }
+      ]
+    },
+    {
+      "id": "logCreationError",
+      "displayName": "Log Erreur Création",
+      "description": "Enregistre l'erreur de création",
+      "module": "posts",
+      "executeFunction": "logger.error('Post creation failed', context.error)",
+      "isAsync": false,
+      "parameters": [
+        {
+          "name": "error",
+          "type": "string",
+          "required": true,
+          "description": "Message d'erreur"
+        }
+      ]
+    },
+    {
+      "id": "rollbackChanges",
+      "displayName": "Annuler Changements",
+      "description": "Annule les changements lors d'erreur",
+      "module": "posts",
+      "executeFunction": "transactionManager.rollback()",
+      "isAsync": true,
+      "parameters": []
+    },
+    {
+      "id": "initNotification",
+      "displayName": "Initialiser Notification",
+      "description": "Initialise une nouvelle notification",
+      "module": "notifications",
+      "executeFunction": "notificationService.init(context.notificationData)",
+      "isAsync": true,
+      "parameters": [
+        {
+          "name": "notificationData",
+          "type": "object",
+          "required": true,
+          "description": "Données de notification"
+        }
+      ]
+    },
+    {
+      "id": "scheduleDelivery",
+      "displayName": "Planifier Livraison",
+      "description": "Planifie la livraison de la notification",
+      "module": "notifications",
+      "executeFunction": "notificationService.scheduleDelivery(context.notificationId)",
+      "isAsync": true,
+      "parameters": [
+        {
+          "name": "notificationId",
+          "type": "string",
+          "required": true,
+          "description": "ID de la notification"
+        }
+      ]
+    },
+    {
+      "id": "logNotificationSent",
+      "displayName": "Log Notification Envoyée",
+      "description": "Enregistre l'envoi de la notification",
+      "module": "notifications",
+      "executeFunction": "logger.info('Notification sent', context.notificationId)",
+      "isAsync": false,
+      "parameters": [
+        {
+          "name": "notificationId",
+          "type": "string",
+          "required": true,
+          "description": "ID de la notification"
+        }
+      ]
+    },
+    {
+      "id": "updateDeliveryQueue",
+      "displayName": "Mettre à Jour Queue Livraison",
+      "description": "Met à jour la queue de livraison",
+      "module": "notifications",
+      "executeFunction": "deliveryQueue.update(context.notificationId, 'SENT')",
+      "isAsync": true,
+      "parameters": [
+        {
+          "name": "notificationId",
+          "type": "string",
+          "required": true,
+          "description": "ID de la notification"
+        }
+      ]
+    },
+    {
+      "id": "logDeliveryConfirm",
+      "displayName": "Log Confirmation Livraison",
+      "description": "Enregistre la confirmation de livraison",
+      "module": "notifications",
+      "executeFunction": "logger.info('Notification delivered', context.notificationId)",
+      "isAsync": false,
+      "parameters": [
+        {
+          "name": "notificationId",
+          "type": "string",
+          "required": true,
+          "description": "ID de la notification"
+        }
+      ]
+    },
+    {
+      "id": "triggerAnalytics",
+      "displayName": "Déclencher Analytics",
+      "description": "Déclenche l'enregistrement analytics",
+      "module": "notifications",
+      "executeFunction": "analyticsService.trackEvent('notification_delivered')",
+      "isAsync": true,
+      "parameters": []
+    },
+    {
+      "id": "logNotificationRead",
+      "displayName": "Log Notification Lue",
+      "description": "Enregistre la lecture de la notification",
+      "module": "notifications",
+      "executeFunction": "logger.info('Notification read', context.notificationId)",
+      "isAsync": false,
+      "parameters": [
+        {
+          "name": "notificationId",
+          "type": "string",
+          "required": true,
+          "description": "ID de la notification"
+        }
+      ]
+    },
+    {
+      "id": "updateNotificationStatus",
+      "displayName": "Mettre à Jour Statut Notification",
+      "description": "Met à jour le statut de la notification",
+      "module": "notifications",
+      "executeFunction": "notificationService.updateStatus(context.notificationId, 'READ')",
+      "isAsync": true,
+      "parameters": [
+        {
+          "name": "notificationId",
+          "type": "string",
+          "required": true,
+          "description": "ID de la notification"
+        }
+      ]
+    },
+    {
+      "id": "logNotificationFailure",
+      "displayName": "Log Échec Notification",
+      "description": "Enregistre l'échec d'une notification",
+      "module": "notifications",
+      "executeFunction": "logger.error('Notification failed', context.error)",
+      "isAsync": false,
+      "parameters": [
+        {
+          "name": "error",
+          "type": "string",
+          "required": true,
+          "description": "Message d'erreur"
+        }
+      ]
+    },
+    {
+      "id": "retryQueue",
+      "displayName": "Queue Retry",
+      "description": "Ajoute à la queue de retry",
+      "module": "notifications",
+      "executeFunction": "retryQueue.add(context.notificationId)",
+      "isAsync": true,
+      "parameters": [
+        {
+          "name": "notificationId",
+          "type": "string",
+          "required": true,
+          "description": "ID de la notification"
+        }
+      ]
+    },
+    {
+      "id": "storeEvent",
+      "displayName": "Stocker Événement",
+      "description": "Stocke l'événement analytics",
+      "module": "analytics",
+      "executeFunction": "analyticsStorage.store(context.eventData)",
+      "isAsync": true,
+      "parameters": [
+        {
+          "name": "eventData",
+          "type": "object",
+          "required": true,
+          "description": "Données d'événement"
+        }
+      ]
+    },
+    {
+      "id": "updateEventCounter",
+      "displayName": "Mettre à Jour Compteur Événements",
+      "description": "Met à jour le compteur d'événements",
+      "module": "analytics",
+      "executeFunction": "analyticsService.incrementCounter()",
+      "isAsync": false,
+      "parameters": []
+    },
+    {
+      "id": "prepareDataForProcessing",
+      "displayName": "Préparer Données pour Traitement",
+      "description": "Prépare les données pour le traitement",
+      "module": "analytics",
+      "executeFunction": "dataProcessor.prepare(context.collectedEvents)",
+      "isAsync": true,
+      "parameters": [
+        {
+          "name": "collectedEvents",
+          "type": "array",
+          "required": true,
+          "description": "Événements collectés"
+        }
+      ]
+    },
+    {
+      "id": "logAggregation",
+      "displayName": "Log Agrégation",
+      "description": "Enregistre l'agrégation",
+      "module": "analytics",
+      "executeFunction": "logger.info('Data aggregation started')",
+      "isAsync": false,
+      "parameters": []
+    },
+    {
+      "id": "generateAnalyticsReport",
+      "displayName": "Générer Rapport Analytics",
+      "description": "Génère le rapport analytics",
+      "module": "analytics",
+      "executeFunction": "reportGenerator.generate(context.processedData)",
+      "isAsync": true,
+      "parameters": [
+        {
+          "name": "processedData",
+          "type": "object",
+          "required": true,
+          "description": "Données traitées"
+        }
+      ]
+    },
+    {
+      "id": "cacheReport",
+      "displayName": "Mettre en Cache Rapport",
+      "description": "Cache le rapport généré",
+      "module": "analytics",
+      "executeFunction": "cache.set('analytics_report', context.report)",
+      "isAsync": true,
+      "parameters": [
+        {
+          "name": "report",
+          "type": "object",
+          "required": true,
+          "description": "Rapport généré"
+        }
+      ]
+    },
+    {
+      "id": "logAnalyticsError",
+      "displayName": "Log Erreur Analytics",
+      "description": "Enregistre les erreurs analytics",
+      "module": "analytics",
+      "executeFunction": "logger.error('Analytics error', context.error)",
+      "isAsync": false,
+      "parameters": [
+        {
+          "name": "error",
+          "type": "string",
+          "required": true,
+          "description": "Message d'erreur"
+        }
+      ]
+    },
+    {
+      "id": "pauseCollection",
+      "displayName": "Pause Collection",
+      "description": "Pause la collecte d'événements",
+      "module": "analytics",
+      "executeFunction": "analyticsService.pause()",
+      "isAsync": false,
+      "parameters": []
+    },
+    {
+      "id": "logProcessingError",
+      "displayName": "Log Erreur Traitement",
+      "description": "Enregistre l'erreur de traitement",
+      "module": "analytics",
+      "executeFunction": "logger.error('Processing error', context.error)",
+      "isAsync": false,
+      "parameters": [
+        {
+          "name": "error",
+          "type": "string",
+          "required": true,
+          "description": "Message d'erreur"
+        }
+      ]
+    },
+    {
+      "id": "pauseProcessing",
+      "displayName": "Pause Traitement",
+      "description": "Pause le traitement",
+      "module": "analytics",
+      "executeFunction": "dataProcessor.pause()",
+      "isAsync": false,
+      "parameters": []
+    },
+    {
+      "id": "logAggregatingError",
+      "displayName": "Log Erreur Agrégation",
+      "description": "Enregistre l'erreur d'agrégation",
+      "module": "analytics",
+      "executeFunction": "logger.error('Aggregating error', context.error)",
+      "isAsync": false,
+      "parameters": [
+        {
+          "name": "error",
+          "type": "string",
+          "required": true,
+          "description": "Message d'erreur"
+        }
+      ]
+    },
+    {
+      "id": "pauseAggregation",
+      "displayName": "Pause Agrégation",
+      "description": "Pause l'agrégation",
+      "module": "analytics",
+      "executeFunction": "reportGenerator.pause()",
+      "isAsync": false,
+      "parameters": []
+    },
+    {
+      "id": "logDeliveryFailure",
+      "displayName": "Log Échec Livraison",
+      "description": "Enregistre l'échec de livraison",
+      "module": "notifications",
+      "executeFunction": "logger.error('Delivery failed', context.error)",
+      "isAsync": false,
+      "parameters": [
+        {
+          "name": "error",
+          "type": "string",
+          "required": true,
+          "description": "Message d'erreur"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "created": "2026-05-07T18:30:00Z",
+    "updatedAt": "2026-05-07T18:30:00Z",
+    "version": "1.0.0",
+    "totalSideEffects": 39,
+    "byModule": {
+      "auth": 7,
+      "users": 6,
+      "posts": 6,
+      "notifications": 13,
+      "analytics": 7
+    },
+    "asyncCount": 21,
+    "syncCount": 18
+  }
+}

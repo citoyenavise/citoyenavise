@@ -1,0 +1,169 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Critical Invariants - System Properties That Must Always Hold",
+  "version": "1.0.0",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+
+  "invariants": [
+    {
+      "id": "INV_NO_CASCADE_FAILURES",
+      "name": "No Cascade Failures",
+      "category": "SYSTEM",
+      "severity": "CRITICAL",
+      "description": "Module failures must not cascade to other modules",
+      "condition": "For each module M, failure of M does not propagate to other modules",
+      "mechanism": "Module isolation, error boundaries, event isolation",
+      "validation_frequency_sec": 5,
+      "validation_method": "Runtime isolation checks",
+      "enforcement": "MANDATORY",
+      "status": "ENFORCED"
+    },
+
+    {
+      "id": "INV_TYPE_SAFETY",
+      "name": "Type Safety",
+      "category": "TYPE_SYSTEM",
+      "severity": "CRITICAL",
+      "description": "All events and service calls must be type-safe",
+      "condition": "Every event conforms to its schema, every service call has valid parameters",
+      "mechanism": "Schema validation, TypeScript, runtime validators",
+      "validation_frequency_sec": 5,
+      "validation_method": "Schema validation on every event",
+      "enforcement": "MANDATORY",
+      "status": "ENFORCED"
+    },
+
+    {
+      "id": "INV_PERMISSION_ENFORCEMENT",
+      "name": "Permission Enforcement",
+      "category": "SECURITY",
+      "severity": "CRITICAL",
+      "description": "Authorization checks must be enforced on all protected resources",
+      "condition": "Every endpoint and service method checks user permissions before executing",
+      "mechanism": "RBAC gates, permission matrix, access control lists",
+      "validation_frequency_sec": 5,
+      "validation_method": "Audit log verification, permission check sampling",
+      "enforcement": "MANDATORY",
+      "status": "ENFORCED"
+    },
+
+    {
+      "id": "INV_EVENT_PROPAGATION",
+      "name": "Event Propagation Guarantee",
+      "category": "MESSAGING",
+      "severity": "CRITICAL",
+      "description": "All emitted events must be delivered to registered listeners",
+      "condition": "For each event emission, all registered listeners are called",
+      "mechanism": "EventBus queueing, retry logic, dead-letter queue",
+      "validation_frequency_sec": 5,
+      "validation_method": "Event delivery tracking, listener execution verification",
+      "enforcement": "MANDATORY",
+      "status": "ENFORCED"
+    },
+
+    {
+      "id": "INV_STATE_MACHINE_CORRECTNESS",
+      "name": "State Machine Correctness",
+      "category": "CONTROL_FLOW",
+      "severity": "CRITICAL",
+      "description": "Bootstrap must follow correct state transitions with guard enforcement",
+      "condition": "State transitions follow defined rules, guards are evaluated, side-effects executed",
+      "mechanism": "State machine with guards, side-effects, history tracking",
+      "validation_frequency_sec": 5,
+      "validation_method": "State transition verification, guard evaluation checks",
+      "enforcement": "MANDATORY",
+      "status": "ENFORCED"
+    },
+
+    {
+      "id": "INV_DATA_CONSISTENCY",
+      "name": "Data Consistency",
+      "category": "DATA",
+      "severity": "CRITICAL",
+      "description": "Cache and database must remain synchronized",
+      "condition": "For each cached value, cache entry == database entry OR cache is invalidated",
+      "mechanism": "Write-through cache, cache invalidation on writes, periodic validation",
+      "validation_frequency_sec": 5,
+      "validation_method": "Spot checks of cache vs database, invalidation tracking",
+      "enforcement": "MANDATORY",
+      "status": "ENFORCED"
+    },
+
+    {
+      "id": "INV_MODULE_ISOLATION",
+      "name": "Module Isolation",
+      "category": "ARCHITECTURE",
+      "severity": "CRITICAL",
+      "description": "Modules must not share mutable state",
+      "condition": "No shared mutable state between modules, only communication through events/services",
+      "mechanism": "DI container boundaries, immutable service contracts",
+      "validation_frequency_sec": 5,
+      "validation_method": "Reference counting, static analysis",
+      "enforcement": "MANDATORY",
+      "status": "ENFORCED"
+    },
+
+    {
+      "id": "INV_SERVICE_AVAILABILITY",
+      "name": "Service Availability",
+      "category": "DEPENDENCY_INJECTION",
+      "severity": "CRITICAL",
+      "description": "All critical services must remain injectable through DI container",
+      "condition": "For each service, di.get(service) returns valid instance without timeout",
+      "mechanism": "DI container lifecycle management, service registration verification",
+      "validation_frequency_sec": 5,
+      "validation_method": "DI resolution checks, service ping tests",
+      "enforcement": "MANDATORY",
+      "status": "ENFORCED"
+    }
+  ],
+
+  "invariant_dependencies": {
+    "INV_NO_CASCADE_FAILURES": ["INV_MODULE_ISOLATION"],
+    "INV_TYPE_SAFETY": [],
+    "INV_PERMISSION_ENFORCEMENT": [],
+    "INV_EVENT_PROPAGATION": ["INV_TYPE_SAFETY"],
+    "INV_STATE_MACHINE_CORRECTNESS": ["INV_EVENT_PROPAGATION"],
+    "INV_DATA_CONSISTENCY": ["INV_TYPE_SAFETY"],
+    "INV_MODULE_ISOLATION": [],
+    "INV_SERVICE_AVAILABILITY": ["INV_MODULE_ISOLATION"]
+  },
+
+  "violation_responses": {
+    "CRITICAL": {
+      "action": "BLOCK_AND_ALERT",
+      "severity": "IMMEDIATE_ESCALATION",
+      "procedures": [
+        "Log violation with full context",
+        "Emit critical alert to observability stack",
+        "Page on-call engineer immediately",
+        "Block offending operation",
+        "Attempt auto-remediation (if configured)",
+        "Exit with code 1 if recovery fails"
+      ]
+    },
+    "HIGH": {
+      "action": "WARN_AND_LOG",
+      "severity": "URGENT",
+      "procedures": [
+        "Log violation with full context",
+        "Emit warning alert",
+        "Alert engineering team",
+        "Continue with caution",
+        "Schedule investigation within 1 hour"
+      ]
+    }
+  },
+
+  "governance": {
+    "sealed": true,
+    "immutable": true,
+    "read_only": true,
+    "total_invariants": 8,
+    "critical_invariants": 8,
+    "validation_enabled": true,
+    "enforcement_enabled": true
+  }
+}

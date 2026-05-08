@@ -1,0 +1,73 @@
+{
+  "rules_version": "1.0.0",
+  "description": "Backward/forward compatibility rules for event versioning",
+  "last_updated": "2026-05-08",
+  "compatibility_rules": {
+    "VIOLATION": {
+      "backward_compatible_strategy": "strict",
+      "forward_compatible_strategy": "lenient",
+      "rules": [
+        {
+          "version_from": "1.0.0",
+          "version_to": "future",
+          "breaking_changes_allowed": false,
+          "required_fields_immutable": ["type", "severity", "validator"],
+          "optional_fields_can_be_added": true
+        }
+      ]
+    },
+    "HEALING": {
+      "backward_compatible_strategy": "strict",
+      "forward_compatible_strategy": "lenient",
+      "rules": [
+        {
+          "version_from": "1.0.0",
+          "version_to": "future",
+          "breaking_changes_allowed": false,
+          "required_fields_immutable": ["correctionId", "violationType", "applied"],
+          "optional_fields_can_be_added": true
+        }
+      ]
+    },
+    "RECOVERY": {
+      "backward_compatible_strategy": "strict",
+      "forward_compatible_strategy": "lenient",
+      "rules": [
+        {
+          "version_from": "1.0.0",
+          "version_to": "future",
+          "breaking_changes_allowed": false,
+          "required_fields_immutable": ["recoveryPath", "action", "status"],
+          "optional_fields_can_be_added": true
+        }
+      ]
+    },
+    "HEALTH": {
+      "backward_compatible_strategy": "strict",
+      "forward_compatible_strategy": "lenient",
+      "rules": [
+        {
+          "version_from": "1.0.0",
+          "version_to": "future",
+          "breaking_changes_allowed": false,
+          "required_fields_immutable": ["healthScore", "activeViolations", "degradationStatus"],
+          "optional_fields_can_be_added": true
+        }
+      ]
+    }
+  },
+  "global_rules": {
+    "required_in_all_versions": ["timestamp", "traceId", "type"],
+    "never_allowed_to_change": ["eventId", "type"],
+    "allowed_to_become_optional": true,
+    "allowed_to_become_required": false,
+    "field_type_changes_allowed": false,
+    "enum_value_changes_allowed": "append_only"
+  },
+  "migration_path_rules": {
+    "auto_migration_enabled": true,
+    "migration_timeout_ms": 5000,
+    "fail_on_incompatible": true,
+    "log_all_migrations": true
+  }
+}

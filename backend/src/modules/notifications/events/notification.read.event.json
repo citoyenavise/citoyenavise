@@ -1,0 +1,17 @@
+{
+  "name": "notification:read",
+  "version": "1.0.0",
+  "domain": "notification",
+  "action": "read",
+  "entity": "notification",
+  "description": "Notification marked as read",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "notificationId": { "type": "string" },
+      "userId": { "type": "string" },
+      "timestamp": { "type": "string" }
+    },
+    "required": ["notificationId", "userId", "timestamp"]
+  }
+}

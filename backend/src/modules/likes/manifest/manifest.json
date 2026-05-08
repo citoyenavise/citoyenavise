@@ -1,0 +1,28 @@
+{
+  "name": "likes",
+  "version": "1.0.0",
+  "description": "Like and support interactions",
+  "dependencies": [],
+  "capabilities": [
+    "like:add",
+    "like:remove"
+  ],
+  "events": [
+    "like:added",
+    "like:removed"
+  ],
+  "routes": {
+    "prefix": "/api/v1/likes",
+    "methods": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE"
+    ]
+  },
+  "lifecycle": {
+    "initRequired": true,
+    "readyRequired": true,
+    "healthChecks": true
+  }
+}

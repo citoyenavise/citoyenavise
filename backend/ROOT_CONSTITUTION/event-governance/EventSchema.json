@@ -1,0 +1,156 @@
+{
+  "version": "1.0.0",
+  "description": "Constitutional schema for event declarations and validation",
+  "sealed": true,
+  "lastUpdated": "2026-05-08",
+  "eventModel": {
+    "type": "event_driven",
+    "ownership": "single_module_owner_per_event",
+    "schema": "json_schema_validated",
+    "versioning": "required"
+  },
+  "mandatoryEventFields": {
+    "eventId": "string UUID",
+    "eventType": "string (snake_case, unique within module)",
+    "eventVersion": "string semantic version",
+    "moduleId": "string module that owns this event",
+    "timestamp": "ISO 8601 timestamp",
+    "traceId": "string correlation ID",
+    "correlationId": "string cross-module flow ID",
+    "severity": "string (INFO, WARN, ERROR)",
+    "payload": "object (event-specific data)",
+    "metadata": "object (optional, context)"
+  },
+  "eventOwnership": {
+    "rule": "exactly_one_module_publishes_event",
+    "enforcement": "module_manifest_declares_events",
+    "validation": "duplicate_event_name_detected_as_error"
+  },
+  "eventNamingConvention": {
+    "format": "entity:action",
+    "examples": [
+      "user:registered",
+      "user:logged_in",
+      "post:created",
+      "post:deleted",
+      "comment:moderated",
+      "admin:action_logged"
+    ],
+    "validation": "enforced_in_contract"
+  },
+  "eventVersioning": {
+    "required": true,
+    "format": "major.minor.patch",
+    "backwardCompatibility": "required_for_minor_version",
+    "breakingChanges": "major_version_only",
+    "deprecation": "3_month_notice_period"
+  },
+  "eventPayloadSchema": {
+    "type": "JSON Schema",
+    "required": {
+      "all_events": ["eventId", "timestamp", "moduleId"],
+      "all_payloads": "defined_in_event_schema"
+    },
+    "validation": "strict_schema_validation"
+  },
+  "eventDeclaration": {
+    "location": "module/events/index.js",
+    "format": {
+      "example": {
+        "user_registered": {
+          "version": "1.0.0",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "userId": { "type": "string" },
+              "email": { "type": "string", "format": "email" },
+              "timestamp": { "type": "string", "format": "date-time" }
+            },
+            "required": ["userId", "email", "timestamp"]
+          }
+        }
+      }
+    }
+  },
+  "eventSubscription": {
+    "rule": "any_module_can_subscribe",
+    "discovery": "via_module_manifest_dependencies",
+    "interface": "eventBus.on(eventType, handler)",
+    "reliability": "at_least_once_delivery",
+    "ordering": "per_module_guaranteed"
+  },
+  "eventReplay": {
+    "enabled": false,
+    "reason": "events_are_streaming_only",
+    "note": "if_replay_needed_use_event_sourcing"
+  },
+  "eventAudit": {
+    "enabled": true,
+    "captureAll": true,
+    "retention": "indefinite",
+    "fields": [
+      "eventId",
+      "eventType",
+      "moduleId",
+      "timestamp",
+      "traceId",
+      "payload"
+    ]
+  },
+  "eventValidation": {
+    "required": true,
+    "steps": [
+      "schema_validation",
+      "ownership_validation",
+      "timestamp_validation",
+      "required_fields_validation"
+    ],
+    "failures": "event_rejected_and_logged"
+  },
+  "eventOrdering": {
+    "guarantee": "ordered_per_module",
+    "rule": "events_from_module_A_always_in_order",
+    "cross_module": "not_guaranteed"
+  },
+  "eventFiltering": {
+    "enabled": true,
+    "by": ["moduleId", "eventType", "severity", "timestamp"],
+    "use_case": "subscription_filtering"
+  },
+  "eventDeadletterQueue": {
+    "enabled": true,
+    "trigger": "if_all_handlers_fail",
+    "retention": "24 hours",
+    "replay": "manual_only"
+  },
+  "moduleEventDeclarations": {
+    "auth": [
+      "user:registered",
+      "user:logged_in",
+      "user:logged_out",
+      "token:refreshed"
+    ],
+    "users": [
+      "user:created",
+      "user:updated",
+      "user:deleted",
+      "user:password_changed"
+    ],
+    "posts": [
+      "post:created",
+      "post:updated",
+      "post:deleted",
+      "post:published"
+    ],
+    "comments": [
+      "comment:created",
+      "comment:deleted",
+      "comment:moderated"
+    ],
+    "admin": [
+      "admin:audit_logged",
+      "admin:permission_changed",
+      "admin:action_logged"
+    ]
+  }
+}

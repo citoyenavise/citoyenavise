@@ -1,0 +1,29 @@
+{
+  "name": "education",
+  "version": "1.0.0",
+  "description": "Educational content and resources",
+  "dependencies": [],
+  "capabilities": [
+    "education:view_resources",
+    "education:track_progress"
+  ],
+  "events": [
+    "education:resource_created",
+    "education:course_started",
+    "education:completed"
+  ],
+  "routes": {
+    "prefix": "/api/v1/education",
+    "methods": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE"
+    ]
+  },
+  "lifecycle": {
+    "initRequired": true,
+    "readyRequired": true,
+    "healthChecks": true
+  }
+}

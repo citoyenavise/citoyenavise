@@ -1,0 +1,318 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Failure Handling Rules",
+  "description": "Declarative rules governing failure handling by severity level",
+  "version": "1.0.0",
+  "phase": "1.9",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+  "lastUpdated": "2026-05-07",
+  "governance_level": "CONSTITUTIONAL",
+
+  "failureHandlingRules": {
+    "LOW": {
+      "severity": "LOW",
+      "description": "Low severity failures with no system impact",
+      "actions": [
+        "log_only",
+        "continue_execution",
+        "no_escalation"
+      ],
+      "recoveryAllowed": false,
+      "isolationRequired": false,
+      "auditRequired": false,
+      "systemBehavior": {
+        "operationResult": "SUCCEED",
+        "moduleState": "NORMAL",
+        "userImpact": "NONE",
+        "degradation": "NONE"
+      },
+      "examples": [
+        {
+          "failureType": "OBSERVABILITY_FAILURE",
+          "action": "Log failure, continue normal operation",
+          "message": "Observability infrastructure is not critical to core functionality"
+        }
+      ]
+    },
+
+    "MEDIUM": {
+      "severity": "MEDIUM",
+      "description": "Medium severity failures with partial impact",
+      "actions": [
+        "retry_allowed",
+        "fallback_allowed",
+        "partial_degradation_allowed",
+        "escalate_if_persistent"
+      ],
+      "recoveryAllowed": true,
+      "isolationRequired": false,
+      "auditRequired": true,
+      "systemBehavior": {
+        "operationResult": "CONDITIONAL_SUCCESS",
+        "moduleState": "DEGRADED",
+        "userImpact": "DEGRADED",
+        "degradation": "PARTIAL"
+      },
+      "recoveryStrategies": [
+        "RETRY",
+        "FALLBACK",
+        "TIMEOUT_AND_CONTINUE"
+      ],
+      "retryPolicy": {
+        "maxRetries": 3,
+        "backoffMultiplier": 2,
+        "maxBackoff_ms": 10000
+      },
+      "fallbackPolicy": {
+        "fallbackAvailable": true,
+        "fallbackDegradation": "PARTIAL"
+      },
+      "examples": [
+        {
+          "failureType": "VALIDATION_FAILURE",
+          "action": "Retry with fallback to default values",
+          "message": "Input validation can be retried or fallback to acceptable defaults"
+        },
+        {
+          "failureType": "STATE_TRANSITION_FAILURE",
+          "action": "Wait and retry transition",
+          "message": "State machine may stabilize and allow transition on retry"
+        }
+      ]
+    },
+
+    "HIGH": {
+      "severity": "HIGH",
+      "description": "High severity failures requiring immediate intervention",
+      "actions": [
+        "enforcement_block",
+        "escalate_to_recovery_engine",
+        "module_isolation",
+        "immutable_audit_trail"
+      ],
+      "recoveryAllowed": false,
+      "isolationRequired": true,
+      "auditRequired": true,
+      "systemBehavior": {
+        "operationResult": "FAILURE",
+        "moduleState": "ISOLATED",
+        "userImpact": "UNAVAILABLE",
+        "degradation": "SIGNIFICANT"
+      },
+      "enforcementAction": {
+        "blockOperation": true,
+        "preventPropagation": true,
+        "isolateSource": true
+      },
+      "recoveryEscalation": {
+        "escalateImmediate": true,
+        "recoveryEngine": "required",
+        "recoveryStrategies": ["ISOLATE", "QUARANTINE", "SHUTDOWN"]
+      },
+      "isolationPolicy": {
+        "isolateModule": true,
+        "isolationStrategy": "CIRCUIT_BREAKER",
+        "isolationDuration_ms": 30000
+      },
+      "auditTrail": {
+        "immutable": true,
+        "retention_days": 30,
+        "required_fields": ["failureId", "timestamp", "sourceModule", "traceId", "severityLevel"]
+      },
+      "examples": [
+        {
+          "failureType": "DEPENDENCY_FAILURE",
+          "action": "Block operation, isolate module, escalate to RecoveryEngine",
+          "message": "Module cannot function without dependencies; must be isolated"
+        },
+        {
+          "failureType": "SCHEMA_MISMATCH",
+          "action": "Block operation, preserve audit trail, escalate",
+          "message": "Schema violation indicates data corruption; system must halt affected flow"
+        }
+      ]
+    },
+
+    "CRITICAL": {
+      "severity": "CRITICAL",
+      "description": "Catastrophic failures threatening system integrity",
+      "actions": [
+        "system_halt_or_rollback",
+        "emergency_recovery_engine_mode",
+        "preserve_immutable_audit",
+        "shutdown_affected_subsystems"
+      ],
+      "recoveryAllowed": false,
+      "isolationRequired": true,
+      "auditRequired": true,
+      "systemBehavior": {
+        "operationResult": "SYSTEM_FAILURE",
+        "moduleState": "SHUTDOWN",
+        "userImpact": "TOTAL_UNAVAILABLE",
+        "degradation": "TOTAL"
+      },
+      "emergencyActions": [
+        {
+          "action": "SYSTEM_HALT",
+          "description": "Stop system execution immediately",
+          "precedence": 1
+        },
+        {
+          "action": "FULL_ROLLBACK",
+          "description": "Rollback all uncommitted state to last known-good state",
+          "precedence": 2
+        },
+        {
+          "action": "EMERGENCY_RECOVERY_MODE",
+          "description": "Activate RecoveryEngine emergency procedures",
+          "precedence": 1
+        }
+      ],
+      "immutableAuditPreservation": {
+        "required": true,
+        "format": "JSONL append-only",
+        "retention_days": 90,
+        "compressionAllowed": false,
+        "required_fields": [
+          "failureId",
+          "timestamp",
+          "failureType",
+          "sourceModule",
+          "traceId",
+          "systemState",
+          "actionTaken",
+          "stackTrace"
+        ]
+      },
+      "recoveryEscalation": {
+        "escalateImmediate": true,
+        "recoveryEngine": "EMERGENCY_MODE",
+        "humanIntervention": "REQUIRED",
+        "recoveryStrategies": ["SHUTDOWN", "FULL_ROLLBACK"]
+      },
+      "examples": [
+        {
+          "failureType": "MODULE_INIT_FAILURE",
+          "action": "System halt, preserve audit, activate emergency RecoveryEngine",
+          "message": "Bootstrap failure prevents system from functioning; total shutdown required"
+        },
+        {
+          "failureType": "SECURITY_VIOLATION",
+          "action": "System halt, preserve evidence, escalate to RecoveryEngine",
+          "message": "Security breach represents existential threat; immediate halt mandatory"
+        }
+      ]
+    }
+  },
+
+  "severityEscalation": {
+    "description": "Rules for escalating failure severity",
+    "escalationRules": [
+      {
+        "rule": "REPEATED_MEDIUM_BECOMES_HIGH",
+        "description": "If same MEDIUM failure repeats >3 times, escalate to HIGH",
+        "condition": "count(failureType) > 3 within 1 hour",
+        "escalateTo": "HIGH"
+      },
+      {
+        "rule": "CASCADE_ESCALATION",
+        "description": "If failure causes other failures, escalate to next level",
+        "condition": "failureCount > 1",
+        "escalateTo": "level + 1"
+      },
+      {
+        "rule": "CRITICAL_MODULES_ESCALATE",
+        "description": "Failures in critical modules are escalated one level",
+        "condition": "sourceModule in [logger, database, eventBus, auth]",
+        "escalateTo": "level + 1"
+      },
+      {
+        "rule": "SECURITY_ALWAYS_CRITICAL",
+        "description": "All security violations are CRITICAL",
+        "condition": "failureType == SECURITY_VIOLATION",
+        "escalateTo": "CRITICAL"
+      },
+      {
+        "rule": "INIT_ALWAYS_CRITICAL",
+        "description": "All module initialization failures are CRITICAL",
+        "condition": "failureType == MODULE_INIT_FAILURE",
+        "escalateTo": "CRITICAL"
+      }
+    ]
+  },
+
+  "routingRules": {
+    "description": "How failures are routed through system",
+    "routes": [
+      {
+        "severity": "LOW",
+        "route": "ObservabilityEngine → AuditTrail",
+        "skipEnforcement": true,
+        "skipRecovery": true
+      },
+      {
+        "severity": "MEDIUM",
+        "route": "RuntimeEnforcementEngine → ObservabilityEngine → RecoveryEngine (optional)",
+        "skipEnforcement": false,
+        "skipRecovery": true
+      },
+      {
+        "severity": "HIGH",
+        "route": "RuntimeEnforcementEngine → Isolation → ObservabilityEngine → RecoveryEngine (mandatory)",
+        "skipEnforcement": false,
+        "skipRecovery": false
+      },
+      {
+        "severity": "CRITICAL",
+        "route": "RuntimeEnforcementEngine → ImmediateAudit → RecoveryEngine (emergency mode) → SystemHalt",
+        "skipEnforcement": false,
+        "skipRecovery": false
+      }
+    ]
+  },
+
+  "observabilityRequirements": {
+    "description": "Observability requirements by severity",
+    "requirements": [
+      {
+        "severity": "LOW",
+        "logging": "INFO level",
+        "metrics": "optional",
+        "tracing": "optional",
+        "auditTrail": "optional"
+      },
+      {
+        "severity": "MEDIUM",
+        "logging": "WARN level",
+        "metrics": "required",
+        "tracing": "recommended",
+        "auditTrail": "required"
+      },
+      {
+        "severity": "HIGH",
+        "logging": "ERROR level",
+        "metrics": "required",
+        "tracing": "required",
+        "auditTrail": "required",
+        "immediateAlert": true
+      },
+      {
+        "severity": "CRITICAL",
+        "logging": "CRITICAL level",
+        "metrics": "required",
+        "tracing": "required",
+        "auditTrail": "required (immutable)",
+        "immediateAlert": true,
+        "humanNotification": true
+      }
+    ]
+  },
+
+  "totalSeverityLevels": 4,
+  "totalRoutingPaths": 4,
+  "totalEscalationRules": 5,
+  "declarationComplete": true,
+  "runtimeNote": "This specification is DECLARATIVE ONLY. No failure handling logic, no routing implementation, no recovery execution defined here."
+}

@@ -1,0 +1,268 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Guards Manifest - Phase 2",
+  "version": "1.0.0",
+  "description": "Déclaration des gardes (conditions) du système",
+  "guards": [
+    {
+      "id": "isValidCredentials",
+      "displayName": "Identifiants Valides",
+      "description": "Vérifie que les identifiants fournis sont valides (format, non vides)",
+      "module": "auth",
+      "checkFunction": "validateCredentialsFormat(context.credentials)",
+      "parameters": [
+        {
+          "name": "credentials",
+          "type": "object",
+          "required": true,
+          "description": "Objet contenant username et password"
+        }
+      ],
+      "returns": {
+        "type": "boolean",
+        "description": "true si les identifiants sont valides"
+      }
+    },
+    {
+      "id": "isValidToken",
+      "displayName": "Token Valide",
+      "description": "Vérifie que le token JWT est valide et non expiré",
+      "module": "auth",
+      "checkFunction": "verifyJWTToken(context.token)",
+      "parameters": [
+        {
+          "name": "token",
+          "type": "string",
+          "required": true,
+          "description": "Token JWT à vérifier"
+        }
+      ],
+      "returns": {
+        "type": "boolean",
+        "description": "true si le token est valide"
+      }
+    },
+    {
+      "id": "isAuthenticated",
+      "displayName": "Utilisateur Authentifié",
+      "description": "Vérifie que l'utilisateur est authentifié (a un token valide)",
+      "module": "users",
+      "checkFunction": "checkAuthStatus(context.session)",
+      "parameters": [
+        {
+          "name": "session",
+          "type": "object",
+          "required": true,
+          "description": "Données de session de l'utilisateur"
+        }
+      ],
+      "returns": {
+        "type": "boolean",
+        "description": "true si authentifié"
+      }
+    },
+    {
+      "id": "hasValidData",
+      "displayName": "Données Valides",
+      "description": "Vérifie que les données chargées sont valides et complètes",
+      "module": "users",
+      "checkFunction": "validateLoadedData(context.profile)",
+      "parameters": [
+        {
+          "name": "profile",
+          "type": "object",
+          "required": true,
+          "description": "Profil utilisateur à valider"
+        }
+      ],
+      "returns": {
+        "type": "boolean",
+        "description": "true si les données sont valides"
+      }
+    },
+    {
+      "id": "hasPostContent",
+      "displayName": "Post a du Contenu",
+      "description": "Vérifie que le post contient du contenu non vide",
+      "module": "posts",
+      "checkFunction": "validatePostContent(context.postData)",
+      "parameters": [
+        {
+          "name": "postData",
+          "type": "object",
+          "required": true,
+          "description": "Données du post à créer"
+        }
+      ],
+      "returns": {
+        "type": "boolean",
+        "description": "true si le post a du contenu"
+      }
+    },
+    {
+      "id": "hasValidPostId",
+      "displayName": "ID Post Valide",
+      "description": "Vérifie que le post créé a un ID valide",
+      "module": "posts",
+      "checkFunction": "validatePostId(context.post.id)",
+      "parameters": [
+        {
+          "name": "post",
+          "type": "object",
+          "required": true,
+          "description": "Post créé"
+        }
+      ],
+      "returns": {
+        "type": "boolean",
+        "description": "true si l'ID est valide"
+      }
+    },
+    {
+      "id": "hasNotificationData",
+      "displayName": "Notification a des Données",
+      "description": "Vérifie que la notification contient les données requises",
+      "module": "notifications",
+      "checkFunction": "validateNotificationData(context.notificationData)",
+      "parameters": [
+        {
+          "name": "notificationData",
+          "type": "object",
+          "required": true,
+          "description": "Données de la notification"
+        }
+      ],
+      "returns": {
+        "type": "boolean",
+        "description": "true si les données sont présentes"
+      }
+    },
+    {
+      "id": "isValidRecipient",
+      "displayName": "Destinataire Valide",
+      "description": "Vérifie que le destinataire de la notification est valide",
+      "module": "notifications",
+      "checkFunction": "validateRecipient(context.notification.recipientId)",
+      "parameters": [
+        {
+          "name": "notification",
+          "type": "object",
+          "required": true,
+          "description": "Notification à vérifier"
+        }
+      ],
+      "returns": {
+        "type": "boolean",
+        "description": "true si le destinataire est valide"
+      }
+    },
+    {
+      "id": "deliveryConfirmed",
+      "displayName": "Livraison Confirmée",
+      "description": "Vérifie que la livraison de la notification est confirmée",
+      "module": "notifications",
+      "checkFunction": "checkDeliveryStatus(context.notification.deliveryStatus)",
+      "parameters": [
+        {
+          "name": "deliveryStatus",
+          "type": "string",
+          "required": true,
+          "description": "Statut de livraison"
+        }
+      ],
+      "returns": {
+        "type": "boolean",
+        "description": "true si livraison confirmée"
+      }
+    },
+    {
+      "id": "userAcknowledged",
+      "displayName": "Utilisateur Reconnaît",
+      "description": "Vérifie que l'utilisateur a reconnu la notification",
+      "module": "notifications",
+      "checkFunction": "checkUserAck(context.notification.userAck)",
+      "parameters": [
+        {
+          "name": "userAck",
+          "type": "boolean",
+          "required": true,
+          "description": "Reconnaissance de l'utilisateur"
+        }
+      ],
+      "returns": {
+        "type": "boolean",
+        "description": "true si reconnu"
+      }
+    },
+    {
+      "id": "isValidEvent",
+      "displayName": "Événement Valide",
+      "description": "Vérifie que l'événement analytics est valide",
+      "module": "analytics",
+      "checkFunction": "validateAnalyticsEvent(context.eventData)",
+      "parameters": [
+        {
+          "name": "eventData",
+          "type": "object",
+          "required": true,
+          "description": "Données d'événement"
+        }
+      ],
+      "returns": {
+        "type": "boolean",
+        "description": "true si valide"
+      }
+    },
+    {
+      "id": "enoughDataCollected",
+      "displayName": "Assez de Données Collectées",
+      "description": "Vérifie que suffisamment de données ont été collectées",
+      "module": "analytics",
+      "checkFunction": "checkDataThreshold(context.collectedEvents.length)",
+      "parameters": [
+        {
+          "name": "collectedEvents",
+          "type": "array",
+          "required": true,
+          "description": "Événements collectés"
+        }
+      ],
+      "returns": {
+        "type": "boolean",
+        "description": "true si le seuil est atteint"
+      }
+    },
+    {
+      "id": "reportReady",
+      "displayName": "Rapport Prêt",
+      "description": "Vérifie que le rapport analytics est prêt à être généré",
+      "module": "analytics",
+      "checkFunction": "checkReportStatus(context.reportStatus)",
+      "parameters": [
+        {
+          "name": "reportStatus",
+          "type": "string",
+          "required": true,
+          "description": "Statut du rapport"
+        }
+      ],
+      "returns": {
+        "type": "boolean",
+        "description": "true si prêt"
+      }
+    }
+  ],
+  "metadata": {
+    "created": "2026-05-07T18:30:00Z",
+    "updatedAt": "2026-05-07T18:30:00Z",
+    "version": "1.0.0",
+    "totalGuards": 13,
+    "byModule": {
+      "auth": 2,
+      "users": 2,
+      "posts": 2,
+      "notifications": 3,
+      "analytics": 4
+    }
+  }
+}

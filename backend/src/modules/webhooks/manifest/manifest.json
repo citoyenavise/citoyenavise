@@ -1,0 +1,28 @@
+{
+  "name": "webhooks",
+  "version": "1.0.0",
+  "description": "Webhook and integration management",
+  "dependencies": [],
+  "capabilities": [
+    "webhook:create",
+    "webhook:manage"
+  ],
+  "events": [
+    "webhook:triggered",
+    "webhook:delivered"
+  ],
+  "routes": {
+    "prefix": "/api/v1/webhooks",
+    "methods": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE"
+    ]
+  },
+  "lifecycle": {
+    "initRequired": true,
+    "readyRequired": true,
+    "healthChecks": true
+  }
+}

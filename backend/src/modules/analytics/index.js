@@ -1,27 +1,69 @@
+/**
+ * Analytics Module - PHASE 2.2 Standardized
+ */
+
 const routes = require('./routes');
-const { eventBus } = require('../../core/eventBus');
-const service = require('./service');
+const contracts = require('./contracts');
+const events = require('./events');
 
-function registerRoutes(app) {
-  app.use('/api/v1/analytics', routes);
+let isReady = false;
+
+async function init(context) {
+  try {
+    console.log('[analytics] Initializing...');
+    isReady = false;
+    return { initialized: true, moduleName: 'analytics' };
+  } catch (error) {
+    throw new Error(`[analytics] Initialization failed: ${error.message}`);
+  }
 }
 
-function init() {
-  // Invalidate cache when content is created/updated
-  const invalidate = () => service.invalidateCache();
-
-  eventBus.on('post.created', invalidate);
-  eventBus.on('post.updated', invalidate);
-  eventBus.on('initiative.created', invalidate);
-  eventBus.on('initiative.updated', invalidate);
-  eventBus.on('video.created', invalidate);
-  eventBus.on('video.updated', invalidate);
-  eventBus.on('article.created', invalidate);
-  eventBus.on('article.updated', invalidate);
+async function ready() {
+  if (!isReady) {
+    isReady = true;
+    console.log('[analytics] Ready for requests');
+  }
+  return { ready: true };
 }
 
-module.exports = {
-  routes: registerRoutes,
-  init,
-  name: 'analytics',
-};
+async function shutdown() {
+  try {
+    console.log('[analytics] Shutting down...');
+    isReady = false;
+    return { shutdown: true };
+  } catch (error) {
+    console.error('[analytics] Shutdown error:', error.message);
+    return { shutdown: false, error: error.message };
+  }
+}
+
+async function health() {
+  return {
+    status: isReady ? 'healthy' : 'unhealthy',
+    details: {
+      ready: isReady,
+      moduleName: 'analytics',
+      timestamp: new Date().toISOString(),
+    },
+  };
+}
+
+function getRoutes() {
+  return routes;
+}
+
+function getEvents() {
+  return events;
+}
+
+function getContracts() {
+  return contracts;
+}
+
+module.exports.init = init;
+module.exports.ready = ready;
+module.exports.shutdown = shutdown;
+module.exports.health = health;
+module.exports.getRoutes = getRoutes;
+module.exports.getEvents = getEvents;
+module.exports.getContracts = getContracts;

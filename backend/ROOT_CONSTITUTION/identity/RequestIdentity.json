@@ -1,0 +1,96 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Request Identity - Request Tracing and Correlation",
+  "version": "1.0.0",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+
+  "request_identity_scheme": {
+    "request_id": {
+      "format": "uuid",
+      "required": true,
+      "generated_at_entry": true,
+      "propagated_to_downstream": true,
+      "logged_in_audit_trail": true
+    },
+    "correlation_id": {
+      "format": "uuid",
+      "required": true,
+      "user_provided_or_generated": true,
+      "groups_related_requests": true
+    },
+    "trace_id": {
+      "format": "uuid",
+      "required": true,
+      "tracks_full_execution_path": true,
+      "integrated_with_jaeger": true
+    },
+    "user_id": {
+      "format": "uuid",
+      "required": false,
+      "provided_by_auth_service": true,
+      "logged_in_audit_trail": true
+    },
+    "session_id": {
+      "format": "uuid",
+      "required": false,
+      "required_if_authenticated": true,
+      "managed_by_auth_service": true
+    }
+  },
+
+  "request_identity_lifecycle": {
+    "creation": {
+      "point": "Request entry (API Gateway)",
+      "action": "Generate UUID for request_id",
+      "action": "Inherit or generate correlation_id",
+      "action": "Generate trace_id for distributed tracing"
+    },
+    "propagation": {
+      "point": "Internal service calls",
+      "action": "Pass request_id in headers",
+      "action": "Pass correlation_id in headers",
+      "action": "Pass trace_id in headers",
+      "action": "Add context to EventBus emissions"
+    },
+    "logging": {
+      "point": "All log entries",
+      "action": "Include request_id",
+      "action": "Include correlation_id",
+      "action": "Include trace_id",
+      "action": "Include user_id if authenticated"
+    },
+    "audit_trail": {
+      "point": "Governance audit log",
+      "action": "Record request_id",
+      "action": "Record correlation_id",
+      "action": "Record user_id if authenticated",
+      "action": "Record action and result"
+    }
+  },
+
+  "request_correlation_rules": {
+    "single_request_trace": "All operations triggered by single request share request_id",
+    "related_requests": "Related requests grouped by correlation_id",
+    "distributed_trace": "Full execution path tracked by trace_id",
+    "audit_linkage": "All audit entries linked by request_id",
+    "error_investigation": "Can reconstruct complete request flow via request_id"
+  },
+
+  "request_retention_policy": {
+    "request_id_retention": "Indefinite (part of audit trail)",
+    "correlation_id_retention": "30 days",
+    "trace_id_retention": "7 days",
+    "log_retention": "30 days (searchable)",
+    "audit_log_retention": "Indefinite"
+  },
+
+  "governance": {
+    "sealed": true,
+    "immutable": true,
+    "read_only": true,
+    "identity_scheme_version": "1.0.0",
+    "scheme_validated": true
+  }
+}

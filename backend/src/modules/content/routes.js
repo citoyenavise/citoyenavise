@@ -4,7 +4,7 @@
 
 const express = require('express');
 const { asyncHandler } = require('../../core/middleware/errorHandler');
-const controller = require('./controller');
+const controller = require('./controllers/content.controller');
 
 const router = express.Router();
 

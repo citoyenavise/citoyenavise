@@ -1,0 +1,28 @@
+{
+  "name": "groups",
+  "version": "1.0.0",
+  "description": "Group and community management",
+  "dependencies": [],
+  "capabilities": [
+    "group:create",
+    "group:manage"
+  ],
+  "events": [
+    "group:created",
+    "group:updated"
+  ],
+  "routes": {
+    "prefix": "/api/v1/groups",
+    "methods": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE"
+    ]
+  },
+  "lifecycle": {
+    "initRequired": true,
+    "readyRequired": true,
+    "healthChecks": true
+  }
+}

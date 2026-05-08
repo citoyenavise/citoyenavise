@@ -5,12 +5,13 @@
 const express = require('express');
 const { asyncHandler } = require('../../core/middleware/errorHandler');
 const { authRequired } = require('../../core/middleware/auth');
-const controller = require('./controller');
+const controller = require('./controllers/notifications.controller');
 
 const router = express.Router();
 
-router.get('/', authRequired, asyncHandler(controller.list));
+router.get('/', authRequired, asyncHandler(controller.listNotifications));
+router.post('/', authRequired, asyncHandler(controller.sendNotification));
 router.patch('/:id/read', authRequired, asyncHandler(controller.markAsRead));
-router.patch('/read-all', authRequired, asyncHandler(controller.markAllAsRead));
+router.delete('/:id', authRequired, asyncHandler(controller.deleteNotification));
 
 module.exports = router;

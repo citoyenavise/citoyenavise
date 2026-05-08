@@ -1,0 +1,147 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Idempotency Registry - Request and Event Idempotency Management",
+  "version": "1.0.0",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+
+  "module_idempotency_declarations": {
+    "logger": {
+      "module_id": "logger",
+      "idempotent": true,
+      "reason": "Logging is inherently idempotent",
+      "duplicate_handling": "LOG_ONCE"
+    },
+    "database": {
+      "module_id": "database",
+      "idempotent": false,
+      "reason": "Database writes are not idempotent",
+      "duplicate_handling": "DEDUPLICATE_BY_REQUEST_ID"
+    },
+    "cache": {
+      "module_id": "cache",
+      "idempotent": true,
+      "reason": "Cache operations idempotent",
+      "duplicate_handling": "DEDUPLICATE_BY_KEY"
+    },
+    "auth": {
+      "module_id": "auth",
+      "idempotent": false,
+      "reason": "Auth creates sessions (not idempotent)",
+      "duplicate_handling": "DEDUPLICATE_BY_REQUEST_ID"
+    },
+    "eventBus": {
+      "module_id": "eventBus",
+      "idempotent": true,
+      "reason": "Event emission is idempotent",
+      "duplicate_handling": "DEDUPLICATE_BY_EVENT_ID"
+    },
+    "users": {
+      "module_id": "users",
+      "idempotent": false,
+      "reason": "User creation is not idempotent",
+      "duplicate_handling": "DEDUPLICATE_BY_REQUEST_ID"
+    },
+    "posts": {
+      "module_id": "posts",
+      "idempotent": false,
+      "reason": "Post creation is not idempotent",
+      "duplicate_handling": "DEDUPLICATE_BY_REQUEST_ID"
+    },
+    "comments": {
+      "module_id": "comments",
+      "idempotent": false,
+      "reason": "Comment creation is not idempotent",
+      "duplicate_handling": "DEDUPLICATE_BY_REQUEST_ID"
+    },
+    "ideas": {
+      "module_id": "ideas",
+      "idempotent": false,
+      "reason": "Idea creation is not idempotent",
+      "duplicate_handling": "DEDUPLICATE_BY_REQUEST_ID"
+    },
+    "search": {
+      "module_id": "search",
+      "idempotent": true,
+      "reason": "Search queries are idempotent",
+      "duplicate_handling": "CACHE_BY_QUERY"
+    },
+    "analytics": {
+      "module_id": "analytics",
+      "idempotent": true,
+      "reason": "Analytics tracking is idempotent",
+      "duplicate_handling": "DEDUPLICATE_BY_EVENT_ID"
+    },
+    "notifications": {
+      "module_id": "notifications",
+      "idempotent": false,
+      "reason": "Notification sending is not idempotent",
+      "duplicate_handling": "DEDUPLICATE_BY_REQUEST_ID"
+    },
+    "recommendations": {
+      "module_id": "recommendations",
+      "idempotent": true,
+      "reason": "Recommendation generation is idempotent",
+      "duplicate_handling": "CACHE_BY_USER"
+    },
+    "admin": {
+      "module_id": "admin",
+      "idempotent": false,
+      "reason": "Admin actions may not be idempotent",
+      "duplicate_handling": "DEDUPLICATE_BY_REQUEST_ID"
+    }
+  },
+
+  "idempotency_mechanisms": {
+    "request_deduplication": {
+      "key": "request_id",
+      "storage": "cache_service",
+      "ttl_seconds": 86400,
+      "description": "Deduplicate requests by request_id within 24h window"
+    },
+    "event_deduplication": {
+      "key": "event_id",
+      "storage": "cache_service",
+      "ttl_seconds": 604800,
+      "description": "Deduplicate events by event_id within 7 day window"
+    },
+    "cache_memoization": {
+      "key": "content_hash",
+      "storage": "cache_service",
+      "ttl_seconds": 300000,
+      "description": "Cache results of idempotent operations"
+    }
+  },
+
+  "idempotency_enforcement": {
+    "rules": [
+      {
+        "rule": "Non-idempotent operations checked for duplicate request_id",
+        "enforcement": "MANDATORY"
+      },
+      {
+        "rule": "Idempotent operations can be safely repeated",
+        "enforcement": "MANDATORY"
+      },
+      {
+        "rule": "Duplicate requests return cached response",
+        "enforcement": "MANDATORY"
+      },
+      {
+        "rule": "Duplicate events handled per deduplication policy",
+        "enforcement": "MANDATORY"
+      }
+    ]
+  },
+
+  "governance": {
+    "sealed": true,
+    "immutable": true,
+    "read_only": true,
+    "idempotency_schema_version": "1.0.0",
+    "idempotent_modules": 6,
+    "non_idempotent_modules": 9,
+    "total_modules": 15
+  }
+}

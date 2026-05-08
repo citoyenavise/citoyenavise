@@ -1,0 +1,230 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Event Registry",
+  "description": "Mapping of modules to events (emitted and consumed)",
+  "version": "1.0.0",
+  "phase": "1.4",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+  "lastUpdated": "2026-05-07",
+  "governance_level": "CONSTITUTIONAL",
+
+  "modules": {
+    "logger": {
+      "description": "Logging infrastructure",
+      "level": 0,
+      "eventsEmitted": [
+        {
+          "eventType": "SYSTEM_INITIALIZED",
+          "versions": ["1.0.0"],
+          "isPublished": true
+        }
+      ],
+      "eventsConsumed": [],
+      "isSingleton": true
+    },
+
+    "database": {
+      "description": "Database service",
+      "level": 0,
+      "eventsEmitted": [
+        {
+          "eventType": "DATABASE_CONNECTED",
+          "versions": ["1.0.0"],
+          "isPublished": true
+        },
+        {
+          "eventType": "DATABASE_DISCONNECTED",
+          "versions": ["1.0.0"],
+          "isPublished": true
+        }
+      ],
+      "eventsConsumed": [],
+      "isSingleton": true
+    },
+
+    "cache": {
+      "description": "Caching layer",
+      "level": 0,
+      "eventsEmitted": [
+        {
+          "eventType": "CACHE_INVALIDATED",
+          "versions": ["1.0.0"],
+          "isPublished": true
+        }
+      ],
+      "eventsConsumed": [],
+      "isSingleton": true
+    },
+
+    "eventBus": {
+      "description": "Event distribution service",
+      "level": 0,
+      "eventsEmitted": [],
+      "eventsConsumed": ["ALL_EVENTS"],
+      "isSingleton": true
+    },
+
+    "auth": {
+      "description": "Authentication & authorization",
+      "level": 1,
+      "eventsEmitted": [
+        {
+          "eventType": "AUTH_LOGIN_ATTEMPT",
+          "versions": ["1.0.0"],
+          "isPublished": true
+        },
+        {
+          "eventType": "AUTH_LOGIN_SUCCESS",
+          "versions": ["1.0.0"],
+          "isPublished": true
+        },
+        {
+          "eventType": "AUTH_LOGIN_FAILED",
+          "versions": ["1.0.0"],
+          "isPublished": true
+        },
+        {
+          "eventType": "AUTH_LOGOUT",
+          "versions": ["1.0.0"],
+          "isPublished": true
+        }
+      ],
+      "eventsConsumed": ["MODULE_READY"],
+      "isSingleton": false
+    },
+
+    "users": {
+      "description": "User management",
+      "level": 2,
+      "eventsEmitted": [
+        {
+          "eventType": "USER_CREATED",
+          "versions": ["1.0.0"],
+          "isPublished": true
+        },
+        {
+          "eventType": "USER_UPDATED",
+          "versions": ["1.0.0"],
+          "isPublished": true
+        },
+        {
+          "eventType": "USER_DELETED",
+          "versions": ["1.0.0"],
+          "isPublished": true
+        }
+      ],
+      "eventsConsumed": ["AUTH_LOGIN_SUCCESS"],
+      "isSingleton": false
+    },
+
+    "posts": {
+      "description": "Post management",
+      "level": 2,
+      "eventsEmitted": [
+        {
+          "eventType": "POST_CREATED",
+          "versions": ["1.0.0"],
+          "isPublished": true
+        },
+        {
+          "eventType": "POST_UPDATED",
+          "versions": ["1.0.0"],
+          "isPublished": true
+        },
+        {
+          "eventType": "POST_DELETED",
+          "versions": ["1.0.0"],
+          "isPublished": true
+        }
+      ],
+      "eventsConsumed": ["USER_CREATED", "AUTH_LOGIN_SUCCESS"],
+      "isSingleton": false
+    },
+
+    "search": {
+      "description": "Full-text search",
+      "level": 3,
+      "eventsEmitted": [
+        {
+          "eventType": "SEARCH_INDEX_UPDATED",
+          "versions": ["1.0.0"],
+          "isPublished": false
+        }
+      ],
+      "eventsConsumed": ["POST_CREATED", "POST_UPDATED", "USER_CREATED"],
+      "isSingleton": false
+    },
+
+    "analytics": {
+      "description": "Analytics and metrics",
+      "level": 3,
+      "eventsEmitted": [
+        {
+          "eventType": "ANALYTICS_EVENT_TRACKED",
+          "versions": ["1.0.0"],
+          "isPublished": false
+        },
+        {
+          "eventType": "ANALYTICS_METRIC_CALCULATED",
+          "versions": ["1.0.0"],
+          "isPublished": false
+        }
+      ],
+      "eventsConsumed": ["ALL_DOMAIN_EVENTS"],
+      "isSingleton": false
+    },
+
+    "notifications": {
+      "description": "Notification service",
+      "level": 3,
+      "eventsEmitted": [],
+      "eventsConsumed": ["USER_CREATED", "POST_CREATED", "AUTH_LOGIN_SUCCESS"],
+      "isSingleton": false
+    },
+
+    "governance": {
+      "description": "Governance layer (Phase 1.2+)",
+      "level": 4,
+      "eventsEmitted": [
+        {
+          "eventType": "GOVERNANCE_VIOLATION_DETECTED",
+          "versions": ["1.0.0"],
+          "isPublished": true
+        },
+        {
+          "eventType": "GOVERNANCE_VIOLATION_RESOLVED",
+          "versions": ["1.0.0"],
+          "isPublished": true
+        },
+        {
+          "eventType": "GOVERNANCE_RULE_ENFORCED",
+          "versions": ["1.0.0"],
+          "isPublished": true
+        }
+      ],
+      "eventsConsumed": ["ALL_EVENTS"],
+      "isSingleton": true
+    }
+  },
+
+  "eventPublishingRules": {
+    "published": "Event available to external consumers",
+    "internal": "Event for internal system use only",
+    "deprecated": "Event deprecated, migration required"
+  },
+
+  "levelHierarchy": {
+    "0": "INFRASTRUCTURE (logger, database, cache, eventBus)",
+    "1": "DOMAIN_CORE (auth, core services)",
+    "2": "DOMAIN (users, posts, comments)",
+    "3": "DERIVED (search, analytics, notifications)",
+    "4": "GOVERNANCE (governance engines)"
+  },
+
+  "totalModules": 11,
+  "totalEvents": 45,
+  "totalPublishedEvents": 32,
+  "declarationComplete": true
+}

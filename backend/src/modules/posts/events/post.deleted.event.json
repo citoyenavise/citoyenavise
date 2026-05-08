@@ -1,0 +1,17 @@
+{
+  "name": "post:deleted",
+  "version": "1.0.0",
+  "domain": "post",
+  "action": "deleted",
+  "entity": "post",
+  "description": "Post deleted",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "postId": { "type": "string" },
+      "userId": { "type": "string" },
+      "timestamp": { "type": "string" }
+    },
+    "required": ["postId", "userId", "timestamp"]
+  }
+}

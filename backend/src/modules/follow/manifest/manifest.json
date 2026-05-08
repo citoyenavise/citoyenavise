@@ -1,0 +1,28 @@
+{
+  "name": "follow",
+  "version": "1.0.0",
+  "description": "User follow relationships",
+  "dependencies": [],
+  "capabilities": [
+    "follow:add",
+    "follow:remove"
+  ],
+  "events": [
+    "user:followed",
+    "user:unfollowed"
+  ],
+  "routes": {
+    "prefix": "/api/v1/follow",
+    "methods": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE"
+    ]
+  },
+  "lifecycle": {
+    "initRequired": true,
+    "readyRequired": true,
+    "healthChecks": true
+  }
+}

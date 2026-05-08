@@ -1,0 +1,28 @@
+{
+  "name": "search",
+  "version": "1.0.0",
+  "description": "Search and indexing functionality",
+  "dependencies": [],
+  "capabilities": [
+    "search:query",
+    "search:filter"
+  ],
+  "events": [
+    "search:indexed",
+    "search:queried"
+  ],
+  "routes": {
+    "prefix": "/api/v1/search",
+    "methods": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE"
+    ]
+  },
+  "lifecycle": {
+    "initRequired": true,
+    "readyRequired": true,
+    "healthChecks": true
+  }
+}

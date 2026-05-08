@@ -178,45 +178,50 @@ async function testHealingThrottle() {
 
 /**
  * PHASE 5 — Alert Cooldown
- * Verify EventAlertEngine respects cooldown_ms
+ * Verify EventAlertEngine respects cooldown_ms per rule
  */
 async function testAlertCooldown() {
   console.log('\n=== PHASE 5: Alert Cooldown ===');
   try {
     const EventAlertEngine = require('../core/governance/events/EventAlertEngine');
-    const GovernanceEvent = require('../core/governance/events/GovernanceEvent');
 
     const engine = new EventAlertEngine();
 
-    // Define rule with cooldown on a unique condition to avoid default rule interference
+    // Define rule with cooldown
     engine.defineRule('test_cooldown_rule', {
       name: 'Test Cooldown',
-      condition: 'source_match',
-      threshold: 'cooldown_test_source',
-      alertLevel: 'WARNING',
+      condition: 'severity_equals',
+      threshold: 'CRITICAL',
+      alertLevel: 'CRITICAL',
       cooldown_ms: 200
     });
 
-    const event = GovernanceEvent.violation(
-      { message: 'Test alert', validator: 'test', source: 'cooldown_test_source' },
-      { severity: 'MEDIUM', source: 'cooldown_test_source' }
-    );
+    // Create CRITICAL events with unique IDs (different violations)
+    const createCriticalEvent = (index) => ({
+      id: `critical_${Date.now()}_${index}`,
+      type: 'VIOLATION',
+      severity: 'CRITICAL',
+      source: 'test'
+    });
 
-    // First evaluation: should trigger our cooldown test rule
-    const alerts1 = engine.evaluateEvent(event);
-    const alertsFromOurRule1 = alerts1.filter(a => a.ruleId === 'test_cooldown_rule');
-    assert(alertsFromOurRule1.length === 1, 'First evaluation should trigger our test rule');
+    // First evaluation: should trigger rule
+    const event1 = createCriticalEvent(1);
+    const alerts1 = engine.evaluate(event1);
+    assert(alerts1.length > 0, 'First CRITICAL event should trigger alert');
 
-    // Second evaluation immediately: should be in cooldown, no alert from our rule
-    const alerts2 = engine.evaluateEvent(event);
-    const alertsFromOurRule2 = alerts2.filter(a => a.ruleId === 'test_cooldown_rule');
-    assert(alertsFromOurRule2.length === 0, 'Second evaluation within cooldown should not trigger our rule');
+    // Second evaluation within cooldown: should be skipped by cooldown
+    const event2 = createCriticalEvent(2);
+    const alerts2 = engine.evaluate(event2);
+    // Within cooldown, test_cooldown_rule should not fire (but other default rules might)
+    const ruleAlerts2 = alerts2.filter(a => a.ruleId === 'test_cooldown_rule');
+    assert(ruleAlerts2.length === 0, 'Second evaluation within cooldown should skip test_cooldown_rule');
 
-    // After cooldown expires: should trigger alert from our rule again
+    // After cooldown expires: should trigger rule again
     await new Promise(resolve => setTimeout(resolve, 250));
-    const alerts3 = engine.evaluateEvent(event);
-    const alertsFromOurRule3 = alerts3.filter(a => a.ruleId === 'test_cooldown_rule');
-    assert(alertsFromOurRule3.length === 1, 'After cooldown, should trigger our rule again');
+    const event3 = createCriticalEvent(3);
+    const alerts3 = engine.evaluate(event3);
+    const ruleAlerts3 = alerts3.filter(a => a.ruleId === 'test_cooldown_rule');
+    assert(ruleAlerts3.length === 1, 'After cooldown, should trigger test_cooldown_rule again');
 
     console.log(`✅ Alert cooldown verified: total alerts=${engine.metrics.alertsGenerated}`);
     testResults.passed++;

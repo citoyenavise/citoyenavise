@@ -1,0 +1,179 @@
+{
+  "version": "1.0.0",
+  "description": "Constitutional definition of access control policies",
+  "sealed": true,
+  "lastUpdated": "2026-05-08",
+  "accessModel": "RBAC",
+  "roles": {
+    "admin": {
+      "level": 4,
+      "description": "Full system access",
+      "capabilities": ["all"],
+      "moduleAccess": "all"
+    },
+    "moderator": {
+      "level": 3,
+      "description": "Content and user moderation",
+      "capabilities": ["content:moderate", "user:moderate", "report:view"],
+      "moduleAccess": ["moderation", "reports", "users"]
+    },
+    "user": {
+      "level": 1,
+      "description": "Regular user access",
+      "capabilities": ["content:read", "content:create", "user:read_own"],
+      "moduleAccess": ["posts", "comments", "profiles", "feed"]
+    },
+    "guest": {
+      "level": 0,
+      "description": "Public read-only access",
+      "capabilities": ["content:read"],
+      "moduleAccess": ["posts", "public_dashboard"]
+    }
+  },
+  "moduleAccessMatrix": {
+    "auth": {
+      "endpoints": ["POST /register", "POST /login", "POST /logout"],
+      "requireAuth": false,
+      "roles": ["guest", "user", "admin"]
+    },
+    "users": {
+      "endpoints": ["GET /profile/:id", "PUT /profile", "GET /preferences"],
+      "requireAuth": true,
+      "roles": ["user", "moderator", "admin"],
+      "ownershipRule": "can_access_own_profile_only"
+    },
+    "admin": {
+      "endpoints": ["GET /audit", "POST /action", "DELETE /resource"],
+      "requireAuth": true,
+      "roles": ["admin"],
+      "capabilities": ["admin:manage"]
+    },
+    "moderation": {
+      "endpoints": ["GET /flags", "POST /review", "POST /action"],
+      "requireAuth": true,
+      "roles": ["moderator", "admin"],
+      "capabilities": ["moderation:review", "moderation:action"]
+    },
+    "posts": {
+      "endpoints": ["GET /posts", "POST /posts", "PUT /posts/:id", "DELETE /posts/:id"],
+      "requireAuth": "CREATE/UPDATE/DELETE only",
+      "roles": ["user", "moderator", "admin"],
+      "ownershipRule": "creator_can_edit_own_posts"
+    },
+    "comments": {
+      "endpoints": ["GET /comments", "POST /comments", "DELETE /comments/:id"],
+      "requireAuth": "CREATE/DELETE only",
+      "roles": ["user", "moderator", "admin"],
+      "ownershipRule": "creator_can_delete_own_comments"
+    },
+    "profiles": {
+      "endpoints": ["GET /:id", "PUT /:id", "GET /:id/preferences"],
+      "requireAuth": "PUT only",
+      "roles": ["user", "moderator", "admin"],
+      "ownershipRule": "can_edit_own_profile_only"
+    },
+    "search": {
+      "endpoints": ["GET /search"],
+      "requireAuth": false,
+      "roles": ["guest", "user", "admin"]
+    }
+  },
+  "capabilityMapping": {
+    "content:read": {
+      "modules": ["posts", "comments", "search"],
+      "operations": ["GET"],
+      "minRole": "guest"
+    },
+    "content:create": {
+      "modules": ["posts", "comments"],
+      "operations": ["POST"],
+      "minRole": "user"
+    },
+    "content:moderate": {
+      "modules": ["moderation"],
+      "operations": ["GET", "POST"],
+      "minRole": "moderator"
+    },
+    "user:read_own": {
+      "modules": ["users", "profiles"],
+      "operations": ["GET"],
+      "minRole": "user",
+      "restriction": "own_profile_only"
+    },
+    "user:moderate": {
+      "modules": ["users"],
+      "operations": ["POST", "DELETE"],
+      "minRole": "moderator"
+    },
+    "admin:manage": {
+      "modules": ["admin"],
+      "operations": ["all"],
+      "minRole": "admin"
+    }
+  },
+  "authenticationRequired": {
+    "endpoints": ["POST", "PUT", "DELETE"],
+    "exceptions": [
+      "POST /auth/register",
+      "POST /auth/login",
+      "GET /search",
+      "GET /posts",
+      "GET /public_dashboard"
+    ]
+  },
+  "ownershipValidation": {
+    "enabled": true,
+    "rules": {
+      "user_profile": "user_id must match authenticated user",
+      "user_post": "creator_id must match authenticated user OR user is admin",
+      "user_comment": "creator_id must match authenticated user OR user is moderator/admin",
+      "user_preference": "user_id must match authenticated user"
+    }
+  },
+  "crossModuleAccess": {
+    "rules": {
+      "module_to_module": "only via dependency injection, never direct HTTP",
+      "data_sharing": "only explicitly declared in manifest dependencies",
+      "event_consumption": "only declared in manifest events",
+      "service_calls": "only through published service interfaces"
+    }
+  },
+  "dataIsolation": {
+    "enabled": true,
+    "rules": {
+      "user_data": "isolated by user_id, accessible only by owner or admin",
+      "module_data": "isolated by module, accessible only by module or admin",
+      "audit_data": "read-only to admin, immutable",
+      "system_data": "read-only except admin"
+    }
+  },
+  "apiKeyAuthentication": {
+    "enabled": true,
+    "required_for": ["service_to_service", "external_integrations"],
+    "rotation": "every 90 days",
+    "scope": "per_capability"
+  },
+  "jwtTokens": {
+    "enabled": true,
+    "required_for": ["user_authentication"],
+    "expiration": "24 hours",
+    "refreshable": true,
+    "requiredClaims": ["user_id", "role", "email", "issued_at", "expires_at"]
+  },
+  "sessionManagement": {
+    "enabled": true,
+    "maxSessions": "5 per user",
+    "timeout": "30 minutes inactivity",
+    "invalidateOnPasswordChange": true
+  },
+  "auditingRequirements": {
+    "captureFor": [
+      "login_attempts",
+      "permission_changes",
+      "data_access",
+      "privilege_escalation",
+      "unauthorized_attempts"
+    ],
+    "required_fields": ["timestamp", "userId", "action", "resource", "result", "ip_address"]
+  }
+}

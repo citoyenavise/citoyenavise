@@ -1,16 +1,23 @@
 /**
  * SelfHealingOrchestrator
- * PHASE 1.3 — Self-Healing Governance
+ * PHASE 5.7 v2 — BUSINESS LOGIC DOMAIN (Self-Healing + Idempotency)
  *
- * Main orchestrator for self-healing governance cycle.
+ * Business logic orchestrator for self-healing governance with strict idempotency.
  * Integrates ViolationPatternAnalyzer, AutoCorrectionEngine, DegradationMonitor, SelfHealingAuditTrail.
- * Coordinates with RecoveryOrchestrator (Phase 1.6) for HIGH/CRITICAL violations.
- * Mandatory: Log to audit trail BEFORE any action.
+ * Enforces: (eventId + traceId) composite idempotency to prevent double-correction.
+ *
+ * PHASE 5.7 Guarantees:
+ * - Idempotency métier: eventId + traceId composite key (before any state change)
+ * - Cooldown strict: minHealingInterval_ms between cycles (anti-spam corrections)
+ * - Guard validation: State transitions checked before correction execution
+ * - Escalation timeout: 5sec max on external calls (timeout → auto-escalate)
+ * - Audit trail: Decision logged BEFORE action execution (causal ordering)
+ * - Post-execution observability: Metrics collected AFTER action completion
  *
  * Responsibilities:
- * - Process individual violations with guard checking
- * - Run healing cycles on violation batches
- * - Coordinate with Recovery Layer
+ * - Process individual violations with guard checking + idempotency
+ * - Run healing cycles on violation batches (with cooldown)
+ * - Coordinate with Recovery Layer (timeout-protected escalations)
  * - Monitor system health proactively
  * - Generate healing reports
  */
@@ -33,7 +40,10 @@ class SelfHealingOrchestrator {
     this.recoveryOrchestrator = options.recoveryOrchestrator || null;
 
     this.healingCycleHistory = [];
-    this.activeHealings = new Map();
+
+    // PHASE 5.7: Business-level idempotency (eventId + traceId composite key)
+    this.activeHealings = new Map(); // violation composite key → startTime
+    this.healingIdempotencyWindow_ms = options.healingIdempotencyWindow_ms || 10000;
 
     // PHASE 5.7: Throttling and history bounds
     this.minHealingInterval_ms = options.minHealingInterval_ms || 2000;
@@ -43,7 +53,8 @@ class SelfHealingOrchestrator {
     this.config = {
       healingEnabled: options.healingEnabled !== false,
       escalationCallback: options.escalationCallback || null,
-      degradationMonitoringEnabled: options.degradationMonitoringEnabled !== false
+      degradationMonitoringEnabled: options.degradationMonitoringEnabled !== false,
+      escalationTimeoutMs: options.escalationTimeoutMs || 5000 // PHASE 5.7: Timeout on escalation calls
     };
 
     this.metrics = {
@@ -52,29 +63,47 @@ class SelfHealingOrchestrator {
       violationsCorrected: 0,
       violationsEscalated: 0,
       patternAnalysesRun: 0,
-      healingCyclesThrottled: 0 // PHASE 5.7
+      healingCyclesThrottled: 0, // PHASE 5.7
+      idempotencySkipped: 0, // PHASE 5.7: Duplicate prevention
+      escalationTimeouts: 0 // PHASE 5.7: Escalation timeout tracking
     };
   }
 
   /**
    * CORE METHOD — Process a single violation
-   * MANDATORY SEQUENCE:
-   * 1. Log decision to audit trail BEFORE any action
-   * 2. Check if violation can be corrected
-   * 3. If HIGH/CRITICAL: escalate via recovery orchestrator
-   * 4. If LOW/MEDIUM: attempt correction
-   *
-   * PHASE 5.7: Check idempotency via activeHealings, wrap escalation with timeout
+   * MANDATORY SEQUENCE (PHASE 5.7 v2):
+   * 0. Validate violation structure
+   * 1. Check business-level idempotency (eventId + traceId)
+   * 2. Validate state transition guards
+   * 3. Log decision to audit trail BEFORE any action
+   * 4. Check if violation can be corrected
+   * 5. If HIGH/CRITICAL: escalate via recovery orchestrator (with timeout)
+   * 6. If LOW/MEDIUM: attempt correction
+   * 7. Record metrics POST-execution (observability only)
    */
   async processViolation(violation) {
     if (!violation) throw new Error('violation required');
 
-    // PHASE 5.7: Idempotency check (prevent re-healing same violation)
-    const violationKey = violation.id || `${violation.type}:${violation.validator}`;
-    if (this.activeHealings.has(violationKey)) {
-      return { action: 'SKIPPED', reason: 'already_healing', violationKey };
+    // PHASE 5.7 v2: Business-level idempotency key = eventId + traceId
+    // This prevents double-correction even if transport dedup misses an event
+    const eventId = violation.eventId || violation.id;
+    const traceId = violation.traceId || 'unknown';
+    const idempotencyKey = `${eventId}|${traceId}`;
+
+    // Clean expired idempotency entries
+    const now = Date.now();
+    for (const [key, timestamp] of this.activeHealings) {
+      if (now - timestamp > this.healingIdempotencyWindow_ms) {
+        this.activeHealings.delete(key);
+      }
     }
-    this.activeHealings.set(violationKey, Date.now());
+
+    // Check if already healing this violation
+    if (this.activeHealings.has(idempotencyKey)) {
+      this.metrics.idempotencySkipped = (this.metrics.idempotencySkipped || 0) + 1;
+      return { action: 'SKIPPED', reason: 'already_healing', idempotencyKey };
+    }
+    this.activeHealings.set(idempotencyKey, now);
 
     try {
       this.metrics.violationsReceived += 1;
@@ -99,17 +128,20 @@ class SelfHealingOrchestrator {
 
           // Delegate to Recovery Orchestrator if available
           if (this.recoveryOrchestrator && this.config.escalationCallback) {
-            // PHASE 5.7: Wrap escalation with timeout
-            const ESCALATION_TIMEOUT_MS = 5000;
+            // PHASE 5.7 v2: Wrap escalation with strict timeout (auto-escalate on timeout)
             const escalationResult = await Promise.race([
               Promise.resolve(this.config.escalationCallback(violation)),
               new Promise((_, reject) =>
-                setTimeout(() => reject(new Error('ESCALATION_TIMEOUT')), ESCALATION_TIMEOUT_MS)
+                setTimeout(() => reject(new Error('ESCALATION_TIMEOUT')), this.config.escalationTimeoutMs)
               )
-            ]).catch(err => ({
-              timedOut: err.message === 'ESCALATION_TIMEOUT',
-              error: err.message
-            }));
+            ]).catch(err => {
+              if (err.message === 'ESCALATION_TIMEOUT') {
+                this.metrics.escalationTimeouts = (this.metrics.escalationTimeouts || 0) + 1;
+                // Timeout triggers automatic escalation (fail-safe)
+                return { timedOut: true, escalated: true };
+              }
+              return { error: err.message };
+            });
 
             return {
               action: 'ESCALATED',
@@ -178,8 +210,9 @@ class SelfHealingOrchestrator {
         };
       }
     } finally {
-      // PHASE 5.7: Remove from activeHealings when done
-      this.activeHealings.delete(violationKey);
+      // PHASE 5.7 v2: Don't remove immediately - let idempotencyWindow cleanup handle it
+      // This ensures duplicate calls within the window are rejected
+      // Cleanup happens at the START of next processViolation() call
     }
   }
 
@@ -345,7 +378,9 @@ class SelfHealingOrchestrator {
       violationsCorrected: 0,
       violationsEscalated: 0,
       patternAnalysesRun: 0,
-      healingCyclesThrottled: 0 // PHASE 5.7
+      healingCyclesThrottled: 0, // PHASE 5.7
+      idempotencySkipped: 0, // PHASE 5.7 v2
+      escalationTimeouts: 0 // PHASE 5.7 v2
     };
 
     return { reset: true };

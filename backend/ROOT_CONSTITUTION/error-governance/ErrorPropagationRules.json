@@ -1,0 +1,148 @@
+{
+  "version": "1.0.0",
+  "description": "Rules for how errors propagate through the module stack",
+  "sealed": true,
+  "lastUpdated": "2026-05-08",
+  "propagationRules": {
+    "controllerToRoute": {
+      "description": "Error propagation from controller to route handler",
+      "rules": [
+        {
+          "condition": "error.severity === 'LOW'",
+          "action": "pass_to_next_middleware",
+          "transform": "add_controller_context"
+        },
+        {
+          "condition": "error.severity === 'MEDIUM'",
+          "action": "log_and_pass",
+          "logLevel": "warn"
+        },
+        {
+          "condition": "error.severity in ['HIGH', 'CRITICAL']",
+          "action": "log_escalate_and_pass",
+          "logLevel": "error"
+        }
+      ]
+    },
+    "serviceToController": {
+      "description": "Error propagation from service to controller",
+      "rules": [
+        {
+          "condition": "error instanceof ValidationError",
+          "action": "map_to_400",
+          "transform": "preserve_details"
+        },
+        {
+          "condition": "error instanceof AuthError",
+          "action": "map_to_401",
+          "transform": "strip_sensitive_data"
+        },
+        {
+          "condition": "error instanceof PermissionError",
+          "action": "map_to_403",
+          "transform": "strip_sensitive_data"
+        },
+        {
+          "condition": "error instanceof NotFoundError",
+          "action": "map_to_404",
+          "transform": "preserve_details"
+        },
+        {
+          "condition": "error instanceof DatabaseError",
+          "action": "escalate_and_genericize",
+          "genericMessage": "Service temporarily unavailable"
+        },
+        {
+          "condition": "error instanceof TimeoutError",
+          "action": "escalate_and_genericize",
+          "genericMessage": "Request timeout"
+        },
+        {
+          "condition": "default",
+          "action": "escalate_and_genericize",
+          "genericMessage": "Internal server error"
+        }
+      ]
+    },
+    "middlewareToGlobal": {
+      "description": "Error propagation from middleware to global error handler",
+      "rules": [
+        {
+          "condition": "error.module === undefined",
+          "action": "add_context",
+          "context": "middleware"
+        },
+        {
+          "condition": "error.traceId === undefined",
+          "action": "add_traceId",
+          "generator": "generate_uuid"
+        },
+        {
+          "condition": "error.timestamp === undefined",
+          "action": "add_timestamp"
+        }
+      ]
+    },
+    "moduleToOtherModule": {
+      "description": "Error propagation between modules (external calls)",
+      "rules": [
+        {
+          "condition": "cross_module_call",
+          "action": "wrap_error",
+          "wrapper": "ModuleCallError",
+          "preserveOriginal": true
+        },
+        {
+          "condition": "dependency_error",
+          "action": "escalate_to_CRITICAL",
+          "trigger": "circuit_breaker"
+        },
+        {
+          "condition": "timeout_error",
+          "action": "retry_with_backoff",
+          "maxRetries": 3,
+          "backoffMs": 100
+        }
+      ]
+    }
+  },
+  "transformationRules": {
+    "stripSensitiveData": {
+      "fields": ["password", "token", "apiKey", "secret", "credential"],
+      "action": "remove"
+    },
+    "preserveContext": {
+      "fields": ["module", "function", "timestamp", "traceId", "requestId"],
+      "action": "keep"
+    },
+    "addModuleContext": {
+      "fields": ["moduleName", "moduleVersion", "timestamp"],
+      "action": "add_if_missing"
+    }
+  },
+  "errorChaining": {
+    "enabled": true,
+    "maxDepth": 5,
+    "rule": "original_error must be preserved with new error as wrapper"
+  },
+  "errorContextRequired": {
+    "minimum": ["code", "message", "severity", "timestamp"],
+    "recommended": ["traceId", "requestId", "moduleId", "category", "details"],
+    "audit": ["originalError", "stack", "context"]
+  },
+  "errorSuppression": {
+    "allowed": false,
+    "rule": "all errors must be logged and propagated"
+  },
+  "crossModuleErrorHandling": {
+    "moduleACallsModuleB": {
+      "onSuccess": "pass_result",
+      "onError": {
+        "LOW_SEVERITY": "try_graceful_fallback",
+        "MEDIUM_SEVERITY": "retry_then_fallback",
+        "HIGH_SEVERITY": "escalate_to_caller",
+        "CRITICAL_SEVERITY": "circuit_breaker_and_escalate"
+      }
+    }
+  }
+}

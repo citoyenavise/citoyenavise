@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const controller = require('./controller');
+const controller = require('./controllers/analytics.controller');
 const { authRequired, authOptional } = require('../../core/middleware/auth');
 const { asyncHandler } = require('../../core/middleware/errorHandler');
 const AppError = require('../../core/errors');

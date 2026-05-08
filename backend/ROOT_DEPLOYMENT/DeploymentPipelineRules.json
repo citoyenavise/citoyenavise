@@ -1,0 +1,305 @@
+{
+  "version": "1.0.0",
+  "description": "Constitutional rules for CI/CD pipeline and automated deployment",
+  "sealed": true,
+  "lastUpdated": "2026-05-08",
+  "pipelineModel": {
+    "type": "zero_friction_automated_deployment",
+    "validation_level": "mandatory_multi_gate",
+    "rollback": "automatic_on_health_check_fail"
+  },
+  "pipelineStages": {
+    "stage1_source_validation": {
+      "name": "Source Code Validation",
+      "steps": [
+        {
+          "step": "syntax_check",
+          "tool": "eslint",
+          "failure_action": "block_merge"
+        },
+        {
+          "step": "type_check",
+          "tool": "tsc",
+          "failure_action": "block_merge"
+        },
+        {
+          "step": "unit_tests",
+          "tool": "jest",
+          "threshold": "80%_coverage",
+          "failure_action": "block_merge"
+        },
+        {
+          "step": "security_scan",
+          "tool": "snyk",
+          "severity_threshold": "high",
+          "failure_action": "block_merge"
+        }
+      ],
+      "timeout_minutes": 10
+    },
+    "stage2_structure_validation": {
+      "name": "Module Structure Validation",
+      "steps": [
+        {
+          "step": "module_conformance",
+          "validator": "ModuleStructureValidator",
+          "requirement": "all_modules_pass",
+          "failure_action": "block_deployment"
+        },
+        {
+          "step": "governance_compliance",
+          "validator": "GovernanceValidator",
+          "requirement": "100%_conformance",
+          "failure_action": "block_deployment"
+        },
+        {
+          "step": "dependency_integrity",
+          "check": "no_circular_dependencies",
+          "failure_action": "block_deployment"
+        }
+      ],
+      "timeout_minutes": 5
+    },
+    "stage3_integration_tests": {
+      "name": "Integration Testing",
+      "steps": [
+        {
+          "step": "module_integration",
+          "test": "integration_test_suite",
+          "threshold": "100%_pass",
+          "failure_action": "block_deployment"
+        },
+        {
+          "step": "api_contract_validation",
+          "test": "contract_tests",
+          "threshold": "100%_pass",
+          "failure_action": "block_deployment"
+        },
+        {
+          "step": "database_migration_test",
+          "test": "migration_safety_check",
+          "failure_action": "block_deployment"
+        }
+      ],
+      "timeout_minutes": 15
+    },
+    "stage4_build": {
+      "name": "Build & Docker Image",
+      "steps": [
+        {
+          "step": "build_application",
+          "command": "npm run build",
+          "failure_action": "block_deployment"
+        },
+        {
+          "step": "create_docker_image",
+          "registry": "docker_registry",
+          "image_scan": "trivy_security_scan",
+          "failure_action": "block_deployment"
+        },
+        {
+          "step": "push_to_registry",
+          "tag_format": "version_git_sha",
+          "failure_action": "block_deployment"
+        }
+      ],
+      "timeout_minutes": 10
+    },
+    "stage5_deploy_staging": {
+      "name": "Deploy to Staging",
+      "steps": [
+        {
+          "step": "deploy_staging",
+          "strategy": "rolling",
+          "health_check": true,
+          "failure_action": "block_production_deploy"
+        },
+        {
+          "step": "smoke_tests_staging",
+          "test": "production_like_test",
+          "threshold": "100%_pass",
+          "failure_action": "block_production_deploy"
+        },
+        {
+          "step": "performance_baseline",
+          "metric": "latency_and_throughput",
+          "failure_action": "alert_and_flag"
+        }
+      ],
+      "timeout_minutes": 15
+    },
+    "stage6_approve_production": {
+      "name": "Manual Approval Gate",
+      "requirement": "human_approval_required",
+      "approvers": ["lead_engineer", "ops_manager"],
+      "approval_deadline": "24_hours",
+      "checks_reviewed": [
+        "all_tests_passed",
+        "security_scan_passed",
+        "governance_conformance",
+        "performance_acceptable",
+        "staging_validation_passed"
+      ]
+    },
+    "stage7_deploy_production": {
+      "name": "Deploy to Production",
+      "steps": [
+        {
+          "step": "pre_deploy_checks",
+          "checks": ["system_healthy", "no_ongoing_incidents", "no_db_migrations_pending"],
+          "failure_action": "abort_deployment"
+        },
+        {
+          "step": "backup_production_state",
+          "backup_type": "full_database_snapshot",
+          "required": true,
+          "failure_action": "abort_deployment"
+        },
+        {
+          "step": "deploy_tier1_critical",
+          "services": ["auth", "users", "core"],
+          "strategy": "blue_green",
+          "health_check": true,
+          "failure_action": "automatic_rollback"
+        },
+        {
+          "step": "deploy_tier2_primary",
+          "services": ["posts", "feed", "notifications"],
+          "strategy": "canary",
+          "health_check": true,
+          "canary_percentage": "5%",
+          "canary_duration": "2_minutes",
+          "failure_action": "automatic_rollback"
+        },
+        {
+          "step": "deploy_tier3_secondary",
+          "services": ["analytics", "search", "moderation"],
+          "strategy": "rolling",
+          "health_check": true,
+          "failure_action": "automatic_rollback"
+        },
+        {
+          "step": "deploy_tier4_optional",
+          "services": ["ai_mascot", "webhooks"],
+          "strategy": "rolling",
+          "health_check": true,
+          "failure_action": "automatic_rollback"
+        }
+      ],
+      "total_timeout_minutes": 30
+    },
+    "stage8_post_deployment": {
+      "name": "Post-Deployment Verification",
+      "steps": [
+        {
+          "step": "health_verification",
+          "check": "all_modules_healthy",
+          "duration": "5_minutes",
+          "failure_action": "trigger_rollback"
+        },
+        {
+          "step": "smoke_tests_production",
+          "test": "critical_user_journeys",
+          "threshold": "100%_pass",
+          "failure_action": "trigger_rollback"
+        },
+        {
+          "step": "metrics_baseline",
+          "check": "error_rate < 0.1%, latency_p95 < 200ms",
+          "failure_action": "trigger_rollback"
+        },
+        {
+          "step": "notify_deployment_success",
+          "channel": "slack_ops_channel",
+          "info": ["version", "modules_deployed", "duration"]
+        }
+      ],
+      "timeout_minutes": 10
+    }
+  },
+  "rollbackPolicies": {
+    "automatic_rollback_triggers": [
+      "health_check_failing_5_consecutive",
+      "error_rate > 1% (tier1) or > 5% (tier2+)",
+      "latency_p95 > 1000ms (tier1) or > 2000ms (tier2+)",
+      "database_connection_errors",
+      "critical_service_down",
+      "manual_rollback_initiated"
+    ],
+    "rollback_process": [
+      "stop_receiving_new_traffic",
+      "drain_existing_connections",
+      "revert_to_previous_docker_image",
+      "health_check_previous_version",
+      "notify_engineering_team",
+      "restore_from_database_backup_if_needed"
+    ],
+    "rollback_time_objective": "< 2_minutes",
+    "post_rollback": "incident_review_mandatory"
+  },
+  "deploymentGates": {
+    "pre_deployment": [
+      "syntax_validation_pass",
+      "type_check_pass",
+      "unit_tests_pass",
+      "security_scan_pass",
+      "module_conformance_pass",
+      "governance_conformance_pass",
+      "integration_tests_pass"
+    ],
+    "pre_staging_deployment": [
+      "all_pre_deployment_gates_pass",
+      "docker_image_created",
+      "image_security_scan_pass"
+    ],
+    "pre_production_deployment": [
+      "all_pre_staging_gates_pass",
+      "staging_smoke_tests_pass",
+      "staging_health_verification_pass",
+      "human_approval_received",
+      "production_system_healthy"
+    ]
+  },
+  "featureFlagStrategy": {
+    "enabled": true,
+    "purpose": "decouple_deployment_from_feature_release",
+    "rules": [
+      {
+        "flag_name": "new_feature",
+        "default": "off",
+        "deployment": "always_deploy",
+        "activation": "manual_via_flag_service"
+      },
+      {
+        "flag_name": "breaking_change",
+        "default": "off",
+        "deployment": "gradual_rollout",
+        "activation": "gradual_5%_to_100%"
+      }
+    ]
+  },
+  "deploymentNotifications": {
+    "on_start": {
+      "channel": "slack_ops",
+      "message": "Deployment started: version X"
+    },
+    "on_stage_complete": {
+      "channel": "slack_ops",
+      "message": "Stage X completed successfully"
+    },
+    "on_approval_needed": {
+      "channel": "slack_ops",
+      "mention": "@lead_engineers",
+      "message": "Production deployment awaiting approval"
+    },
+    "on_success": {
+      "channel": "slack_ops",
+      "message": "Deployment successful: version X deployed"
+    },
+    "on_failure": {
+      "channel": "slack_ops",
+      "mention": "@engineering_team",
+      "message": "Deployment failed at stage X, rollback initiated"
+    }
+  }
+}

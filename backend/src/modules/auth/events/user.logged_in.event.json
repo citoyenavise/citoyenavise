@@ -1,0 +1,17 @@
+{
+  "name": "user:logged_in",
+  "version": "1.0.0",
+  "domain": "user",
+  "action": "logged_in",
+  "entity": "user",
+  "description": "User logged in successfully",
+  "schema": {
+    "type": "object",
+    "properties": {
+      "userId": { "type": "string" },
+      "email": { "type": "string" },
+      "timestamp": { "type": "string" }
+    },
+    "required": ["userId", "email", "timestamp"]
+  }
+}

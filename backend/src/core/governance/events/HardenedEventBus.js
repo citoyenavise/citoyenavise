@@ -1,24 +1,24 @@
 /**
  * HardenedEventBus
- * PHASE 5.3 — Event Schema Registry & Validation
+ * PHASE 5.7 v2 — TRANSPORT DOMAIN (Strict Pipeline)
  *
- * Enhanced event bus with:
- * - Schema validation (BEFORE emit)
- * - Version resolution (BEFORE routing)
- * - Audit trail (immutable log)
- * - Tamper detection
- * - Strict compliance
+ * Transport-layer event bus enforcing:
+ * - TTL lifecycle (expire stale events)
+ * - Idempotency via eventId (no duplicate processing)
+ * - Loop detection via traceId (no infinite cycles)
+ * - Rate limiting (adaptive backpressure)
+ * - Validation + audit trail
  *
- * FLOW:
- * emit(event)
- *   → validate(event)
- *   → sanitize(event)
- *   → resolveVersion(event)
- *   → appendToAuditTrail(event)
- *   → route(event)
- *   → dispatch(subscribers)
+ * CRITICAL PIPELINE ORDER (non-negotiable):
+ * 1. TTL check (drop if expired, first line of defense)
+ * 2. Idempotency (eventId dedup, prevents double-execution)
+ * 3. Loop detection (traceId throttle, prevents cycles)
+ * 4. Rate limiting (adaptive to load)
+ * 5. Validation (schema + sanitize)
+ * 6. Audit trail (immutable log)
+ * 7. Dispatch (safe to publish)
  *
- * RULE: No event without validation. No validation failure is silent.
+ * RULE: No business logic in transport. Zero idempotency-metadata handling.
  */
 
 const GovernanceEventBus = require('./GovernanceEventBus');
@@ -50,6 +50,7 @@ class HardenedEventBus extends GovernanceEventBus {
 
     this.metrics = {
       ...this.metrics,
+      eventsExpired: 0, // PHASE 5.7: TTL enforcement
       eventsValidated: 0,
       eventsRejected: 0,
       eventsMigrated: 0,
@@ -61,25 +62,35 @@ class HardenedEventBus extends GovernanceEventBus {
   }
 
   /**
-   * Hardened publish with full validation chain
+   * Hardened publish with strict pipeline (PHASE 5.7 v2)
+   * Order is CRITICAL: TTL → Idempotency → Loops → RateLimit → Dispatch
    */
   async publish(event) {
     if (!event) throw new Error('event required');
 
-    // PHASE 5.7: Check idempotency (prevent duplicate processing)
+    // STEP 1 (FIRST): TTL check — drop stale events immediately
+    if (event.isExpired && typeof event.isExpired === 'function' && event.isExpired()) {
+      this.metrics.eventsExpired = (this.metrics.eventsExpired || 0) + 1;
+      return { published: false, reason: 'expired', eventId: event.id, ttlExceeded: true };
+    }
+
+    // STEP 2: Idempotency check (transport-level dedup via eventId)
     if (!this._checkIdempotency(event)) {
-      return { published: false, reason: 'duplicate', eventId: event.id };
+      const eventId = event.eventId || event.id;
+      return { published: false, reason: 'duplicate', eventId };
     }
 
-    // PHASE 5.7: Check for event loops
+    // STEP 3: Loop detection via traceId throttle
     if (!this._checkLoopDetection(event)) {
-      return { published: false, reason: 'loop_detected', eventId: event.id };
+      const eventId = event.eventId || event.id;
+      return { published: false, reason: 'loop_detected', eventId };
     }
 
-    // PHASE 5.6: Check rate limit before processing
+    // STEP 4: Rate limit (adaptive backpressure)
     if (!this._checkRateLimit(event)) {
       this.metrics.rateLimited += 1;
-      return { published: false, reason: 'rate_limited', eventId: event.id };
+      const eventId = event.eventId || event.id;
+      return { published: false, reason: 'rate_limited', eventId };
     }
 
     try {
@@ -265,6 +276,7 @@ class HardenedEventBus extends GovernanceEventBus {
     this.traceIdCounts.clear(); // PHASE 5.7
     this.metrics = {
       ...this.metrics,
+      eventsExpired: 0, // PHASE 5.7: TTL enforcement
       eventsValidated: 0,
       eventsRejected: 0,
       eventsMigrated: 0,
@@ -301,25 +313,27 @@ class HardenedEventBus extends GovernanceEventBus {
 
   /**
    * PHASE 5.7: Check for duplicate event IDs (idempotency)
+   * Uses eventId (or fallback to id) for deduplication
    */
   _checkIdempotency(event) {
-    if (!event.id) return true;
+    const eventId = event.eventId || event.id; // GovernanceEvent uses eventId
+    if (!eventId) return true;
 
     const now = Date.now();
 
-    // Clean expired IDs
+    // Clean expired IDs from window
     for (const [id, ts] of this.processedEventIds) {
       if (now - ts > this.idempotencyWindow_ms) {
         this.processedEventIds.delete(id);
       }
     }
 
-    if (this.processedEventIds.has(event.id)) {
+    if (this.processedEventIds.has(eventId)) {
       this.metrics.duplicatesRejected = (this.metrics.duplicatesRejected || 0) + 1;
       return false; // Duplicate detected
     }
 
-    this.processedEventIds.set(event.id, now);
+    this.processedEventIds.set(eventId, now);
     return true;
   }
 

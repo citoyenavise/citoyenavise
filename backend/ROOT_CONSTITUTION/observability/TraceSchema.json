@@ -1,0 +1,286 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Trace Schema",
+  "description": "Declarative structure for distributed tracing and execution lifecycle",
+  "version": "1.0.0",
+  "phase": "1.8",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+  "lastUpdated": "2026-05-07",
+  "governance_level": "CONSTITUTIONAL",
+
+  "traceFormat": {
+    "description": "Complete trace of request execution lifecycle",
+    "required": ["traceId", "startTime", "endTime", "rootSpan", "spans", "moduleTraversal"],
+    "structure": {
+      "traceId": {
+        "type": "string",
+        "pattern": "^trace_[a-zA-Z0-9_-]+$",
+        "description": "Unique trace identifier"
+      },
+      "startTime": {
+        "type": "string",
+        "format": "ISO8601",
+        "description": "Trace start timestamp"
+      },
+      "endTime": {
+        "type": "string",
+        "format": "ISO8601",
+        "description": "Trace end timestamp"
+      },
+      "duration_ms": {
+        "type": "number",
+        "description": "Total trace duration in milliseconds"
+      },
+      "status": {
+        "type": "string",
+        "enum": ["INITIATED", "IN_PROGRESS", "COMPLETED", "FAILED", "TIMEOUT"],
+        "description": "Trace execution status"
+      },
+      "rootSpan": {
+        "type": "object",
+        "description": "Root span representing initial request"
+      },
+      "spans": {
+        "type": "array",
+        "description": "Array of all spans in trace"
+      },
+      "moduleTraversal": {
+        "type": "object",
+        "description": "Module execution graph"
+      },
+      "eventCausality": {
+        "type": "array",
+        "description": "Chain of events and their causality relationships"
+      }
+    }
+  },
+
+  "spanFormat": {
+    "description": "Structure of individual spans within trace",
+    "required": ["spanId", "parentSpanId", "operationName", "startTime", "endTime"],
+    "optional": ["moduleId", "tags", "logs", "status", "errorCode"],
+    "structure": {
+      "spanId": {
+        "type": "string",
+        "pattern": "^span_[a-zA-Z0-9_-]+$",
+        "description": "Unique span identifier"
+      },
+      "parentSpanId": {
+        "type": "string",
+        "description": "Parent span identifier (null for root)"
+      },
+      "traceId": {
+        "type": "string",
+        "description": "Trace this span belongs to"
+      },
+      "operationName": {
+        "type": "string",
+        "description": "Name of operation represented by span"
+      },
+      "startTime": {
+        "type": "string",
+        "format": "ISO8601",
+        "description": "Span start time"
+      },
+      "endTime": {
+        "type": "string",
+        "format": "ISO8601",
+        "description": "Span end time"
+      },
+      "duration_ms": {
+        "type": "number",
+        "description": "Span duration in milliseconds"
+      },
+      "moduleId": {
+        "type": "string",
+        "description": "Module executing this span"
+      },
+      "tags": {
+        "type": "object",
+        "description": "Key-value tags for span context"
+      },
+      "logs": {
+        "type": "array",
+        "description": "Log entries emitted during span"
+      },
+      "status": {
+        "type": "string",
+        "enum": ["STARTED", "ACTIVE", "COMPLETED", "FAILED", "TIMEOUT"],
+        "description": "Span execution status"
+      },
+      "errorCode": {
+        "type": "string",
+        "description": "Error code if span failed"
+      }
+    }
+  },
+
+  "moduleTraversalGraph": {
+    "description": "Graph showing module execution order and dependencies",
+    "format": {
+      "nodes": {
+        "type": "array",
+        "description": "Modules visited during trace"
+      },
+      "edges": {
+        "type": "array",
+        "description": "Call relationships between modules"
+      },
+      "executionOrder": {
+        "type": "array",
+        "description": "Chronological order of module invocations"
+      }
+    },
+    "nodeStructure": {
+      "moduleId": "Name of module",
+      "entryTime": "ISO8601 timestamp",
+      "exitTime": "ISO8601 timestamp",
+      "duration_ms": "Time spent in module",
+      "spanIds": "Array of spans executed in this module",
+      "status": "SUCCESS or FAILURE"
+    },
+    "edgeStructure": {
+      "source": "Calling module",
+      "target": "Called module",
+      "callTime": "When call was made",
+      "returnTime": "When call returned",
+      "type": "direct or event-based"
+    }
+  },
+
+  "eventCausalityChain": {
+    "description": "Causal relationships between events in trace",
+    "structure": {
+      "events": [
+        {
+          "eventId": "Unique event identifier",
+          "eventType": "Type of event",
+          "sourceModule": "Module that emitted event",
+          "timestamp": "ISO8601 emission time",
+          "causedBy": "ParentEventId (event causality)",
+          "causesNext": "Array of event IDs caused by this event"
+        }
+      ]
+    },
+    "causalityRules": [
+      {
+        "rule": "SEQUENTIAL_CAUSALITY",
+        "description": "Event A causes Event B if B starts after A and is triggered by A"
+      },
+      {
+        "rule": "PARALLEL_CAUSALITY",
+        "description": "Multiple events can be caused by single parent event"
+      },
+      {
+        "rule": "TRANSITIVE_CAUSALITY",
+        "description": "If A causes B and B causes C, then A transitively causes C"
+      }
+    ]
+  },
+
+  "requestToModuleMapping": {
+    "description": "Mapping of request lifecycle to module invocations",
+    "mapping": {
+      "requestId": "Unique request identifier",
+      "traceId": "Associated trace identifier",
+      "entryModule": "First module to process request",
+      "moduleSequence": [
+        {
+          "sequence": 1,
+          "module": "Module name",
+          "operation": "Operation performed",
+          "startTime": "ISO8601",
+          "endTime": "ISO8601",
+          "status": "SUCCESS or FAILURE"
+        }
+      ],
+      "exitModule": "Final module to process request",
+      "totalDuration_ms": "Request total time"
+    }
+  },
+
+  "traceCompleteness": {
+    "description": "Rules ensuring trace contains full execution context",
+    "rules": [
+      {
+        "rule": "ALL_MODULES_VISITED",
+        "description": "Every module invocation must appear in trace"
+      },
+      {
+        "rule": "ALL_EVENTS_MAPPED",
+        "description": "Every event emitted must be in causality chain"
+      },
+      {
+        "rule": "TIMING_CONSISTENCY",
+        "description": "Child span duration must fit within parent span"
+      },
+      {
+        "rule": "TRACEID_CONTINUITY",
+        "description": "traceId must be present in all spans and events"
+      },
+      {
+        "rule": "CALL_STACK_RECONSTRUCTION",
+        "description": "Full call stack must be reconstructible from spans"
+      }
+    ]
+  },
+
+  "traceAggregation": {
+    "description": "How traces are aggregated for analysis",
+    "levels": [
+      {
+        "level": "PER_REQUEST",
+        "description": "Individual request trace"
+      },
+      {
+        "level": "PER_MODULE",
+        "description": "Aggregation by module called"
+      },
+      {
+        "level": "PER_OPERATION",
+        "description": "Aggregation by operation type"
+      },
+      {
+        "level": "PER_SERVICE",
+        "description": "Aggregation across service boundaries"
+      }
+    ]
+  },
+
+  "traceRetention": {
+    "description": "How long traces are kept",
+    "policy": {
+      "successful_traces": "7 days",
+      "failed_traces": "30 days",
+      "slow_traces": "14 days",
+      "critical_traces": "90 days"
+    }
+  },
+
+  "distributedTracing": {
+    "description": "Multi-service trace correlation",
+    "rules": [
+      {
+        "rule": "PROPAGATE_TRACEID",
+        "description": "traceId must be passed to external services"
+      },
+      {
+        "rule": "PRESERVE_PARENTID",
+        "description": "Parent span ID preserved across service boundaries"
+      },
+      {
+        "rule": "CORRELATE_REMOTE_SPANS",
+        "description": "Spans from remote services linked to local trace"
+      }
+    ]
+  },
+
+  "totalSpanTypes": 1,
+  "totalAggregationLevels": 4,
+  "totalCausalityRules": 3,
+  "totalCompletenessRules": 5,
+  "declarationComplete": true,
+  "runtimeNote": "This schema is DECLARATIVE ONLY. No trace building logic, no span creation implementation."
+}

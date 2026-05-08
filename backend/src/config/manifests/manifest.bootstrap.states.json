@@ -1,0 +1,293 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Bootstrap States Manifest - Phase 2.1",
+  "version": "2.1.0",
+  "description": "États du bootstrap système avec transitions orchestrées",
+  "metadata": {
+    "created": "2026-05-07T00:00:00Z",
+    "phase": "2.1",
+    "total_states": 6,
+    "total_transitions": 5
+  },
+  "states": {
+    "INIT": {
+      "id": "INIT",
+      "displayName": "Initialisation",
+      "description": "Système en cours d'initialisation",
+      "hierarchy_level": 0,
+      "invariants": ["no modules initialized yet"],
+      "allowedTransitions": ["CONFIG"],
+      "timeout": null,
+      "metadata": {
+        "isInitial": true,
+        "isFinal": false,
+        "stage": 0
+      }
+    },
+    "CONFIG": {
+      "id": "CONFIG",
+      "displayName": "Configuration Chargée",
+      "description": "Configuration et logger initialisés",
+      "hierarchy_level": 1,
+      "invariants": ["config valid", "logger active"],
+      "allowedTransitions": ["SERVICES"],
+      "timeout": 5000,
+      "metadata": {
+        "isInitial": false,
+        "isFinal": false,
+        "stage": 1,
+        "stages_completed": ["config_load", "logger_init"]
+      }
+    },
+    "SERVICES": {
+      "id": "SERVICES",
+      "displayName": "Services Initialisés",
+      "description": "Core services (database, eventBus, cache) opérationnels",
+      "hierarchy_level": 2,
+      "invariants": ["database connected", "eventBus active", "services registered"],
+      "allowedTransitions": ["MODULES"],
+      "timeout": 10000,
+      "metadata": {
+        "isInitial": false,
+        "isFinal": false,
+        "stage": 2,
+        "stages_completed": ["config_load", "logger_init", "core_services_init", "database_init", "eventbus_init", "shared_services_registration"]
+      }
+    },
+    "MODULES": {
+      "id": "MODULES",
+      "displayName": "Modules Enregistrés",
+      "description": "Tous les modules découverts, résolus et enregistrés",
+      "hierarchy_level": 3,
+      "invariants": ["modules registered", "no dependency cycles", "initialization order resolved"],
+      "allowedTransitions": ["EVENTS"],
+      "timeout": 5000,
+      "metadata": {
+        "isInitial": false,
+        "isFinal": false,
+        "stage": 3,
+        "stages_completed": ["config_load", "logger_init", "core_services_init", "database_init", "eventbus_init", "shared_services_registration", "module_discovery", "orchestrator_initialized"]
+      }
+    },
+    "EVENTS": {
+      "id": "EVENTS",
+      "displayName": "Événements Prêts",
+      "description": "Event subscriptions et handlers enregistrés",
+      "hierarchy_level": 4,
+      "invariants": ["eventBus fully operational", "event subscriptions registered", "handlers isolated"],
+      "allowedTransitions": ["READY"],
+      "timeout": 5000,
+      "metadata": {
+        "isInitial": false,
+        "isFinal": false,
+        "stage": 4,
+        "stages_completed": ["config_load", "logger_init", "core_services_init", "database_init", "eventbus_init", "shared_services_registration", "module_discovery", "orchestrator_initialized", "event_subscriptions"]
+      }
+    },
+    "READY": {
+      "id": "READY",
+      "displayName": "Système Prêt",
+      "description": "Système complètement initialisé, tous les invariants validés",
+      "hierarchy_level": 5,
+      "invariants": ["all critical invariants passed", "health checks passed", "routes mounted", "system operational"],
+      "allowedTransitions": [],
+      "timeout": null,
+      "metadata": {
+        "isInitial": false,
+        "isFinal": true,
+        "stage": 5,
+        "stages_completed": ["config_load", "logger_init", "core_services_init", "database_init", "eventbus_init", "shared_services_registration", "module_discovery", "orchestrator_initialized", "event_subscriptions", "route_mounting", "background_workers", "health_checks"]
+      }
+    }
+  },
+  "transitions": [
+    {
+      "id": "init_to_config",
+      "fromState": "INIT",
+      "toState": "CONFIG",
+      "event": "bootstrap:config_loaded",
+      "guards": [
+        {
+          "id": "config_valid",
+          "description": "Configuration doit être valide"
+        },
+        {
+          "id": "logger_active",
+          "description": "Logger doit être actif"
+        }
+      ],
+      "sideEffects": [
+        {
+          "id": "log_config_complete",
+          "description": "Logger que la configuration est chargée"
+        }
+      ],
+      "metadata": {
+        "stage": 1,
+        "critical": true
+      }
+    },
+    {
+      "id": "config_to_services",
+      "fromState": "CONFIG",
+      "toState": "SERVICES",
+      "event": "bootstrap:services_ready",
+      "guards": [
+        {
+          "id": "database_connected",
+          "description": "Database doit être connectée"
+        },
+        {
+          "id": "eventbus_active",
+          "description": "EventBus doit être actif"
+        },
+        {
+          "id": "services_registered",
+          "description": "Services doivent être enregistrés"
+        }
+      ],
+      "sideEffects": [
+        {
+          "id": "log_services_ready",
+          "description": "Logger que les services sont prêts"
+        },
+        {
+          "id": "emit_services_ready_event",
+          "description": "Émettre événement services:ready"
+        }
+      ],
+      "metadata": {
+        "stage": 2,
+        "critical": true
+      }
+    },
+    {
+      "id": "services_to_modules",
+      "fromState": "SERVICES",
+      "toState": "MODULES",
+      "event": "bootstrap:modules_registered",
+      "guards": [
+        {
+          "id": "modules_discovered",
+          "description": "Modules doivent être découverts"
+        },
+        {
+          "id": "no_cycles",
+          "description": "Aucun cycle de dépendances"
+        },
+        {
+          "id": "order_resolved",
+          "description": "Ordre d'initialisation doit être résolu"
+        }
+      ],
+      "sideEffects": [
+        {
+          "id": "register_modules_orchestrator",
+          "description": "Enregistrer modules dans orchestrator"
+        },
+        {
+          "id": "generate_module_registry",
+          "description": "Générer registry des modules"
+        },
+        {
+          "id": "log_modules_ready",
+          "description": "Logger que les modules sont prêts"
+        }
+      ],
+      "metadata": {
+        "stage": 3,
+        "critical": true
+      }
+    },
+    {
+      "id": "modules_to_events",
+      "fromState": "MODULES",
+      "toState": "EVENTS",
+      "event": "bootstrap:events_ready",
+      "guards": [
+        {
+          "id": "eventbus_operational",
+          "description": "EventBus doit être complètement opérationnel"
+        },
+        {
+          "id": "subscriptions_registered",
+          "description": "Event subscriptions doivent être enregistrées"
+        }
+      ],
+      "sideEffects": [
+        {
+          "id": "register_event_handlers",
+          "description": "Enregistrer les event handlers des modules"
+        },
+        {
+          "id": "log_events_ready",
+          "description": "Logger que les événements sont prêts"
+        }
+      ],
+      "metadata": {
+        "stage": 4,
+        "critical": true
+      }
+    },
+    {
+      "id": "events_to_ready",
+      "fromState": "EVENTS",
+      "toState": "READY",
+      "event": "bootstrap:ready",
+      "guards": [
+        {
+          "id": "all_invariants_passed",
+          "description": "Tous les invariants doivent être validés"
+        },
+        {
+          "id": "health_checks_passed",
+          "description": "Health checks doivent passer"
+        },
+        {
+          "id": "routes_mounted",
+          "description": "Routes doivent être montées"
+        },
+        {
+          "id": "no_critical_errors",
+          "description": "Aucune erreur critique en progress"
+        }
+      ],
+      "sideEffects": [
+        {
+          "id": "validate_final_invariants",
+          "description": "Valider les invariants finaux"
+        },
+        {
+          "id": "emit_system_ready",
+          "description": "Émettre événement bootstrap:system_ready"
+        },
+        {
+          "id": "log_system_ready",
+          "description": "Logger que le système est prêt"
+        },
+        {
+          "id": "start_server",
+          "description": "Démarrer le serveur Express"
+        }
+      ],
+      "metadata": {
+        "stage": 5,
+        "critical": true,
+        "final": true
+      }
+    }
+  ],
+  "state_groups": {
+    "initialization": ["INIT", "CONFIG", "SERVICES", "MODULES"],
+    "operational": ["EVENTS", "READY"],
+    "critical_states": ["SERVICES", "MODULES", "EVENTS", "READY"]
+  },
+  "guarantees": {
+    "deterministic": true,
+    "reproducible": true,
+    "order_guaranteed": true,
+    "invariants_enforced": true,
+    "no_race_conditions": true,
+    "observable": true
+  }
+}

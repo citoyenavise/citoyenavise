@@ -1,0 +1,28 @@
+{
+  "name": "reports",
+  "version": "1.0.0",
+  "description": "Reports and data exports",
+  "dependencies": [],
+  "capabilities": [
+    "report:create",
+    "report:export"
+  ],
+  "events": [
+    "report:generated",
+    "report:exported"
+  ],
+  "routes": {
+    "prefix": "/api/v1/reports",
+    "methods": [
+      "GET",
+      "POST",
+      "PUT",
+      "DELETE"
+    ]
+  },
+  "lifecycle": {
+    "initRequired": true,
+    "readyRequired": true,
+    "healthChecks": true
+  }
+}

@@ -1,0 +1,139 @@
+{
+  "version": "1.0.0",
+  "description": "Policies for how errors are formatted and returned to clients",
+  "sealed": true,
+  "lastUpdated": "2026-05-08",
+  "responseFormat": {
+    "success": {
+      "structure": {
+        "success": true,
+        "data": "object | array",
+        "timestamp": "ISO 8601",
+        "traceId": "string"
+      },
+      "example": {
+        "success": true,
+        "data": { "id": "user_123", "name": "John Doe" },
+        "timestamp": "2026-05-08T12:00:00Z",
+        "traceId": "trace_abc123"
+      }
+    },
+    "error": {
+      "structure": {
+        "success": false,
+        "error": {
+          "code": "string (e.g., VALIDATION_ERROR)",
+          "message": "string (user-friendly)",
+          "category": "string (VALIDATION, AUTHENTICATION, etc.)",
+          "severity": "string (LOW, MEDIUM, HIGH, CRITICAL)",
+          "traceId": "string (for support)",
+          "timestamp": "ISO 8601",
+          "details": "object (optional, context-specific)"
+        },
+        "retryable": "boolean"
+      },
+      "example": {
+        "success": false,
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "message": "Email address is invalid",
+          "category": "VALIDATION",
+          "severity": "LOW",
+          "traceId": "trace_xyz789",
+          "timestamp": "2026-05-08T12:00:00Z",
+          "details": {
+            "field": "email",
+            "value": "invalid-email",
+            "expected": "valid email format"
+          }
+        },
+        "retryable": false
+      }
+    },
+    "validationError": {
+      "structure": {
+        "success": false,
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "message": "Validation failed",
+          "fields": [
+            {
+              "field": "string",
+              "message": "string",
+              "value": "any"
+            }
+          ]
+        }
+      },
+      "example": {
+        "success": false,
+        "error": {
+          "code": "VALIDATION_ERROR",
+          "message": "Validation failed",
+          "fields": [
+            {
+              "field": "email",
+              "message": "Invalid email format",
+              "value": "invalid"
+            },
+            {
+              "field": "password",
+              "message": "Password must be at least 8 characters",
+              "value": "short"
+            }
+          ]
+        }
+      }
+    }
+  },
+  "httpStatusMapping": {
+    "4000": 400,
+    "4010": 401,
+    "4030": 403,
+    "4040": 404,
+    "4090": 409,
+    "4290": 429,
+    "5000": 500,
+    "5020": 503,
+    "5030": 500,
+    "5040": 504
+  },
+  "clientVisibleFields": {
+    "allowed": ["code", "message", "category", "severity", "traceId", "timestamp", "details", "retryable"],
+    "forbidden": ["originalError", "stack", "internalDetails", "systemInfo", "credentials"]
+  },
+  "productionMode": {
+    "enabled": true,
+    "rules": {
+      "hideStackTraces": true,
+      "hideInternalDetails": true,
+      "genericizeUnexpectedErrors": true,
+      "sanitizeErrorMessages": true
+    }
+  },
+  "developmentMode": {
+    "enabled": false,
+    "rules": {
+      "showStackTraces": true,
+      "showInternalDetails": true,
+      "showFullContext": true,
+      "verboseErrorMessages": true
+    }
+  },
+  "retryableErrors": {
+    "categories": ["RATE_LIMIT", "SERVICE_ERROR", "TIMEOUT", "DEPENDENCY_ERROR"],
+    "headerName": "Retry-After",
+    "defaultRetrySeconds": 5,
+    "maxRetries": 3,
+    "backoffStrategy": "exponential"
+  },
+  "errorGrouping": {
+    "sameCodeAndMessage": "group as single error for analytics",
+    "sameModuleAndCategory": "track as correlated errors",
+    "timeWindow": "5 minutes"
+  },
+  "caching": {
+    "errorResponses": false,
+    "rule": "never cache error responses"
+  }
+}

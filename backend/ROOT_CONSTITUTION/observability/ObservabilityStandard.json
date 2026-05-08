@@ -1,0 +1,192 @@
+{
+  "version": "1.0.0",
+  "description": "Constitutional standard for observability across all 33 modules",
+  "sealed": true,
+  "lastUpdated": "2026-05-08",
+  "mandatoryFields": {
+    "all_logs": ["timestamp", "level", "message", "moduleId"],
+    "all_metrics": ["name", "value", "unit", "timestamp", "moduleId", "tags"],
+    "all_traces": ["traceId", "spanId", "parentSpanId", "operation", "timestamp", "duration", "moduleId"],
+    "all_events": ["eventId", "eventType", "timestamp", "moduleId", "traceId", "severity", "payload"],
+    "all_errors": ["errorCode", "errorMessage", "severity", "traceId", "requestId", "moduleId", "timestamp"]
+  },
+  "correlationIds": {
+    "traceId": {
+      "required": true,
+      "format": "UUID v4",
+      "propagation": "all_requests",
+      "lifetime": "entire_request_lifecycle"
+    },
+    "requestId": {
+      "required": true,
+      "format": "UUID v4",
+      "propagation": "same_request",
+      "lifetime": "single_request"
+    },
+    "spanId": {
+      "required": true,
+      "format": "UUID v4",
+      "propagation": "trace_spans",
+      "lifetime": "operation_lifetime"
+    },
+    "correlationId": {
+      "required": true,
+      "format": "UUID v4",
+      "propagation": "cross_module_calls",
+      "lifetime": "entire_flow"
+    }
+  },
+  "loggingStandard": {
+    "levels": ["DEBUG", "INFO", "WARN", "ERROR", "CRITICAL"],
+    "defaultLevel": "INFO",
+    "minimumFields": {
+      "all": ["timestamp", "level", "message", "moduleId"],
+      "warn": ["timestamp", "level", "message", "moduleId", "context"],
+      "error": ["timestamp", "level", "message", "moduleId", "error", "stack", "context"],
+      "critical": ["timestamp", "level", "message", "moduleId", "error", "stack", "context", "escalation"]
+    },
+    "format": "JSON",
+    "output": ["stdout", "file"],
+    "sampleRate": {
+      "DEBUG": 0.1,
+      "INFO": 1.0,
+      "WARN": 1.0,
+      "ERROR": 1.0,
+      "CRITICAL": 1.0
+    }
+  },
+  "metricsStandard": {
+    "types": ["counter", "gauge", "histogram", "distribution"],
+    "globalMetrics": {
+      "request_count": { "type": "counter", "unit": "requests", "tags": ["module", "status", "method"] },
+      "request_latency": { "type": "histogram", "unit": "ms", "tags": ["module", "method"] },
+      "error_count": { "type": "counter", "unit": "errors", "tags": ["module", "severity", "code"] },
+      "module_health": { "type": "gauge", "unit": "percent", "tags": ["module"] },
+      "dependency_latency": { "type": "histogram", "unit": "ms", "tags": ["module", "dependency"] }
+    },
+    "perModuleMetrics": {
+      "required": ["module_requests", "module_latency", "module_errors", "module_health"],
+      "optional": ["database_queries", "cache_hits", "external_calls"]
+    },
+    "aggregationIntervals": [60, 300, 3600],
+    "retention": {
+      "raw": "24 hours",
+      "1minute": "7 days",
+      "5minute": "30 days",
+      "1hour": "1 year"
+    }
+  },
+  "tracingStandard": {
+    "enabled": true,
+    "samplingRate": 1.0,
+    "captureHeaders": ["x-trace-id", "x-request-id", "authorization"],
+    "stripHeaders": ["authorization", "api-key", "cookie"],
+    "spans": {
+      "required": ["operation_name", "start_time", "end_time", "status", "moduleId"],
+      "optional": ["parentSpanId", "tags", "logs", "attributes"]
+    },
+    "tagsRequired": {
+      "all_spans": ["module", "operation", "status"],
+      "http_spans": ["method", "path", "status_code"],
+      "db_spans": ["query_type", "table", "duration"],
+      "external_spans": ["service", "endpoint", "status"]
+    }
+  },
+  "auditEvents": {
+    "mandatory": true,
+    "captureFor": ["user_action", "permission_change", "data_access", "system_event"],
+    "fields": ["eventId", "eventType", "userId", "action", "resource", "timestamp", "traceId", "result"],
+    "retention": "indefinite",
+    "immutable": true
+  },
+  "healthChecks": {
+    "required": true,
+    "endpoint": "GET /:module/health",
+    "response": {
+      "status": "healthy|unhealthy",
+      "moduleId": "string",
+      "timestamp": "ISO 8601",
+      "uptime": "seconds",
+      "dependencies": { "key": "status" }
+    },
+    "interval": "30 seconds",
+    "timeout": "5 seconds"
+  },
+  "perModuleObservability": {
+    "manifest": {
+      "observability": {
+        "logLevel": "INFO",
+        "metricsEnabled": true,
+        "tracingEnabled": true,
+        "auditEnabled": true,
+        "customMetrics": []
+      }
+    },
+    "observability/index.js": {
+      "telemetryConfig": {
+        "logLevel": "INFO",
+        "captureMetrics": true,
+        "captureTraces": true,
+        "sampleRate": 1.0
+      },
+      "metrics": {
+        "module_specific_metrics": "object"
+      }
+    }
+  },
+  "errorObservability": {
+    "required": true,
+    "captureFor": "all_errors",
+    "fields": ["errorCode", "errorMessage", "severity", "moduleId", "traceId", "requestId", "timestamp", "userId", "stack"],
+    "aggregation": "by_error_code_and_module",
+    "alerting": {
+      "ERROR": "alert if count > 10 per minute",
+      "CRITICAL": "alert if count > 1 per minute"
+    }
+  },
+  "performanceObservability": {
+    "latencyBuckets": [50, 100, 250, 500, 1000, 2500, 5000],
+    "errorRateBuckets": [0.01, 0.05, 0.10, 0.25],
+    "trackingGranularity": {
+      "endpoint": true,
+      "operation": true,
+      "database_query": true,
+      "external_call": true
+    }
+  },
+  "dashboardRequirements": {
+    "moduleHealth": ["module status", "latency", "error rate", "request count"],
+    "systemHealth": ["all modules health", "dependency health", "error rate"],
+    "performance": ["p50, p95, p99 latencies", "throughput", "error distribution"],
+    "audit": ["user actions", "permission changes", "data access patterns"]
+  },
+  "alertingPolicies": {
+    "highErrorRate": {
+      "condition": "error_rate > 5%",
+      "severity": "HIGH",
+      "action": "alert"
+    },
+    "criticalError": {
+      "condition": "error_severity = CRITICAL",
+      "severity": "CRITICAL",
+      "action": "escalate"
+    },
+    "latencyDegradation": {
+      "condition": "p95_latency > 2000ms",
+      "severity": "MEDIUM",
+      "action": "alert"
+    },
+    "serviceDown": {
+      "condition": "health_status = unhealthy",
+      "severity": "CRITICAL",
+      "action": "escalate"
+    }
+  },
+  "storageRetention": {
+    "logs": "30 days",
+    "metrics": "1 year",
+    "traces": "7 days",
+    "audit_events": "2 years",
+    "errors": "90 days"
+  }
+}

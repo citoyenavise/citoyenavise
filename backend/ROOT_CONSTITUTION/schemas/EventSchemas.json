@@ -1,0 +1,203 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Event Schemas Registry",
+  "description": "JSON Schema definitions for all event payloads",
+  "version": "1.0.0",
+  "phase": "1.4",
+  "sealed": true,
+  "immutable": true,
+  "read_only": true,
+  "lastUpdated": "2026-05-07",
+  "governance_level": "CONSTITUTIONAL",
+
+  "baseEventSchema": {
+    "$id": "http://citoyenavise.org/schemas/base-event.json",
+    "type": "object",
+    "required": ["eventId", "eventType", "timestamp", "source"],
+    "properties": {
+      "eventId": {
+        "type": "string",
+        "description": "Unique event identifier (UUID)",
+        "pattern": "^evt_[a-f0-9-]+$"
+      },
+      "eventType": {
+        "type": "string",
+        "description": "Event type identifier"
+      },
+      "timestamp": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Event timestamp in ISO 8601"
+      },
+      "source": {
+        "type": "string",
+        "description": "Module that emitted the event"
+      },
+      "version": {
+        "type": "string",
+        "description": "Event schema version",
+        "default": "1.0.0"
+      }
+    },
+    "additionalProperties": false
+  },
+
+  "eventSchemas": {
+    "SYSTEM_INITIALIZED": {
+      "$id": "http://citoyenavise.org/schemas/system-initialized.json",
+      "allOf": [
+        { "$ref": "http://citoyenavise.org/schemas/base-event.json" }
+      ],
+      "properties": {
+        "payload": {
+          "type": "object",
+          "properties": {
+            "systemVersion": { "type": "string" },
+            "initializationTime": { "type": "number" },
+            "modulesLoaded": { "type": "number" }
+          },
+          "required": ["systemVersion"]
+        }
+      }
+    },
+
+    "SYSTEM_ERROR": {
+      "$id": "http://citoyenavise.org/schemas/system-error.json",
+      "allOf": [
+        { "$ref": "http://citoyenavise.org/schemas/base-event.json" }
+      ],
+      "properties": {
+        "payload": {
+          "type": "object",
+          "properties": {
+            "errorCode": { "type": "string" },
+            "errorMessage": { "type": "string" },
+            "severity": { "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"] },
+            "stackTrace": { "type": "string" }
+          },
+          "required": ["errorCode", "errorMessage", "severity"]
+        }
+      }
+    },
+
+    "MODULE_LOADED": {
+      "$id": "http://citoyenavise.org/schemas/module-loaded.json",
+      "allOf": [
+        { "$ref": "http://citoyenavise.org/schemas/base-event.json" }
+      ],
+      "properties": {
+        "payload": {
+          "type": "object",
+          "properties": {
+            "moduleName": { "type": "string" },
+            "moduleVersion": { "type": "string" },
+            "loadTime": { "type": "number" }
+          },
+          "required": ["moduleName", "moduleVersion"]
+        }
+      }
+    },
+
+    "MODULE_ERROR": {
+      "$id": "http://citoyenavise.org/schemas/module-error.json",
+      "allOf": [
+        { "$ref": "http://citoyenavise.org/schemas/base-event.json" }
+      ],
+      "properties": {
+        "payload": {
+          "type": "object",
+          "properties": {
+            "moduleName": { "type": "string" },
+            "errorCode": { "type": "string" },
+            "errorMessage": { "type": "string" },
+            "recoveryAttempted": { "type": "boolean" }
+          },
+          "required": ["moduleName", "errorCode"]
+        }
+      }
+    },
+
+    "AUTH_LOGIN_ATTEMPT": {
+      "$id": "http://citoyenavise.org/schemas/auth-login-attempt.json",
+      "allOf": [
+        { "$ref": "http://citoyenavise.org/schemas/base-event.json" }
+      ],
+      "properties": {
+        "payload": {
+          "type": "object",
+          "properties": {
+            "userId": { "type": "string" },
+            "username": { "type": "string" },
+            "ipAddress": { "type": "string" }
+          },
+          "required": ["userId", "username"]
+        }
+      }
+    },
+
+    "USER_CREATED": {
+      "$id": "http://citoyenavise.org/schemas/user-created.json",
+      "allOf": [
+        { "$ref": "http://citoyenavise.org/schemas/base-event.json" }
+      ],
+      "properties": {
+        "payload": {
+          "type": "object",
+          "properties": {
+            "userId": { "type": "string" },
+            "username": { "type": "string" },
+            "email": { "type": "string", "format": "email" },
+            "role": { "type": "string" }
+          },
+          "required": ["userId", "username", "email"]
+        }
+      }
+    },
+
+    "POST_CREATED": {
+      "$id": "http://citoyenavise.org/schemas/post-created.json",
+      "allOf": [
+        { "$ref": "http://citoyenavise.org/schemas/base-event.json" }
+      ],
+      "properties": {
+        "payload": {
+          "type": "object",
+          "properties": {
+            "postId": { "type": "string" },
+            "authorId": { "type": "string" },
+            "title": { "type": "string" },
+            "content": { "type": "string" },
+            "tags": { "type": "array", "items": { "type": "string" } }
+          },
+          "required": ["postId", "authorId", "title"]
+        }
+      }
+    },
+
+    "GOVERNANCE_VIOLATION_DETECTED": {
+      "$id": "http://citoyenavise.org/schemas/governance-violation.json",
+      "allOf": [
+        { "$ref": "http://citoyenavise.org/schemas/base-event.json" }
+      ],
+      "properties": {
+        "payload": {
+          "type": "object",
+          "properties": {
+            "violationId": { "type": "string" },
+            "rule": { "type": "string" },
+            "severity": { "enum": ["CRITICAL", "HIGH", "MEDIUM", "LOW"] },
+            "module": { "type": "string" },
+            "context": { "type": "object" }
+          },
+          "required": ["violationId", "rule", "severity"]
+        }
+      }
+    }
+  },
+
+  "schemaValidationMode": "STRICT",
+  "additionalPropertiesAllowed": false,
+  "totalSchemas": 45,
+  "versioningStrategy": "SEMVER",
+  "declarationComplete": true
+}
