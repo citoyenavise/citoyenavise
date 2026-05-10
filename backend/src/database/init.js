@@ -24,7 +24,9 @@ async function initDatabase() {
     logger.info('✅ Database initialized successfully');
     process.exit(0);
   } catch (err) {
-    logger.error('Database initialization failed', { meta: { error: err.message, stack: err.stack } });
+    logger.error('Database initialization failed', {
+      meta: { error: err.message, stack: err.stack },
+    });
     process.exit(1);
   } finally {
     client.release();

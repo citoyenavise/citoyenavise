@@ -1,41 +1,41 @@
-import { useState, useEffect } from 'react'
-import { useParams, useNavigate, Link } from 'react-router-dom'
-import { api } from '../api/client'
-import { Card } from '../components/ui/Card'
-import { Button } from '../components/ui/Button'
-import { Loader } from '../components/ui/Loader'
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
+import { api } from '../api/client';
+import { Card } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { Loader } from '../components/ui/Loader';
 
 export function EluDetailPage() {
-  const { id } = useParams()
-  const navigate = useNavigate()
-  const [elu, setElu] = useState(null)
-  const [petitions, setPetitions] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [elu, setElu] = useState(null);
+  const [petitions, setPetitions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const loadData = async () => {
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
       try {
         const [eluResponse, petitionsResponse] = await Promise.all([
           api.elus.get(id),
           api.elus.getPetitions(id),
-        ])
-        setElu(eluResponse.data)
-        setPetitions(petitionsResponse.data || [])
+        ]);
+        setElu(eluResponse.data);
+        setPetitions(petitionsResponse.data || []);
       } catch (err) {
-        setError(err.message || 'Erreur lors du chargement')
-        console.error('Erreur:', err)
+        setError(err.message || 'Erreur lors du chargement');
+        console.error('Erreur:', err);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    loadData()
-  }, [id])
+    loadData();
+  }, [id]);
 
-  if (loading) return <Loader />
+  if (loading) return <Loader />;
 
   if (error) {
     return (
@@ -50,7 +50,7 @@ export function EluDetailPage() {
           </div>
         </Card>
       </div>
-    )
+    );
   }
 
   if (!elu) {
@@ -63,20 +63,20 @@ export function EluDetailPage() {
           </Button>
         </Card>
       </div>
-    )
+    );
   }
 
   const niveauLabels = {
     fédéral: '🇨🇦 Fédéral',
     provincial: '🏛️ Provincial',
     municipal: '🏙️ Municipal',
-  }
+  };
 
   const niveauColors = {
     fédéral: 'bg-blue-100 text-blue-900',
     provincial: 'bg-green-100 text-green-900',
     municipal: 'bg-purple-100 text-purple-900',
-  }
+  };
 
   return (
     <div className="max-w-2xl mx-auto py-8 px-4">
@@ -154,7 +154,7 @@ export function EluDetailPage() {
           </Card>
         ) : (
           <div className="space-y-4">
-            {petitions.map(petition => (
+            {petitions.map((petition) => (
               <Card key={petition.id} className="hover:shadow-md transition">
                 <Link to={`/petitions/${petition.id}`}>
                   <h3 className="font-semibold text-lg text-gray-900 hover:text-blue-600">
@@ -174,5 +174,5 @@ export function EluDetailPage() {
         )}
       </div>
     </div>
-  )
+  );
 }

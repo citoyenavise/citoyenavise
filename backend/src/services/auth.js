@@ -123,10 +123,7 @@ export function verifyMagicLink(token, tokenRecord) {
  * @returns {string} Hash SHA256 de l'email
  */
 export function hashEmail(email) {
-  return crypto
-    .createHash('sha256')
-    .update(email.toLowerCase())
-    .digest('hex');
+  return crypto.createHash('sha256').update(email.toLowerCase()).digest('hex');
 }
 
 /**

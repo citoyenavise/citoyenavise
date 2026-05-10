@@ -136,7 +136,7 @@ describe('POST /api/v1/petitions/:id/sign — Sign Petition', () => {
     });
   });
 
-  describe('❌ Erreur : Pétition n\'existe pas (404)', () => {
+  describe("❌ Erreur : Pétition n'existe pas (404)", () => {
     it('petition_id inexistant : 404 Not Found', async () => {
       const response = await request(app)
         .post('/api/v1/petitions/99999/sign')
@@ -164,7 +164,7 @@ describe('POST /api/v1/petitions/:id/sign — Sign Petition', () => {
 
       expect(response.status).toBe(400);
       expect(response.body.signed).toBe(false);
-      expect(response.body.message).toContain('n\'est pas publiée');
+      expect(response.body.message).toContain("n'est pas publiée");
 
       await draftPetition.destroy();
     });
@@ -191,8 +191,9 @@ describe('POST /api/v1/petitions/:id/sign — Sign Petition', () => {
 
   describe('❌ Erreur : Authentification (401)', () => {
     it('Sans JWT : 401 Unauthorized', async () => {
-      const response = await request(app)
-        .post(`/api/v1/petitions/${testPetition.id}/sign`);
+      const response = await request(app).post(
+        `/api/v1/petitions/${testPetition.id}/sign`
+      );
 
       expect(response.status).toBe(401);
     });

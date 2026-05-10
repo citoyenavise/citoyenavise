@@ -109,7 +109,7 @@ export class Circonscription {
       niveau,
       elusIds = [],
       population,
-      geom
+      geom,
     } = data;
 
     const result = await pool.query(
@@ -126,7 +126,11 @@ export class Circonscription {
    */
   static async update(circonscriptionId, data) {
     const allowedFields = [
-      'code_postal', 'région', 'nom', 'niveau', 'population'
+      'code_postal',
+      'région',
+      'nom',
+      'niveau',
+      'population',
     ];
 
     const updates = [];
@@ -162,7 +166,8 @@ export class Circonscription {
     // Vérifier que l'élu ne soit pas déjà dans la liste
     const circ = await this.findById(circonscriptionId);
     if (!circ) throw new Error('Circonscription not found');
-    if (circ.elus_ids.includes(eluId)) throw new Error('Élu already in circonscription');
+    if (circ.elus_ids.includes(eluId))
+      throw new Error('Élu already in circonscription');
 
     // Ajouter l'élu à l'array
     const oldElus = circ.elus_ids;
@@ -196,7 +201,7 @@ export class Circonscription {
     if (!circ) throw new Error('Circonscription not found');
 
     const oldElus = circ.elus_ids;
-    const newElus = circ.elus_ids.filter(id => id !== eluId);
+    const newElus = circ.elus_ids.filter((id) => id !== eluId);
 
     const result = await pool.query(
       `UPDATE circonscriptions
@@ -255,7 +260,7 @@ export class Circonscription {
       'DELETE FROM circonscriptions WHERE id = $1 RETURNING id',
       [circonscriptionId]
     );
-    return result.rows[0] ? true : false;
+    return !!result.rows[0];
   }
 
   /**
@@ -355,7 +360,8 @@ export class CodePostalCirconscription {
    * Trouver circonscription par code postal
    */
   static async findByCodePostal(codePostal, niveau = null) {
-    let query = 'SELECT * FROM code_postal_to_circonscription WHERE code_postal = $1';
+    let query =
+      'SELECT * FROM code_postal_to_circonscription WHERE code_postal = $1';
     const values = [codePostal];
 
     if (niveau) {

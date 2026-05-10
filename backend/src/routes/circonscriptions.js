@@ -4,7 +4,10 @@
  */
 
 import express from 'express';
-import { Circonscription, CodePostalCirconscription } from '../models/Circonscription.js';
+import {
+  Circonscription,
+  CodePostalCirconscription,
+} from '../models/Circonscription.js';
 
 const router = express.Router();
 
@@ -20,14 +23,14 @@ router.get('/', async (req, res, next) => {
       search,
       codePostal,
       limit = 50,
-      offset = 0
+      offset = 0,
     } = req.query;
 
     const filters = {
       niveau,
       région,
       searchTerm: search,
-      codePostal
+      codePostal,
     };
 
     const circonscriptions = await Circonscription.list(
@@ -39,7 +42,7 @@ router.get('/', async (req, res, next) => {
     res.json({
       success: true,
       count: circonscriptions.length,
-      data: circonscriptions
+      data: circonscriptions,
     });
   } catch (err) {
     next(err);
@@ -59,13 +62,13 @@ router.get('/:id', async (req, res, next) => {
     if (!circonscription) {
       return res.status(404).json({
         success: false,
-        error: 'Circonscription non trouvée'
+        error: 'Circonscription non trouvée',
       });
     }
 
     res.json({
       success: true,
-      data: circonscription
+      data: circonscription,
     });
   } catch (err) {
     next(err);
@@ -90,7 +93,7 @@ router.get('/by-code-postal/:codePostal', async (req, res, next) => {
       success: true,
       codePostal,
       count: circonscriptions.length,
-      data: circonscriptions
+      data: circonscriptions,
     });
   } catch (err) {
     next(err);
@@ -106,16 +109,13 @@ router.get('/by-région/:région', async (req, res, next) => {
     const { région } = req.params;
     const { niveau, limit = 50, offset = 0 } = req.query;
 
-    const circonscriptions = await Circonscription.findByRégion(
-      région,
-      niveau
-    );
+    const circonscriptions = await Circonscription.findByRégion(région, niveau);
 
     res.json({
       success: true,
       région,
       count: circonscriptions.length,
-      data: circonscriptions
+      data: circonscriptions,
     });
   } catch (err) {
     next(err);
@@ -135,7 +135,7 @@ router.get('/niveau/:niveau', async (req, res, next) => {
     if (!validNiveaux.includes(niveau)) {
       return res.status(400).json({
         success: false,
-        error: `Niveau invalide. Doit être: ${validNiveaux.join(', ')}`
+        error: `Niveau invalide. Doit être: ${validNiveaux.join(', ')}`,
       });
     }
 
@@ -149,7 +149,7 @@ router.get('/niveau/:niveau', async (req, res, next) => {
       success: true,
       niveau,
       count: circonscriptions.length,
-      data: circonscriptions
+      data: circonscriptions,
     });
   } catch (err) {
     next(err);
@@ -167,7 +167,7 @@ router.get('/search', async (req, res, next) => {
     if (!q || q.length < 2) {
       return res.status(400).json({
         success: false,
-        error: 'Terme de recherche doit avoir minimum 2 caractères'
+        error: 'Terme de recherche doit avoir minimum 2 caractères',
       });
     }
 
@@ -181,7 +181,7 @@ router.get('/search', async (req, res, next) => {
       success: true,
       searchTerm: q,
       count: circonscriptions.length,
-      data: circonscriptions
+      data: circonscriptions,
     });
   } catch (err) {
     next(err);
@@ -198,7 +198,7 @@ router.get('/stats', async (req, res, next) => {
 
     res.json({
       success: true,
-      data: stats
+      data: stats,
     });
   } catch (err) {
     next(err);

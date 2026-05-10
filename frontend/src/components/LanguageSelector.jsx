@@ -14,14 +14,12 @@ const LanguageSelector = () => {
       <button
         className={i18n.language === 'fr' ? 'active' : ''}
         onClick={() => handleLanguageChange('fr')}
-        aria-label="Français"
       >
         FR
       </button>
       <button
         className={i18n.language === 'en' ? 'active' : ''}
         onClick={() => handleLanguageChange('en')}
-        aria-label="English"
       >
         EN
       </button>

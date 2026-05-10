@@ -121,12 +121,15 @@ describe('Health Check Endpoints', () => {
     it('should show heap used less than heap total', async () => {
       const health = await HealthService.getHealth();
 
-      expect(health.memory.heapUsed).toBeLessThanOrEqual(health.memory.heapTotal);
+      expect(health.memory.heapUsed).toBeLessThanOrEqual(
+        health.memory.heapTotal
+      );
     });
 
     it('should warn if heap usage > 80%', async () => {
       const health = await HealthService.getHealth();
-      const heapPercentage = (health.memory.heapUsed / health.memory.heapTotal) * 100;
+      const heapPercentage =
+        (health.memory.heapUsed / health.memory.heapTotal) * 100;
 
       if (heapPercentage > 80) {
         console.warn(`⚠️  High heap usage: ${heapPercentage.toFixed(2)}%`);
@@ -141,7 +144,7 @@ describe('Health Check Endpoints', () => {
       const health1 = await HealthService.getHealth();
 
       // Wait 100ms
-      await new Promise(resolve => setTimeout(resolve, 100));
+      await new Promise((resolve) => setTimeout(resolve, 100));
 
       const health2 = await HealthService.getHealth();
 

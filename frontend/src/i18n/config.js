@@ -10,11 +10,11 @@ i18n
     defaultNS: 'translation',
     ns: ['translation'],
     backend: {
-      loadPath: '/locales/{{lng}}/{{ns}}.json'
+      loadPath: '/locales/{{lng}}/{{ns}}.json',
     },
     interpolation: {
-      escapeValue: false
-    }
+      escapeValue: false,
+    },
   });
 
 export default i18n;

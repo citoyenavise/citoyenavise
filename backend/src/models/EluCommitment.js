@@ -40,7 +40,7 @@ class EluCommitment {
       params.push(`%${filters.search}%`);
     }
 
-    sql += ` ORDER BY ec.created_at DESC`;
+    sql += ' ORDER BY ec.created_at DESC';
 
     if (filters.limit) {
       params.push(filters.limit);
@@ -119,7 +119,7 @@ class EluCommitment {
       params.push(data.deadline);
     }
 
-    updates.push(`updated_at = CURRENT_TIMESTAMP`);
+    updates.push('updated_at = CURRENT_TIMESTAMP');
 
     const sql = `UPDATE elu_commitments SET ${updates.join(', ')} WHERE id = $1 RETURNING *`;
 
@@ -130,14 +130,14 @@ class EluCommitment {
   static async complete(id) {
     return this.update(id, {
       status: 'complétée',
-      completed_at: new Date()
+      completed_at: new Date(),
     });
   }
 
   static async abandon(id) {
     return this.update(id, {
       status: 'abandonnée',
-      completed_at: new Date()
+      completed_at: new Date(),
     });
   }
 

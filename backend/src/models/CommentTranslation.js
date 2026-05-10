@@ -1,7 +1,9 @@
-﻿import { DataTypes } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import sequelize from '../db/sequelize.js';
 
-const CommentTranslation = sequelize.define('CommentTranslation', {
+const CommentTranslation = sequelize.define(
+  'CommentTranslation',
+  {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -25,7 +27,8 @@ const CommentTranslation = sequelize.define('CommentTranslation', {
       type: DataTypes.TEXT,
       allowNull: true,
     },
-  }, {
+  },
+  {
     tableName: 'comment_translations',
     timestamps: true,
     createdAt: 'created_at',
@@ -39,8 +42,8 @@ const CommentTranslation = sequelize.define('CommentTranslation', {
         fields: ['language'],
       },
     ],
-});
+  }
+);
 
 export default CommentTranslation;
 export { CommentTranslation };
-

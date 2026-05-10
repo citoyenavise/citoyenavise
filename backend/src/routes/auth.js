@@ -19,13 +19,12 @@ const config = getConfig();
 
 // Schémas de validation Zod
 const emailSchema = z.object({
-  email: z.string()
-    .email('Email invalide')
-    .toLowerCase(),
+  email: z.string().email('Email invalide').toLowerCase(),
 });
 
 const verifyTokenSchema = z.object({
-  token: z.string()
+  token: z
+    .string()
     .min(1, 'Token requis')
     .regex(/^[a-f0-9]{64}$/, 'Format de token invalide'),
 });

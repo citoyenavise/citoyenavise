@@ -8,7 +8,10 @@ import { z } from 'zod';
 import Elu from '../models/Elu.js';
 import Petition from '../models/Petition.js';
 import Promise from '../models/Promise.js';
-import { calculateDetailedTransparencyScore, getTransparencyRating } from '../services/transparencyScore.js';
+import {
+  calculateDetailedTransparencyScore,
+  getTransparencyRating,
+} from '../services/transparencyScore.js';
 
 const router = express.Router();
 
@@ -23,12 +26,28 @@ const idSchema = z.object({
 router.get('/', async (req, res, next) => {
   try {
     const elus = await Elu.findAll({
-      attributes: ['id', 'nom', 'titre', 'region', 'niveau', 'email', 'photoUrl', 'siteWeb'],
-      include: [{ model: Promise, as: 'Promises', attributes: ['status'], required: false }],
+      attributes: [
+        'id',
+        'nom',
+        'titre',
+        'region',
+        'niveau',
+        'email',
+        'photoUrl',
+        'siteWeb',
+      ],
+      include: [
+        {
+          model: Promise,
+          as: 'Promises',
+          attributes: ['status'],
+          required: false,
+        },
+      ],
       order: [['nom', 'ASC']],
     });
 
-    const elusWithTransparency = elus.map(elu => {
+    const elusWithTransparency = elus.map((elu) => {
       const transparency = calculateDetailedTransparencyScore(elu);
       const rating = getTransparencyRating(transparency.overall);
 
@@ -67,8 +86,25 @@ router.get('/:id', async (req, res, next) => {
 
     const { id } = validation.data;
     const elu = await Elu.findByPk(id, {
-      attributes: ['id', 'nom', 'titre', 'region', 'niveau', 'email', 'photoUrl', 'siteWeb', 'createdAt', 'updatedAt'],
-      include: [{ model: Promise, as: 'Promises', attributes: ['id', 'titre', 'status', 'deadline', 'completedAt'] }],
+      attributes: [
+        'id',
+        'nom',
+        'titre',
+        'region',
+        'niveau',
+        'email',
+        'photoUrl',
+        'siteWeb',
+        'createdAt',
+        'updatedAt',
+      ],
+      include: [
+        {
+          model: Promise,
+          as: 'Promises',
+          attributes: ['id', 'titre', 'status', 'deadline', 'completedAt'],
+        },
+      ],
     });
 
     if (!elu) {
@@ -122,11 +158,21 @@ router.get('/:id/promises', async (req, res, next) => {
 
     const promises = await Promise.findAll({
       where: { elu_id: id },
-      attributes: ['id', 'titre', 'description', 'status', 'deadline', 'completedAt', 'createdAt'],
+      attributes: [
+        'id',
+        'titre',
+        'description',
+        'status',
+        'deadline',
+        'completedAt',
+        'createdAt',
+      ],
       order: [['createdAt', 'DESC']],
     });
 
-    const transparency = calculateDetailedTransparencyScore({ Promises: promises });
+    const transparency = calculateDetailedTransparencyScore({
+      Promises: promises,
+    });
     const rating = getTransparencyRating(transparency.overall);
 
     res.json({
@@ -163,7 +209,13 @@ router.get('/:id/transparency', async (req, res, next) => {
 
     const elu = await Elu.findByPk(id, {
       attributes: ['id', 'nom', 'titre', 'region', 'niveau'],
-      include: [{ model: Promise, as: 'Promises', attributes: ['id', 'titre', 'status', 'deadline', 'completedAt'] }],
+      include: [
+        {
+          model: Promise,
+          as: 'Promises',
+          attributes: ['id', 'titre', 'status', 'deadline', 'completedAt'],
+        },
+      ],
     });
 
     if (!elu) {
@@ -250,7 +302,15 @@ router.get('/:id/petitions', async (req, res, next) => {
 
     const petitions = await Petition.findAll({
       where: { eluId: id },
-      attributes: ['id', 'titre', 'description', 'status', 'signaturesCount', 'deadline', 'createdAt'],
+      attributes: [
+        'id',
+        'titre',
+        'description',
+        'status',
+        'signaturesCount',
+        'deadline',
+        'createdAt',
+      ],
       order: [['createdAt', 'DESC']],
     });
 

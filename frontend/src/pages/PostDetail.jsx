@@ -1,57 +1,57 @@
-import { useState, useEffect } from 'react'
-import { useParams, useNavigate } from 'react-router-dom'
-import { api } from '../api/client'
-import { Card } from '../components/ui/Card'
-import { Avatar } from '../components/ui/Avatar'
-import { Button } from '../components/ui/Button'
-import { Input } from '../components/ui/Input'
-import { Loader } from '../components/ui/Loader'
+import { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import { api } from '../api/client';
+import { Card } from '../components/ui/Card';
+import { Avatar } from '../components/ui/Avatar';
+import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
+import { Loader } from '../components/ui/Loader';
 
 export function PostDetail() {
-  const { postId } = useParams()
-  const navigate = useNavigate()
-  const [post, setPost] = useState(null)
-  const [comments, setComments] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [newComment, setNewComment] = useState('')
-  const [submitting, setSubmitting] = useState(false)
+  const { postId } = useParams();
+  const navigate = useNavigate();
+  const [post, setPost] = useState(null);
+  const [comments, setComments] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [newComment, setNewComment] = useState('');
+  const [submitting, setSubmitting] = useState(false);
 
   useEffect(() => {
     const loadPost = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
-        const data = await api.posts.get(postId)
-        setPost(data)
+        const data = await api.posts.get(postId);
+        setPost(data);
 
-        const commentsData = await api.comments.getByPost(postId)
-        setComments(commentsData.items || [])
+        const commentsData = await api.comments.getByPost(postId);
+        setComments(commentsData.items || []);
       } catch (err) {
-        console.error('Erreur:', err)
+        console.error('Erreur:', err);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    loadPost()
-  }, [postId])
+    loadPost();
+  }, [postId]);
 
   const handleAddComment = async (e) => {
-    e.preventDefault()
-    if (!newComment.trim()) return
+    e.preventDefault();
+    if (!newComment.trim()) return;
 
-    setSubmitting(true)
+    setSubmitting(true);
     try {
-      const comment = await api.comments.create(postId, newComment)
-      setComments([...comments, comment])
-      setNewComment('')
+      const comment = await api.comments.create(postId, newComment);
+      setComments([...comments, comment]);
+      setNewComment('');
     } catch (err) {
-      console.error('Erreur:', err)
+      console.error('Erreur:', err);
     } finally {
-      setSubmitting(false)
+      setSubmitting(false);
     }
-  }
+  };
 
-  if (loading) return <Loader />
+  if (loading) return <Loader />;
 
   if (!post) {
     return (
@@ -60,7 +60,7 @@ export function PostDetail() {
           <p className="text-center py-12 text-gray-500">Post non trouvé</p>
         </Card>
       </div>
-    )
+    );
   }
 
   return (
@@ -115,7 +115,7 @@ export function PostDetail() {
             <p className="text-center py-8 text-gray-500">Aucun commentaire pour le moment</p>
           </Card>
         ) : (
-          comments.map(comment => (
+          comments.map((comment) => (
             <Card key={comment.id}>
               <div className="flex gap-4">
                 <Avatar name={comment.author?.username} size="sm" />
@@ -132,5 +132,5 @@ export function PostDetail() {
         )}
       </div>
     </div>
-  )
+  );
 }

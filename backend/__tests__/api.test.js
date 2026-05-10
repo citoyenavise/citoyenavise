@@ -26,7 +26,7 @@ describe('Citoyen Avisé API Integration Tests', () => {
    */
   beforeAll(async () => {
     // Attendre la connexion Sequelize
-    await new Promise(resolve => {
+    await new Promise((resolve) => {
       const checkConnection = async () => {
         try {
           await sequelize.authenticate();
@@ -63,7 +63,8 @@ describe('Citoyen Avisé API Integration Tests', () => {
       // Créer une actualité publiée de test
       testActualite = await Actualite.create({
         titre: 'Actualité de test publiée',
-        contenu: 'Contenu de l\'actualité de test pour vérifier que seules les publiées sont affichées.',
+        contenu:
+          "Contenu de l'actualité de test pour vérifier que seules les publiées sont affichées.",
         authorId: testUser.id,
         status: 'published',
         publishedAt: new Date(),
@@ -72,7 +73,8 @@ describe('Citoyen Avisé API Integration Tests', () => {
       // Créer une actualité brouillon (ne doit pas apparaître dans la liste)
       await Actualite.create({
         titre: 'Actualité de test brouillon',
-        contenu: 'Cette actualité est en brouillon et ne doit pas être affichée.',
+        contenu:
+          'Cette actualité est en brouillon et ne doit pas être affichée.',
         authorId: testUser.id,
         status: 'draft',
       });
@@ -80,7 +82,8 @@ describe('Citoyen Avisé API Integration Tests', () => {
       // Créer une pétition publiée de test
       testPetition = await Petition.create({
         titre: 'Pétition de test',
-        description: 'Description de la pétition de test pour les signatures idempotentes.',
+        description:
+          'Description de la pétition de test pour les signatures idempotentes.',
         citoyenId: testUser.id,
         eluId: testElu.id,
         status: 'published',
@@ -134,14 +137,12 @@ describe('Citoyen Avisé API Integration Tests', () => {
       expect(Array.isArray(response.body.data)).toBe(true);
 
       // Vérifier qu'au moins notre élu de test est présent
-      const eluIds = response.body.data.map(e => e.id);
+      const eluIds = response.body.data.map((e) => e.id);
       expect(eluIds).toContain(testElu.id);
     });
 
     test('should return elu details with all required fields', async () => {
-      const response = await request(app)
-        .get('/api/v1/elus')
-        .expect(200);
+      const response = await request(app).get('/api/v1/elus').expect(200);
 
       expect(response.body.data.length).toBeGreaterThan(0);
 
@@ -183,23 +184,19 @@ describe('Citoyen Avisé API Integration Tests', () => {
       }
 
       // Vérifier que notre actualité publiée est présente
-      const actualiteIds = response.body.data.map(a => a.id);
+      const actualiteIds = response.body.data.map((a) => a.id);
       expect(actualiteIds).toContain(testActualite.id);
     });
 
     test('should not return draft actualites', async () => {
-      const response = await request(app)
-        .get('/api/v1/actualites')
-        .expect(200);
+      const response = await request(app).get('/api/v1/actualites').expect(200);
 
-      const statuses = response.body.data.map(a => a.status);
+      const statuses = response.body.data.map((a) => a.status);
       expect(statuses).not.toContain('draft');
     });
 
     test('should include author information', async () => {
-      const response = await request(app)
-        .get('/api/v1/actualites')
-        .expect(200);
+      const response = await request(app).get('/api/v1/actualites').expect(200);
 
       if (response.body.data.length > 0) {
         const actualite = response.body.data[0];
@@ -282,7 +279,10 @@ describe('Citoyen Avisé API Integration Tests', () => {
         .expect(409);
 
       expect(response.body).toHaveProperty('success', false);
-      expect(response.body).toHaveProperty('error', 'Vous avez déjà signé cette pétition');
+      expect(response.body).toHaveProperty(
+        'error',
+        'Vous avez déjà signé cette pétition'
+      );
       expect(response.body).toHaveProperty('code', 'DUPLICATE_SIGNATURE');
     });
 
@@ -290,7 +290,7 @@ describe('Citoyen Avisé API Integration Tests', () => {
       // Créer une pétition non publiée
       const draftPetition = await Petition.create({
         titre: 'Pétition brouillon',
-        description: 'Une pétition qui n\'est pas encore publiée',
+        description: "Une pétition qui n'est pas encore publiée",
         citoyenId: testUser.id,
         status: 'draft',
       });
@@ -301,7 +301,7 @@ describe('Citoyen Avisé API Integration Tests', () => {
         .expect(400);
 
       expect(response.body).toHaveProperty('success', false);
-      expect(response.body.error).toContain('n\'est pas publiée');
+      expect(response.body.error).toContain("n'est pas publiée");
 
       // Cleanup
       await Petition.destroy({ where: { id: draftPetition.id } });
@@ -317,7 +317,8 @@ describe('Citoyen Avisé API Integration Tests', () => {
         .post('/api/v1/petitions')
         .send({
           titre: 'Test petition',
-          description: 'Test description for the petition to ensure validation works correctly',
+          description:
+            'Test description for the petition to ensure validation works correctly',
         })
         .expect(401);
 
@@ -341,23 +342,29 @@ describe('Citoyen Avisé API Integration Tests', () => {
         .set('Authorization', 'InvalidFormat')
         .send({
           titre: 'Test petition',
-          description: 'Test description for the petition to ensure validation works correctly',
+          description:
+            'Test description for the petition to ensure validation works correctly',
         })
         .expect(401);
 
       expect(response.body).toHaveProperty('success', false);
-      expect(response.body).toHaveProperty('error', 'Format d\'authentification invalide');
+      expect(response.body).toHaveProperty(
+        'error',
+        "Format d'authentification invalide"
+      );
     });
 
     test('should reject with invalid JWT signature', async () => {
-      const invalidJWT = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjk5OX0.invalid-signature';
+      const invalidJWT =
+        'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjk5OX0.invalid-signature';
 
       const response = await request(app)
         .post('/api/v1/petitions')
         .set('Authorization', `Bearer ${invalidJWT}`)
         .send({
           titre: 'Test petition',
-          description: 'Test description for the petition to ensure validation works correctly',
+          description:
+            'Test description for the petition to ensure validation works correctly',
         })
         .expect(403);
 
@@ -371,7 +378,8 @@ describe('Citoyen Avisé API Integration Tests', () => {
         .set('Authorization', `Bearer ${validJWT}`)
         .send({
           titre: 'Test Petition for Protected Route',
-          description: 'This is a complete description for testing protected routes with valid JWT authentication tokens.',
+          description:
+            'This is a complete description for testing protected routes with valid JWT authentication tokens.',
         })
         .expect(201);
 
@@ -400,9 +408,7 @@ describe('Citoyen Avisé API Integration Tests', () => {
     });
 
     test('GET /api/v1/elus/:id should return 404 for non-existent elu', async () => {
-      const response = await request(app)
-        .get('/api/v1/elus/99999')
-        .expect(404);
+      const response = await request(app).get('/api/v1/elus/99999').expect(404);
 
       expect(response.body).toHaveProperty('success', false);
       expect(response.body).toHaveProperty('error', 'Élu non trouvé');
@@ -419,9 +425,7 @@ describe('Citoyen Avisé API Integration Tests', () => {
     });
 
     test('GET /api/v1/petitions should return published petitions only', async () => {
-      const response = await request(app)
-        .get('/api/v1/petitions')
-        .expect(200);
+      const response = await request(app).get('/api/v1/petitions').expect(200);
 
       expect(Array.isArray(response.body.data)).toBe(true);
       for (const petition of response.body.data) {
@@ -430,9 +434,7 @@ describe('Citoyen Avisé API Integration Tests', () => {
     });
 
     test('GET /health endpoint should be available', async () => {
-      const response = await request(app)
-        .get('/health')
-        .expect(200);
+      const response = await request(app).get('/health').expect(200);
 
       expect(response.body).toHaveProperty('status', 'ok');
       expect(response.body).toHaveProperty('service');

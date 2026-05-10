@@ -111,14 +111,14 @@ function CreatePetitionPage() {
   // ═══════════════════════════════════════════════════════════════
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
 
     // Clear error for this field when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({
+      setErrors((prev) => ({
         ...prev,
         [name]: undefined,
       }));
@@ -161,7 +161,7 @@ function CreatePetitionPage() {
       const response = await fetch('/api/v1/petitions', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(submitData),
@@ -175,7 +175,7 @@ function CreatePetitionPage() {
         const validationErrors = {};
 
         if (data.details && Array.isArray(data.details)) {
-          data.details.forEach(error => {
+          data.details.forEach((error) => {
             const field = error.path?.[0] || 'general';
             validationErrors[field] = error.message;
           });
@@ -328,8 +328,8 @@ function CreatePetitionPage() {
                   <option value="">-- Sélectionner un élu --</option>
                   <optgroup label="Fédéral">
                     {elus
-                      .filter(e => e.niveau === 'fédéral')
-                      .map(e => (
+                      .filter((e) => e.niveau === 'fédéral')
+                      .map((e) => (
                         <option key={e.id} value={e.id}>
                           {e.nom} ({e.titre})
                         </option>
@@ -337,8 +337,8 @@ function CreatePetitionPage() {
                   </optgroup>
                   <optgroup label="Provincial">
                     {elus
-                      .filter(e => e.niveau === 'provincial')
-                      .map(e => (
+                      .filter((e) => e.niveau === 'provincial')
+                      .map((e) => (
                         <option key={e.id} value={e.id}>
                           {e.nom} ({e.titre})
                         </option>
@@ -346,8 +346,8 @@ function CreatePetitionPage() {
                   </optgroup>
                   <optgroup label="Municipal">
                     {elus
-                      .filter(e => e.niveau === 'municipal')
-                      .map(e => (
+                      .filter((e) => e.niveau === 'municipal')
+                      .map((e) => (
                         <option key={e.id} value={e.id}>
                           {e.nom} ({e.titre})
                         </option>

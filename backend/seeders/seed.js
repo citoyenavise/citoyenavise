@@ -14,7 +14,7 @@ import { getConfig } from '../src/config/env.js';
 const config = getConfig();
 
 /**
- * Élus réalistes du Québec/Canada
+ * Élus réalistes du Québec/Canada avec coordonnées géographiques
  */
 const elusData = [
   {
@@ -25,15 +25,19 @@ const elusData = [
     email: 'marthe.belleville@parl.gc.ca',
     photoUrl: 'https://via.placeholder.com/300?text=Marthe+Belleville',
     siteWeb: 'https://marthe-belleville.ca',
+    latitude: 46.8139,
+    longitude: -71.2080,
   },
   {
     nom: 'Jean-Marie Pépin',
     titre: 'Sénateur',
-    region: 'Ontario',
+    region: 'Toronto',
     niveau: 'fédéral',
     email: 'jm.pepin@senate.ca',
     photoUrl: 'https://via.placeholder.com/300?text=Jean-Marie+Pepin',
     siteWeb: 'https://jmpepin.ca',
+    latitude: 43.6629,
+    longitude: -79.3957,
   },
   {
     nom: 'Sophie Goyette',
@@ -43,24 +47,30 @@ const elusData = [
     email: 'sophie.goyette@assnat.qc.ca',
     photoUrl: 'https://via.placeholder.com/300?text=Sophie+Goyette',
     siteWeb: 'https://sophiegoyette.ca',
+    latitude: 45.5017,
+    longitude: -73.5673,
   },
   {
     nom: 'André Lamproze',
     titre: 'Maire',
-    region: 'Laval',
+    region: 'Vancouver',
     niveau: 'municipal',
-    email: 'alamproze@ville.laval.qc.ca',
+    email: 'alamproze@ville.vancouver.bc.ca',
     photoUrl: 'https://via.placeholder.com/300?text=Andre+Lamproze',
-    siteWeb: 'https://ville.laval.qc.ca/maire',
+    siteWeb: 'https://ville.vancouver.bc.ca/maire',
+    latitude: 49.2827,
+    longitude: -123.1207,
   },
   {
     nom: 'Caroline Matte',
     titre: 'Conseillère',
-    region: 'Québec',
+    region: 'Calgary',
     niveau: 'municipal',
-    email: 'cmatte@ville.quebec.qc.ca',
+    email: 'cmatte@ville.calgary.ab.ca',
     photoUrl: 'https://via.placeholder.com/300?text=Caroline+Matte',
-    siteWeb: 'https://ville.quebec.qc.ca/conseillers',
+    siteWeb: 'https://ville.calgary.ab.ca/conseillers',
+    latitude: 51.0447,
+    longitude: -114.0719,
   },
 ];
 

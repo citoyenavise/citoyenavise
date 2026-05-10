@@ -17,19 +17,21 @@ const idSchema = z.object({
 });
 
 const createActualiteSchema = z.object({
-  titre: z.string()
+  titre: z
+    .string()
     .min(3, 'Titre doit avoir minimum 3 caractères')
     .max(255, 'Titre ne doit pas dépasser 255 caractères'),
-  contenu: z.string()
-    .min(10, 'Contenu doit avoir minimum 10 caractères'),
+  contenu: z.string().min(10, 'Contenu doit avoir minimum 10 caractères'),
 });
 
 const updateActualiteSchema = z.object({
-  titre: z.string()
+  titre: z
+    .string()
     .min(3, 'Titre doit avoir minimum 3 caractères')
     .max(255, 'Titre ne doit pas dépasser 255 caractères')
     .optional(),
-  contenu: z.string()
+  contenu: z
+    .string()
     .min(10, 'Contenu doit avoir minimum 10 caractères')
     .optional(),
 });
@@ -42,7 +44,16 @@ router.get('/', async (req, res, next) => {
   try {
     const actualites = await Actualite.findAll({
       where: { status: 'published' },
-      attributes: ['id', 'titre', 'contenu', 'status', 'likesCount', 'commentsCount', 'createdAt', 'publishedAt'],
+      attributes: [
+        'id',
+        'titre',
+        'contenu',
+        'status',
+        'likesCount',
+        'commentsCount',
+        'createdAt',
+        'publishedAt',
+      ],
       include: [
         {
           model: User,
@@ -82,7 +93,17 @@ router.get('/:id', async (req, res, next) => {
     const { id } = validation.data;
 
     const actualite = await Actualite.findByPk(id, {
-      attributes: ['id', 'titre', 'contenu', 'status', 'likesCount', 'commentsCount', 'createdAt', 'publishedAt', 'updatedAt'],
+      attributes: [
+        'id',
+        'titre',
+        'contenu',
+        'status',
+        'likesCount',
+        'commentsCount',
+        'createdAt',
+        'publishedAt',
+        'updatedAt',
+      ],
       include: [
         {
           model: User,
@@ -102,7 +123,7 @@ router.get('/:id', async (req, res, next) => {
     if (actualite.status !== 'published') {
       return res.status(403).json({
         success: false,
-        error: 'Cette actualité n\'est pas publiée',
+        error: "Cette actualité n'est pas publiée",
       });
     }
 
@@ -206,7 +227,7 @@ router.put('/:id', authMiddleware, async (req, res, next) => {
     } catch (err) {
       return res.status(403).json({
         success: false,
-        error: 'Vous n\'êtes pas autorisé à modifier cette actualité',
+        error: "Vous n'êtes pas autorisé à modifier cette actualité",
       });
     }
 

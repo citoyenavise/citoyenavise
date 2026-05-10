@@ -37,13 +37,13 @@ export const authLimiter = rateLimit({
 export const signatureLimiter = rateLimit({
   windowMs: 60 * 1000, // 1 minute
   max: 1, // Limite: 1 signature par minute
-  message: 'Vous avez déjà signé cette pétition. Attendez avant de signer à nouveau.',
+  message:
+    'Vous avez déjà signé cette pétition. Attendez avant de signer à nouveau.',
   statusCode: 429,
-  keyGenerator: (req) => {
+  keyGenerator: (req) =>
     // Utiliser l'ID utilisateur comme clé (si authentifié)
     // Sinon, utiliser l'adresse IP avec support IPv6
-    return req.user?.id || ipKeyGenerator(req);
-  },
+    req.user?.id || ipKeyGenerator(req),
   skip: (req) => !req.user, // Ne pas limiter si non authentifié (l'auth middleware bloquera)
 });
 

@@ -24,7 +24,8 @@ const paginationSchema = z.object({
 });
 
 const createCommentSchema = z.object({
-  contenu: z.string()
+  contenu: z
+    .string()
     .min(5, 'Contenu doit avoir minimum 5 caractères')
     .max(1000, 'Contenu ne doit pas dépasser 1000 caractères'),
 });
@@ -37,7 +38,9 @@ const createCommentSchema = z.object({
 router.get('/petitions/:petitionId/comments', async (req, res, next) => {
   try {
     // Valider petitionId
-    const petitionValidation = idSchema.safeParse({ id: req.params.petitionId });
+    const petitionValidation = idSchema.safeParse({
+      id: req.params.petitionId,
+    });
 
     if (!petitionValidation.success) {
       return res.status(400).json({
@@ -108,71 +111,84 @@ router.get('/petitions/:petitionId/comments', async (req, res, next) => {
  * Créer un commentaire (protégé, JWT required)
  * Body: { contenu }
  */
-router.post('/petitions/:petitionId/comments', authMiddleware, async (req, res, next) => {
-  try {
-    // Valider petitionId
-    const petitionValidation = idSchema.safeParse({ id: req.params.petitionId });
-
-    if (!petitionValidation.success) {
-      return res.status(400).json({
-        success: false,
-        error: 'petition_id invalide',
-        details: petitionValidation.error.errors,
+router.post(
+  '/petitions/:petitionId/comments',
+  authMiddleware,
+  async (req, res, next) => {
+    try {
+      // Valider petitionId
+      const petitionValidation = idSchema.safeParse({
+        id: req.params.petitionId,
       });
-    }
 
-    // Valider contenu
-    const validation = createCommentSchema.safeParse(req.body);
+      if (!petitionValidation.success) {
+        return res.status(400).json({
+          success: false,
+          error: 'petition_id invalide',
+          details: petitionValidation.error.errors,
+        });
+      }
 
-    if (!validation.success) {
-      return res.status(400).json({
-        success: false,
-        error: 'Données invalides',
-        details: validation.error.errors,
+      // Valider contenu
+      const validation = createCommentSchema.safeParse(req.body);
+
+      if (!validation.success) {
+        return res.status(400).json({
+          success: false,
+          error: 'Données invalides',
+          details: validation.error.errors,
+        });
+      }
+
+      const petitionId = petitionValidation.data.id;
+      const { contenu } = validation.data;
+
+      // Vérifier que la pétition existe
+      const petition = await Petition.findByPk(petitionId);
+
+      if (!petition) {
+        return res.status(404).json({
+          success: false,
+          error: 'Pétition non trouvée',
+        });
+      }
+
+      // Créer le commentaire
+      const comment = await Comment.create({
+        petitionId,
+        citoyenId: req.user.userId,
+        contenu,
       });
-    }
 
-    const petitionId = petitionValidation.data.id;
-    const { contenu } = validation.data;
-
-    // Vérifier que la pétition existe
-    const petition = await Petition.findByPk(petitionId);
-
-    if (!petition) {
-      return res.status(404).json({
-        success: false,
-        error: 'Pétition non trouvée',
+      // Récupérer le commentaire avec relations
+      const createdComment = await Comment.findByPk(comment.id, {
+        attributes: [
+          'id',
+          'contenu',
+          'createdAt',
+          'updatedAt',
+          'citoyenId',
+          'petitionId',
+        ],
+        include: [
+          {
+            model: User,
+            as: 'author',
+            attributes: ['id', 'email', 'nomComplet'],
+          },
+        ],
       });
+
+      res.status(201).json({
+        success: true,
+        message: 'Commentaire créé',
+        data: createdComment,
+      });
+    } catch (err) {
+      next(err);
     }
-
-    // Créer le commentaire
-    const comment = await Comment.create({
-      petitionId,
-      citoyenId: req.user.userId,
-      contenu,
-    });
-
-    // Récupérer le commentaire avec relations
-    const createdComment = await Comment.findByPk(comment.id, {
-      attributes: ['id', 'contenu', 'createdAt', 'updatedAt', 'citoyenId', 'petitionId'],
-      include: [
-        {
-          model: User,
-          as: 'author',
-          attributes: ['id', 'email', 'nomComplet'],
-        },
-      ],
-    });
-
-    res.status(201).json({
-      success: true,
-      message: 'Commentaire créé',
-      data: createdComment,
-    });
-  } catch (err) {
-    next(err);
   }
-});
+);
 
 /**
  * DELETE /api/v1/comments/:id

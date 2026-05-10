@@ -20,7 +20,7 @@ describe('Transparency API', () => {
         titre: 'Député',
         niveau: 'provincial',
         region: 'Montréal',
-        email: 'jean@test.com'
+        email: 'jean@test.com',
       }),
       Elu.create({
         prenom: 'Marie',
@@ -28,7 +28,7 @@ describe('Transparency API', () => {
         titre: 'Sénateur',
         niveau: 'federal',
         region: 'Québec',
-        email: 'marie@test.com'
+        email: 'marie@test.com',
       }),
       Elu.create({
         prenom: 'Pierre',
@@ -36,7 +36,7 @@ describe('Transparency API', () => {
         titre: 'Maire',
         niveau: 'municipal',
         region: 'Toronto',
-        email: 'pierre@test.com'
+        email: 'pierre@test.com',
       }),
       Elu.create({
         prenom: 'Sophie',
@@ -44,7 +44,7 @@ describe('Transparency API', () => {
         titre: 'Conseillère',
         niveau: 'municipal',
         region: 'Montréal',
-        email: 'sophie@test.com'
+        email: 'sophie@test.com',
       }),
       Elu.create({
         prenom: 'Marc',
@@ -52,71 +52,85 @@ describe('Transparency API', () => {
         titre: 'Député',
         niveau: 'provincial',
         region: 'Laval',
-        email: 'marc@test.com'
+        email: 'marc@test.com',
       }),
     ]);
 
     // Créer des promesses avec différents statuts pour chaque élu
     // Élu 1: 9 complétées, 1 en cours = score 95
     testPromises = await Promise.all([
-      ...Array(9).fill(null).map(() =>
-        PromiseModel.create({
-          elu_id: testElus[0].id,
-          titre: 'Promesse complétée',
-          status: 'completee'
-        })
-      ),
+      ...Array(9)
+        .fill(null)
+        .map(() =>
+          PromiseModel.create({
+            elu_id: testElus[0].id,
+            titre: 'Promesse complétée',
+            status: 'completee',
+          })
+        ),
       PromiseModel.create({
         elu_id: testElus[0].id,
         titre: 'Promesse en cours',
-        status: 'en_cours'
+        status: 'en_cours',
       }),
       // Élu 2: 3 complétées, 2 abandonnées = score 60
-      ...Array(3).fill(null).map(() =>
-        PromiseModel.create({
-          elu_id: testElus[1].id,
-          titre: 'Promesse complétée',
-          status: 'completee'
-        })
-      ),
-      ...Array(2).fill(null).map(() =>
-        PromiseModel.create({
-          elu_id: testElus[1].id,
-          titre: 'Promesse abandonnée',
-          status: 'abandonnee'
-        })
-      ),
+      ...Array(3)
+        .fill(null)
+        .map(() =>
+          PromiseModel.create({
+            elu_id: testElus[1].id,
+            titre: 'Promesse complétée',
+            status: 'completee',
+          })
+        ),
+      ...Array(2)
+        .fill(null)
+        .map(() =>
+          PromiseModel.create({
+            elu_id: testElus[1].id,
+            titre: 'Promesse abandonnée',
+            status: 'abandonnee',
+          })
+        ),
       // Élu 3: 2 complétées, 8 en cours = score 50
-      ...Array(2).fill(null).map(() =>
-        PromiseModel.create({
-          elu_id: testElus[2].id,
-          titre: 'Promesse complétée',
-          status: 'completee'
-        })
-      ),
-      ...Array(8).fill(null).map(() =>
-        PromiseModel.create({
-          elu_id: testElus[2].id,
-          titre: 'Promesse en cours',
-          status: 'en_cours'
-        })
-      ),
+      ...Array(2)
+        .fill(null)
+        .map(() =>
+          PromiseModel.create({
+            elu_id: testElus[2].id,
+            titre: 'Promesse complétée',
+            status: 'completee',
+          })
+        ),
+      ...Array(8)
+        .fill(null)
+        .map(() =>
+          PromiseModel.create({
+            elu_id: testElus[2].id,
+            titre: 'Promesse en cours',
+            status: 'en_cours',
+          })
+        ),
       // Élu 4: 0 promesses = score 0
       // Élu 5: 5 complétées, 5 en cours = score 60
-      ...Array(5).fill(null).map(() =>
-        PromiseModel.create({
-          elu_id: testElus[4].id,
-          titre: 'Promesse complétée',
-          status: 'completee'
-        })
-      ),
-      ...Array(5).fill(null).map(() =>
-        PromiseModel.create({
-          elu_id: testElus[4].id,
-          titre: 'Promesse en cours',
-          status: 'en_cours'
-        })
-      ),
+      ...Array(5)
+        .fill(null)
+        .map(() =>
+          PromiseModel.create({
+            elu_id: testElus[4].id,
+            titre: 'Promesse complétée',
+            status: 'completee',
+          })
+        ),
+      ...Array(5)
+        .fill(null)
+        .map(() =>
+          PromiseModel.create({
+            elu_id: testElus[4].id,
+            titre: 'Promesse en cours',
+            status: 'en_cours',
+          })
+        ),
     ]);
   });
 
@@ -127,8 +141,7 @@ describe('Transparency API', () => {
 
   describe('GET /api/v1/transparency/ranking', () => {
     it('should return all elus ranked by score', async () => {
-      const res = await request(app)
-        .get('/api/v1/transparency/ranking');
+      const res = await request(app).get('/api/v1/transparency/ranking');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -139,7 +152,9 @@ describe('Transparency API', () => {
 
       // Vérifier que c'est trié par score décroissant
       for (let i = 1; i < res.body.data.length; i++) {
-        expect(res.body.data[i - 1].score).toBeGreaterThanOrEqual(res.body.data[i].score);
+        expect(res.body.data[i - 1].score).toBeGreaterThanOrEqual(
+          res.body.data[i].score
+        );
       }
     });
 
@@ -150,7 +165,7 @@ describe('Transparency API', () => {
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
-      expect(res.body.data.every(e => e.niveau === 'provincial')).toBe(true);
+      expect(res.body.data.every((e) => e.niveau === 'provincial')).toBe(true);
     });
 
     it('should filter by level (municipal)', async () => {
@@ -159,7 +174,7 @@ describe('Transparency API', () => {
         .query({ level: 'municipal' });
 
       expect(res.status).toBe(200);
-      expect(res.body.data.every(e => e.niveau === 'municipal')).toBe(true);
+      expect(res.body.data.every((e) => e.niveau === 'municipal')).toBe(true);
     });
 
     it('should filter by level (federal)', async () => {
@@ -168,7 +183,7 @@ describe('Transparency API', () => {
         .query({ level: 'federal' });
 
       expect(res.status).toBe(200);
-      expect(res.body.data.every(e => e.niveau === 'federal')).toBe(true);
+      expect(res.body.data.every((e) => e.niveau === 'federal')).toBe(true);
     });
 
     it('should paginate correctly with page and limit', async () => {
@@ -204,20 +219,23 @@ describe('Transparency API', () => {
 
       // Vérifier que c'est trié alphabétiquement
       for (let i = 1; i < res.body.data.length; i++) {
-        expect(res.body.data[i - 1].nom.localeCompare(res.body.data[i].nom, 'fr')).toBeLessThanOrEqual(0);
+        expect(
+          res.body.data[i - 1].nom.localeCompare(res.body.data[i].nom, 'fr')
+        ).toBeLessThanOrEqual(0);
       }
     });
 
     it('should sort by score by default', async () => {
-      const res = await request(app)
-        .get('/api/v1/transparency/ranking');
+      const res = await request(app).get('/api/v1/transparency/ranking');
 
       expect(res.status).toBe(200);
       expect(res.body.filter.sort).toBe('score');
 
       // Vérifier que c'est trié par score décroissant
       for (let i = 1; i < res.body.data.length; i++) {
-        expect(res.body.data[i - 1].score).toBeGreaterThanOrEqual(res.body.data[i].score);
+        expect(res.body.data[i - 1].score).toBeGreaterThanOrEqual(
+          res.body.data[i].score
+        );
       }
     });
 
@@ -261,8 +279,7 @@ describe('Transparency API', () => {
 
   describe('GET /api/v1/transparency/top', () => {
     it('should return top 5 elus by default', async () => {
-      const res = await request(app)
-        .get('/api/v1/transparency/top');
+      const res = await request(app).get('/api/v1/transparency/top');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -291,15 +308,16 @@ describe('Transparency API', () => {
 
       // Vérifier que c'est trié par score
       for (let i = 1; i < res.body.data.length; i++) {
-        expect(res.body.data[i - 1].score).toBeGreaterThanOrEqual(res.body.data[i].score);
+        expect(res.body.data[i - 1].score).toBeGreaterThanOrEqual(
+          res.body.data[i].score
+        );
       }
     });
   });
 
   describe('GET /api/v1/transparency/stats', () => {
     it('should return transparency statistics', async () => {
-      const res = await request(app)
-        .get('/api/v1/transparency/stats');
+      const res = await request(app).get('/api/v1/transparency/stats');
 
       expect(res.status).toBe(200);
       expect(res.body.success).toBe(true);
@@ -312,8 +330,7 @@ describe('Transparency API', () => {
     });
 
     it('should calculate distribution correctly', async () => {
-      const res = await request(app)
-        .get('/api/v1/transparency/stats');
+      const res = await request(app).get('/api/v1/transparency/stats');
 
       expect(res.status).toBe(200);
       const dist = res.body.data.distribution;

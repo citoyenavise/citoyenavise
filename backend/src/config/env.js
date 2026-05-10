@@ -15,11 +15,7 @@ dotenv.config();
  * Variables d'environnement REQUISES (doivent être définies)
  * Le démarrage échouera si une variable requise manque
  */
-const requiredEnvVars = [
-  'DATABASE_URL',
-  'JWT_SECRET',
-  'NODE_ENV',
-];
+const requiredEnvVars = ['DATABASE_URL', 'JWT_SECRET', 'NODE_ENV'];
 
 /**
  * Configuration centralisée de l'application
@@ -37,12 +33,15 @@ const envConfig = {
 
   // 🔐 Authentification & JWT
   JWT_SECRET: process.env.JWT_SECRET,
-  JWT_REFRESH_SECRET: process.env.JWT_REFRESH_SECRET || 'dev_refresh_secret_key_min_32_chars_change_in_prod',
+  JWT_REFRESH_SECRET:
+    process.env.JWT_REFRESH_SECRET ||
+    'dev_refresh_secret_key_min_32_chars_change_in_prod',
   JWT_EXPIRY_ACCESS: process.env.JWT_EXPIRY_ACCESS || '7d',
   JWT_EXPIRY_REFRESH: process.env.JWT_EXPIRY_REFRESH || '30d',
 
   // 🌐 CORS - Origines autorisées (sécurisé par défaut)
-  CORS_ORIGIN: process.env.CORS_ORIGIN || 'http://localhost:3001,http://localhost:3000',
+  CORS_ORIGIN:
+    process.env.CORS_ORIGIN || 'http://localhost:3001,http://localhost:3000',
 
   // 🔗 URLs
   API_URL: process.env.API_URL || 'http://localhost:5000',
@@ -78,9 +77,7 @@ const envConfig = {
  * @throws {Error} Si une variable requise est manquante
  */
 function validateEnv() {
-  const missing = requiredEnvVars.filter(
-    (varName) => !process.env[varName]
-  );
+  const missing = requiredEnvVars.filter((varName) => !process.env[varName]);
 
   if (missing.length > 0) {
     const missingList = missing.join(', ');

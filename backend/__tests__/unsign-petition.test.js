@@ -97,7 +97,7 @@ describe('DELETE /api/v1/petitions/:id/sign — Unsign Petition', () => {
     });
   });
 
-  describe('❌ Erreur : Signature n\'existe pas (404)', () => {
+  describe("❌ Erreur : Signature n'existe pas (404)", () => {
     it('Retirer signature inexistante : 404 Not Found', async () => {
       // L'utilisateur a déjà retiré sa signature dans le test précédent
       const response = await request(app)
@@ -106,7 +106,9 @@ describe('DELETE /api/v1/petitions/:id/sign — Unsign Petition', () => {
 
       expect(response.status).toBe(404);
       expect(response.body.unsigned).toBe(false);
-      expect(response.body.message).toBe('Vous n\'aviez pas signé cette pétition');
+      expect(response.body.message).toBe(
+        "Vous n'aviez pas signé cette pétition"
+      );
     });
 
     it('signatures_count inchangé', async () => {
@@ -159,8 +161,9 @@ describe('DELETE /api/v1/petitions/:id/sign — Unsign Petition', () => {
 
   describe('❌ Erreur : Authentification (401)', () => {
     it('Sans JWT : 401 Unauthorized', async () => {
-      const response = await request(app)
-        .delete(`/api/v1/petitions/${testPetition.id}/sign`);
+      const response = await request(app).delete(
+        `/api/v1/petitions/${testPetition.id}/sign`
+      );
 
       expect(response.status).toBe(401);
     });

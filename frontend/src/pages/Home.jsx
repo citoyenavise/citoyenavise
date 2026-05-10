@@ -1,5 +1,5 @@
 import { useTranslation } from 'react-i18next';
-import './Home.css'
+import './Home.css';
 
 export function Home() {
   const { t } = useTranslation();
@@ -188,5 +188,5 @@ export function Home() {
         </section>
       </div>
     </div>
-  )
+  );
 }

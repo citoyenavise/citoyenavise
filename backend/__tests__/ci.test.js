@@ -80,7 +80,9 @@ describe('CI/CD Pipeline', () => {
         Object.values(coverage).forEach((file) => {
           if (file.s) {
             totalStatements += Object.keys(file.s).length;
-            coveredStatements += Object.values(file.s).filter((v) => v > 0).length;
+            coveredStatements += Object.values(file.s).filter(
+              (v) => v > 0
+            ).length;
           }
         });
 
@@ -102,7 +104,9 @@ describe('CI/CD Pipeline', () => {
 
       reports.forEach((report) => {
         if (fs.existsSync(coverageDir)) {
-          expect(fs.existsSync(report) || fs.existsSync(coverageDir)).toBe(true);
+          expect(fs.existsSync(report) || fs.existsSync(coverageDir)).toBe(
+            true
+          );
         }
       });
     });
@@ -133,7 +137,9 @@ describe('CI/CD Pipeline', () => {
           expect(false).toBe(true);
         } else {
           // Low/Moderate vulnerabilities acceptées
-          console.warn('⚠️  Low/Moderate vulnerabilities detected but acceptable');
+          console.warn(
+            '⚠️  Low/Moderate vulnerabilities detected but acceptable'
+          );
           expect(true).toBe(true);
         }
       }
@@ -184,8 +190,15 @@ describe('CI/CD Pipeline', () => {
    */
   describe('CI Workflow Configuration', () => {
     it('should have GitHub Actions workflow configured', () => {
-      const workflowPath = path.join(projectRoot, '.github', 'workflows', 'ci.yml');
-      expect(fs.existsSync(workflowPath) || fs.existsSync(path.dirname(workflowPath))).toBe(true);
+      const workflowPath = path.join(
+        projectRoot,
+        '.github',
+        'workflows',
+        'ci.yml'
+      );
+      expect(
+        fs.existsSync(workflowPath) || fs.existsSync(path.dirname(workflowPath))
+      ).toBe(true);
     });
 
     it('should have package.json scripts configured', () => {
@@ -204,12 +217,7 @@ describe('CI/CD Pipeline', () => {
       expect(fs.existsSync(nodeModulesPath)).toBe(true);
 
       // Vérifier les dépendances critiques
-      const requiredDeps = [
-        'express',
-        'jest',
-        'eslint',
-        'prettier',
-      ];
+      const requiredDeps = ['express', 'jest', 'eslint', 'prettier'];
 
       requiredDeps.forEach((dep) => {
         const depPath = path.join(nodeModulesPath, dep);
@@ -229,11 +237,7 @@ describe('CI/CD Pipeline', () => {
       const packageJson = JSON.parse(fs.readFileSync(packageJsonPath, 'utf-8'));
 
       // Liste de packages à éviter
-      const dangerousDeps = [
-        'eval',
-        'exec',
-        'child_process',
-      ];
+      const dangerousDeps = ['eval', 'exec', 'child_process'];
 
       Object.keys(packageJson.dependencies).forEach((dep) => {
         expect(dangerousDeps).not.toContain(dep);

@@ -7,7 +7,10 @@ import express from 'express';
 import { z } from 'zod';
 import Elu from '../models/Elu.js';
 import Promise from '../models/Promise.js';
-import { calculateDetailedTransparencyScore, getTransparencyRating } from '../services/transparencyScore.js';
+import {
+  calculateDetailedTransparencyScore,
+  getTransparencyRating,
+} from '../services/transparencyScore.js';
 
 const router = express.Router();
 
@@ -45,12 +48,19 @@ router.get('/ranking', async (req, res, next) => {
     const elus = await Elu.findAll({
       where,
       attributes: ['id', 'nom', 'titre', 'region', 'niveau'],
-      include: [{ model: Promise, as: 'Promises', attributes: ['status'], required: false }],
+      include: [
+        {
+          model: Promise,
+          as: 'Promises',
+          attributes: ['status'],
+          required: false,
+        },
+      ],
       order: [['nom', 'ASC']],
     });
 
     // Calculer score de transparence pour chaque élu
-    const elusWithScores = elus.map(elu => {
+    const elusWithScores = elus.map((elu) => {
       const transparency = calculateDetailedTransparencyScore(elu);
       const rating = getTransparencyRating(transparency.overall);
 
@@ -126,12 +136,19 @@ router.get('/top', async (req, res, next) => {
 
     const elus = await Elu.findAll({
       attributes: ['id', 'nom', 'titre', 'region', 'niveau'],
-      include: [{ model: Promise, as: 'Promises', attributes: ['status'], required: false }],
+      include: [
+        {
+          model: Promise,
+          as: 'Promises',
+          attributes: ['status'],
+          required: false,
+        },
+      ],
       order: [['nom', 'ASC']],
     });
 
     const elusWithScores = elus
-      .map(elu => {
+      .map((elu) => {
         const transparency = calculateDetailedTransparencyScore(elu);
         const rating = getTransparencyRating(transparency.overall);
 
@@ -185,10 +202,17 @@ router.get('/stats', async (req, res, next) => {
     const elus = await Elu.findAll({
       where,
       attributes: ['id'],
-      include: [{ model: Promise, as: 'Promises', attributes: ['status'], required: false }],
+      include: [
+        {
+          model: Promise,
+          as: 'Promises',
+          attributes: ['status'],
+          required: false,
+        },
+      ],
     });
 
-    const elusWithScores = elus.map(elu => {
+    const elusWithScores = elus.map((elu) => {
       const transparency = calculateDetailedTransparencyScore(elu);
       return transparency.overall;
     });
@@ -208,20 +232,25 @@ router.get('/stats', async (req, res, next) => {
     }
 
     const sortedScores = [...elusWithScores].sort((a, b) => a - b);
-    const median = sortedScores.length % 2 === 0
-      ? (sortedScores[sortedScores.length / 2 - 1] + sortedScores[sortedScores.length / 2]) / 2
-      : sortedScores[Math.floor(sortedScores.length / 2)];
+    const median =
+      sortedScores.length % 2 === 0
+        ? (sortedScores[sortedScores.length / 2 - 1] +
+            sortedScores[sortedScores.length / 2]) /
+          2
+        : sortedScores[Math.floor(sortedScores.length / 2)];
 
-    const average = Math.round(elusWithScores.reduce((a, b) => a + b, 0) / elusWithScores.length);
+    const average = Math.round(
+      elusWithScores.reduce((a, b) => a + b, 0) / elusWithScores.length
+    );
     const min = Math.min(...elusWithScores);
     const max = Math.max(...elusWithScores);
 
     // Distribution par catégorie
     const distribution = {
-      excellent: elusWithScores.filter(s => s >= 80).length,
-      bon: elusWithScores.filter(s => s >= 60 && s < 80).length,
-      moyen: elusWithScores.filter(s => s >= 40 && s < 60).length,
-      faible: elusWithScores.filter(s => s < 40).length,
+      excellent: elusWithScores.filter((s) => s >= 80).length,
+      bon: elusWithScores.filter((s) => s >= 60 && s < 80).length,
+      moyen: elusWithScores.filter((s) => s >= 40 && s < 60).length,
+      faible: elusWithScores.filter((s) => s < 40).length,
     };
 
     res.json({

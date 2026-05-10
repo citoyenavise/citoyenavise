@@ -92,8 +92,9 @@ describe('Comments Routes', () => {
 
   describe('GET /api/v1/petitions/:id/comments', () => {
     it('Lister les commentaires : 200 OK', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetition.id}/comments`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetition.id}/comments`
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -106,8 +107,9 @@ describe('Comments Routes', () => {
     });
 
     it('Commentaires incluent author info', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetition.id}/comments`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetition.id}/comments`
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.data.length).toBeGreaterThan(0);
@@ -132,8 +134,9 @@ describe('Comments Routes', () => {
     });
 
     it('Pétition inexistante : 404 Not Found', async () => {
-      const response = await request(app)
-        .get('/api/v1/petitions/99999/comments');
+      const response = await request(app).get(
+        '/api/v1/petitions/99999/comments'
+      );
 
       expect(response.status).toBe(404);
       expect(response.body.success).toBe(false);
@@ -141,8 +144,9 @@ describe('Comments Routes', () => {
     });
 
     it('petition_id invalide : 400 Bad Request', async () => {
-      const response = await request(app)
-        .get('/api/v1/petitions/invalid/comments');
+      const response = await request(app).get(
+        '/api/v1/petitions/invalid/comments'
+      );
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
@@ -247,7 +251,7 @@ describe('Comments Routes', () => {
       expect(response.body.success).toBe(false);
     });
 
-    it('Supprimer commentaire d\'un autre : 403 Forbidden', async () => {
+    it("Supprimer commentaire d'un autre : 403 Forbidden", async () => {
       // Créer un commentaire par testUser
       const otherComment = await Comment.create({
         petitionId: testPetition.id,
@@ -269,8 +273,9 @@ describe('Comments Routes', () => {
     });
 
     it('Sans authentification : 401 Unauthorized', async () => {
-      const response = await request(app)
-        .delete(`/api/v1/comments/${testComment.id}`);
+      const response = await request(app).delete(
+        `/api/v1/comments/${testComment.id}`
+      );
 
       expect(response.status).toBe(401);
     });

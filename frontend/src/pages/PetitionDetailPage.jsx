@@ -114,7 +114,7 @@ function PetitionDetailPage() {
 
       const response = await fetch(`/api/v1/petitions/${id}/has-signed`, {
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
@@ -145,7 +145,7 @@ function PetitionDetailPage() {
       const response = await fetch(`/api/v1/petitions/${id}/sign`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -200,7 +200,7 @@ function PetitionDetailPage() {
       const response = await fetch(`/api/v1/petitions/${id}/sign`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
       });
@@ -261,7 +261,7 @@ function PetitionDetailPage() {
       const response = await fetch(`/api/v1/petitions/${id}/comments`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
+          Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({ contenu: commentText }),
@@ -460,7 +460,7 @@ function PetitionDetailPage() {
                 ) : comments.length === 0 ? (
                   <p className="empty-text">Aucun commentaire pour le moment</p>
                 ) : (
-                  comments.map(comment => (
+                  comments.map((comment) => (
                     <div key={comment.id} className="comment">
                       <div className="comment-header">
                         <span className="author">{comment.author?.nomComplet}</span>

@@ -1,50 +1,50 @@
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { api } from '../api/client'
-import { Card } from '../components/ui/Card'
-import { Button } from '../components/ui/Button'
-import { Loader } from '../components/ui/Loader'
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { api } from '../api/client';
+import { Card } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { Loader } from '../components/ui/Loader';
 
 export function PetitionsListPage() {
-  const [petitions, setPetitions] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [limit, setLimit] = useState(20)
-  const [offset, setOffset] = useState(0)
-  const [total, setTotal] = useState(0)
-  const [search, setSearch] = useState('')
-  const [searchQuery, setSearchQuery] = useState('')
+  const [petitions, setPetitions] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [limit, setLimit] = useState(20);
+  const [offset, setOffset] = useState(0);
+  const [total, setTotal] = useState(0);
+  const [search, setSearch] = useState('');
+  const [searchQuery, setSearchQuery] = useState('');
 
   useEffect(() => {
     const loadPetitions = async () => {
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
       try {
-        const params = { limit, offset }
+        const params = { limit, offset };
         if (searchQuery) {
-          params.search = searchQuery
+          params.search = searchQuery;
         }
-        const response = await api.petitions.list(params)
-        setPetitions(response.data || [])
-        setTotal(response.total || 0)
+        const response = await api.petitions.list(params);
+        setPetitions(response.data || []);
+        setTotal(response.total || 0);
       } catch (err) {
-        setError(err.message || 'Erreur lors du chargement des pétitions')
-        console.error('Erreur:', err)
+        setError(err.message || 'Erreur lors du chargement des pétitions');
+        console.error('Erreur:', err);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    loadPetitions()
-  }, [limit, offset, searchQuery])
+    loadPetitions();
+  }, [limit, offset, searchQuery]);
 
   const handleSearch = (e) => {
-    e.preventDefault()
-    setOffset(0)
-    setSearchQuery(search)
-  }
+    e.preventDefault();
+    setOffset(0);
+    setSearchQuery(search);
+  };
 
-  if (loading) return <Loader />
+  if (loading) return <Loader />;
 
   return (
     <div className="max-w-4xl mx-auto py-8 px-4">
@@ -86,9 +86,9 @@ export function PetitionsListPage() {
             <Button
               variant="outline"
               onClick={() => {
-                setSearch('')
-                setSearchQuery('')
-                setOffset(0)
+                setSearch('');
+                setSearchQuery('');
+                setOffset(0);
               }}
               className="mt-4"
             >
@@ -98,7 +98,7 @@ export function PetitionsListPage() {
         </Card>
       ) : (
         <div className="space-y-4">
-          {petitions.map(petition => (
+          {petitions.map((petition) => (
             <Card key={petition.id} className="hover:shadow-md transition p-6">
               <Link to={`/petitions/${petition.id}`}>
                 <h2 className="text-xl font-bold text-gray-900 hover:text-blue-600 mb-2">
@@ -169,5 +169,5 @@ export function PetitionsListPage() {
         </div>
       )}
     </div>
-  )
+  );
 }

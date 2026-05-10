@@ -19,14 +19,26 @@
   },
   "petitions": {
     "title": "Petitions",
+    "subtitle": "Discover and sign citizen petitions",
     "create": "Create petition",
     "sign": "Sign this petition",
     "unsign": "Remove my signature",
     "alreadySigned": "You already signed",
+    "signed": "Thank you for signing!",
     "totalSignatures": "{{count}} signature(s)",
     "targetElu": "Addressed to",
     "createdBy": "Created by",
-    "deadline": "Deadline"
+    "deadline": "Deadline",
+    "closed": "Closed",
+    "won": "Won",
+    "resetFilters": "Reset filters",
+    "searchPlaceholder": "Title or description...",
+    "recent": "Recent",
+    "popular": "Popular",
+    "noFound": "No petitions found",
+    "noFoundHelp": "Try modifying your filters or search",
+    "retry": "Retry",
+    "petitions": "petition(s)"
   },
   "elus": {
     "title": "Elected Officials",
@@ -39,82 +51,26 @@
     "title": "News",
     "publish": "Publish",
     "draft": "Draft",
-    "published": "Published"
+    "published": "Published",
+    "loading": "Loading..."
   },
   "errors": {
     "notFound": "Not found",
     "unauthorized": "Unauthorized",
     "serverError": "Server error"
   },
-  "home": {
-    "eyebrow": "Civic engagement platform",
-    "title": "Understand, participate and <span>influence</span> public decisions",
-    "subtitle": "<strong>Citizen Advised</strong> transforms your understanding of civic issues into concrete actions. Access to transparent information, constructive debates, and real influence.",
-    "cta": {
-      "start": "Get started now",
-      "learnMore": "Learn more",
-      "createAccount": "Create my account"
-    },
-    "meta": {
-      "citizens": "50K+ active citizens",
-      "verified": "Verified data",
-      "impact": "Real impact"
-    },
-    "mascotte": {
-      "name": "Avisée",
-      "role": "AI Assistant",
-      "status": "Active",
-      "question": "What issue concerns you most?",
-      "engagement": "Engagement: 62%",
-      "live": "Live"
-    },
-    "options": {
-      "climate": "Climate and environment",
-      "education": "Education and training",
-      "health": "Health and wellness"
-    },
-    "howItWorks": {
-      "eyebrow": "How it works",
-      "title": "3 simple steps to action",
-      "subtitle": "Turn your understanding into real impact.",
-      "step1": {
-        "title": "Understand",
-        "text": "Access verified information on civic issues that interest you.",
-        "tag": "In-depth articles"
-      },
-      "step2": {
-        "title": "Participate",
-        "text": "Engage in constructive debates with other citizens and experts.",
-        "tag": "Real-time debates"
-      },
-      "step3": {
-        "title": "Influence",
-        "text": "Your voice matters. Participate in votes and decisions that shape your community.",
-        "tag": "Measurable impact"
-      }
-    },
-    "map": {
-      "eyebrow": "Citizen map",
-      "title": "Engagement by region",
-      "subtitle": "Discover where change is happening and how you can get involved in your region.",
-      "header": "Canada - May 2026",
-      "activeRegions": "3 active regions",
-      "west": "West: 12,340 citizens",
-      "engagement": "Active engagement"
-    },
-    "cta2": {
-      "title": "Ready to make a difference?",
-      "subtitle": "Join thousands of citizens transforming their engagement into action."
-    }
-  },
   "common": {
+    "search": "Search",
+    "status": "Status",
+    "allStatus": "All statuses",
+    "sortBy": "Sort by",
     "loading": "Loading...",
-    "error": "An error occurred",
+    "error": "Error",
     "success": "Success",
-    "cancel": "Cancel",
-    "save": "Save",
-    "delete": "Delete",
-    "edit": "Edit",
-    "close": "Close"
+    "previous": "Previous",
+    "next": "Next",
+    "page": "Page",
+    "of": "of",
+    "view": "View"
   }
 }

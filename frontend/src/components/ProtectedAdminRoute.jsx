@@ -4,10 +4,10 @@
  */
 
 import { Navigate } from 'react-router-dom';
-import { useAuthStore } from '../stores/auth';
+import { useAuth } from '../hooks/useAuth';
 
 export function ProtectedAdminRoute({ children }) {
-  const user = useAuthStore(s => s.user);
+  const { user } = useAuth();
 
   if (!user) {
     // Pas authentifié - rediriger vers login

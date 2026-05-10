@@ -1,37 +1,37 @@
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { api } from '../api/client'
-import { Card } from '../components/ui/Card'
-import { Avatar } from '../components/ui/Avatar'
-import { Button } from '../components/ui/Button'
-import { Loader } from '../components/ui/Loader'
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { api } from '../api/client';
+import { Card } from '../components/ui/Card';
+import { Avatar } from '../components/ui/Avatar';
+import { Button } from '../components/ui/Button';
+import { Loader } from '../components/ui/Loader';
 
 export function Feed() {
-  const [posts, setPosts] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [page, setPage] = useState(1)
+  const [posts, setPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     const loadPosts = async () => {
-      setLoading(true)
+      setLoading(true);
       try {
         const data = await api.posts.list({
           page,
           limit: 10,
           sort: 'latest',
-        })
-        setPosts(data.items || [])
+        });
+        setPosts(data.items || []);
       } catch (err) {
-        console.error('Erreur:', err)
+        console.error('Erreur:', err);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    loadPosts()
-  }, [page])
+    loadPosts();
+  }, [page]);
 
-  if (loading) return <Loader />
+  if (loading) return <Loader />;
 
   return (
     <div className="max-w-2xl mx-auto py-8 px-4">
@@ -43,7 +43,7 @@ export function Feed() {
             <p className="text-gray-500">Aucun post pour le moment</p>
           </Card>
         ) : (
-          posts.map(post => (
+          posts.map((post) => (
             <Card key={post.id}>
               <div className="flex gap-4">
                 <Avatar name={post.author?.username} size="md" />
@@ -83,18 +83,18 @@ export function Feed() {
         <Button
           variant="outline"
           disabled={page === 1}
-          onClick={() => setPage(p => p - 1)}
+          onClick={() => setPage((p) => p - 1)}
         >
           Précédent
         </Button>
         <span className="text-gray-600">Page {page}</span>
         <Button
           variant="outline"
-          onClick={() => setPage(p => p + 1)}
+          onClick={() => setPage((p) => p + 1)}
         >
           Suivant
         </Button>
       </div>
     </div>
-  )
+  );
 }

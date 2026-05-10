@@ -8,54 +8,55 @@ export const swaggerDefinition = {
   info: {
     title: 'Citoyen Avisé API',
     version: '1.0.0',
-    description: 'API de participation civique — Pétitions, Élus, Actualités, Promesses',
+    description:
+      'API de participation civique — Pétitions, Élus, Actualités, Promesses',
     contact: {
       name: 'Citoyen Avisé Team',
-      email: 'infocitoyenavise@gmail.com'
+      email: 'infocitoyenavise@gmail.com',
     },
     license: {
-      name: 'MIT'
-    }
+      name: 'MIT',
+    },
   },
   servers: [
     {
       url: 'http://localhost:5000/api/v1',
-      description: 'Développement'
+      description: 'Développement',
     },
     {
       url: 'https://api.citoyenavise.org/api/v1',
-      description: 'Production'
-    }
+      description: 'Production',
+    },
   ],
   tags: [
     {
       name: 'Authentification',
-      description: 'Magic Link & JWT Authentication'
+      description: 'Magic Link & JWT Authentication',
     },
     {
       name: 'Élus',
-      description: 'Gestion des élus (Députés, Sénateurs, Maires, Conseillers)'
+      description: 'Gestion des élus (Députés, Sénateurs, Maires, Conseillers)',
     },
     {
       name: 'Pétitions',
-      description: 'Créer, signer, commenter les pétitions citoyennes'
+      description: 'Créer, signer, commenter les pétitions citoyennes',
     },
     {
       name: 'Signatures',
-      description: 'Gestion des signatures de pétitions'
+      description: 'Gestion des signatures de pétitions',
     },
     {
       name: 'Actualités',
-      description: 'Posts et idées des citoyens'
+      description: 'Posts et idées des citoyens',
     },
     {
       name: 'Promesses',
-      description: 'Engagements et promesses des élus'
+      description: 'Engagements et promesses des élus',
     },
     {
       name: 'Circonscriptions',
-      description: 'Districts électoraux et géolocalisation'
-    }
+      description: 'Districts électoraux et géolocalisation',
+    },
   ],
   paths: {
     // ═══════════════════════════════════════════════════════════════════
@@ -65,7 +66,8 @@ export const swaggerDefinition = {
       post: {
         tags: ['Authentification'],
         summary: 'Demander magic link',
-        description: 'Envoie un lien magique par email pour se connecter/inscrire',
+        description:
+          'Envoie un lien magique par email pour se connecter/inscrire',
         requestBody: {
           required: true,
           content: {
@@ -76,13 +78,13 @@ export const swaggerDefinition = {
                   email: {
                     type: 'string',
                     format: 'email',
-                    example: 'citoyen@example.com'
-                  }
+                    example: 'citoyen@example.com',
+                  },
                 },
-                required: ['email']
-              }
-            }
-          }
+                required: ['email'],
+              },
+            },
+          },
         },
         responses: {
           201: {
@@ -95,15 +97,15 @@ export const swaggerDefinition = {
                     success: { type: 'boolean', example: true },
                     message: { type: 'string' },
                     userId: { type: 'integer' },
-                    email: { type: 'string' }
-                  }
-                }
-              }
-            }
+                    email: { type: 'string' },
+                  },
+                },
+              },
+            },
           },
-          400: { description: 'Email invalide' }
-        }
-      }
+          400: { description: 'Email invalide' },
+        },
+      },
     },
     '/auth/verify': {
       get: {
@@ -114,8 +116,8 @@ export const swaggerDefinition = {
             name: 'token',
             in: 'query',
             required: true,
-            schema: { type: 'string' }
-          }
+            schema: { type: 'string' },
+          },
         ],
         responses: {
           200: {
@@ -132,17 +134,17 @@ export const swaggerDefinition = {
                       properties: {
                         id: { type: 'integer' },
                         email: { type: 'string' },
-                        verified_at: { type: 'string', format: 'date-time' }
-                      }
-                    }
-                  }
-                }
-              }
-            }
+                        verified_at: { type: 'string', format: 'date-time' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
-          401: { description: 'Token invalide ou expiré' }
-        }
-      }
+          401: { description: 'Token invalide ou expiré' },
+        },
+      },
     },
     '/auth/complete-profile': {
       post: {
@@ -158,23 +160,23 @@ export const swaggerDefinition = {
                 properties: {
                   nomComplet: { type: 'string' },
                   province: { type: 'string' },
-                  codePostal: { type: 'string' }
+                  codePostal: { type: 'string' },
                 },
-                required: ['nomComplet']
-              }
-            }
-          }
+                required: ['nomComplet'],
+              },
+            },
+          },
         },
         responses: {
           200: { description: 'Profil mis à jour' },
-          400: { description: 'Données invalides' }
-        }
-      }
+          400: { description: 'Données invalides' },
+        },
+      },
     },
     '/auth/me': {
       get: {
         tags: ['Authentification'],
-        summary: 'Obtenir l\'utilisateur courant',
+        summary: "Obtenir l'utilisateur courant",
         security: [{ bearerAuth: [] }],
         responses: {
           200: {
@@ -191,17 +193,17 @@ export const swaggerDefinition = {
                         id: { type: 'integer' },
                         email: { type: 'string' },
                         nom_complet: { type: 'string' },
-                        province: { type: 'string' }
-                      }
-                    }
-                  }
-                }
-              }
-            }
+                        province: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
           },
-          401: { description: 'Non authentifié' }
-        }
-      }
+          401: { description: 'Non authentifié' },
+        },
+      },
     },
 
     // ═══════════════════════════════════════════════════════════════════
@@ -214,7 +216,7 @@ export const swaggerDefinition = {
         parameters: [
           { name: 'niveau', in: 'query', schema: { type: 'string' } },
           { name: 'région', in: 'query', schema: { type: 'string' } },
-          { name: 'search', in: 'query', schema: { type: 'string' } }
+          { name: 'search', in: 'query', schema: { type: 'string' } },
         ],
         responses: {
           200: {
@@ -234,30 +236,35 @@ export const swaggerDefinition = {
                           nom_complet: { type: 'string' },
                           titre: { type: 'string' },
                           région: { type: 'string' },
-                          niveau: { type: 'string' }
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-            }
-          }
-        }
-      }
+                          niveau: { type: 'string' },
+                        },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
     },
     '/élus/{id}': {
       get: {
         tags: ['Élus'],
         summary: 'Obtenir un élu',
         parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'integer' } }
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+          },
         ],
         responses: {
-          200: { description: 'Détail de l\'élu' },
-          404: { description: 'Élu non trouvé' }
-        }
-      }
+          200: { description: "Détail de l'élu" },
+          404: { description: 'Élu non trouvé' },
+        },
+      },
     },
 
     // ═══════════════════════════════════════════════════════════════════
@@ -269,11 +276,11 @@ export const swaggerDefinition = {
         summary: 'Lister les pétitions',
         parameters: [
           { name: 'status', in: 'query', schema: { type: 'string' } },
-          { name: 'search', in: 'query', schema: { type: 'string' } }
+          { name: 'search', in: 'query', schema: { type: 'string' } },
         ],
         responses: {
-          200: { description: 'Liste des pétitions' }
-        }
+          200: { description: 'Liste des pétitions' },
+        },
       },
       post: {
         tags: ['Pétitions'],
@@ -288,37 +295,47 @@ export const swaggerDefinition = {
                 properties: {
                   titre: { type: 'string' },
                   description: { type: 'string' },
-                  elu_id: { type: 'integer' }
+                  elu_id: { type: 'integer' },
                 },
-                required: ['titre', 'description']
-              }
-            }
-          }
+                required: ['titre', 'description'],
+              },
+            },
+          },
         },
         responses: {
           201: { description: 'Pétition créée (draft)' },
-          400: { description: 'Données invalides' }
-        }
-      }
+          400: { description: 'Données invalides' },
+        },
+      },
     },
     '/pétitions/{id}': {
       get: {
         tags: ['Pétitions'],
         summary: 'Obtenir une pétition',
         parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'integer' } }
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+          },
         ],
         responses: {
           200: { description: 'Détail de la pétition' },
-          404: { description: 'Pétition non trouvée' }
-        }
+          404: { description: 'Pétition non trouvée' },
+        },
       },
       put: {
         tags: ['Pétitions'],
         summary: 'Mettre à jour une pétition (draft)',
         security: [{ bearerAuth: [] }],
         parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'integer' } }
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+          },
         ],
         requestBody: {
           required: true,
@@ -328,17 +345,17 @@ export const swaggerDefinition = {
                 type: 'object',
                 properties: {
                   titre: { type: 'string' },
-                  description: { type: 'string' }
-                }
-              }
-            }
-          }
+                  description: { type: 'string' },
+                },
+              },
+            },
+          },
         },
         responses: {
           200: { description: 'Pétition mise à jour' },
-          403: { description: 'Non autorisé' }
-        }
-      }
+          403: { description: 'Non autorisé' },
+        },
+      },
     },
     '/pétitions/{id}/publish': {
       post: {
@@ -346,13 +363,18 @@ export const swaggerDefinition = {
         summary: 'Publier une pétition',
         security: [{ bearerAuth: [] }],
         parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'integer' } }
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+          },
         ],
         responses: {
           200: { description: 'Pétition publiée' },
-          403: { description: 'Non autorisé' }
-        }
-      }
+          403: { description: 'Non autorisé' },
+        },
+      },
     },
 
     // ═══════════════════════════════════════════════════════════════════
@@ -363,12 +385,12 @@ export const swaggerDefinition = {
         tags: ['Signatures'],
         summary: 'Lister les signatures',
         parameters: [
-          { name: 'petition_id', in: 'query', schema: { type: 'integer' } }
+          { name: 'petition_id', in: 'query', schema: { type: 'integer' } },
         ],
         responses: {
-          200: { description: 'Liste des signatures' }
-        }
-      }
+          200: { description: 'Liste des signatures' },
+        },
+      },
     },
     '/pétitions/{id}/sign': {
       post: {
@@ -376,24 +398,34 @@ export const swaggerDefinition = {
         summary: 'Signer une pétition',
         security: [{ bearerAuth: [] }],
         parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'integer' } }
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+          },
         ],
         responses: {
           201: { description: 'Pétition signée' },
-          409: { description: 'Déjà signé' }
-        }
+          409: { description: 'Déjà signé' },
+        },
       },
       delete: {
         tags: ['Signatures'],
         summary: 'Retirer sa signature',
         security: [{ bearerAuth: [] }],
         parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'integer' } }
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+          },
         ],
         responses: {
-          200: { description: 'Signature retirée' }
-        }
-      }
+          200: { description: 'Signature retirée' },
+        },
+      },
     },
 
     // ═══════════════════════════════════════════════════════════════════
@@ -405,11 +437,11 @@ export const swaggerDefinition = {
         summary: 'Lister les actualités',
         parameters: [
           { name: 'status', in: 'query', schema: { type: 'string' } },
-          { name: 'search', in: 'query', schema: { type: 'string' } }
+          { name: 'search', in: 'query', schema: { type: 'string' } },
         ],
         responses: {
-          200: { description: 'Liste des actualités' }
-        }
+          200: { description: 'Liste des actualités' },
+        },
       },
       post: {
         tags: ['Actualités'],
@@ -424,45 +456,50 @@ export const swaggerDefinition = {
                 properties: {
                   titre: { type: 'string' },
                   contenu: { type: 'string' },
-                  petition_id: { type: 'integer' }
+                  petition_id: { type: 'integer' },
                 },
-                required: ['titre', 'contenu']
-              }
-            }
-          }
+                required: ['titre', 'contenu'],
+              },
+            },
+          },
         },
         responses: {
-          201: { description: 'Actualité créée' }
-        }
-      }
+          201: { description: 'Actualité créée' },
+        },
+      },
     },
     '/actualités/{id}': {
       get: {
         tags: ['Actualités'],
         summary: 'Obtenir une actualité',
         parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'integer' } }
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+          },
         ],
         responses: {
-          200: { description: 'Détail de l\'actualité' }
-        }
+          200: { description: "Détail de l'actualité" },
+        },
       },
       put: {
         tags: ['Actualités'],
         summary: 'Mettre à jour une actualité',
         security: [{ bearerAuth: [] }],
         responses: {
-          200: { description: 'Actualité mise à jour' }
-        }
+          200: { description: 'Actualité mise à jour' },
+        },
       },
       delete: {
         tags: ['Actualités'],
         summary: 'Supprimer une actualité',
         security: [{ bearerAuth: [] }],
         responses: {
-          200: { description: 'Actualité supprimée' }
-        }
-      }
+          200: { description: 'Actualité supprimée' },
+        },
+      },
     },
 
     // ═══════════════════════════════════════════════════════════════════
@@ -474,24 +511,29 @@ export const swaggerDefinition = {
         summary: 'Lister les promesses',
         parameters: [
           { name: 'elu_id', in: 'query', schema: { type: 'integer' } },
-          { name: 'status', in: 'query', schema: { type: 'string' } }
+          { name: 'status', in: 'query', schema: { type: 'string' } },
         ],
         responses: {
-          200: { description: 'Liste des promesses' }
-        }
-      }
+          200: { description: 'Liste des promesses' },
+        },
+      },
     },
     '/promesses/{id}': {
       get: {
         tags: ['Promesses'],
         summary: 'Obtenir une promesse',
         parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'integer' } }
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+          },
         ],
         responses: {
-          200: { description: 'Détail de la promesse' }
-        }
-      }
+          200: { description: 'Détail de la promesse' },
+        },
+      },
     },
     '/promesses/{id}/follow': {
       post: {
@@ -499,21 +541,26 @@ export const swaggerDefinition = {
         summary: 'Suivre une promesse',
         security: [{ bearerAuth: [] }],
         parameters: [
-          { name: 'id', in: 'path', required: true, schema: { type: 'integer' } }
+          {
+            name: 'id',
+            in: 'path',
+            required: true,
+            schema: { type: 'integer' },
+          },
         ],
         responses: {
-          201: { description: 'Promesse suivie' }
-        }
+          201: { description: 'Promesse suivie' },
+        },
       },
       delete: {
         tags: ['Promesses'],
         summary: 'Arrêter de suivre',
         security: [{ bearerAuth: [] }],
         responses: {
-          200: { description: 'Promesse non suivie' }
-        }
-      }
-    }
+          200: { description: 'Promesse non suivie' },
+        },
+      },
+    },
   },
   components: {
     securitySchemes: {
@@ -521,8 +568,8 @@ export const swaggerDefinition = {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
-        description: 'Bearer token JWT (obtenu via /auth/verify)'
-      }
-    }
-  }
+        description: 'Bearer token JWT (obtenu via /auth/verify)',
+      },
+    },
+  },
 };

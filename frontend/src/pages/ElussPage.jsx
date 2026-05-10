@@ -1,50 +1,50 @@
-import { useState, useEffect } from 'react'
-import { Link } from 'react-router-dom'
-import { api } from '../api/client'
-import { Card } from '../components/ui/Card'
-import { Button } from '../components/ui/Button'
-import { Loader } from '../components/ui/Loader'
+import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { api } from '../api/client';
+import { Card } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { Loader } from '../components/ui/Loader';
 
 export function ElussPage() {
-  const [elus, setElus] = useState([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
-  const [limit, setLimit] = useState(20)
-  const [offset, setOffset] = useState(0)
-  const [total, setTotal] = useState(0)
+  const [elus, setElus] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [limit, setLimit] = useState(20);
+  const [offset, setOffset] = useState(0);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
     const loadElus = async () => {
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
       try {
-        const response = await api.elus.list({ limit, offset })
-        setElus(response.data || [])
-        setTotal(response.total || 0)
+        const response = await api.elus.list({ limit, offset });
+        setElus(response.data || []);
+        setTotal(response.total || 0);
       } catch (err) {
-        setError(err.message || 'Erreur lors du chargement des élus')
-        console.error('Erreur:', err)
+        setError(err.message || 'Erreur lors du chargement des élus');
+        console.error('Erreur:', err);
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    loadElus()
-  }, [limit, offset])
+    loadElus();
+  }, [limit, offset]);
 
-  if (loading) return <Loader />
+  if (loading) return <Loader />;
 
   const niveauLabels = {
     fédéral: '🇨🇦 Fédéral',
     provincial: '🏛️ Provincial',
     municipal: '🏙️ Municipal',
-  }
+  };
 
   const niveauColors = {
     fédéral: 'bg-blue-50',
     provincial: 'bg-green-50',
     municipal: 'bg-purple-50',
-  }
+  };
 
   return (
     <div className="max-w-6xl mx-auto py-8 px-4">
@@ -81,7 +81,7 @@ export function ElussPage() {
               </tr>
             </thead>
             <tbody>
-              {elus.map(elu => (
+              {elus.map((elu) => (
                 <tr
                   key={elu.id}
                   className={`border-b border-gray-100 hover:bg-gray-50 transition ${
@@ -139,5 +139,5 @@ export function ElussPage() {
         </div>
       )}
     </div>
-  )
+  );
 }

@@ -44,7 +44,9 @@ class ModuleResolver {
       });
     } catch (error) {
       this.errors.push(`Erreur chargement manifest: ${error.message}`);
-      logger.error('ModuleResolver load error', { meta: { error: error.message } });
+      logger.error('ModuleResolver load error', {
+        meta: { error: error.message },
+      });
       throw error;
     }
   }
@@ -74,7 +76,7 @@ class ModuleResolver {
     }
 
     if (this.errors.length > 0) {
-      throw new Error(`Dépendances manquantes détectées`);
+      throw new Error('Dépendances manquantes détectées');
     }
 
     // Détecter les cycles
@@ -290,9 +292,7 @@ class ModuleResolver {
   _groupByLevel() {
     const grouped = {};
 
-    for (const [name, level] of Object.entries(
-      this.manifest.hierarchy || {}
-    )) {
+    for (const [name, level] of Object.entries(this.manifest.hierarchy || {})) {
       grouped[name] = {
         description: level.description,
         count: level.count,

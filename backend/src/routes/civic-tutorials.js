@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Civic Tutorials Routes (Tutoriels Civiques Interactifs)
  * Routes pour l'apprentissage Ã©ducatif + actions civiques rÃ©elles
  * GET    /api/v1/tutorials
@@ -14,7 +14,7 @@
 import express from 'express';
 import { authMiddleware } from '../middlewares/auth.js';
 import { CivicTutorialService } from '../services/CivicTutorialService.js';
-import { logger } from '../middlewares/logger.js'
+import { logger } from '../middlewares/logger.js';
 
 const router = express.Router();
 
@@ -30,7 +30,7 @@ router.get('/', async (req, res) => {
 
     res.json({
       success: true,
-      data: tutorials.map(t => ({
+      data: tutorials.map((t) => ({
         id: t.id,
         slug: t.slug,
         title: t.titleFr,
@@ -120,7 +120,11 @@ router.post('/:id/start', authMiddleware, async (req, res) => {
     });
   } catch (err) {
     logger.error('Error starting tutorial', {
-      meta: { userId: req.user.id, tutorialId: req.params.id, error: err.message },
+      meta: {
+        userId: req.user.id,
+        tutorialId: req.params.id,
+        error: err.message,
+      },
     });
     res.status(500).json({
       success: false,
@@ -139,7 +143,10 @@ router.get('/:id/progress', authMiddleware, async (req, res) => {
     const userId = req.user.id;
     const { id } = req.params;
 
-    const progress = await CivicTutorialService.getUserTutorialProgress(userId, id);
+    const progress = await CivicTutorialService.getUserTutorialProgress(
+      userId,
+      id
+    );
 
     if (!progress) {
       return res.status(404).json({
@@ -160,7 +167,11 @@ router.get('/:id/progress', authMiddleware, async (req, res) => {
     });
   } catch (err) {
     logger.error('Error fetching tutorial progress', {
-      meta: { userId: req.user.id, tutorialId: req.params.id, error: err.message },
+      meta: {
+        userId: req.user.id,
+        tutorialId: req.params.id,
+        error: err.message,
+      },
     });
     res.status(500).json({
       success: false,
@@ -174,42 +185,46 @@ router.get('/:id/progress', authMiddleware, async (req, res) => {
  * Complete a tutorial step
  * Protected endpoint
  */
-router.post('/:tutorialId/steps/:stepId/complete', authMiddleware, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { tutorialId, stepId } = req.params;
-    const { userResponse } = req.body;
+router.post(
+  '/:tutorialId/steps/:stepId/complete',
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const { tutorialId, stepId } = req.params;
+      const { userResponse } = req.body;
 
-    const stepProgress = await CivicTutorialService.completeStep(
-      userId,
-      tutorialId,
-      stepId,
-      userResponse
-    );
+      const stepProgress = await CivicTutorialService.completeStep(
+        userId,
+        tutorialId,
+        stepId,
+        userResponse
+      );
 
-    res.json({
-      success: true,
-      data: {
-        id: stepProgress.id,
-        status: stepProgress.status,
-        completedAt: stepProgress.completedAt,
-      },
-    });
-  } catch (err) {
-    logger.error('Error completing step', {
-      meta: {
-        userId: req.user.id,
-        tutorialId: req.params.tutorialId,
-        stepId: req.params.stepId,
+      res.json({
+        success: true,
+        data: {
+          id: stepProgress.id,
+          status: stepProgress.status,
+          completedAt: stepProgress.completedAt,
+        },
+      });
+    } catch (err) {
+      logger.error('Error completing step', {
+        meta: {
+          userId: req.user.id,
+          tutorialId: req.params.tutorialId,
+          stepId: req.params.stepId,
+          error: err.message,
+        },
+      });
+      res.status(500).json({
+        success: false,
         error: err.message,
-      },
-    });
-    res.status(500).json({
-      success: false,
-      error: err.message,
-    });
+      });
+    }
   }
-});
+);
 
 /**
  * POST /api/v1/tutorials/:id/complete
@@ -228,7 +243,7 @@ router.post('/:id/complete', authMiddleware, async (req, res) => {
       data: {
         completed: result.completed,
         xpEarned: result.xpEarned,
-        newBadges: result.newBadges.map(b => ({
+        newBadges: result.newBadges.map((b) => ({
           id: b.id,
           name: b.nameFr,
           icon: b.iconUrl,
@@ -237,7 +252,11 @@ router.post('/:id/complete', authMiddleware, async (req, res) => {
     });
   } catch (err) {
     logger.error('Error completing tutorial', {
-      meta: { userId: req.user.id, tutorialId: req.params.id, error: err.message },
+      meta: {
+        userId: req.user.id,
+        tutorialId: req.params.id,
+        error: err.message,
+      },
     });
     res.status(500).json({
       success: false,
@@ -304,7 +323,8 @@ router.get('/dashboard/user', authMiddleware, async (req, res) => {
   try {
     const userId = req.user.id;
 
-    const dashboard = await CivicTutorialService.getUserTutorialDashboard(userId);
+    const dashboard =
+      await CivicTutorialService.getUserTutorialDashboard(userId);
 
     res.json({
       success: true,
@@ -331,11 +351,14 @@ router.get('/civic-actions/user', authMiddleware, async (req, res) => {
     const userId = req.user.id;
     const { limit = 50 } = req.query;
 
-    const actions = await CivicTutorialService.getUserCivicActions(userId, limit);
+    const actions = await CivicTutorialService.getUserCivicActions(
+      userId,
+      limit
+    );
 
     res.json({
       success: true,
-      data: actions.map(a => ({
+      data: actions.map((a) => ({
         id: a.id,
         actionType: a.actionType,
         tutorialSlug: a.tutorial?.slug,
@@ -354,4 +377,3 @@ router.get('/civic-actions/user', authMiddleware, async (req, res) => {
 });
 
 export default router;
-

@@ -1,17 +1,17 @@
-import { Navigate } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
-import { Loader } from './ui/Loader'
+import { Navigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { Loader } from './ui/Loader';
 
 export function ProtectedRoute({ children }) {
-  const { isAuthenticated, loading } = useAuth()
+  const { isAuthenticated, loading } = useAuth();
 
   if (loading) {
-    return <Loader />
+    return <Loader />;
   }
 
   if (!isAuthenticated) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/login" replace />;
   }
 
-  return children
+  return children;
 }

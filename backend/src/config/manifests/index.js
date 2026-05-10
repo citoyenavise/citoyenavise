@@ -17,7 +17,7 @@ class ManifestLoader {
       'manifest.states.json',
       'manifest.phases.json',
       'manifest.guards.json',
-      'manifest.side-effects.json'
+      'manifest.side-effects.json',
     ];
 
     for (const file of files) {
@@ -51,7 +51,10 @@ class ManifestLoader {
 
     // Vérifications basiques
     if (!manifest.$schema && !manifest.title && !manifest.version) {
-      return { valid: false, error: 'Manifest invalide - champs obligatoires manquants' };
+      return {
+        valid: false,
+        error: 'Manifest invalide - champs obligatoires manquants',
+      };
     }
 
     return { valid: true, manifest };
@@ -118,7 +121,7 @@ class ManifestLoader {
 
     for (const module of modules) {
       if (!module.id) {
-        errors.push(`Module sans ID`);
+        errors.push('Module sans ID');
       }
 
       if (!module.version) {
@@ -129,7 +132,9 @@ class ManifestLoader {
         for (const dep of module.dependencies) {
           const depModule = modules.find((m) => m.id === dep);
           if (!depModule) {
-            errors.push(`Module ${module.id} dépend de ${dep} qui n'existe pas`);
+            errors.push(
+              `Module ${module.id} dépend de ${dep} qui n'existe pas`
+            );
           }
         }
       }
@@ -152,7 +157,9 @@ class ManifestLoader {
       }
 
       if (!states[transition.toState]) {
-        errors.push(`Transition vers l'état ${transition.toState} qui n'existe pas`);
+        errors.push(
+          `Transition vers l'état ${transition.toState} qui n'existe pas`
+        );
       }
     }
 

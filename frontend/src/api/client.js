@@ -62,7 +62,9 @@ class ApiClient {
     if (response.status === 401 && token) {
       if (this.isRefreshing) {
         return new Promise((resolve, reject) => {
-          this.requestQueue.push({ resolve, reject, options, endpoint });
+          this.requestQueue.push({
+            resolve, reject, options, endpoint,
+          });
         });
       }
 
@@ -306,7 +308,7 @@ export const api = {
     async getByPost(postId, params = {}) {
       const qs = new URLSearchParams(params).toString();
       const response = await client.get(
-        `/comments/posts/${postId}/comments?${qs}`
+        `/comments/posts/${postId}/comments?${qs}`,
       );
       return response.data;
     },

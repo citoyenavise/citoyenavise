@@ -15,6 +15,6 @@ export function useTranslation() {
     i18n,
     changeLanguage,
     currentLanguage,
-    isLoading: i18n.isInitialized === false
+    isLoading: i18n.isInitialized === false,
   };
 }

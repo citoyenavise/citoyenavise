@@ -1,93 +1,80 @@
-import { useEffect } from 'react'
-import { useTranslation } from 'react-i18next'
-import { BrowserRouter as Router, Routes, Route, Navigate, useParams, Outlet } from 'react-router-dom'
-import { AuthProvider } from './contexts/AuthContext'
-import { Header } from './components/Header'
-import { ProtectedRoute } from './components/ProtectedRoute'
+import React, { useEffect, Suspense } from 'react';
 
-import { Home } from './pages/Home'
-import { Login } from './pages/Login'
-import { Register } from './pages/Register'
-import { Feed } from './pages/Feed'
-import { PostDetail } from './pages/PostDetail'
-import { Notifications } from './pages/Notifications'
-import { ElussPage } from './pages/ElussPage'
-import { EluDetailPage } from './pages/EluDetailPage'
-import PetitionDetailPage from './pages/PetitionDetailPage'
-import CreatePetitionPage from './pages/CreatePetitionPage'
-import { PetitionsListPage } from './pages/PetitionsListPage'
+import { useTranslation } from 'react-i18next';
+import {
+  BrowserRouter, Routes, Route, Navigate, useParams, Outlet,
+} from 'react-router-dom';
+import { AuthProvider } from './contexts/AuthContext';
+import { Header } from './components/Header';
+import { ProtectedRoute } from './components/ProtectedRoute';
+
+// Code splitting with React.lazy
+const PetitionsPage = React.lazy(() => import('./pages/PetitionsPage'));
+const PetitionDetail = React.lazy(() => import('./pages/PetitionDetail'));
+const ElusPage = React.lazy(() => import('./pages/ElusPage'));
+const EluDetail = React.lazy(() => import('./pages/EluDetail'));
+const ActualitesPage = React.lazy(() => import('./pages/ActualitesPage'));
+const CreatePetitionPage = React.lazy(() => import('./pages/CreatePetitionPage'));
+const MapPage = React.lazy(() => import('./pages/MapPage'));
+const TransparencyRanking = React.lazy(() => import('./pages/TransparencyRanking'));
+const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
+
+// Loading fallback
+const LoadingFallback = () => <div style={{ padding: '2rem', textAlign: 'center' }}>Chargement...</div>;
 
 const LanguageWrapper = () => {
-  const { lang } = useParams()
-  const { i18n } = useTranslation()
+  const { lang } = useParams();
+  const { i18n } = useTranslation();
 
   useEffect(() => {
     if (lang === 'fr' || lang === 'en') {
-      i18n.changeLanguage(lang)
-      localStorage.setItem('language', lang)
+      i18n.changeLanguage(lang);
+      localStorage.setItem('language', lang);
     }
-  }, [lang, i18n])
+  }, [lang, i18n]);
 
-  return <Outlet />
-}
+  return <Outlet />;
+};
 
-export default function App() {
+function App() {
+  const { i18n } = useTranslation();
+
+  useEffect(() => {
+    const savedLang = localStorage.getItem('language') || 'fr';
+    i18n.changeLanguage(savedLang);
+
+    if (!localStorage.getItem('language')) {
+      const browserLang = navigator.language.split('-')[0];
+      if (browserLang === 'en' || browserLang === 'fr') {
+        i18n.changeLanguage(browserLang);
+        localStorage.setItem('language', browserLang);
+      }
+    }
+  }, [i18n]);
+
   return (
-    <Router>
+    <BrowserRouter>
       <AuthProvider>
         <Header />
-        <Routes>
-          {/* Routes sans langue (global) */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-
-          {/* Routes avec paramètre de langue */}
-          <Route path="/:lang" element={<LanguageWrapper />}>
-            <Route index element={<Home />} />
-            <Route path="petitions" element={<PetitionsListPage />} />
-            <Route path="petitions/:id" element={<PetitionDetailPage />} />
-            <Route
-              path="create-petition"
-              element={
-                <ProtectedRoute>
-                  <CreatePetitionPage />
-                </ProtectedRoute>
-              }
-            />
-            <Route path="elus" element={<ElussPage />} />
-            <Route path="elus/:id" element={<EluDetailPage />} />
-
-            <Route
-              path="feed"
-              element={
-                <ProtectedRoute>
-                  <Feed />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="post/:postId"
-              element={
-                <ProtectedRoute>
-                  <PostDetail />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="notifications"
-              element={
-                <ProtectedRoute>
-                  <Notifications />
-                </ProtectedRoute>
-              }
-            />
-          </Route>
-
-          {/* Redirection par défaut */}
-          <Route path="/" element={<Navigate to="/fr" replace />} />
-          <Route path="*" element={<Navigate to="/fr" replace />} />
-        </Routes>
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
+            <Route path="/:lang" element={<LanguageWrapper />}>
+              <Route path="petitions" element={<PetitionsPage />} />
+              <Route path="petitions/:id" element={<PetitionDetail />} />
+              <Route path="petitions/create" element={<ProtectedRoute><CreatePetitionPage /></ProtectedRoute>} />
+              <Route path="elus" element={<ElusPage />} />
+              <Route path="elus/:id" element={<EluDetail />} />
+              <Route path="actualites" element={<ActualitesPage />} />
+              <Route path="carte" element={<MapPage />} />
+              <Route path="transparence/ranking" element={<TransparencyRanking />} />
+              <Route path="admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+            </Route>
+            <Route path="/" element={<Navigate to="/fr" />} />
+          </Routes>
+        </Suspense>
       </AuthProvider>
-    </Router>
-  )
+    </BrowserRouter>
+  );
 }
+
+export default App;

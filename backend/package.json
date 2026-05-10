@@ -16,9 +16,9 @@
     "lint:fix": "eslint src/ __tests__/ --fix",
     "format": "prettier --write \"src/**/*.js\" \"__tests__/**/*.js\"",
     "security:check": "npm audit --audit-level=moderate",
-    "migrate": "node src/database/migrationRunner.js",
-    "migrate:status": "node src/database/migrationRunner.js --status",
-    "migrate:rollback": "node src/database/migrationRunner.js --rollback",
+    "migrate": "node scripts/migrate.js",
+    "db:check-tables": "node scripts/check-tables.js",
+    "seed": "node seeders/seed.js",
     "seed:gamification": "node scripts/seed-gamification.js",
     "promote:admin": "node scripts/promote-admin.js"
   },

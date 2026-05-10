@@ -23,8 +23,8 @@ class EmailService {
         secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
         auth: {
           user: process.env.SMTP_USER,
-          pass: process.env.SMTP_PASSWORD
-        }
+          pass: process.env.SMTP_PASSWORD,
+        },
       });
 
       // Vérifier connexion
@@ -109,7 +109,7 @@ class EmailService {
         to: email,
         subject: '[Citoyen Avisé] Votre lien de connexion',
         text: textContent,
-        html: htmlContent
+        html: htmlContent,
       });
 
       console.log(`✅ Magic link sent to ${email}`);
@@ -171,13 +171,16 @@ class EmailService {
         from: process.env.SMTP_FROM || 'noreply@citoyenavise.org',
         to: email,
         subject: 'Bienvenue à Citoyen Avisé!',
-        html: htmlContent
+        html: htmlContent,
       });
 
       console.log(`✅ Welcome email sent to ${email}`);
       return true;
     } catch (err) {
-      console.error(`❌ Failed to send welcome email to ${email}:`, err.message);
+      console.error(
+        `❌ Failed to send welcome email to ${email}:`,
+        err.message
+      );
       throw err;
     }
   }
@@ -223,12 +226,12 @@ class EmailService {
         from: process.env.SMTP_FROM || 'noreply@citoyenavise.org',
         to: eluEmail,
         subject: `Nouvelle pétition : ${petitionTitle}`,
-        html: htmlContent
+        html: htmlContent,
       });
 
       return true;
     } catch (err) {
-      console.error(`❌ Failed to send petition notification:`, err.message);
+      console.error('❌ Failed to send petition notification:', err.message);
       // Non-blocking error
       return false;
     }
@@ -256,7 +259,7 @@ export const emailService = new EmailService();
 
 // Auto-initialize on import
 if (process.env.SMTP_USER && process.env.SMTP_PASSWORD) {
-  emailService.initialize().catch(err => {
+  emailService.initialize().catch((err) => {
     console.error('Failed to initialize email service:', err.message);
   });
 }

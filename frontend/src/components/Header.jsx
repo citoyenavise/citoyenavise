@@ -1,17 +1,17 @@
-import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
-import { Avatar } from './ui/Avatar'
-import { Button } from './ui/Button'
-import LanguageSelector from './LanguageSelector'
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { Avatar } from './ui/Avatar';
+import { Button } from './ui/Button';
+import LanguageSelector from './LanguageSelector';
 
 export function Header() {
-  const { user, logout, isAuthenticated } = useAuth()
-  const navigate = useNavigate()
+  const { user, logout, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
 
   const handleLogout = async () => {
-    await logout()
-    navigate('/login')
-  }
+    await logout();
+    navigate('/login');
+  };
 
   return (
     <header className="bg-white shadow-md sticky top-0 z-50">
@@ -76,5 +76,5 @@ export function Header() {
         </div>
       </nav>
     </header>
-  )
+  );
 }

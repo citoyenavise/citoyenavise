@@ -4,7 +4,11 @@
  */
 
 import express from 'express';
-import { EluCommitment, CommitmentUpdate, CommitmentTracking } from '../models/EluCommitment.js';
+import {
+  EluCommitment,
+  CommitmentUpdate,
+  CommitmentTracking,
+} from '../models/EluCommitment.js';
 import { authMiddleware, authOptional } from '../middlewares/auth.js';
 
 const router = express.Router();
@@ -41,12 +45,12 @@ router.get('/', async (req, res, next) => {
       status,
       search,
       limit: parseInt(limit, 10),
-      offset: parseInt(offset, 10)
+      offset: parseInt(offset, 10),
     });
 
     res.json({
       success: true,
-      data: commitments
+      data: commitments,
     });
   } catch (err) {
     next(err);
@@ -74,7 +78,7 @@ router.get('/:id', authOptional, async (req, res, next) => {
     if (!commitment) {
       return res.status(404).json({
         success: false,
-        error: 'Engagement non trouvé'
+        error: 'Engagement non trouvé',
       });
     }
 
@@ -91,7 +95,7 @@ router.get('/:id', authOptional, async (req, res, next) => {
       data: commitment,
       updates,
       tracking,
-      isTracking
+      isTracking,
     });
   } catch (err) {
     next(err);
@@ -112,12 +116,12 @@ router.get('/elu/:eluId', async (req, res, next) => {
       status,
       search,
       limit: parseInt(limit, 10),
-      offset: parseInt(offset, 10)
+      offset: parseInt(offset, 10),
     });
 
     res.json({
       success: true,
-      data: commitments
+      data: commitments,
     });
   } catch (err) {
     next(err);
@@ -137,12 +141,12 @@ router.get('/status/:status', async (req, res, next) => {
     const commitments = await EluCommitment.list({
       status,
       limit: parseInt(limit, 10),
-      offset: parseInt(offset, 10)
+      offset: parseInt(offset, 10),
     });
 
     res.json({
       success: true,
-      data: commitments
+      data: commitments,
     });
   } catch (err) {
     next(err);
@@ -161,18 +165,18 @@ router.get('/search', async (req, res, next) => {
     if (!q || q.length < 2) {
       return res.status(400).json({
         success: false,
-        error: 'Au moins 2 caractères requis'
+        error: 'Au moins 2 caractères requis',
       });
     }
 
     const commitments = await EluCommitment.search(q, {
       limit: parseInt(limit, 10),
-      offset: parseInt(offset, 10)
+      offset: parseInt(offset, 10),
     });
 
     res.json({
       success: true,
-      data: commitments
+      data: commitments,
     });
   } catch (err) {
     next(err);
@@ -189,7 +193,7 @@ router.get('/stats', async (req, res, next) => {
 
     res.json({
       success: true,
-      data: stats
+      data: stats,
     });
   } catch (err) {
     next(err);
@@ -211,22 +215,25 @@ router.post('/:id/track', authMiddleware, async (req, res, next) => {
     if (!commitment) {
       return res.status(404).json({
         success: false,
-        error: 'Engagement non trouvé'
+        error: 'Engagement non trouvé',
       });
     }
 
-    const tracking = await CommitmentTracking.track(commitmentId, req.user.userId);
+    const tracking = await CommitmentTracking.track(
+      commitmentId,
+      req.user.userId
+    );
 
     if (tracking.error) {
       return res.status(409).json({
         success: false,
-        error: 'Vous suivez déjà cet engagement'
+        error: 'Vous suivez déjà cet engagement',
       });
     }
 
     res.status(201).json({
       success: true,
-      data: tracking
+      data: tracking,
     });
   } catch (err) {
     next(err);
@@ -247,13 +254,13 @@ router.delete('/:id/track', authMiddleware, async (req, res, next) => {
     if (!result) {
       return res.status(404).json({
         success: false,
-        error: 'Vous ne suiviez pas cet engagement'
+        error: 'Vous ne suiviez pas cet engagement',
       });
     }
 
     res.json({
       success: true,
-      message: 'Vous ne suivez plus cet engagement'
+      message: 'Vous ne suivez plus cet engagement',
     });
   } catch (err) {
     next(err);

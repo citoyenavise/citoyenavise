@@ -86,7 +86,7 @@ describe('Promise Model (Sequelize)', () => {
     it('should accept valid status values', () => {
       const validStatuses = ['engagee', 'en_cours', 'completee', 'abandonnee'];
 
-      validStatuses.forEach(status => {
+      validStatuses.forEach((status) => {
         const promise = PromiseModel.build({
           titre: 'Test',
           eluId: 1,
@@ -101,9 +101,14 @@ describe('Promise Model (Sequelize)', () => {
   describe('Status Enum', () => {
     it('should have 4 valid status values', () => {
       const statusAttribute = PromiseModel.rawAttributes.status;
-      const values = statusAttribute.values;
+      const { values } = statusAttribute;
 
-      expect(values).toEqual(['engagee', 'en_cours', 'completee', 'abandonnee']);
+      expect(values).toEqual([
+        'engagee',
+        'en_cours',
+        'completee',
+        'abandonnee',
+      ]);
     });
   });
 

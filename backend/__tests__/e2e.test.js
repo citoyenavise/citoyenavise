@@ -30,12 +30,16 @@ class APIClient {
   }
 
   async requestMagicLink(email) {
-    const response = await this.client.post('/api/v1/auth/magic-link', { email });
+    const response = await this.client.post('/api/v1/auth/magic-link', {
+      email,
+    });
     return response.data;
   }
 
   async verifyToken(token) {
-    const response = await this.client.get(`/api/v1/auth/verify?token=${token}`);
+    const response = await this.client.get(
+      `/api/v1/auth/verify?token=${token}`
+    );
     if (response.data.accessToken) {
       this.token = response.data.accessToken;
       this.client.defaults.headers.Authorization = `Bearer ${this.token}`;
@@ -44,7 +48,10 @@ class APIClient {
   }
 
   async completeProfile(data) {
-    const response = await this.client.post('/api/v1/auth/complete-profile', data);
+    const response = await this.client.post(
+      '/api/v1/auth/complete-profile',
+      data
+    );
     return response.data;
   }
 
@@ -54,7 +61,9 @@ class APIClient {
   }
 
   async signPetition(petitionId) {
-    const response = await this.client.post(`/api/v1/petitions/${petitionId}/sign`);
+    const response = await this.client.post(
+      `/api/v1/petitions/${petitionId}/sign`
+    );
     return response.data;
   }
 
@@ -75,7 +84,7 @@ test.describe.configure({ mode: 'parallel' });
 test.describe('Authentication Flow', () => {
   const testEmail = `user-${Date.now()}@test.citoyenavise.org`;
   const api = new APIClient();
-  let magicToken = null;
+  const magicToken = null;
 
   test('user can request magic link', async () => {
     const response = await api.requestMagicLink(testEmail);
@@ -134,7 +143,9 @@ test.describe('Petition Creation', () => {
     } catch (error) {
       // Si l'utilisateur n'est pas authentifié, c'est attendu
       if (error.response?.status === 401) {
-        console.log('ℹ️  Authentication required for petition creation (expected)');
+        console.log(
+          'ℹ️  Authentication required for petition creation (expected)'
+        );
       } else {
         throw error;
       }
@@ -158,7 +169,9 @@ test.describe('Petition Creation', () => {
     test.skip(!createdPetitionId, 'Petition not created');
 
     try {
-      const response = await api.client.post(`/api/v1/petitions/${createdPetitionId}/publish`);
+      const response = await api.client.post(
+        `/api/v1/petitions/${createdPetitionId}/publish`
+      );
       expect(response.data.status).toBe('published');
     } catch (error) {
       console.log('ℹ️  Publish endpoint status:', error.response?.status);
@@ -201,7 +214,9 @@ test.describe('Petition Signing', () => {
 
   test('user can view petition signatures', async () => {
     try {
-      const response = await api.client.get(`/api/v1/petitions/${petitionId}/signatures`);
+      const response = await api.client.get(
+        `/api/v1/petitions/${petitionId}/signatures`
+      );
       expect(response.data.signatures).toBeDefined();
       expect(Array.isArray(response.data.signatures)).toBe(true);
     } catch (error) {
@@ -223,7 +238,9 @@ test.describe('Signature Validation', () => {
       await api.signPetition(petitionId);
 
       // Tentative de doublon
-      const response = await api.client.post(`/api/v1/petitions/${petitionId}/sign`);
+      const response = await api.client.post(
+        `/api/v1/petitions/${petitionId}/sign`
+      );
       expect(response.status).not.toBe(200);
     } catch (error) {
       // Vérifier que c'est un erreur de conflit (409)
@@ -240,7 +257,9 @@ test.describe('Signature Validation', () => {
 
   test('user can unsign petition', async () => {
     try {
-      const response = await api.client.delete(`/api/v1/petitions/${petitionId}/sign`);
+      const response = await api.client.delete(
+        `/api/v1/petitions/${petitionId}/sign`
+      );
       expect(response.status).toBe(200);
       expect(response.data.signed).toBe(false);
     } catch (error) {

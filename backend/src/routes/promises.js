@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Routes pour les Promesses Ã‰lectorales
  * GET  /api/v1/promises
  * GET  /api/v1/promises/:id
@@ -11,8 +11,11 @@
 import express from 'express';
 import { Promise as PromiseModel, Elu } from '../models/index.js';
 import { authMiddleware } from '../middlewares/auth.js';
-import { logger } from '../middlewares/logger.js'
-import { calculateDetailedTransparencyScore, getTransparencyRating } from '../services/transparencyScore.js';
+import { logger } from '../middlewares/logger.js';
+import {
+  calculateDetailedTransparencyScore,
+  getTransparencyRating,
+} from '../services/transparencyScore.js';
 
 const router = express.Router();
 
@@ -30,7 +33,20 @@ router.get('/', async (req, res) => {
 
     const promises = await PromiseModel.findAll({
       where,
-      include: [{ model: Elu, as: 'elu', include: [{ model: PromiseModel, as: 'Promises', attributes: ['status'], required: false }] }],
+      include: [
+        {
+          model: Elu,
+          as: 'elu',
+          include: [
+            {
+              model: PromiseModel,
+              as: 'Promises',
+              attributes: ['status'],
+              required: false,
+            },
+          ],
+        },
+      ],
       limit: Math.min(parseInt(limit) || 20, 100),
       offset: parseInt(offset) || 0,
       order: [['deadline', 'ASC']],
@@ -38,7 +54,7 @@ router.get('/', async (req, res) => {
 
     const total = await PromiseModel.count({ where });
 
-    const promisesWithTransparency = promises.map(promise => {
+    const promisesWithTransparency = promises.map((promise) => {
       const transparency = calculateDetailedTransparencyScore(promise.elu);
       const rating = getTransparencyRating(transparency.overall);
 
@@ -75,7 +91,20 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const promise = await PromiseModel.findByPk(req.params.id, {
-      include: [{ model: Elu, as: 'elu', include: [{ model: PromiseModel, as: 'Promises', attributes: ['status'], required: false }] }],
+      include: [
+        {
+          model: Elu,
+          as: 'elu',
+          include: [
+            {
+              model: PromiseModel,
+              as: 'Promises',
+              attributes: ['status'],
+              required: false,
+            },
+          ],
+        },
+      ],
     });
 
     if (!promise) {
@@ -134,7 +163,9 @@ router.get('/elu/:eluId', async (req, res) => {
       order: [['deadline', 'ASC']],
     });
 
-    const transparency = calculateDetailedTransparencyScore({ Promises: promises });
+    const transparency = calculateDetailedTransparencyScore({
+      Promises: promises,
+    });
     const rating = getTransparencyRating(transparency.overall);
 
     res.json({
@@ -147,7 +178,9 @@ router.get('/elu/:eluId', async (req, res) => {
       count: promises.length,
     });
   } catch (err) {
-    logger.error('Error fetching elu promises', { meta: { error: err.message } });
+    logger.error('Error fetching elu promises', {
+      meta: { error: err.message },
+    });
     res.status(500).json({
       success: false,
       error: err.message,
@@ -284,7 +317,9 @@ router.put('/:id/status', authMiddleware, async (req, res) => {
       data: promise,
     });
   } catch (err) {
-    logger.error('Error updating promise status', { meta: { error: err.message } });
+    logger.error('Error updating promise status', {
+      meta: { error: err.message },
+    });
     res.status(500).json({
       success: false,
       error: err.message,
@@ -322,4 +357,3 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 });
 
 export default router;
-

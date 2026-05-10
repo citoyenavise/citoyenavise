@@ -19,14 +19,26 @@
   },
   "petitions": {
     "title": "Pétitions",
+    "subtitle": "Découvrez et signez les pétitions citoyennes",
     "create": "Créer une pétition",
     "sign": "Signer cette pétition",
     "unsign": "Retirer ma signature",
     "alreadySigned": "Vous avez déjà signé",
+    "signed": "Merci de votre signature !",
     "totalSignatures": "{{count}} signature(s)",
     "targetElu": "Adressée à",
     "createdBy": "Créée par",
-    "deadline": "Échéance"
+    "deadline": "Échéance",
+    "closed": "Fermée",
+    "won": "Gagnée",
+    "resetFilters": "Réinitialiser filtres",
+    "searchPlaceholder": "Titre ou description...",
+    "recent": "Récentes",
+    "popular": "Populaires",
+    "noFound": "Aucune pétition trouvée",
+    "noFoundHelp": "Essayez de modifier vos filtres ou votre recherche",
+    "retry": "Réessayer",
+    "petitions": "pétition(s)"
   },
   "elus": {
     "title": "Élus",
@@ -39,82 +51,26 @@
     "title": "Actualités",
     "publish": "Publier",
     "draft": "Brouillon",
-    "published": "Publié"
+    "published": "Publié",
+    "loading": "Chargement..."
   },
   "errors": {
     "notFound": "Non trouvé",
     "unauthorized": "Non autorisé",
     "serverError": "Erreur serveur"
   },
-  "home": {
-    "eyebrow": "Plateforme de participation citoyenne",
-    "title": "Comprendre, participer et <span>influencer</span> les décisions publiques",
-    "subtitle": "<strong>Citoyen Avisé</strong> transforme ta compréhension des enjeux civiques en actions concrètes. Accès à l'information transparente, débats constructifs, et influence réelle.",
-    "cta": {
-      "start": "Commencer maintenant",
-      "learnMore": "En savoir plus",
-      "createAccount": "Créer mon compte"
-    },
-    "meta": {
-      "citizens": "50K+ citoyens actifs",
-      "verified": "Données vérifiées",
-      "impact": "Impact réel"
-    },
-    "mascotte": {
-      "name": "Avisée",
-      "role": "Assistant IA",
-      "status": "Actif",
-      "question": "Quel enjeu te préoccupe le plus ?",
-      "engagement": "Engagement: 62%",
-      "live": "En direct"
-    },
-    "options": {
-      "climate": "Climat et environnement",
-      "education": "Éducation et formation",
-      "health": "Santé et bien-être"
-    },
-    "howItWorks": {
-      "eyebrow": "Comment ça marche",
-      "title": "3 étapes simples vers l'action",
-      "subtitle": "Transformez votre compréhension en impact réel.",
-      "step1": {
-        "title": "Comprendre",
-        "text": "Accédez à des informations vérifiées sur les enjeux civiques qui vous intéressent.",
-        "tag": "Articles de fond"
-      },
-      "step2": {
-        "title": "Participer",
-        "text": "Engagez-vous dans des débats constructifs avec d'autres citoyens et experts.",
-        "tag": "Débats en temps réel"
-      },
-      "step3": {
-        "title": "Influencer",
-        "text": "Votre voix compte. Participez aux votes et décisions qui façonnent votre communauté.",
-        "tag": "Impact mesurable"
-      }
-    },
-    "map": {
-      "eyebrow": "Carte citoyenne",
-      "title": "Engagement par région",
-      "subtitle": "Découvrez où le changement se fait et comment vous pouvez vous impliquer dans votre région.",
-      "header": "Canada - Mai 2026",
-      "activeRegions": "3 régions actives",
-      "west": "Ouest: 12,340 citoyens",
-      "engagement": "Engagement actif"
-    },
-    "cta2": {
-      "title": "Prêt à faire la différence ?",
-      "subtitle": "Rejoignez des milliers de citoyens qui transforment leur engagement en action."
-    }
-  },
   "common": {
+    "search": "Rechercher",
+    "status": "Statut",
+    "allStatus": "Tous les statuts",
+    "sortBy": "Trier par",
     "loading": "Chargement...",
-    "error": "Une erreur est survenue",
+    "error": "Erreur",
     "success": "Succès",
-    "cancel": "Annuler",
-    "save": "Enregistrer",
-    "delete": "Supprimer",
-    "edit": "Modifier",
-    "close": "Fermer"
+    "previous": "Précédent",
+    "next": "Suivant",
+    "page": "Page",
+    "of": "sur",
+    "view": "Voir"
   }
 }

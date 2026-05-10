@@ -8,18 +8,21 @@ import app from '../server.js';
 import { query } from '../db/pool.js';
 
 describe('Signatures — UNIQUE(petition_id, citoyen_id)', () => {
-  let citizen1, citizen2, petition1, jwt1;
+  let citizen1;
+  let citizen2;
+  let petition1;
+  let jwt1;
 
   beforeAll(async () => {
     // Setup: Create test citizens
     const userRes1 = await query(
-      `INSERT INTO users (email) VALUES ($1) RETURNING id`,
+      'INSERT INTO users (email) VALUES ($1) RETURNING id',
       [`test-citizen-1-${Date.now()}@example.com`]
     );
     citizen1 = userRes1.rows[0].id;
 
     const userRes2 = await query(
-      `INSERT INTO users (email) VALUES ($1) RETURNING id`,
+      'INSERT INTO users (email) VALUES ($1) RETURNING id',
       [`test-citizen-2-${Date.now()}@example.com`]
     );
     citizen2 = userRes2.rows[0].id;
@@ -54,8 +57,10 @@ describe('Signatures — UNIQUE(petition_id, citoyen_id)', () => {
 
   afterAll(async () => {
     // Cleanup
-    await query('DELETE FROM petition_signatures WHERE citoyen_id IN ($1, $2)',
-      [citizen1, citizen2]);
+    await query(
+      'DELETE FROM petition_signatures WHERE citoyen_id IN ($1, $2)',
+      [citizen1, citizen2]
+    );
     await query('DELETE FROM petitions WHERE id = $1', [petition1]);
     await query('DELETE FROM users WHERE id IN ($1, $2)', [citizen1, citizen2]);
   });
@@ -115,7 +120,7 @@ describe('Signatures — UNIQUE(petition_id, citoyen_id)', () => {
   describe('Integrity Constraints', () => {
     it('should enforce petition_id foreign key', async () => {
       const res = await request(app)
-        .post(`/api/v1/petitions/9999999/sign`)
+        .post('/api/v1/petitions/9999999/sign')
         .set('Authorization', `Bearer ${jwt1}`);
 
       expect(res.status).toBe(404);
@@ -123,8 +128,9 @@ describe('Signatures — UNIQUE(petition_id, citoyen_id)', () => {
     });
 
     it('should require authentication to sign', async () => {
-      const res = await request(app)
-        .post(`/api/v1/petitions/${petition1}/sign`);
+      const res = await request(app).post(
+        `/api/v1/petitions/${petition1}/sign`
+      );
 
       expect(res.status).toBe(401); // Unauthorized
     });
@@ -264,8 +270,7 @@ describe('Signatures — UNIQUE(petition_id, citoyen_id)', () => {
 
   describe('Signature Statistics', () => {
     it('should track signature count on petition', async () => {
-      const res = await request(app)
-        .get(`/api/v1/petitions/${petition1}`);
+      const res = await request(app).get(`/api/v1/petitions/${petition1}`);
 
       expect(res.body.success).toBe(true);
       expect(res.body.data).toHaveProperty('signatures_count');

@@ -11,7 +11,7 @@ export const i18nMiddleware = (req, res, next) => {
     // 2. Header Accept-Language
     req.headers['accept-language']?.split('-')[0] ||
     // 3. Préférence utilisateur (si authentifié)
-    (req.user?.preferredLanguage) ||
+    req.user?.preferredLanguage ||
     // 4. Défaut: français
     'fr';
 

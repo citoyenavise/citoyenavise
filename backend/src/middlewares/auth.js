@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Authentication Middleware
  * Vérifie JWT et protège les routes
  */
@@ -55,7 +55,7 @@ export const authMiddleware = (req, res, next) => {
     if (!authHeader.startsWith('Bearer ')) {
       return res.status(401).json({
         success: false,
-        error: 'Format d\'authentification invalide',
+        error: "Format d'authentification invalide",
         message: 'Format attendu: Authorization: Bearer <token>',
         code: 'INVALID_FORMAT',
       });
@@ -88,11 +88,14 @@ export const authMiddleware = (req, res, next) => {
         });
       }
 
-      if (jwtErr.name === 'JsonWebTokenError' || jwtErr.name === 'SyntaxError') {
+      if (
+        jwtErr.name === 'JsonWebTokenError' ||
+        jwtErr.name === 'SyntaxError'
+      ) {
         return res.status(403).json({
           success: false,
           error: 'Signature invalide',
-          message: 'Le token n\'est pas valide',
+          message: "Le token n'est pas valide",
           code: 'INVALID_SIGNATURE',
         });
       }
@@ -120,7 +123,7 @@ export const authMiddleware = (req, res, next) => {
       return res.status(403).json({
         success: false,
         error: 'Token malformé',
-        message: 'Le token ne contient pas d\'userId',
+        message: "Le token ne contient pas d'userId",
         code: 'MALFORMED_TOKEN',
       });
     }

@@ -193,7 +193,7 @@ export async function sendTestEmail(email) {
     from: process.env.SMTP_FROM || 'noreply@citoyenavise.org',
     to: email,
     subject: '🧪 Email de test - Citoyen Avisé',
-    text: 'Cet email confirme que le service d\'email fonctionne correctement.',
+    text: "Cet email confirme que le service d'email fonctionne correctement.",
   };
 
   try {

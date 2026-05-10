@@ -128,8 +128,8 @@ describe('Signatures - Idempotence & UNIQUE Constraint', () => {
         // UNIQUE constraint devrait générer une erreur
         expect(
           err.name === 'SequelizeUniqueConstraintError' ||
-          err.name === 'UniqueConstraintError' ||
-          err.message.includes('duplicate')
+            err.name === 'UniqueConstraintError' ||
+            err.message.includes('duplicate')
         ).toBe(true);
       }
     });
@@ -168,8 +168,9 @@ describe('Signatures - Idempotence & UNIQUE Constraint', () => {
 
   describe('Erreurs communes', () => {
     it('Signer sans authentification : 401 Unauthorized', async () => {
-      const response = await request(app)
-        .post(`/api/v1/petitions/${testPetition.id}/sign`);
+      const response = await request(app).post(
+        `/api/v1/petitions/${testPetition.id}/sign`
+      );
 
       expect(response.status).toBe(401);
       expect(response.body.success).toBe(false);

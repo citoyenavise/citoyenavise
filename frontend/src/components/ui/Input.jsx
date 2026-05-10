@@ -26,5 +26,5 @@ export function Input({
         <p className="text-error text-sm mt-1">{error}</p>
       )}
     </div>
-  )
+  );
 }

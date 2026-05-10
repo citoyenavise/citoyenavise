@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Admin Routes
  * Routes protÃ©gÃ©es pour l'administration de la plateforme
  * Gestion des missions, badges, utilisateurs, modÃ©ration
@@ -14,6 +14,7 @@
  */
 
 import express from 'express';
+import { Sequelize } from 'sequelize';
 import { authMiddleware } from '../middlewares/auth.js';
 import { checkAdmin } from '../middlewares/admin.js';
 import {
@@ -26,9 +27,11 @@ import {
   Elu,
   Promise as PromiseModel,
 } from '../models/index.js';
-import { Sequelize } from 'sequelize';
-import { logger } from '../middlewares/logger.js'
-import { calculateDetailedTransparencyScore, getTransparencyRating } from '../services/transparencyScore.js';
+import { logger } from '../middlewares/logger.js';
+import {
+  calculateDetailedTransparencyScore,
+  getTransparencyRating,
+} from '../services/transparencyScore.js';
 
 const router = express.Router();
 
@@ -61,23 +64,37 @@ router.get('/stats', async (req, res) => {
 
     // Promises and transparency stats
     const totalPromises = await PromiseModel.count();
-    const promisesCompleted = await PromiseModel.count({ where: { status: 'completee' } });
-    const promisesInProgress = await PromiseModel.count({ where: { status: 'en_cours' } });
-    const promisesAbandoned = await PromiseModel.count({ where: { status: 'abandonnee' } });
+    const promisesCompleted = await PromiseModel.count({
+      where: { status: 'completee' },
+    });
+    const promisesInProgress = await PromiseModel.count({
+      where: { status: 'en_cours' },
+    });
+    const promisesAbandoned = await PromiseModel.count({
+      where: { status: 'abandonnee' },
+    });
 
     // Calculate average transparency score
     const elus = await Elu.findAll({
-      include: [{ model: PromiseModel, as: 'Promises', attributes: ['status'], required: false }],
+      include: [
+        {
+          model: PromiseModel,
+          as: 'Promises',
+          attributes: ['status'],
+          required: false,
+        },
+      ],
     });
 
     let avgTransparencyScore = 0;
     if (elus.length > 0) {
-      const transparencyScores = elus.map(elu => {
+      const transparencyScores = elus.map((elu) => {
         const transparency = calculateDetailedTransparencyScore(elu);
         return transparency.overall;
       });
       avgTransparencyScore = Math.round(
-        transparencyScores.reduce((a, b) => a + b, 0) / transparencyScores.length
+        transparencyScores.reduce((a, b) => a + b, 0) /
+          transparencyScores.length
       );
     }
 
@@ -100,7 +117,10 @@ router.get('/stats', async (req, res) => {
           completed: promisesCompleted,
           inProgress: promisesInProgress,
           abandoned: promisesAbandoned,
-          completionRate: totalPromises > 0 ? Math.round((promisesCompleted / totalPromises) * 100) : 0,
+          completionRate:
+            totalPromises > 0
+              ? Math.round((promisesCompleted / totalPromises) * 100)
+              : 0,
         },
         transparency: {
           averageScore: avgTransparencyScore,
@@ -191,8 +211,13 @@ router.post('/users/:id/role', async (req, res) => {
     const oldRole = user.role;
     await user.update({ role });
 
-    logger.info(`User role changed by admin`, {
-      meta: { userId: id, oldRole, newRole: role, adminId: req.user.id },
+    logger.info('User role changed by admin', {
+      meta: {
+        userId: id,
+        oldRole,
+        newRole: role,
+        adminId: req.user.id,
+      },
     });
 
     res.json({
@@ -251,7 +276,7 @@ router.post('/missions', async (req, res) => {
       displayOrder,
     });
 
-    logger.info(`Mission created by admin`, {
+    logger.info('Mission created by admin', {
       meta: { missionId: mission.id, adminId: req.user.id },
     });
 
@@ -290,7 +315,7 @@ router.put('/missions/:id', async (req, res) => {
 
     await mission.update(updates);
 
-    logger.info(`Mission updated by admin`, {
+    logger.info('Mission updated by admin', {
       meta: { missionId: id, adminId: req.user.id },
     });
 
@@ -328,7 +353,7 @@ router.delete('/missions/:id', async (req, res) => {
 
     await mission.destroy();
 
-    logger.info(`Mission deleted by admin`, {
+    logger.info('Mission deleted by admin', {
       meta: { missionId: id, adminId: req.user.id },
     });
 
@@ -380,7 +405,7 @@ router.post('/badges', async (req, res) => {
       unlockCriteria,
     });
 
-    logger.info(`Badge created by admin`, {
+    logger.info('Badge created by admin', {
       meta: { badgeId: badge.id, adminId: req.user.id },
     });
 
@@ -419,7 +444,7 @@ router.put('/badges/:id', async (req, res) => {
 
     await badge.update(updates);
 
-    logger.info(`Badge updated by admin`, {
+    logger.info('Badge updated by admin', {
       meta: { badgeId: id, adminId: req.user.id },
     });
 
@@ -457,7 +482,7 @@ router.delete('/badges/:id', async (req, res) => {
 
     await badge.destroy();
 
-    logger.info(`Badge deleted by admin`, {
+    logger.info('Badge deleted by admin', {
       meta: { badgeId: id, adminId: req.user.id },
     });
 
@@ -477,4 +502,3 @@ router.delete('/badges/:id', async (req, res) => {
 });
 
 export default router;
-

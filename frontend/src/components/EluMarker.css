@@ -1,0 +1,35 @@
+.elu-popup {
+  min-width: 200px;
+}
+
+.elu-popup h3 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.elu-popup .titre {
+  color: #666;
+  font-size: 0.9rem;
+  margin: 0.2rem 0;
+}
+
+.elu-popup .region {
+  color: #999;
+  font-size: 0.85rem;
+  margin: 0.2rem 0 0.8rem 0;
+}
+
+.btn-detail {
+  display: inline-block;
+  padding: 0.4rem 0.8rem;
+  background: #C8102E;
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-size: 0.9rem;
+}
+
+.btn-detail:hover {
+  background: #8B0018;
+}

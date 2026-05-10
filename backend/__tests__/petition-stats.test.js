@@ -116,8 +116,9 @@ describe('GET /api/v1/petitions/:id/stats', () => {
 
   describe('✅ Cas de succès', () => {
     it('Stats basiques : 200 OK', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetition.id}/stats`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetition.id}/stats`
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.success).toBe(true);
@@ -125,8 +126,9 @@ describe('GET /api/v1/petitions/:id/stats', () => {
     });
 
     it('Stats contiennent tous les champs requis', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetition.id}/stats`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetition.id}/stats`
+      );
 
       const stats = response.body.data;
       expect(stats).toHaveProperty('totalSignatures');
@@ -138,32 +140,36 @@ describe('GET /api/v1/petitions/:id/stats', () => {
     });
 
     it('totalSignatures correct (5)', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetition.id}/stats`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetition.id}/stats`
+      );
 
       expect(response.body.data.totalSignatures).toBe(5);
     });
 
     it('totalComments correct (3)', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetition.id}/stats`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetition.id}/stats`
+      );
 
       expect(response.body.data.totalComments).toBe(3);
     });
 
     it('createdAt format YYYY-MM-DD', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetition.id}/stats`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetition.id}/stats`
+      );
 
-      const createdAt = response.body.data.createdAt;
+      const { createdAt } = response.body.data;
       expect(createdAt).toMatch(/^\d{4}-\d{2}-\d{2}$/);
     });
 
     it('creator inclut id et nomComplet', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetition.id}/stats`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetition.id}/stats`
+      );
 
-      const creator = response.body.data.creator;
+      const { creator } = response.body.data;
       expect(creator).toHaveProperty('id');
       expect(creator).toHaveProperty('nomComplet');
       expect(creator.id).toBe(testUser.id);
@@ -171,10 +177,11 @@ describe('GET /api/v1/petitions/:id/stats', () => {
     });
 
     it('targetElu inclut id et nom', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetition.id}/stats`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetition.id}/stats`
+      );
 
-      const targetElu = response.body.data.targetElu;
+      const { targetElu } = response.body.data;
       expect(targetElu).toHaveProperty('id');
       expect(targetElu).toHaveProperty('nom');
       expect(targetElu.id).toBe(testElu.id);
@@ -182,8 +189,9 @@ describe('GET /api/v1/petitions/:id/stats', () => {
     });
 
     it('percentageToGoal null sans goal', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetition.id}/stats`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetition.id}/stats`
+      );
 
       expect(response.body.data.percentageToGoal).toBeNull();
     });
@@ -191,45 +199,51 @@ describe('GET /api/v1/petitions/:id/stats', () => {
 
   describe('📊 Calcul percentageToGoal', () => {
     it('percentageToGoal 50% (5/10)', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetition.id}/stats?goal=10`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetition.id}/stats?goal=10`
+      );
 
       expect(response.body.data.percentageToGoal).toBe(50);
     });
 
     it('percentageToGoal 25% (5/20)', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetition.id}/stats?goal=20`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetition.id}/stats?goal=20`
+      );
 
       expect(response.body.data.percentageToGoal).toBe(25);
     });
 
     it('percentageToGoal 100% (5/5)', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetition.id}/stats?goal=5`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetition.id}/stats?goal=5`
+      );
 
       expect(response.body.data.percentageToGoal).toBe(100);
     });
 
     it('percentageToGoal 0% (5/100)', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetition.id}/stats?goal=100`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetition.id}/stats?goal=100`
+      );
 
       expect(response.body.data.percentageToGoal).toBe(5);
     });
 
     it('percentageToGoal arrondi 75% (3/4)', async () => {
       // 3/4 = 0.75 = 75%
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetition.id}/stats?goal=200`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetition.id}/stats?goal=200`
+      );
 
       // 5/200 = 0.025 = 2.5 → 3 (arrondi)
       expect(typeof response.body.data.percentageToGoal).toBe('number');
     });
 
     it('percentageToGoal > 100% (5/2 = 250%)', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetition.id}/stats?goal=2`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetition.id}/stats?goal=2`
+      );
 
       expect(response.body.data.percentageToGoal).toBe(250);
     });
@@ -237,16 +251,16 @@ describe('GET /api/v1/petitions/:id/stats', () => {
 
   describe('❌ Erreurs', () => {
     it('petition_id invalide : 400 Bad Request', async () => {
-      const response = await request(app)
-        .get('/api/v1/petitions/invalid/stats');
+      const response = await request(app).get(
+        '/api/v1/petitions/invalid/stats'
+      );
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
     });
 
     it('petition_id inexistant : 404 Not Found', async () => {
-      const response = await request(app)
-        .get('/api/v1/petitions/99999/stats');
+      const response = await request(app).get('/api/v1/petitions/99999/stats');
 
       expect(response.status).toBe(404);
       expect(response.body.success).toBe(false);
@@ -254,32 +268,36 @@ describe('GET /api/v1/petitions/:id/stats', () => {
     });
 
     it('goal invalide (négatif) : 400 Bad Request', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetition.id}/stats?goal=-10`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetition.id}/stats?goal=-10`
+      );
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
     });
 
     it('goal invalide (zéro) : 400 Bad Request', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetition.id}/stats?goal=0`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetition.id}/stats?goal=0`
+      );
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
     });
 
     it('goal invalide (non-entier) : 400 Bad Request', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetition.id}/stats?goal=abc`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetition.id}/stats?goal=abc`
+      );
 
       expect(response.status).toBe(400);
       expect(response.body.success).toBe(false);
     });
 
     it('goal invalide (float) : acceptable si > 0', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetition.id}/stats?goal=10.5`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetition.id}/stats?goal=10.5`
+      );
 
       // Zod coerce convertit en nombre entier
       expect(response.status).toBe(200);
@@ -287,17 +305,19 @@ describe('GET /api/v1/petitions/:id/stats', () => {
   });
 
   describe('📍 Pétitions sans élu', () => {
-    it('targetElu null si pas d\'élu', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetitionNoElu.id}/stats`);
+    it("targetElu null si pas d'élu", async () => {
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetitionNoElu.id}/stats`
+      );
 
       expect(response.status).toBe(200);
       expect(response.body.data.targetElu).toBeNull();
     });
 
     it('Autres stats présentes même sans élu', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetitionNoElu.id}/stats`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetitionNoElu.id}/stats`
+      );
 
       const stats = response.body.data;
       expect(stats.totalSignatures).toBeDefined();
@@ -310,8 +330,9 @@ describe('GET /api/v1/petitions/:id/stats', () => {
 
   describe('🔄 Public access', () => {
     it('Route accessible sans JWT', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetition.id}/stats`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetition.id}/stats`
+      );
 
       expect(response.status).toBe(200);
     });
@@ -327,15 +348,17 @@ describe('GET /api/v1/petitions/:id/stats', () => {
 
   describe('📊 Signatures = 0 (aucune signature)', () => {
     it('Stats avec 0 signatures', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetitionNoElu.id}/stats`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetitionNoElu.id}/stats`
+      );
 
       expect(response.body.data.totalSignatures).toBe(0);
     });
 
     it('percentageToGoal 0% avec 0 signatures et goal', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetitionNoElu.id}/stats?goal=100`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetitionNoElu.id}/stats?goal=100`
+      );
 
       expect(response.body.data.percentageToGoal).toBe(0);
     });
@@ -343,27 +366,37 @@ describe('GET /api/v1/petitions/:id/stats', () => {
 
   describe('📝 Format réponse', () => {
     it('Réponse inclut success: true', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetition.id}/stats`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetition.id}/stats`
+      );
 
       expect(response.body.success).toBe(true);
     });
 
     it('Réponse inclut data wrapper', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetition.id}/stats`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetition.id}/stats`
+      );
 
       expect(response.body.data).toBeDefined();
       expect(typeof response.body.data).toBe('object');
     });
 
     it('Aucun champ supplémentaire non documenté', async () => {
-      const response = await request(app)
-        .get(`/api/v1/petitions/${testPetition.id}/stats`);
+      const response = await request(app).get(
+        `/api/v1/petitions/${testPetition.id}/stats`
+      );
 
       const stats = response.body.data;
       const keys = Object.keys(stats).sort();
-      const expected = ['createdAt', 'creator', 'percentageToGoal', 'targetElu', 'totalComments', 'totalSignatures'].sort();
+      const expected = [
+        'createdAt',
+        'creator',
+        'percentageToGoal',
+        'targetElu',
+        'totalComments',
+        'totalSignatures',
+      ].sort();
 
       expect(keys).toEqual(expected);
     });

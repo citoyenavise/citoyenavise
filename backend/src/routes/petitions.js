@@ -6,6 +6,7 @@
 
 import express from 'express';
 import { z } from 'zod';
+import { Op } from 'sequelize';
 import Petition from '../models/Petition.js';
 import PetitionTranslation from '../models/PetitionTranslation.js';
 import Signature from '../models/Signature.js';
@@ -16,7 +17,6 @@ import { translate } from '../services/i18n.js';
 import { authMiddleware, checkOwnership } from '../middlewares/auth.js';
 import { checkAdmin } from '../middlewares/admin.js';
 import { signatureLimiter } from '../middlewares/rateLimiter.js';
-import { Op } from 'sequelize';
 
 const router = express.Router();
 
@@ -44,10 +44,12 @@ const listPetitionsQuerySchema = z.object({
 });
 
 const createPetitionSchema = z.object({
-  titre: z.string()
+  titre: z
+    .string()
     .min(10, 'Titre doit avoir minimum 10 caractères')
     .max(200, 'Titre ne doit pas dépasser 200 caractères'),
-  description: z.string()
+  description: z
+    .string()
     .min(20, 'Description doit avoir minimum 20 caractères')
     .max(2000, 'Description ne doit pas dépasser 2000 caractères'),
   eluId: z.number().int().positive().optional(),
@@ -55,11 +57,13 @@ const createPetitionSchema = z.object({
 });
 
 const updatePetitionSchema = z.object({
-  titre: z.string()
+  titre: z
+    .string()
     .min(10, 'Titre doit avoir minimum 10 caractères')
     .max(200, 'Titre ne doit pas dépasser 200 caractères')
     .optional(),
-  description: z.string()
+  description: z
+    .string()
     .min(20, 'Description doit avoir minimum 20 caractères')
     .max(2000, 'Description ne doit pas dépasser 2000 caractères')
     .optional(),
@@ -69,11 +73,13 @@ const updatePetitionSchema = z.object({
 
 const translationSchema = z.object({
   language: z.enum(['en', 'fr']),
-  titre: z.string()
+  titre: z
+    .string()
     .min(10, 'Titre doit avoir minimum 10 caractères')
     .max(200, 'Titre ne doit pas dépasser 200 caractères')
     .optional(),
-  description: z.string()
+  description: z
+    .string()
     .min(20, 'Description doit avoir minimum 20 caractères')
     .max(2000, 'Description ne doit pas dépasser 2000 caractères')
     .optional(),
@@ -123,7 +129,10 @@ router.get('/', async (req, res, next) => {
     // Déterminer l'ordre de tri
     let order = [['createdAt', 'DESC']]; // défaut
     if (sort === 'signatures_count') {
-      order = [['signaturesCount', 'DESC'], ['createdAt', 'DESC']];
+      order = [
+        ['signaturesCount', 'DESC'],
+        ['createdAt', 'DESC'],
+      ];
     } else if (sort === 'created_at') {
       order = [['createdAt', 'DESC']];
     }
@@ -131,7 +140,16 @@ router.get('/', async (req, res, next) => {
     // Récupérer pétitions avec relations
     const { count, rows } = await Petition.findAndCountAll({
       where,
-      attributes: ['id', 'titre', 'description', 'status', 'signaturesCount', 'deadline', 'createdAt', 'updatedAt'],
+      attributes: [
+        'id',
+        'titre',
+        'description',
+        'status',
+        'signaturesCount',
+        'deadline',
+        'createdAt',
+        'updatedAt',
+      ],
       include: [
         {
           model: User,
@@ -186,7 +204,18 @@ router.get('/:id', async (req, res, next) => {
     const lang = req.query.lang || 'fr';
 
     const petition = await Petition.findByPk(id, {
-      attributes: ['id', 'titre', 'description', 'status', 'signaturesCount', 'deadline', 'createdAt', 'updatedAt', 'citoyenId', 'eluId'],
+      attributes: [
+        'id',
+        'titre',
+        'description',
+        'status',
+        'signaturesCount',
+        'deadline',
+        'createdAt',
+        'updatedAt',
+        'citoyenId',
+        'eluId',
+      ],
       include: [
         {
           model: User,
@@ -313,9 +342,7 @@ router.get('/:id/stats', async (req, res, next) => {
     let percentageToGoal = null;
 
     if (goal && goal > 0) {
-      percentageToGoal = Math.round(
-        (petition.signaturesCount / goal) * 100
-      );
+      percentageToGoal = Math.round((petition.signaturesCount / goal) * 100);
     }
 
     // ═══════════════════════════════════════════════════════════════
@@ -327,14 +354,18 @@ router.get('/:id/stats', async (req, res, next) => {
         totalSignatures: petition.signaturesCount || 0,
         totalComments: commentCount,
         createdAt: petition.createdAt.toISOString().split('T')[0],
-        creator: petition.creator ? {
-          id: petition.creator.id,
-          nomComplet: petition.creator.nomComplet,
-        } : null,
-        targetElu: petition.elu ? {
-          id: petition.elu.id,
-          nom: petition.elu.nom,
-        } : null,
+        creator: petition.creator
+          ? {
+              id: petition.creator.id,
+              nomComplet: petition.creator.nomComplet,
+            }
+          : null,
+        targetElu: petition.elu
+          ? {
+              id: petition.elu.id,
+              nom: petition.elu.nom,
+            }
+          : null,
         percentageToGoal,
       },
     });
@@ -384,7 +415,16 @@ router.post('/', authMiddleware, async (req, res, next) => {
     });
 
     const createdPetition = await Petition.findByPk(petition.id, {
-      attributes: ['id', 'titre', 'description', 'status', 'signaturesCount', 'createdAt', 'citoyenId', 'eluId'],
+      attributes: [
+        'id',
+        'titre',
+        'description',
+        'status',
+        'signaturesCount',
+        'createdAt',
+        'citoyenId',
+        'eluId',
+      ],
       include: [
         {
           model: User,
@@ -483,7 +523,17 @@ router.put('/:id', authMiddleware, async (req, res, next) => {
 
     // Récupérer la pétition mise à jour avec relations
     const updatedPetition = await Petition.findByPk(id, {
-      attributes: ['id', 'titre', 'description', 'status', 'signaturesCount', 'createdAt', 'updatedAt', 'citoyenId', 'eluId'],
+      attributes: [
+        'id',
+        'titre',
+        'description',
+        'status',
+        'signaturesCount',
+        'createdAt',
+        'updatedAt',
+        'citoyenId',
+        'eluId',
+      ],
       include: [
         {
           model: User,
@@ -629,7 +679,7 @@ router.get('/:id/signatures', async (req, res, next) => {
       page,
       limit,
       totalPages: Math.ceil(count / limit),
-      data: rows.map(sig => ({
+      data: rows.map((sig) => ({
         id: sig.id,
         signer: sig.signer,
         createdAt: sig.createdAt,
@@ -653,99 +703,106 @@ router.get('/:id/signatures', async (req, res, next) => {
  * Réponse succès: { signed: true, totalSignatures: 123 }
  * Erreur doublon: 409 { signed: false, message: "Vous avez déjà signé cette pétition" }
  */
-router.post('/:id/sign', authMiddleware, signatureLimiter, async (req, res, next) => {
-  try {
-    // ═══════════════════════════════════════════════════════════════
-    // 1. Validation Zod : petition_id
-    // ═══════════════════════════════════════════════════════════════
-    const validation = idSchema.safeParse({ id: req.params.id });
-
-    if (!validation.success) {
-      return res.status(400).json({
-        signed: false,
-        message: translate('error.badRequest', req.lang),
-        details: validation.error.errors,
-      });
-    }
-
-    const petitionId = validation.data.id;
-
-    // ═══════════════════════════════════════════════════════════════
-    // 2. Vérifier que la pétition existe
-    // ═══════════════════════════════════════════════════════════════
-    const petition = await Petition.findByPk(petitionId);
-
-    if (!petition) {
-      return res.status(404).json({
-        signed: false,
-        message: translate('error.notFound', req.lang),
-      });
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    // 3. Vérifier que la pétition est publiée
-    // ═══════════════════════════════════════════════════════════════
-    if (petition.status !== 'published') {
-      return res.status(400).json({
-        signed: false,
-        message: translate('error.badRequest', req.lang),
-      });
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    // 4. Vérifier que l'utilisateur n'a pas déjà signé (UNIQUE violation)
-    // ═══════════════════════════════════════════════════════════════
-    const existingSignature = await Signature.findOne({
-      where: {
-        petitionId,
-        citoyenId: req.user.userId,
-      },
-    });
-
-    if (existingSignature) {
-      return res.status(409).json({
-        signed: false,
-        message: translate('petition.alreadySigned', req.lang),
-      });
-    }
-
-    // ═══════════════════════════════════════════════════════════════
-    // 5. INSERT signature (petition_id, citoyen_id)
-    // ═══════════════════════════════════════════════════════════════
+router.post(
+  '/:id/sign',
+  authMiddleware,
+  signatureLimiter,
+  async (req, res, next) => {
     try {
-      await Signature.create({
-        petitionId,
-        citoyenId: req.user.userId,
+      // ═══════════════════════════════════════════════════════════════
+      // 1. Validation Zod : petition_id
+      // ═══════════════════════════════════════════════════════════════
+      const validation = idSchema.safeParse({ id: req.params.id });
+
+      if (!validation.success) {
+        return res.status(400).json({
+          signed: false,
+          message: translate('error.badRequest', req.lang),
+          details: validation.error.errors,
+        });
+      }
+
+      const petitionId = validation.data.id;
+
+      // ═══════════════════════════════════════════════════════════════
+      // 2. Vérifier que la pétition existe
+      // ═══════════════════════════════════════════════════════════════
+      const petition = await Petition.findByPk(petitionId);
+
+      if (!petition) {
+        return res.status(404).json({
+          signed: false,
+          message: translate('error.notFound', req.lang),
+        });
+      }
+
+      // ═══════════════════════════════════════════════════════════════
+      // 3. Vérifier que la pétition est publiée
+      // ═══════════════════════════════════════════════════════════════
+      if (petition.status !== 'published') {
+        return res.status(400).json({
+          signed: false,
+          message: translate('error.badRequest', req.lang),
+        });
+      }
+
+      // ═══════════════════════════════════════════════════════════════
+      // 4. Vérifier que l'utilisateur n'a pas déjà signé (UNIQUE violation)
+      // ═══════════════════════════════════════════════════════════════
+      const existingSignature = await Signature.findOne({
+        where: {
+          petitionId,
+          citoyenId: req.user.userId,
+        },
       });
-    } catch (err) {
-      // Capturer UNIQUE violation au cas où
-      if (err.name === 'SequelizeUniqueConstraintError' ||
-          err.name === 'UniqueConstraintError') {
+
+      if (existingSignature) {
         return res.status(409).json({
           signed: false,
           message: translate('petition.alreadySigned', req.lang),
         });
       }
-      throw err;
+
+      // ═══════════════════════════════════════════════════════════════
+      // 5. INSERT signature (petition_id, citoyen_id)
+      // ═══════════════════════════════════════════════════════════════
+      try {
+        await Signature.create({
+          petitionId,
+          citoyenId: req.user.userId,
+        });
+      } catch (err) {
+        // Capturer UNIQUE violation au cas où
+        if (
+          err.name === 'SequelizeUniqueConstraintError' ||
+          err.name === 'UniqueConstraintError'
+        ) {
+          return res.status(409).json({
+            signed: false,
+            message: translate('petition.alreadySigned', req.lang),
+          });
+        }
+        throw err;
+      }
+
+      // ═══════════════════════════════════════════════════════════════
+      // 6. Incrémenter signatures_count sur petition
+      // ═══════════════════════════════════════════════════════════════
+      petition.signaturesCount += 1;
+      await petition.save();
+
+      // ═══════════════════════════════════════════════════════════════
+      // 7. Retourner { signed: true, totalSignatures: 123 }
+      // ═══════════════════════════════════════════════════════════════
+      res.status(201).json({
+        signed: true,
+        totalSignatures: petition.signaturesCount,
+      });
+    } catch (err) {
+      next(err);
     }
-
-    // ═══════════════════════════════════════════════════════════════
-    // 6. Incrémenter signatures_count sur petition
-    // ═══════════════════════════════════════════════════════════════
-    petition.signaturesCount += 1;
-    await petition.save();
-
-    // ═══════════════════════════════════════════════════════════════
-    // 7. Retourner { signed: true, totalSignatures: 123 }
-    // ═══════════════════════════════════════════════════════════════
-    res.status(201).json({
-      signed: true,
-      totalSignatures: petition.signaturesCount,
-    });
-  } catch (err) {
-    next(err);
   }
-});
+);
 
 /**
  * DELETE /api/v1/petitions/:id/sign
@@ -838,79 +895,86 @@ router.delete('/:id/sign', authMiddleware, async (req, res, next) => {
  * Crée ou met à jour une traduction pour la pétition
  * Au moins un de titre ou description doit être fourni
  */
-router.post('/:id/translations', authMiddleware, checkAdmin, async (req, res, next) => {
-  try {
-    // Valider petition_id
-    const idValidation = idSchema.safeParse({ id: req.params.id });
+router.post(
+  '/:id/translations',
+  authMiddleware,
+  checkAdmin,
+  async (req, res, next) => {
+    try {
+      // Valider petition_id
+      const idValidation = idSchema.safeParse({ id: req.params.id });
 
-    if (!idValidation.success) {
-      return res.status(400).json({
-        success: false,
-        error: translate('error.badRequest', req.lang),
-        details: idValidation.error.errors,
+      if (!idValidation.success) {
+        return res.status(400).json({
+          success: false,
+          error: translate('error.badRequest', req.lang),
+          details: idValidation.error.errors,
+        });
+      }
+
+      const { id } = idValidation.data;
+
+      // Valider body
+      const validation = translationSchema.safeParse(req.body);
+
+      if (!validation.success) {
+        return res.status(400).json({
+          success: false,
+          error: translate('error.validation', req.lang),
+          details: validation.error.errors,
+        });
+      }
+
+      const { language, titre, description } = validation.data;
+
+      // Vérifier qu'au moins un champ de traduction est fourni
+      if (!titre && !description) {
+        return res.status(400).json({
+          success: false,
+          error: translate('error.validation', req.lang),
+          details: [
+            { message: 'Au moins titre ou description doit être fourni' },
+          ],
+        });
+      }
+
+      // Vérifier que la pétition existe
+      const petition = await Petition.findByPk(id);
+
+      if (!petition) {
+        return res.status(404).json({
+          success: false,
+          error: translate('error.notFound', req.lang),
+        });
+      }
+
+      // Créer ou mettre à jour la traduction
+      const [translation, created] = await PetitionTranslation.findOrCreate({
+        where: { petitionId: id, language },
+        defaults: {
+          petitionId: id,
+          language,
+          titre: titre || null,
+          description: description || null,
+        },
       });
-    }
 
-    const { id } = idValidation.data;
+      // Mettre à jour si traduction existe
+      if (!created) {
+        if (titre !== undefined) translation.titre = titre;
+        if (description !== undefined) translation.description = description;
+        await translation.save();
+      }
 
-    // Valider body
-    const validation = translationSchema.safeParse(req.body);
-
-    if (!validation.success) {
-      return res.status(400).json({
-        success: false,
-        error: translate('error.validation', req.lang),
-        details: validation.error.errors,
+      res.status(created ? 201 : 200).json({
+        success: true,
+        message: created ? 'Traduction créée' : 'Traduction mise à jour',
+        data: translation,
       });
+    } catch (err) {
+      next(err);
     }
-
-    const { language, titre, description } = validation.data;
-
-    // Vérifier qu'au moins un champ de traduction est fourni
-    if (!titre && !description) {
-      return res.status(400).json({
-        success: false,
-        error: translate('error.validation', req.lang),
-        details: [{ message: 'Au moins titre ou description doit être fourni' }],
-      });
-    }
-
-    // Vérifier que la pétition existe
-    const petition = await Petition.findByPk(id);
-
-    if (!petition) {
-      return res.status(404).json({
-        success: false,
-        error: translate('error.notFound', req.lang),
-      });
-    }
-
-    // Créer ou mettre à jour la traduction
-    const [translation, created] = await PetitionTranslation.findOrCreate({
-      where: { petitionId: id, language },
-      defaults: {
-        petitionId: id,
-        language,
-        titre: titre || null,
-        description: description || null,
-      },
-    });
-
-    // Mettre à jour si traduction existe
-    if (!created) {
-      if (titre !== undefined) translation.titre = titre;
-      if (description !== undefined) translation.description = description;
-      await translation.save();
-    }
-
-    res.status(created ? 201 : 200).json({
-      success: true,
-      message: created ? 'Traduction créée' : 'Traduction mise à jour',
-      data: translation,
-    });
-  } catch (err) {
-    next(err);
   }
-});
+);
 
 export default router;

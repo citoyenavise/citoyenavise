@@ -1,7 +1,9 @@
-﻿import { DataTypes } from 'sequelize';
+import { DataTypes } from 'sequelize';
 import sequelize from '../db/sequelize.js';
 
-const PromiseTranslation = sequelize.define('PromiseTranslation', {
+const PromiseTranslation = sequelize.define(
+  'PromiseTranslation',
+  {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -29,7 +31,8 @@ const PromiseTranslation = sequelize.define('PromiseTranslation', {
       type: DataTypes.TEXT,
       allowNull: true,
     },
-  }, {
+  },
+  {
     tableName: 'promise_translations',
     timestamps: true,
     createdAt: 'created_at',
@@ -43,8 +46,8 @@ const PromiseTranslation = sequelize.define('PromiseTranslation', {
         fields: ['language'],
       },
     ],
-});
+  }
+);
 
 export default PromiseTranslation;
 export { PromiseTranslation };
-

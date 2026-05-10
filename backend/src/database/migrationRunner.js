@@ -2,199 +2,71 @@
  * Migration Runner — Gère les évolutions de schéma DB
  *
  * Utilisation:
- *   npm run migrate              # Exécuter les migrations pending
- *   npm run migrate:status       # Voir le status des migrations
- *   npm run migrate:rollback     # Rollback dernière migration (si possible)
+ *   npm run migrate    # Exécuter toutes les migrations SQL
+ *
+ * Format des fichiers:
+ *   {numero}_{description}.sql
+ *   Exemple: 001_create_users.sql, 010_i18n.sql
  */
 
 const fs = require('fs');
 const path = require('path');
-const { pool } = require('../core/services/database');
-const logger = require('../core/utils/logger');
 
-class MigrationRunner {
-  constructor() {
-    this.migrationsPath = path.join(__dirname, '../database/migrations');
-  }
+const runMigrations = async () => {
+  try {
+    // Import dynamique pour éviter les problèmes de dépendances circulaires
+    const sequelize = require('../db/sequelize').default;
 
-  /**
-   * Obtenir la liste des migrations SQL
-   */
-  getMigrations() {
-    try {
-      const files = fs.readdirSync(this.migrationsPath)
-        .filter(f => f.match(/^V\d+_.*\.sql$/))
-        .sort();
-
-      return files.map(file => {
-        const match = file.match(/^V(\d+)_(.*)\.sql$/);
-        return {
-          version: parseInt(match[1]),
-          name: match[2],
-          file,
-          path: path.join(this.migrationsPath, file),
-        };
-      });
-    } catch (err) {
-      logger.error('Erreur lecture migrations', { meta: { error: err.message } });
-      return [];
+    if (!sequelize) {
+      throw new Error('Sequelize instance not found');
     }
-  }
 
-  /**
-   * Obtenir les migrations déjà exécutées
-   */
-  async getExecutedMigrations(client) {
-    try {
-      const result = await client.query(`
-        SELECT version_number FROM schema_versions
-        ORDER BY version_number
-      `);
-      return result.rows.map(r => r.version_number);
-    } catch (err) {
-      // Table n'existe pas encore = première migration
-      return [];
-    }
-  }
+    const migrationsDir = path.join(__dirname, '../migrations');
 
-  /**
-   * Obtenir les migrations en attente
-   */
-  async getPendingMigrations() {
-    const client = await pool.connect();
-    try {
-      const migrations = this.getMigrations();
-      const executed = await this.getExecutedMigrations(client);
-      return migrations.filter(m => !executed.includes(m.version));
-    } finally {
-      client.release();
-    }
-  }
-
-  /**
-   * Exécuter une migration
-   */
-  async runMigration(migration) {
-    const client = await pool.connect();
-    const startTime = Date.now();
-
-    try {
-      logger.info(`Exécution migration: ${migration.file}`);
-
-      // Lire le fichier SQL
-      const sql = fs.readFileSync(migration.path, 'utf-8');
-
-      // Exécuter
-      await client.query(sql);
-
-      const executionTime = Date.now() - startTime;
-
-      logger.info(`✅ Migration complétée: ${migration.file} (${executionTime}ms)`);
-
-      return {
-        success: true,
-        version: migration.version,
-        executionTime,
-      };
-    } catch (err) {
-      logger.error(`❌ Migration échouée: ${migration.file}`, {
-        meta: { error: err.message },
-      });
-      throw err;
-    } finally {
-      client.release();
-    }
-  }
-
-  /**
-   * Exécuter toutes les migrations en attente
-   */
-  async runPendingMigrations() {
-    const pending = await this.getPendingMigrations();
-
-    if (pending.length === 0) {
-      logger.info('✅ Base de données à jour - aucune migration en attente');
+    // Vérifier que le dossier existe
+    if (!fs.existsSync(migrationsDir)) {
+      console.warn(`⚠️  Migrations directory not found: ${migrationsDir}`);
       return [];
     }
 
-    logger.info(`📋 ${pending.length} migrations en attente`);
+    const files = fs
+      .readdirSync(migrationsDir)
+      .filter((f) => f.endsWith('.sql'))
+      .sort();
+
+    if (files.length === 0) {
+      console.log('ℹ️  No migration files found');
+      return [];
+    }
+
+    console.log(`📋 Found ${files.length} migration file(s)\n`);
 
     const results = [];
-    for (const migration of pending) {
+    for (const file of files) {
       try {
-        const result = await this.runMigration(migration);
-        results.push(result);
+        console.log(`🔄 Running migration: ${file}`);
+        const sqlPath = path.join(migrationsDir, file);
+        const sql = fs.readFileSync(sqlPath, 'utf8');
+
+        // Exécuter le SQL
+        await sequelize.query(sql);
+        console.log(`✅ Migration ${file} complete\n`);
+
+        results.push({ file, status: 'success' });
       } catch (err) {
-        logger.error(`Migration échouée - arrêt`, { meta: { error: err.message } });
+        console.error(`❌ Migration ${file} failed:`, err.message);
+        results.push({ file, status: 'failed', error: err.message });
+        // Continuer avec les migrations suivantes ou arrêter?
+        // Pour la sécurité, on arrête à la première erreur
         throw err;
       }
     }
 
-    logger.info(`✅ Toutes les migrations (${results.length}) exécutées avec succès`);
     return results;
+  } catch (err) {
+    console.error('❌ Migration runner error:', err.message);
+    throw err;
   }
+};
 
-  /**
-   * Afficher le status
-   */
-  async showStatus() {
-    const migrations = this.getMigrations();
-    const client = await pool.connect();
-    try {
-      const executed = await this.getExecutedMigrations(client);
-
-      console.log('\n📊 Status des migrations:\n');
-      console.log('Version | Status    | Description');
-      console.log('--------|-----------|------------------');
-
-      for (const m of migrations) {
-        const status = executed.includes(m.version) ? '✅ Applied' : '⏳ Pending';
-        console.log(`V${m.version.toString().padStart(3, '0')}   | ${status.padEnd(9)} | ${m.name}`);
-      }
-
-      console.log(`\nTotal: ${migrations.length} migrations (${executed.length} appliquées)`);
-      console.log('');
-    } finally {
-      client.release();
-    }
-  }
-
-  /**
-   * Initialiser les migrations depuis schema.sql existant
-   * (backward compatibility)
-   */
-  async initFromSchemaSQL() {
-    const schemaPath = path.join(__dirname, '../database/schema.sql');
-
-    if (!fs.existsSync(schemaPath)) {
-      logger.warn('schema.sql non trouvé - impossible initialiser migrations');
-      return;
-    }
-
-    const client = await pool.connect();
-    try {
-      const executed = await this.getExecutedMigrations(client);
-
-      if (executed.length > 0) {
-        logger.info('Migrations déjà initialisées');
-        return;
-      }
-
-      logger.info('Initialisation depuis schema.sql...');
-      const schema = fs.readFileSync(schemaPath, 'utf-8');
-      await client.query(schema);
-
-      logger.info('✅ Schema.sql appliqué');
-    } catch (err) {
-      logger.error('Erreur initialisation schema', { meta: { error: err.message } });
-      throw err;
-    } finally {
-      client.release();
-    }
-  }
-}
-
-// Singleton
-const runner = new MigrationRunner();
-
-module.exports = runner;
+module.exports = { runMigrations };

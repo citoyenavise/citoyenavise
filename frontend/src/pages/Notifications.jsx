@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react'
-import { Card } from '../components/ui/Card'
-import { Avatar } from '../components/ui/Avatar'
-import { Loader } from '../components/ui/Loader'
+import { useState, useEffect } from 'react';
+import { Card } from '../components/ui/Card';
+import { Avatar } from '../components/ui/Avatar';
+import { Loader } from '../components/ui/Loader';
 
 export function Notifications() {
   const [notifications, setNotifications] = useState([
@@ -23,18 +23,16 @@ export function Notifications() {
       timestamp: new Date(Date.now() - 86400000),
       read: true,
     },
-  ])
-  const [loading, setLoading] = useState(false)
+  ]);
+  const [loading, setLoading] = useState(false);
 
-  const unreadCount = notifications.filter(n => !n.read).length
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const markAsRead = (id) => {
-    setNotifications(prev =>
-      prev.map(n => n.id === id ? { ...n, read: true } : n)
-    )
-  }
+    setNotifications((prev) => prev.map((n) => (n.id === id ? { ...n, read: true } : n)));
+  };
 
-  if (loading) return <Loader />
+  if (loading) return <Loader />;
 
   return (
     <div className="max-w-2xl mx-auto py-8 px-4">
@@ -53,7 +51,7 @@ export function Notifications() {
             <p className="text-gray-500">Aucune notification pour le moment</p>
           </Card>
         ) : (
-          notifications.map(notification => (
+          notifications.map((notification) => (
             <Card
               key={notification.id}
               className={`cursor-pointer transition ${
@@ -80,5 +78,5 @@ export function Notifications() {
         )}
       </div>
     </div>
-  )
+  );
 }

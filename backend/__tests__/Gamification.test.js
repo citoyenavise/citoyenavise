@@ -73,7 +73,7 @@ describe('Gamification System', () => {
 
     it('should have correct enum values', () => {
       const frequencies = ['daily', 'weekly', 'monthly', 'special'];
-      frequencies.forEach(freq => {
+      frequencies.forEach((freq) => {
         expect(['daily', 'weekly', 'monthly', 'special']).toContain(freq);
       });
     });

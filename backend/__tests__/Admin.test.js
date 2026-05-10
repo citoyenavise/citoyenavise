@@ -123,7 +123,7 @@ describe('Admin System', () => {
       const admins = await User.findAll({ where: { role: 'admin' } });
 
       expect(Array.isArray(admins)).toBe(true);
-      admins.forEach(admin => {
+      admins.forEach((admin) => {
         expect(admin.role).toBe('admin');
       });
     });
@@ -132,7 +132,7 @@ describe('Admin System', () => {
       const citizens = await User.findAll({ where: { role: 'citizen' } });
 
       expect(Array.isArray(citizens)).toBe(true);
-      citizens.forEach(citizen => {
+      citizens.forEach((citizen) => {
         expect(citizen.role).toBe('citizen');
       });
     });

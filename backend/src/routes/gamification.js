@@ -1,4 +1,4 @@
-﻿/**
+/**
  * Gamification Routes
  * Endpoints for user progression, missions, badges, and achievements
  * GET  /api/v1/gamification/progression
@@ -15,7 +15,7 @@ import { ActionLoggerService } from '../services/ActionLoggerService.js';
 import { MissionEngineService } from '../services/MissionEngineService.js';
 import { BadgeService } from '../services/BadgeService.js';
 import { Mission, Badge } from '../models/index.js';
-import { logger } from '../middlewares/logger.js'
+import { logger } from '../middlewares/logger.js';
 
 const router = express.Router();
 
@@ -37,7 +37,7 @@ router.get('/progression', authMiddleware, async (req, res) => {
       success: true,
       data: {
         progression,
-        badges: badges.map(b => ({
+        badges: badges.map((b) => ({
           id: b.badge.id,
           name: b.badge.nameFr,
           category: b.badge.category,
@@ -116,7 +116,7 @@ router.get('/missions', authMiddleware, async (req, res) => {
 
     res.json({
       success: true,
-      data: missions.map(m => ({
+      data: missions.map((m) => ({
         id: m.id,
         title: m.titleFr,
         description: m.descriptionFr,
@@ -156,7 +156,7 @@ router.get('/missions/completed', authMiddleware, async (req, res) => {
 
     res.json({
       success: true,
-      data: data.map(m => ({
+      data: data.map((m) => ({
         id: m.id,
         title: m.mission.titleFr,
         category: m.mission.category,
@@ -198,7 +198,11 @@ router.post('/missions/:missionId/start', authMiddleware, async (req, res) => {
     });
   } catch (err) {
     logger.error('Error starting mission', {
-      meta: { userId: req.user.id, missionId: req.params.missionId, error: err.message },
+      meta: {
+        userId: req.user.id,
+        missionId: req.params.missionId,
+        error: err.message,
+      },
     });
     res.status(500).json({
       success: false,
@@ -212,54 +216,66 @@ router.post('/missions/:missionId/start', authMiddleware, async (req, res) => {
  * Complete a mission
  * Protected endpoint
  */
-router.post('/missions/:missionId/complete', authMiddleware, async (req, res) => {
-  try {
-    const userId = req.user.id;
-    const { missionId } = req.params;
+router.post(
+  '/missions/:missionId/complete',
+  authMiddleware,
+  async (req, res) => {
+    try {
+      const userId = req.user.id;
+      const { missionId } = req.params;
 
-    // Find user mission progress
-    const progress = await MissionEngineService.getActiveMissions(userId);
-    const userProgress = progress.find(m => m.id === parseInt(missionId))?.userProgress;
+      // Find user mission progress
+      const progress = await MissionEngineService.getActiveMissions(userId);
+      const userProgress = progress.find(
+        (m) => m.id === parseInt(missionId)
+      )?.userProgress;
 
-    if (!userProgress) {
-      return res.status(404).json({
+      if (!userProgress) {
+        return res.status(404).json({
+          success: false,
+          error: 'Mission not found in user progress',
+        });
+      }
+
+      // Complete the mission
+      const completed = await MissionEngineService.completeMission(
+        userProgress.id
+      );
+
+      // Check for new badge unlocks
+      const newBadges = await BadgeService.checkAndUnlockBadges(userId);
+
+      res.json({
+        success: true,
+        data: {
+          mission: {
+            id: completed.id,
+            status: completed.status,
+            completedAt: completed.completedAt,
+          },
+          newBadges: newBadges.map((b) => ({
+            id: b.id,
+            name: b.nameFr,
+            icon: b.iconUrl,
+            rarity: b.rarity,
+          })),
+        },
+      });
+    } catch (err) {
+      logger.error('Error completing mission', {
+        meta: {
+          userId: req.user.id,
+          missionId: req.params.missionId,
+          error: err.message,
+        },
+      });
+      res.status(500).json({
         success: false,
-        error: 'Mission not found in user progress',
+        error: err.message,
       });
     }
-
-    // Complete the mission
-    const completed = await MissionEngineService.completeMission(userProgress.id);
-
-    // Check for new badge unlocks
-    const newBadges = await BadgeService.checkAndUnlockBadges(userId);
-
-    res.json({
-      success: true,
-      data: {
-        mission: {
-          id: completed.id,
-          status: completed.status,
-          completedAt: completed.completedAt,
-        },
-        newBadges: newBadges.map(b => ({
-          id: b.id,
-          name: b.nameFr,
-          icon: b.iconUrl,
-          rarity: b.rarity,
-        })),
-      },
-    });
-  } catch (err) {
-    logger.error('Error completing mission', {
-      meta: { userId: req.user.id, missionId: req.params.missionId, error: err.message },
-    });
-    res.status(500).json({
-      success: false,
-      error: err.message,
-    });
   }
-});
+);
 
 /**
  * GET /api/v1/gamification/badges
@@ -273,12 +289,12 @@ router.get('/badges', authMiddleware, async (req, res) => {
 
     const badgeProgress = await BadgeService.getBadgeProgress(userId);
     const filtered = category
-      ? badgeProgress.filter(b => b.category === category)
+      ? badgeProgress.filter((b) => b.category === category)
       : badgeProgress;
 
     res.json({
       success: true,
-      data: filtered.map(b => ({
+      data: filtered.map((b) => ({
         id: b.id,
         name: b.nameFr,
         description: b.descriptionFr,
@@ -343,4 +359,3 @@ router.get('/badges/:badgeId', async (req, res) => {
 });
 
 export default router;
-

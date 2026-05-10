@@ -1,40 +1,40 @@
-import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
-import { useAuth } from '../hooks/useAuth'
-import { Card } from '../components/ui/Card'
-import { Button } from '../components/ui/Button'
-import { Input } from '../components/ui/Input'
+import { useState } from 'react';
+import { useNavigate, Link } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
+import { Card } from '../components/ui/Card';
+import { Button } from '../components/ui/Button';
+import { Input } from '../components/ui/Input';
 
 export function Register() {
-  const [email, setEmail] = useState('')
-  const [username, setUsername] = useState('')
-  const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
-  const [error, setError] = useState('')
-  const [loading, setLoading] = useState(false)
-  const { register } = useAuth()
-  const navigate = useNavigate()
+  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const { register } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
+    e.preventDefault();
+    setError('');
 
     if (password !== confirmPassword) {
-      setError('Les mots de passe ne correspondent pas')
-      return
+      setError('Les mots de passe ne correspondent pas');
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
 
     try {
-      await register(email, password, username)
-      navigate('/feed')
+      await register(email, password, username);
+      navigate('/feed');
     } catch (err) {
-      setError(err.message || 'Erreur d\'inscription')
+      setError(err.message || 'Erreur d\'inscription');
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
@@ -88,5 +88,5 @@ export function Register() {
         </p>
       </Card>
     </div>
-  )
+  );
 }

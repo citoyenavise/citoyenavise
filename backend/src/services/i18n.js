@@ -45,7 +45,7 @@ const translations = {
     // Admin
     'admin.userRoleUpdated': 'Rôle utilisateur modifié',
     'admin.missionCreated': 'Mission créée',
-    'admin.badgeCreated': 'Badge créé'
+    'admin.badgeCreated': 'Badge créé',
   },
 
   en: {
@@ -89,8 +89,8 @@ const translations = {
     // Admin
     'admin.userRoleUpdated': 'User role updated',
     'admin.missionCreated': 'Mission created',
-    'admin.badgeCreated': 'Badge created'
-  }
+    'admin.badgeCreated': 'Badge created',
+  },
 };
 
 /**
@@ -101,10 +101,10 @@ const translations = {
  * @returns {string} Texte traduit
  */
 export const translate = (key, lang = 'fr', params = {}) => {
-  let text = translations[lang]?.[key] || translations['fr'][key] || key;
+  let text = translations[lang]?.[key] || translations.fr[key] || key;
 
   // Interpolation des paramètres
-  Object.keys(params).forEach(param => {
+  Object.keys(params).forEach((param) => {
     text = text.replace(`{{${param}}}`, String(params[param]));
   });
 
@@ -116,9 +116,8 @@ export const translate = (key, lang = 'fr', params = {}) => {
  * @param {string} lang - Langue ('fr' ou 'en')
  * @returns {object} Objet de traductions
  */
-export const getTranslations = (lang = 'fr') => {
-  return translations[lang] || translations['fr'];
-};
+export const getTranslations = (lang = 'fr') =>
+  translations[lang] || translations.fr;
 
 /**
  * Ajouter une nouvelle traduction
@@ -136,5 +135,5 @@ export const addTranslation = (key, frText, enText) => {
 export default {
   translate,
   getTranslations,
-  addTranslation
+  addTranslation,
 };

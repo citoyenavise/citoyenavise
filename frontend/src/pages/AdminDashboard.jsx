@@ -6,13 +6,14 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuthStore } from '../stores/auth';
+import { useAuth } from '../hooks/useAuth';
+import { api } from '../api/client';
 import '../styles/AdminDashboard.css';
 
 export function AdminDashboard() {
   const navigate = useNavigate();
-  const user = useAuthStore(s => s.user);
-  const token = useAuthStore(s => s.token);
+  const { user } = useAuth();
+  const token = api.getAuthToken();
 
   // Redirection si pas admin
   useEffect(() => {
@@ -112,12 +113,12 @@ export function AdminDashboard() {
           completee: 0,
           abandonnee: 0,
         };
-        json.data?.forEach(p => {
+        json.data?.forEach((p) => {
           if (p.status in byStatus) {
             byStatus[p.status]++;
           }
         });
-        setStats(prev => ({ ...prev, promisesByStatus: byStatus }));
+        setStats((prev) => ({ ...prev, promisesByStatus: byStatus }));
       }
     } catch (err) {
       setError('Erreur lors du chargement des promesses');
@@ -129,7 +130,7 @@ export function AdminDashboard() {
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       [name]: value,
     }));
@@ -180,7 +181,7 @@ export function AdminDashboard() {
               deadline: formData.deadline,
               status: formData.status,
             }),
-          }
+          },
         );
 
         if (response.ok) {
@@ -193,7 +194,7 @@ export function AdminDashboard() {
         }
       }
     } catch (err) {
-      setError('Erreur serveur: ' + err.message);
+      setError(`Erreur serveur: ${err.message}`);
       console.error(err);
     }
   };
@@ -229,7 +230,7 @@ export function AdminDashboard() {
         setError('Erreur lors de la suppression');
       }
     } catch (err) {
-      setError('Erreur serveur: ' + err.message);
+      setError(`Erreur serveur: ${err.message}`);
       console.error(err);
     }
   };
@@ -251,7 +252,7 @@ export function AdminDashboard() {
         setError('Erreur lors de la mise à jour du statut');
       }
     } catch (err) {
-      setError('Erreur serveur: ' + err.message);
+      setError(`Erreur serveur: ${err.message}`);
       console.error(err);
     }
   };
@@ -354,7 +355,7 @@ export function AdminDashboard() {
               required
             >
               <option value="">-- Sélectionner un élu --</option>
-              {elus.map(elu => (
+              {elus.map((elu) => (
                 <option key={elu.id} value={elu.id}>
                   {elu.nom} ({elu.titre})
                 </option>
@@ -456,7 +457,7 @@ export function AdminDashboard() {
                 </tr>
               </thead>
               <tbody>
-                {promises.map(promise => (
+                {promises.map((promise) => (
                   <tr key={promise.id}>
                     <td className="promise-titre">
                       <strong>{promise.titre}</strong>
@@ -469,8 +470,7 @@ export function AdminDashboard() {
                       <select
                         className={`status-select status-${promise.status}`}
                         value={promise.status}
-                        onChange={e =>
-                          handleStatusChange(promise.id, e.target.value)
+                        onChange={(e) => handleStatusChange(promise.id, e.target.value)
                         }
                       >
                         <option value="engagee">Engagée</option>
@@ -509,7 +509,7 @@ export function AdminDashboard() {
         <div className="modal-overlay" onClick={() => setShowModal(false)}>
           <div
             className="modal-content"
-            onClick={e => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
           >
             <div className="modal-header">
               <h2>✏️ Éditer la Promesse</h2>

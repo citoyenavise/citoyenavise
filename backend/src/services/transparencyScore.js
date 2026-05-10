@@ -3,13 +3,13 @@ export const calculateTransparencyScore = (elu) => {
 
   if (promises.length === 0) return 0;
 
-  const completed = promises.filter(p => p.status === 'completee').length;
-  const abandoned = promises.filter(p => p.status === 'abandonnee').length;
+  const completed = promises.filter((p) => p.status === 'completee').length;
+  const abandoned = promises.filter((p) => p.status === 'abandonnee').length;
 
   const completionRate = (completed / promises.length) * 100;
   const keepRate = ((promises.length - abandoned) / promises.length) * 100;
 
-  const score = (completionRate * 0.7) + (keepRate * 0.3);
+  const score = completionRate * 0.7 + keepRate * 0.3;
 
   return Math.round(score);
 };
@@ -26,19 +26,19 @@ export const calculateDetailedTransparencyScore = (elu) => {
       completed: 0,
       inProgress: 0,
       abandoned: 0,
-      committed: 0
+      committed: 0,
     };
   }
 
-  const completed = promises.filter(p => p.status === 'completee').length;
-  const inProgress = promises.filter(p => p.status === 'en_cours').length;
-  const abandoned = promises.filter(p => p.status === 'abandonnee').length;
-  const committed = promises.filter(p => p.status === 'engagee').length;
+  const completed = promises.filter((p) => p.status === 'completee').length;
+  const inProgress = promises.filter((p) => p.status === 'en_cours').length;
+  const abandoned = promises.filter((p) => p.status === 'abandonnee').length;
+  const committed = promises.filter((p) => p.status === 'engagee').length;
 
   const completionRate = (completed / promises.length) * 100;
   const keepRate = ((promises.length - abandoned) / promises.length) * 100;
 
-  const overall = (completionRate * 0.7) + (keepRate * 0.3);
+  const overall = completionRate * 0.7 + keepRate * 0.3;
 
   return {
     overall: Math.round(overall),
@@ -48,7 +48,7 @@ export const calculateDetailedTransparencyScore = (elu) => {
     completed,
     inProgress,
     abandoned,
-    committed
+    committed,
   };
 };
 

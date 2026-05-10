@@ -40,7 +40,10 @@ app.use((req, res, next) => {
   // Referrer Policy - Control referrer information
   res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
   // Permissions Policy - Control which features the browser can use
-  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  res.setHeader(
+    'Permissions-Policy',
+    'geolocation=(), microphone=(), camera=()'
+  );
   next();
 });
 
@@ -51,7 +54,9 @@ app.use((req, res, next) => {
 // Prévient les attaques CSRF et contrôle l'accès aux ressources
 const corsOptions = {
   // Autoriser uniquement les origines spécifiées
-  origin: config.CORS_ORIGIN ? config.CORS_ORIGIN.split(',').map(url => url.trim()) : 'http://localhost:3001',
+  origin: config.CORS_ORIGIN
+    ? config.CORS_ORIGIN.split(',').map((url) => url.trim())
+    : 'http://localhost:3001',
   // Autoriser les credentials (cookies, authorization headers)
   credentials: true,
   // Options success status (certains navigateurs legacy)
@@ -158,7 +163,7 @@ async function initializeApp() {
 
     return server;
   } catch (error) {
-    console.error('❌ Erreur lors de l\'initialisation:', error.message);
+    console.error("❌ Erreur lors de l'initialisation:", error.message);
     process.exit(1);
   }
 }

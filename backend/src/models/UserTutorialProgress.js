@@ -20,7 +20,13 @@ export const UserTutorialProgress = (sequelize) => {
         references: { model: 'civic_tutorials', key: 'id' },
       },
       status: {
-        type: DataTypes.ENUM('locked', 'available', 'in_progress', 'completed', 'mastered'),
+        type: DataTypes.ENUM(
+          'locked',
+          'available',
+          'in_progress',
+          'completed',
+          'mastered'
+        ),
         defaultValue: 'available',
       },
       startedAt: {
