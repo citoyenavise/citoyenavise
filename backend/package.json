@@ -15,7 +15,10 @@
     "lint": "eslint src/ __tests__/",
     "lint:fix": "eslint src/ __tests__/ --fix",
     "format": "prettier --write \"src/**/*.js\" \"__tests__/**/*.js\"",
-    "security:check": "npm audit --audit-level=moderate"
+    "security:check": "npm audit --audit-level=moderate",
+    "migrate": "node src/database/migrationRunner.js",
+    "migrate:status": "node src/database/migrationRunner.js --status",
+    "migrate:rollback": "node src/database/migrationRunner.js --rollback"
   },
   "keywords": [
     "civic",

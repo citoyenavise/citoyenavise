@@ -15,6 +15,7 @@ import actualitesRoutes from './actualites.js';
 import commentsRoutes from './comments.js';
 import publicDataRoutes from './public-data.js';
 import healthRoutes from './health.js';
+import promisesRoutes from './promises.js';
 // import usersRoutes from './users.js';
 // import votesRoutes from './votes.js';
 
@@ -61,6 +62,7 @@ router.use('/api/v1/petitions', petitionsRoutes);
 router.use('/api/v1/elu-commitments', eluCommitmentsRoutes);
 router.use('/api/v1/actualites', actualitesRoutes);
 router.use('/api/v1/public-data', publicDataRoutes);
+router.use('/api/v1/promises', promisesRoutes);
 // router.use('/api/v1/posts', postsRoutes); // Non utilisé
 router.use('/api/v1', commentsRoutes);
 

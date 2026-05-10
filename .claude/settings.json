@@ -174,7 +174,8 @@
       "Bash(chmod +x scripts/deploy-staging.sh)",
       "Bash(node -c src/services/pde/IngestionService.js)",
       "Bash(node -c src/routes/public-data.js)",
-      "Bash(node -c c:\\\\\\\\Users\\\\\\\\Dave\\\\\\\\citoyenavise\\\\\\\\backend\\\\\\\\src\\\\\\\\routes\\\\\\\\public-data.js)"
+      "Bash(node -c c:\\\\\\\\Users\\\\\\\\Dave\\\\\\\\citoyenavise\\\\\\\\backend\\\\\\\\src\\\\\\\\routes\\\\\\\\public-data.js)",
+      "Bash(psql postgresql://postgres:postgres@localhost:5432/citoyenavise_dev -f src/database/migrations/V004_promises.sql)"
     ],
     "additionalDirectories": [
       "c:\\Users\\Dave\\citoyenavise\\backend",

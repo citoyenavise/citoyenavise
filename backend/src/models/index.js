@@ -10,6 +10,7 @@ import Signature from './Signature.js';
 import Actualite from './Actualite.js';
 import EmailVerification from './EmailVerification.js';
 import Comment from './Comment.js';
+import Promise from './Promise.js';
 
 // Define Relations
 // ═══════════════════════════════════════════════════════════════════
@@ -44,6 +45,11 @@ User.hasMany(Comment, {
 Elu.hasMany(Petition, {
   foreignKey: 'eluId',
   as: 'petitions',
+});
+
+Elu.hasMany(Promise, {
+  foreignKey: 'eluId',
+  as: 'promises',
 });
 
 // Petition Relations
@@ -95,11 +101,17 @@ Comment.belongsTo(User, {
   as: 'author',
 });
 
+// Promise Relations
+Promise.belongsTo(Elu, {
+  foreignKey: 'eluId',
+  as: 'elu',
+});
+
 // ═══════════════════════════════════════════════════════════════════
 // Export all models
 // ═══════════════════════════════════════════════════════════════════
 
-export { User, Elu, Petition, Signature, Actualite, EmailVerification, Comment };
+export { User, Elu, Petition, Signature, Actualite, EmailVerification, Comment, Promise };
 
 export default {
   User,
@@ -109,4 +121,5 @@ export default {
   Actualite,
   EmailVerification,
   Comment,
+  Promise,
 };
