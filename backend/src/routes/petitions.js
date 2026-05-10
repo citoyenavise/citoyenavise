@@ -578,62 +578,81 @@ router.post('/:id/sign', authMiddleware, async (req, res, next) => {
 
 /**
  * DELETE /api/v1/petitions/:id/sign
- * Retirer sa signature d'une pétition (protégée)
+ * Retirer sa signature d'une pétition (protégée, JWT required)
+ *
+ * Validations:
+ * - petition_id (integer positif) ✓ Zod
+ * - citoyen_id du token ✓ authMiddleware
+ * - Pétition existe ✓ findByPk
+ * - Signature existe ✓ findOne
+ *
+ * Réponse succès: { unsigned: true, totalSignatures: 122 }
+ * Erreur signature inexistante: 404 { unsigned: false, message: "..." }
  */
 router.delete('/:id/sign', authMiddleware, async (req, res, next) => {
   try {
+    // ═══════════════════════════════════════════════════════════════
+    // 1. Validation Zod : petition_id
+    // ═══════════════════════════════════════════════════════════════
     const validation = idSchema.safeParse({ id: req.params.id });
 
     if (!validation.success) {
       return res.status(400).json({
-        success: false,
-        error: 'ID invalide',
+        unsigned: false,
+        message: 'petition_id invalide',
         details: validation.error.errors,
       });
     }
 
-    const { id } = validation.data;
+    const petitionId = validation.data.id;
 
-    // Vérifier que la pétition existe
-    const petition = await Petition.findByPk(id);
+    // ═══════════════════════════════════════════════════════════════
+    // 2. Vérifier que la pétition existe
+    // ═══════════════════════════════════════════════════════════════
+    const petition = await Petition.findByPk(petitionId);
 
     if (!petition) {
       return res.status(404).json({
-        success: false,
-        error: 'Pétition non trouvée',
+        unsigned: false,
+        message: 'Pétition non trouvée',
       });
     }
 
-    // Chercher et supprimer la signature
+    // ═══════════════════════════════════════════════════════════════
+    // 3. DELETE signature WHERE petition_id = :id AND citoyen_id
+    // ═══════════════════════════════════════════════════════════════
     const signature = await Signature.findOne({
       where: {
-        petitionId: id,
+        petitionId,
         citoyenId: req.user.userId,
       },
     });
 
+    // Signature n'existe pas : return 404
     if (!signature) {
       return res.status(404).json({
-        success: false,
-        error: 'Vous n\'aviez pas signé cette pétition',
-        code: 'SIGNATURE_NOT_FOUND',
+        unsigned: false,
+        message: 'Vous n\'aviez pas signé cette pétition',
       });
     }
 
+    // Supprimer la signature
     await signature.destroy();
 
-    // Diminuer le compteur de signatures
+    // ═══════════════════════════════════════════════════════════════
+    // 4. Décrémenter signatures_count
+    // ═══════════════════════════════════════════════════════════════
     if (petition.signaturesCount > 0) {
       petition.signaturesCount -= 1;
       await petition.save();
     }
 
+    // ═══════════════════════════════════════════════════════════════
+    // 5. Return { unsigned: true, totalSignatures: 122 }
+    // ═══════════════════════════════════════════════════════════════
     res.json({
-      success: true,
-      message: 'Signature retirée',
-      data: {
-        petitionId: id,
-      },
+      unsigned: true,
+      totalSignatures: petition.signaturesCount,
     });
   } catch (err) {
     next(err);
