@@ -159,10 +159,26 @@
       "Bash(npm list *)",
       "Bash(git rm *)",
       "PowerShell(Get-ChildItem \"C:\\\\Users\\\\Dave\\\\citoyenavise\\\\backend\\\\src\\\\routes\" -File | ForEach-Object { Select-String \"Circonscription|EluCommitment|Post\" $_.FullName } | Select-Object Path, Line -Unique)",
-      "PowerShell($file = \"C:\\\\Users\\\\Dave\\\\citoyenavise\\\\backend\\\\src\\\\routes\\\\petitions.js\"; \\(Get-Content $file | Measure-Object -Line\\).Lines)"
+      "PowerShell($file = \"C:\\\\Users\\\\Dave\\\\citoyenavise\\\\backend\\\\src\\\\routes\\\\petitions.js\"; \\(Get-Content $file | Measure-Object -Line\\).Lines)",
+      "Bash(curl -s http://localhost:5173)",
+      "Bash(curl -s http://localhost:5000)",
+      "Bash(for file *)",
+      "Read(//c/Users/Dave/citoyenavise/frontend/src/**)",
+      "Bash(curl -s http://localhost:3001/create-petition)",
+      "Bash(start \"http://localhost:3001/create-petition\")",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"c:\\\\Users\\\\Dave\\\\citoyenavise\\\\.github\\\\workflows\")",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"c:\\\\Users\\\\Dave\\\\citoyenavise\\\\scripts\")",
+      "Bash(git restore *)",
+      "Bash(git reset *)",
+      "Bash(git clean *)",
+      "Bash(chmod +x scripts/deploy-staging.sh)",
+      "Bash(node -c src/services/pde/IngestionService.js)",
+      "Bash(node -c src/routes/public-data.js)",
+      "Bash(node -c c:\\\\\\\\Users\\\\\\\\Dave\\\\\\\\citoyenavise\\\\\\\\backend\\\\\\\\src\\\\\\\\routes\\\\\\\\public-data.js)"
     ],
     "additionalDirectories": [
-      "c:\\Users\\Dave\\citoyenavise\\backend"
+      "c:\\Users\\Dave\\citoyenavise\\backend",
+      "c:\\Users\\Dave\\citoyenavise"
     ]
   }
 }

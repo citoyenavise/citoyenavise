@@ -13,6 +13,8 @@ import eluCommitmentsRoutes from './elu-commitments.js';
 import actualitesRoutes from './actualites.js';
 // import postsRoutes from './posts.js'; // Non utilisé
 import commentsRoutes from './comments.js';
+import publicDataRoutes from './public-data.js';
+import healthRoutes from './health.js';
 // import usersRoutes from './users.js';
 // import votesRoutes from './votes.js';
 
@@ -20,17 +22,12 @@ const router = express.Router();
 const config = getConfig();
 
 /**
- * GET /health
- * Endpoint de santé pour les health checks (Render, monitoring, etc.)
+ * Health check routes
+ * GET /health → Full health status
+ * GET /health/ready → Readiness probe (Kubernetes)
+ * GET /health/live → Liveness probe (Kubernetes)
  */
-router.get('/health', (req, res) => {
-  res.json({
-    status: 'ok',
-    service: config.SERVICE_NAME,
-    timestamp: new Date().toISOString(),
-    uptime: process.uptime(),
-  });
-});
+router.use('/health', healthRoutes);
 
 /**
  * GET /api/info
@@ -63,6 +60,7 @@ router.use('/api/v1/circonscriptions', circonscriptionsRoutes);
 router.use('/api/v1/petitions', petitionsRoutes);
 router.use('/api/v1/elu-commitments', eluCommitmentsRoutes);
 router.use('/api/v1/actualites', actualitesRoutes);
+router.use('/api/v1/public-data', publicDataRoutes);
 // router.use('/api/v1/posts', postsRoutes); // Non utilisé
 router.use('/api/v1', commentsRoutes);
 

@@ -19,7 +19,21 @@ services:
         sync: false
       - key: REDIS_URL
         sync: false
+    # Health Checks (for load balancing and auto-healing)
+    # GET /health — Full status with memory, CPU, database info
+    # GET /health/ready — Readiness probe (Kubernetes-style)
+    # GET /health/live — Liveness probe (restart container if fails)
     healthCheckPath: /health
+    healthCheckProtocol: HTTP
+    healthCheckTimeout: 5
+    healthCheckInterval: 30
+
+    # Limits
+    maxRequestTimeoutSeconds: 120
+
+    # Graceful shutdown
+    shutdownTimeoutSeconds: 30
+
     region: frankfurt
 
 databases:
