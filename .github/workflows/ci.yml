@@ -194,6 +194,26 @@ jobs:
         env:
           SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
 
+      - name: Install backend dependencies for audit
+        run: npm install
+        working-directory: backend
+        continue-on-error: true
+
+      - name: Audit backend dependencies
+        run: npm audit --audit-level=moderate
+        working-directory: backend
+        continue-on-error: false
+
+      - name: Install frontend dependencies for audit
+        run: npm install
+        working-directory: frontend
+        continue-on-error: true
+
+      - name: Audit frontend dependencies
+        run: npm audit --audit-level=moderate
+        working-directory: frontend
+        continue-on-error: false
+
   sonarqube:
     name: Code Quality Analysis with SonarQube
     runs-on: ubuntu-latest

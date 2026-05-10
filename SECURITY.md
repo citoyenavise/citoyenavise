@@ -14,6 +14,53 @@ Nous remercions la communauté de sécurité pour son aide responsable.
 
 ---
 
+## 📦 Dependency Audit with npm audit
+
+### Quick Check
+
+**Vérification rapide des vulnérabilités :**
+
+```bash
+# Check backend
+cd backend
+npm run security:check
+
+# Check frontend
+cd frontend
+npm run security:check
+
+# Check all from root
+npm run security:check           # Backend + Frontend combined
+npm run security:check:backend   # Backend only
+npm run security:check:frontend  # Frontend only
+```
+
+**Résultats :**
+- 🟢 **PASS** : Aucune vulnérabilité CRITICAL/HIGH
+- 🟡 **WARN** : Vulnérabilités MODERATE (advisory)
+- 🔴 **FAIL** : Vulnérabilités CRITICAL/HIGH détectées
+
+### Comportement CLI
+
+```bash
+npm audit --audit-level=moderate
+# Exit code 0: No vulnerabilities >= moderate
+# Exit code 1: Vulnerabilities >= moderate found
+```
+
+### Ignorer une Vulnérabilité
+
+```bash
+# Si c'est un faux positif, ajoute à package.json:
+{
+  "overrides": {
+    "vulnerable-package": "^1.2.3"  // Pin à version corrigée
+  }
+}
+```
+
+---
+
 ## 🛡️ Snyk Security Scanning
 
 ### Configuration
@@ -85,9 +132,13 @@ La CI exécute automatiquement plusieurs gates en parallèle :
 Push to develop → GitHub Actions triggered
    ├─ Backend Tests (Jest + Coverage)
    ├─ Frontend Tests (Vitest + Coverage)
-   ├─ Snyk Security Scan
-   │  ├─ Vulnerability detection (HIGH threshold)
-   │  └─ Dependency monitoring
+   ├─ Security Scans (security job)
+   │  ├─ Snyk vulnerability detection (HIGH threshold)
+   │  ├─ Snyk dependency monitoring
+   │  ├─ npm audit (MODERATE level) ← NEW
+   │  │  ├─ Backend audit (fail on CRITICAL/HIGH)
+   │  │  └─ Frontend audit (fail on CRITICAL/HIGH)
+   │  └─ Dependency monitoring on Snyk dashboard
    ├─ SonarQube Code Quality
    │  ├─ Bug detection
    │  ├─ Coverage verification (≥80%)

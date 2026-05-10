@@ -66,6 +66,7 @@ cd frontend && npm run dev
   npm run test       # Tests Jest
   npm run test:coverage  # Couverture de tests
   npm run lint       # ESLint
+  npm run security:check  # Audit dépendances
   ```
 
 ### Frontend
@@ -77,7 +78,15 @@ cd frontend && npm run dev
   npm run preview    # Preview du build
   npm run lint       # ESLint
   npm run test       # Tests Vitest
+  npm run security:check  # Audit dépendances
   ```
+
+### Depuis la Racine (Monorepo)
+```bash
+npm run security:check           # Audit backend + frontend
+npm run security:check:backend   # Audit backend seulement
+npm run security:check:frontend  # Audit frontend seulement
+```
 
 ## 📚 Architecture
 

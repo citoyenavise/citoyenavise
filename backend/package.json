@@ -9,7 +9,8 @@
     "start": "node src/server.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
-    "lint": "eslint src/"
+    "lint": "eslint src/",
+    "security:check": "npm audit --audit-level=moderate"
   },
   "keywords": ["civic", "democracy", "api"],
   "author": "Citoyen Avisé",

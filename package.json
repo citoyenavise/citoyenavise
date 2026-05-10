@@ -10,7 +10,10 @@
     "start": "npm --prefix backend start",
     "start:prod-local": "npm run build && npm --prefix backend start",
     "test": "npm --prefix backend test",
-    "lint": "npm --prefix backend run lint"
+    "lint": "npm --prefix backend run lint",
+    "security:check": "node scripts/security-check.js",
+    "security:check:backend": "npm --prefix backend run security:check",
+    "security:check:frontend": "npm --prefix frontend run security:check"
   },
   "keywords": ["civic", "democracy", "canada"],
   "author": "Citoyen Avisé",
