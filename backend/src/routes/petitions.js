@@ -472,76 +472,104 @@ router.get('/:id/signatures', async (req, res, next) => {
 
 /**
  * POST /api/v1/petitions/:id/sign
- * Signer une pétition (protégée, idempotent)
- * Retourne 409 si déjà signé
+ * Signer une pétition (protégée, JWT required)
+ *
+ * Validations:
+ * - petition_id (integer positif) ✓ Zod
+ * - citoyen_id du token ✓ authMiddleware
+ * - Pétition existe ✓ findByPk
+ *
+ * Réponse succès: { signed: true, totalSignatures: 123 }
+ * Erreur doublon: 409 { signed: false, message: "Vous avez déjà signé cette pétition" }
  */
 router.post('/:id/sign', authMiddleware, async (req, res, next) => {
   try {
+    // ═══════════════════════════════════════════════════════════════
+    // 1. Validation Zod : petition_id
+    // ═══════════════════════════════════════════════════════════════
     const validation = idSchema.safeParse({ id: req.params.id });
 
     if (!validation.success) {
       return res.status(400).json({
-        success: false,
-        error: 'ID invalide',
+        signed: false,
+        message: 'petition_id invalide',
         details: validation.error.errors,
       });
     }
 
-    const { id } = validation.data;
+    const petitionId = validation.data.id;
 
-    // Vérifier que la pétition existe et est publiée
-    const petition = await Petition.findByPk(id);
+    // ═══════════════════════════════════════════════════════════════
+    // 2. Vérifier que la pétition existe
+    // ═══════════════════════════════════════════════════════════════
+    const petition = await Petition.findByPk(petitionId);
 
     if (!petition) {
       return res.status(404).json({
-        success: false,
-        error: 'Pétition non trouvée',
+        signed: false,
+        message: 'Pétition non trouvée',
       });
     }
 
+    // ═══════════════════════════════════════════════════════════════
+    // 3. Vérifier que la pétition est publiée
+    // ═══════════════════════════════════════════════════════════════
     if (petition.status !== 'published') {
       return res.status(400).json({
-        success: false,
-        error: 'Cette pétition n\'est pas publiée',
-        code: 'PETITION_NOT_PUBLISHED',
+        signed: false,
+        message: 'Cette pétition n\'est pas publiée',
       });
     }
 
-    // Vérifier si l'utilisateur a déjà signé
+    // ═══════════════════════════════════════════════════════════════
+    // 4. Vérifier que l'utilisateur n'a pas déjà signé (UNIQUE violation)
+    // ═══════════════════════════════════════════════════════════════
     const existingSignature = await Signature.findOne({
       where: {
-        petitionId: id,
+        petitionId,
         citoyenId: req.user.userId,
       },
     });
 
     if (existingSignature) {
       return res.status(409).json({
-        success: false,
-        error: 'Vous avez déjà signé cette pétition',
-        code: 'DUPLICATE_SIGNATURE',
+        signed: false,
+        message: 'Vous avez déjà signé cette pétition',
       });
     }
 
-    // Créer la signature
-    const signature = await Signature.create({
-      petitionId: id,
-      citoyenId: req.user.userId,
-    });
+    // ═══════════════════════════════════════════════════════════════
+    // 5. INSERT signature (petition_id, citoyen_id)
+    // ═══════════════════════════════════════════════════════════════
+    try {
+      await Signature.create({
+        petitionId,
+        citoyenId: req.user.userId,
+      });
+    } catch (err) {
+      // Capturer UNIQUE violation au cas où
+      if (err.name === 'SequelizeUniqueConstraintError' ||
+          err.name === 'UniqueConstraintError') {
+        return res.status(409).json({
+          signed: false,
+          message: 'Vous avez déjà signé cette pétition',
+        });
+      }
+      throw err;
+    }
 
-    // Augmenter le compteur de signatures
+    // ═══════════════════════════════════════════════════════════════
+    // 6. Incrémenter signatures_count sur petition
+    // ═══════════════════════════════════════════════════════════════
     petition.signaturesCount += 1;
     await petition.save();
 
+    // ═══════════════════════════════════════════════════════════════
+    // 7. Retourner { signed: true, totalSignatures: 123 }
+    // ═══════════════════════════════════════════════════════════════
     res.status(201).json({
-      success: true,
-      message: 'Pétition signée avec succès',
-      data: {
-        id: signature.id,
-        petitionId: id,
-        citoyenId: req.user.userId,
-        createdAt: signature.createdAt,
-      },
+      signed: true,
+      totalSignatures: petition.signaturesCount,
     });
   } catch (err) {
     next(err);
