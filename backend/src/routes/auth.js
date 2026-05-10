@@ -1,146 +1,195 @@
 /**
- * Routes pour l'authentification (Magic Link)
- * Endpoints : register/login → email magic link → verify → JWT
+ * Routes d'authentification (Magic Link + JWT)
+ * Endpoints: magic-link → verify → accessToken
  */
 
 import express from 'express';
-import { AuthService } from '../services/AuthService.js';
+import { z } from 'zod';
+import User from '../models/User.js';
+import EmailVerification from '../models/EmailVerification.js';
+import { createJWT, generateMagicLink } from '../services/auth.js';
+import { sendMagicLinkEmail } from '../services/email.js';
 import { authMiddleware } from '../middlewares/auth.js';
+import { getConfig } from '../config/env.js';
 
 const router = express.Router();
+const config = getConfig();
+
+// Schémas de validation Zod
+const emailSchema = z.object({
+  email: z.string()
+    .email('Email invalide')
+    .toLowerCase(),
+});
+
+const verifyTokenSchema = z.object({
+  token: z.string()
+    .min(1, 'Token requis')
+    .regex(/^[a-f0-9]{64}$/, 'Format de token invalide'),
+});
 
 /**
- * POST /api/v1/auth/request-login
- * Demander magic link (register ou login)
+ * POST /api/v1/auth/magic-link
+ * Envoyer un lien magic link à l'email
  * Body: { email }
  *
  * Response:
  * {
  *   "success": true,
- *   "message": "Email de connexion envoyé. Vérifiez votre boîte email.",
- *   "userId": 1,
- *   "email": "user@example.com"
+ *   "message": "Lien de connexion envoyé à votre email",
+ *   "email": "user@example.com",
+ *   "expiresIn": 900
  * }
  */
-router.post('/request-login', async (req, res, next) => {
+router.post('/magic-link', async (req, res, next) => {
   try {
-    const { email } = req.body;
+    const validation = emailSchema.safeParse(req.body);
 
-    // Validation
-    if (!email || !email.includes('@')) {
+    if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: 'Email valide requis'
+        error: 'Email invalide',
+        details: validation.error.errors,
       });
     }
 
-    const result = await AuthService.requestLogin(email);
+    const { email } = validation.data;
 
-    res.json(result);
+    // Vérifier si l'utilisateur existe, sinon créer
+    let user = await User.findOne({ where: { email } });
+
+    if (!user) {
+      user = await User.create({
+        email,
+        createdAt: new Date(),
+      });
+    }
+
+    // Générer magic link token
+    const { token, expiresAt, magicLinkUrl } = generateMagicLink(email);
+
+    // Stocker le token en BD
+    await EmailVerification.create({
+      userId: user.id,
+      token,
+      expiresAt,
+      createdAt: new Date(),
+    });
+
+    // Envoyer email
+    try {
+      await sendMagicLinkEmail(email, magicLinkUrl);
+    } catch (emailErr) {
+      // Email non envoyé mais token créé - retourner success quand même pour dev
+      if (config.NODE_ENV === 'development') {
+        console.warn('Email envoi échoué (dev mode):', emailErr.message);
+        return res.json({
+          success: true,
+          message: '[DEV] Lien magic link créé (email non envoyé)',
+          email,
+          expiresIn: 900,
+          devMagicLink: magicLinkUrl,
+        });
+      }
+      throw emailErr;
+    }
+
+    res.json({
+      success: true,
+      message: 'Lien de connexion envoyé à votre email',
+      email,
+      expiresIn: 900, // 15 minutes en secondes
+    });
   } catch (err) {
     next(err);
   }
 });
 
 /**
- * GET /api/v1/auth/verify?token=xyz
- * Vérifier magic link et créer session JWT
+ * GET /api/v1/auth/verify?token=XXX
+ * Vérifier magic link token et retourner JWT
  * Query: { token }
  *
  * Response:
  * {
  *   "success": true,
- *   "token": "eyJhbGciOiJIUzI1NiIs...",
+ *   "accessToken": "eyJhbGciOiJIUzI1NiIs...",
+ *   "expiresIn": 604800,
  *   "user": {
  *     "id": 1,
- *     "email": "user@example.com",
- *     "nom_complet": null,
- *     "verified_at": "2026-05-09T..."
+ *     "email": "user@example.com"
  *   }
  * }
  */
 router.get('/verify', async (req, res, next) => {
   try {
-    const { token } = req.query;
+    const validation = verifyTokenSchema.safeParse(req.query);
 
-    if (!token) {
+    if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: 'Token manquant'
+        error: 'Token invalide ou manquant',
+        details: validation.error.errors,
       });
     }
 
-    const result = await AuthService.verifyMagicLink(token);
+    const { token } = validation.data;
 
-    res.json(result);
-  } catch (err) {
-    res.status(401).json({
-      success: false,
-      error: err.message
+    // Chercher le token en BD
+    const emailVerification = await EmailVerification.findOne({
+      where: { token },
+      include: {
+        model: User,
+        attributes: ['id', 'email'],
+      },
     });
-  }
-});
 
-/**
- * POST /api/v1/auth/complete-profile
- * Compléter profil après vérification (optionnel)
- * Requires: JWT token
- * Body: { nomComplet, province, codePostal }
- *
- * Response:
- * {
- *   "success": true,
- *   "user": { id, email, nom_complet, ... }
- * }
- */
-router.post('/complete-profile', authMiddleware, async (req, res, next) => {
-  try {
-    const { nomComplet, province, codePostal } = req.body;
-
-    if (!nomComplet) {
-      return res.status(400).json({
+    if (!emailVerification) {
+      return res.status(401).json({
         success: false,
-        error: 'nom_complet est requis'
+        error: 'Token non trouvé ou invalide',
       });
     }
 
-    const result = await AuthService.completeProfile(req.user.userId, {
-      nomComplet,
-      province,
-      codePostal
-    });
+    // Vérifier l'expiration
+    if (new Date() > new Date(emailVerification.expiresAt)) {
+      return res.status(401).json({
+        success: false,
+        error: 'Lien de connexion expiré',
+      });
+    }
 
-    res.json(result);
-  } catch (err) {
-    next(err);
-  }
-});
+    // Vérifier que le token n'a pas déjà été utilisé
+    if (emailVerification.usedAt) {
+      return res.status(401).json({
+        success: false,
+        error: 'Ce lien a déjà été utilisé',
+      });
+    }
 
-/**
- * GET /api/v1/auth/me
- * Obtenir utilisateur actuel (via JWT)
- * Requires: JWT token
- *
- * Response:
- * {
- *   "success": true,
- *   "data": {
- *     "id": 1,
- *     "email": "user@example.com",
- *     "nom_complet": "John Doe",
- *     "province": "QC",
- *     "code_postal": "H2X 1A1",
- *     "verified_at": "2026-05-09T..."
- *   }
- * }
- */
-router.get('/me', authMiddleware, async (req, res, next) => {
-  try {
-    const user = await AuthService.getCurrentUser(req.user.userId);
+    // Marquer comme utilisé
+    emailVerification.usedAt = new Date();
+    await emailVerification.save();
 
+    // Marquer l'utilisateur comme vérifié
+    const user = emailVerification.User;
+    if (!user.verifiedAt) {
+      user.verifiedAt = new Date();
+      await user.save();
+    }
+
+    // Créer JWT
+    const accessToken = createJWT(user.id);
+
+    // Retourner réponse structurée
     res.json({
       success: true,
-      data: user
+      accessToken,
+      expiresIn: 7 * 24 * 60 * 60, // 7 jours en secondes
+      user: {
+        id: user.id,
+        email: user.email,
+      },
     });
   } catch (err) {
     next(err);
@@ -149,16 +198,23 @@ router.get('/me', authMiddleware, async (req, res, next) => {
 
 /**
  * POST /api/v1/auth/logout
- * Logout (optionnel, client-side mainly)
- * Requires: JWT token (just for validation)
+ * Déconnexion (côté serveur: optionnel, principalement côté client)
+ * Requires: JWT token (authentification)
+ *
+ * Response:
+ * {
+ *   "success": true,
+ *   "message": "Déconnecté avec succès"
+ * }
  */
-router.post('/logout', authMiddleware, async (req, res) => {
-  // JWT logout est côté client (delete token du storage)
-  // On peut ici implémenter token blacklist si nécessaire
+router.post('/logout', authMiddleware, (req, res) => {
+  // Logout JWT: principalement côté client (supprimer token du storage)
+  // Côté serveur: on pourrait implémenter une blacklist si nécessaire
+  // Pour maintenant, simple confirmation
 
   res.json({
     success: true,
-    message: 'Logged out successfully'
+    message: 'Déconnecté avec succès',
   });
 });
 

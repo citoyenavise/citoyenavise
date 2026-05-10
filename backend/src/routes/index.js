@@ -10,6 +10,7 @@ import elusRoutes from './elus.js';
 import circonscriptionsRoutes from './circonscriptions.js';
 import petitionsRoutes from './petitions.js';
 import eluCommitmentsRoutes from './elu-commitments.js';
+import actualitesRoutes from './actualites.js';
 import postsRoutes from './posts.js';
 // import usersRoutes from './users.js';
 // import votesRoutes from './votes.js';
@@ -60,17 +61,21 @@ router.use('/api/v1/elus', elusRoutes);
 router.use('/api/v1/circonscriptions', circonscriptionsRoutes);
 router.use('/api/v1/petitions', petitionsRoutes);
 router.use('/api/v1/elu-commitments', eluCommitmentsRoutes);
+router.use('/api/v1/actualites', actualitesRoutes);
 router.use('/api/v1/posts', postsRoutes);
 
 /**
- * Routes à implémenter
+ * Routes avec noms français (aliases)
+ * Redirection vers endpoints existants
  */
-// router.use('/api/v1/auth', authRoutes);     // Authentification (magic link / OTP)
-// router.use('/api/v1/users', usersRoutes);   // Profils citoyens
-// router.use('/api/v1/posts', postsRoutes);   // Posts & idées
-// router.use('/api/v1/votes', votesRoutes);   // Votes & sondages
-// router.use('/api/v1/profiles', profilesRoutes); // Profils publics
-// router.use('/api/v1/initiatives', initiativesRoutes); // Initiatives citoyennes
+// /actualités → /actualites (idées/actualités des citoyens)
+router.use('/api/v1/actualités', actualitesRoutes);
+
+// /signatures → /petitions/*/sign (gestion des signatures)
+// (inclus dans petitionsRoutes)
+
+// /promesses → /elu-commitments (engagements/promesses des élus)
+router.use('/api/v1/promesses', eluCommitmentsRoutes);
 
 /**
  * Route de test (à supprimer en production)

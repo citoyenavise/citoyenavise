@@ -4,6 +4,9 @@ import dotenv from 'dotenv';
 import { getConfig } from './config/env.js';
 import { logger } from './middlewares/logger.js';
 import routes from './routes/index.js';
+import { setupSwagger } from './swagger/setup.js';
+import sequelize, { testConnection } from './db/sequelize.js';
+import './models/index.js';
 
 // Charger les variables d'environnement
 dotenv.config();
@@ -16,6 +19,9 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(logger);
+
+// Swagger Documentation
+setupSwagger(app);
 
 // Routes
 app.use('/', routes);
@@ -38,9 +44,25 @@ app.use((err, req, res, next) => {
   });
 });
 
-// Démarrage du serveur
-const server = app.listen(config.PORT, () => {
-  console.log(`
+// Initialiser la base de données et démarrer le serveur
+async function initializeApp() {
+  try {
+    // Tester la connexion Sequelize
+    const connected = await testConnection();
+    if (!connected) {
+      throw new Error('Impossible de se connecter à la base de données');
+    }
+
+    // Synchroniser les modèles (développement uniquement)
+    if (config.NODE_ENV === 'development') {
+      console.log('🔄 Synchronisation des modèles avec la base de données...');
+      await sequelize.sync({ alter: false });
+      console.log('✅ Modèles synchronisés');
+    }
+
+    // Démarrer le serveur
+    const server = app.listen(config.PORT, () => {
+      console.log(`
 ╔════════════════════════════════════════╗
 ║  Citoyen Avisé - Backend API           ║
 ╠════════════════════════════════════════╣
@@ -49,16 +71,27 @@ const server = app.listen(config.PORT, () => {
 ║  Port: ${String(config.PORT).padEnd(34)}║
 ║  URL: http://localhost:${config.PORT}${' '.repeat(26 - String(config.PORT).length)}║
 ╚════════════════════════════════════════╝
-  `);
-});
+      `);
+    });
 
-// Gestion graceful shutdown
-process.on('SIGTERM', () => {
-  console.log('SIGTERM reçu, fermeture du serveur...');
-  server.close(() => {
-    console.log('Serveur fermé');
-    process.exit(0);
-  });
-});
+    // Gestion graceful shutdown
+    process.on('SIGTERM', async () => {
+      console.log('SIGTERM reçu, fermeture du serveur...');
+      server.close(async () => {
+        await sequelize.close();
+        console.log('Serveur fermé');
+        process.exit(0);
+      });
+    });
+
+    return server;
+  } catch (error) {
+    console.error('❌ Erreur lors de l\'initialisation:', error.message);
+    process.exit(1);
+  }
+}
+
+// Lancer l'application
+initializeApp();
 
 export default app;

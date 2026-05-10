@@ -19,36 +19,49 @@ export function Header() {
           Citoyen Avisé
         </Link>
 
-        <div className="flex items-center gap-6">
-          {isAuthenticated ? (
-            <>
-              <Link to="/feed" className="text-gray-600 hover:text-primary transition">
+        <div className="flex items-center gap-8">
+          <div className="flex gap-6">
+            <Link to="/elus" className="text-gray-600 hover:text-primary transition font-medium">
+              Élus
+            </Link>
+            <Link to="/petitions" className="text-gray-600 hover:text-primary transition font-medium">
+              Pétitions
+            </Link>
+            {isAuthenticated && (
+              <Link to="/feed" className="text-gray-600 hover:text-primary transition font-medium">
                 Fil d'actualité
               </Link>
-              <Link to="/notifications" className="relative text-gray-600 hover:text-primary transition">
-                Notifications
-                <span className="absolute -top-2 -right-2 bg-error text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  3
-                </span>
-              </Link>
+            )}
+          </div>
 
-              <div className="flex items-center gap-4">
-                <Avatar name={user?.username || 'User'} size="sm" />
-                <Button variant="danger" size="sm" onClick={handleLogout}>
-                  Déconnexion
+          <div className="flex items-center gap-6">
+            {isAuthenticated ? (
+              <>
+                <Link to="/notifications" className="relative text-gray-600 hover:text-primary transition">
+                  🔔
+                  <span className="absolute -top-2 -right-2 bg-error text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                    3
+                  </span>
+                </Link>
+
+                <div className="flex items-center gap-4">
+                  <Avatar name={user?.username || 'User'} size="sm" />
+                  <Button variant="danger" size="sm" onClick={handleLogout}>
+                    Déconnexion
+                  </Button>
+                </div>
+              </>
+            ) : (
+              <div className="flex gap-4">
+                <Button variant="outline" onClick={() => navigate('/login')}>
+                  Connexion
+                </Button>
+                <Button onClick={() => navigate('/register')}>
+                  S'inscrire
                 </Button>
               </div>
-            </>
-          ) : (
-            <div className="flex gap-4">
-              <Button variant="outline" onClick={() => navigate('/login')}>
-                Connexion
-              </Button>
-              <Button onClick={() => navigate('/register')}>
-                S'inscrire
-              </Button>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </nav>
     </header>

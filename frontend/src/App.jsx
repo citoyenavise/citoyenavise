@@ -9,6 +9,10 @@ import { Register } from './pages/Register'
 import { Feed } from './pages/Feed'
 import { PostDetail } from './pages/PostDetail'
 import { Notifications } from './pages/Notifications'
+import { ElussPage } from './pages/ElussPage'
+import { EluDetailPage } from './pages/EluDetailPage'
+import { PetitionDetailPage } from './pages/PetitionDetailPage'
+import { PetitionsListPage } from './pages/PetitionsListPage'
 
 export default function App() {
   return (
@@ -18,6 +22,11 @@ export default function App() {
         <Routes>
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
+
+          <Route path="/elus" element={<ElussPage />} />
+          <Route path="/elus/:id" element={<EluDetailPage />} />
+          <Route path="/petitions" element={<PetitionsListPage />} />
+          <Route path="/petitions/:id" element={<PetitionDetailPage />} />
 
           <Route
             path="/feed"

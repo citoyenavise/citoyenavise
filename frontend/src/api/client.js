@@ -424,6 +424,48 @@ export const api = {
     },
   },
 
+  elus: {
+    async list(params = {}) {
+      const qs = new URLSearchParams(params).toString();
+      const response = await client.get(`/elus${qs ? `?${qs}` : ''}`);
+      return response.data;
+    },
+
+    async get(id) {
+      const response = await client.get(`/elus/${id}`);
+      return response.data;
+    },
+
+    async getPetitions(id, params = {}) {
+      const qs = new URLSearchParams(params).toString();
+      const response = await client.get(`/elus/${id}/petitions${qs ? `?${qs}` : ''}`);
+      return response.data;
+    },
+  },
+
+  petitions: {
+    async list(params = {}) {
+      const qs = new URLSearchParams(params).toString();
+      const response = await client.get(`/petitions${qs ? `?${qs}` : ''}`);
+      return response.data;
+    },
+
+    async get(id) {
+      const response = await client.get(`/petitions/${id}`);
+      return response.data;
+    },
+
+    async create(data) {
+      const response = await client.post('/petitions', data);
+      return response.data;
+    },
+
+    async sign(id) {
+      const response = await client.post(`/petitions/${id}/sign`);
+      return response.data;
+    },
+  },
+
   setAuthToken(token) {
     tokenManager.setAccessToken(token);
   },
