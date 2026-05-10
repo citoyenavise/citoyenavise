@@ -309,7 +309,8 @@ export class PetitionUpdate {
   /**
    * Ajouter mise à jour
    */
-  static async add(petitionId, authorId, contenu) {
+  static async add(petitionId, data) {
+    const { authorId, contenu } = data;
     const result = await pool.query(
       `INSERT INTO petition_updates (petition_id, author_id, contenu)
        VALUES ($1, $2, $3)
@@ -355,7 +356,8 @@ export class PetitionComment {
   /**
    * Ajouter commentaire
    */
-  static async add(petitionId, authorId, contenu, parentCommentId = null) {
+  static async add(petitionId, data) {
+    const { authorId, contenu, parentCommentId = null } = data;
     const result = await pool.query(
       `INSERT INTO petition_comments (petition_id, author_id, contenu, parent_comment_id)
        VALUES ($1, $2, $3, $4)
@@ -382,13 +384,16 @@ export class PetitionComment {
   }
 
   /**
-   * Supprimer commentaire
+   * Supprimer commentaire (ownership check)
    */
-  static async delete(commentId) {
-    const result = await pool.query(
-      'DELETE FROM petition_comments WHERE id = $1 RETURNING id',
-      [commentId]
-    );
+  static async delete(commentId, authorId = null) {
+    const query = authorId
+      ? 'DELETE FROM petition_comments WHERE id = $1 AND author_id = $2 RETURNING id'
+      : 'DELETE FROM petition_comments WHERE id = $1 RETURNING id';
+
+    const params = authorId ? [commentId, authorId] : [commentId];
+
+    const result = await pool.query(query, params);
     return result.rows[0] ? true : false;
   }
 }

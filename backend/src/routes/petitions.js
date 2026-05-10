@@ -5,7 +5,7 @@
 
 import express from 'express';
 import { Petition, PetitionSignature, PetitionUpdate, PetitionComment } from '../models/Petition.js';
-// import { authMiddleware } from '../middlewares/auth.js'; // AWAITING AUTHENTICATION IMPLEMENTATION
+import { authMiddleware } from '../middlewares/auth.js';
 
 const router = express.Router();
 
@@ -225,23 +225,22 @@ router.get('/search', async (req, res, next) => {
   }
 });
 
-// ═══════════════════════════════════════════════════════════════════
-// PROTECTED ROUTES (require authentication)
-// Will be uncommented after authMiddleware is implemented
-// ═══════════════════════════════════════════════════════════════════
-
 /**
  * POST /api/v1/petitions
  * Créer nouvelle pétition (PROTECTED)
- * Requires: titre, description, eluId, deadline (optional)
+ * Body: { titre, description, eluId (optional), deadline (optional) }
+ *
+ * Response:
+ * {
+ *   "success": true,
+ *   "data": { id, titre, description, citoyen_id, elu_id, status, signatures_count, ... }
+ * }
  */
-/*
 router.post('/', authMiddleware, async (req, res, next) => {
   try {
     const { titre, description, eluId, deadline } = req.body;
-    const citoyenId = req.user.userId; // From JWT token
+    const citoyenId = req.user.userId;
 
-    // Validation
     if (!titre || !description) {
       return res.status(400).json({
         success: false,
@@ -269,8 +268,8 @@ router.post('/', authMiddleware, async (req, res, next) => {
 /**
  * PUT /api/v1/petitions/:id
  * Mettre à jour pétition (PROTECTED - owner only)
+ * Only draft petitions can be edited
  */
-/*
 router.put('/:id', authMiddleware, async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -278,17 +277,24 @@ router.put('/:id', authMiddleware, async (req, res, next) => {
 
     const petition = await Petition.findById(parseInt(id));
     if (!petition) {
-      return res.status(404).json({ success: false, error: 'Pétition non trouvée' });
+      return res.status(404).json({
+        success: false,
+        error: 'Pétition non trouvée'
+      });
     }
 
-    // Vérifier ownership
     if (petition.citoyen_id !== citoyenId) {
-      return res.status(403).json({ success: false, error: 'Not authorized' });
+      return res.status(403).json({
+        success: false,
+        error: 'Vous ne pouvez pas modifier cette pétition'
+      });
     }
 
-    // Can only edit draft petitions
     if (petition.status !== 'draft') {
-      return res.status(400).json({ success: false, error: 'Can only edit draft petitions' });
+      return res.status(400).json({
+        success: false,
+        error: 'Seules les brouillons peuvent être modifiés'
+      });
     }
 
     const updated = await Petition.update(parseInt(id), req.body);
@@ -306,7 +312,6 @@ router.put('/:id', authMiddleware, async (req, res, next) => {
  * POST /api/v1/petitions/:id/publish
  * Publier pétition (PROTECTED - owner only)
  */
-/*
 router.post('/:id/publish', authMiddleware, async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -314,11 +319,17 @@ router.post('/:id/publish', authMiddleware, async (req, res, next) => {
 
     const petition = await Petition.findById(parseInt(id));
     if (!petition) {
-      return res.status(404).json({ success: false, error: 'Pétition non trouvée' });
+      return res.status(404).json({
+        success: false,
+        error: 'Pétition non trouvée'
+      });
     }
 
     if (petition.citoyen_id !== citoyenId) {
-      return res.status(403).json({ success: false, error: 'Not authorized' });
+      return res.status(403).json({
+        success: false,
+        error: 'Vous ne pouvez pas publier cette pétition'
+      });
     }
 
     const published = await Petition.publish(parseInt(id));
@@ -336,7 +347,6 @@ router.post('/:id/publish', authMiddleware, async (req, res, next) => {
  * POST /api/v1/petitions/:id/sign
  * Signer une pétition (PROTECTED)
  */
-/*
 router.post('/:id/sign', authMiddleware, async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -344,23 +354,32 @@ router.post('/:id/sign', authMiddleware, async (req, res, next) => {
 
     const petition = await Petition.findById(parseInt(id));
     if (!petition) {
-      return res.status(404).json({ success: false, error: 'Pétition non trouvée' });
+      return res.status(404).json({
+        success: false,
+        error: 'Pétition non trouvée'
+      });
     }
 
     if (petition.status !== 'published') {
-      return res.status(400).json({ success: false, error: 'Pétition non active' });
+      return res.status(400).json({
+        success: false,
+        error: 'Cette pétition n\'est pas active'
+      });
     }
 
     const signature = await PetitionSignature.sign(parseInt(id), citoyenId);
 
-    res.json({
+    res.status(201).json({
       success: true,
-      message: 'Signed successfully',
+      message: 'Pétition signée avec succès',
       data: signature
     });
   } catch (err) {
     if (err.message === 'Already signed this petition') {
-      return res.status(400).json({ success: false, error: err.message });
+      return res.status(409).json({
+        success: false,
+        error: 'Vous avez déjà signé cette pétition'
+      });
     }
     next(err);
   }
@@ -370,7 +389,6 @@ router.post('/:id/sign', authMiddleware, async (req, res, next) => {
  * DELETE /api/v1/petitions/:id/sign
  * Retirer signature (PROTECTED)
  */
-/*
 router.delete('/:id/sign', authMiddleware, async (req, res, next) => {
   try {
     const { id } = req.params;
@@ -379,17 +397,175 @@ router.delete('/:id/sign', authMiddleware, async (req, res, next) => {
     const success = await PetitionSignature.unsign(parseInt(id), citoyenId);
 
     if (!success) {
-      return res.status(404).json({ success: false, error: 'Signature not found' });
+      return res.status(404).json({
+        success: false,
+        error: 'Vous n\'aviez pas signé cette pétition'
+      });
     }
 
     res.json({
       success: true,
-      message: 'Signature removed'
+      message: 'Signature retirée'
     });
   } catch (err) {
     next(err);
   }
 });
-*/
+
+/**
+ * POST /api/v1/petitions/:id/updates
+ * Ajouter mise à jour (PROTECTED - owner only)
+ * Body: { contenu }
+ */
+router.post('/:id/updates', authMiddleware, async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { contenu } = req.body;
+    const authorId = req.user.userId;
+
+    if (!contenu) {
+      return res.status(400).json({
+        success: false,
+        error: 'Le contenu est requis'
+      });
+    }
+
+    const petition = await Petition.findById(parseInt(id));
+    if (!petition) {
+      return res.status(404).json({
+        success: false,
+        error: 'Pétition non trouvée'
+      });
+    }
+
+    if (petition.citoyen_id !== authorId) {
+      return res.status(403).json({
+        success: false,
+        error: 'Seul le créateur peut ajouter des mises à jour'
+      });
+    }
+
+    const update = await PetitionUpdate.add(parseInt(id), { authorId, contenu });
+
+    res.status(201).json({
+      success: true,
+      data: update
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * DELETE /api/v1/petitions/:id/updates/:updateId
+ * Supprimer mise à jour (PROTECTED - owner only)
+ */
+router.delete('/:id/updates/:updateId', authMiddleware, async (req, res, next) => {
+  try {
+    const { id, updateId } = req.params;
+    const authorId = req.user.userId;
+
+    const petition = await Petition.findById(parseInt(id));
+    if (!petition) {
+      return res.status(404).json({
+        success: false,
+        error: 'Pétition non trouvée'
+      });
+    }
+
+    if (petition.citoyen_id !== authorId) {
+      return res.status(403).json({
+        success: false,
+        error: 'Seul le créateur peut supprimer des mises à jour'
+      });
+    }
+
+    const success = await PetitionUpdate.delete(parseInt(updateId));
+    if (!success) {
+      return res.status(404).json({
+        success: false,
+        error: 'Mise à jour non trouvée'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Mise à jour supprimée'
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * POST /api/v1/petitions/:id/comments
+ * Ajouter commentaire (PROTECTED)
+ * Body: { contenu }
+ */
+router.post('/:id/comments', authMiddleware, async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const { contenu } = req.body;
+    const authorId = req.user.userId;
+
+    if (!contenu) {
+      return res.status(400).json({
+        success: false,
+        error: 'Le contenu est requis'
+      });
+    }
+
+    const petition = await Petition.findById(parseInt(id));
+    if (!petition) {
+      return res.status(404).json({
+        success: false,
+        error: 'Pétition non trouvée'
+      });
+    }
+
+    const comment = await PetitionComment.add(parseInt(id), { authorId, contenu });
+
+    res.status(201).json({
+      success: true,
+      data: comment
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * DELETE /api/v1/petitions/:id/comments/:commentId
+ * Supprimer commentaire (PROTECTED - owner only)
+ */
+router.delete('/:id/comments/:commentId', authMiddleware, async (req, res, next) => {
+  try {
+    const { id, commentId } = req.params;
+    const authorId = req.user.userId;
+
+    const petition = await Petition.findById(parseInt(id));
+    if (!petition) {
+      return res.status(404).json({
+        success: false,
+        error: 'Pétition non trouvée'
+      });
+    }
+
+    const success = await PetitionComment.delete(parseInt(commentId), authorId);
+    if (!success) {
+      return res.status(404).json({
+        success: false,
+        error: 'Commentaire non trouvé ou non autorisé'
+      });
+    }
+
+    res.json({
+      success: true,
+      message: 'Commentaire supprimé'
+    });
+  } catch (err) {
+    next(err);
+  }
+});
 
 export default router;

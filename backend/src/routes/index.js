@@ -9,6 +9,7 @@ import authRoutes from './auth.js';
 import elusRoutes from './elus.js';
 import circonscriptionsRoutes from './circonscriptions.js';
 import petitionsRoutes from './petitions.js';
+import eluCommitmentsRoutes from './elu-commitments.js';
 // import usersRoutes from './users.js';
 // import postsRoutes from './posts.js';
 // import votesRoutes from './votes.js';
@@ -58,6 +59,7 @@ router.use('/api/v1/auth', authRoutes);
 router.use('/api/v1/elus', elusRoutes);
 router.use('/api/v1/circonscriptions', circonscriptionsRoutes);
 router.use('/api/v1/petitions', petitionsRoutes);
+router.use('/api/v1/elu-commitments', eluCommitmentsRoutes);
 
 /**
  * Routes à implémenter
