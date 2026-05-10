@@ -1,0 +1,594 @@
+/**
+ * Styles pour la page Pétitions
+ * Layout : Header, Filtres, Grille de pétitions, Pagination
+ */
+
+.petitions-page {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+
+.petitions-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Header */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.petitions-header {
+  text-align: center;
+  margin-bottom: 40px;
+  animation: fadeInDown 0.6s ease-out;
+}
+
+.petitions-header h1 {
+  font-size: 2.5rem;
+  color: #1a3a52;
+  margin: 0 0 10px 0;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.petitions-header p {
+  font-size: 1.1rem;
+  color: #555;
+  margin: 0;
+  font-weight: 400;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Filtres */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.petitions-filters {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.filters-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.filter-group label {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #333;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.search-input,
+.filter-select {
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  color: #333;
+  background: white;
+  transition: all 0.3s ease;
+  font-family: inherit;
+}
+
+.search-input:focus,
+.filter-select:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.search-group {
+  grid-column: 1 / 2;
+}
+
+.filters-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btn-clear-filters {
+  padding: 8px 16px;
+  background: #f0f0f0;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  color: #666;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-clear-filters:hover {
+  background: #e8e8e8;
+  border-color: #bbb;
+}
+
+/* Responsive Filters */
+@media (max-width: 768px) {
+  .filters-row {
+    grid-template-columns: 1fr;
+  }
+
+  .search-group {
+    grid-column: 1;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Loading State */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.petitions-loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  text-align: center;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f0f0f0;
+  border-top-color: #0066cc;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.petitions-loading p {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Error State */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.petitions-error {
+  background: white;
+  border: 2px solid #ff6b6b;
+  border-radius: 12px;
+  padding: 40px;
+  text-align: center;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.error-icon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.petitions-error h3 {
+  font-size: 1.5rem;
+  color: #ff6b6b;
+  margin: 0 0 8px 0;
+}
+
+.petitions-error p {
+  color: #666;
+  font-size: 1rem;
+  margin: 0 0 20px 0;
+}
+
+.btn-retry {
+  padding: 10px 24px;
+  background: #ff6b6b;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-retry:hover {
+  background: #ff5252;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Empty State */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.petitions-empty {
+  background: white;
+  border-radius: 12px;
+  padding: 60px 40px;
+  text-align: center;
+  animation: fadeIn 0.4s ease-out;
+}
+
+.empty-icon {
+  font-size: 3.5rem;
+  margin-bottom: 16px;
+}
+
+.petitions-empty h3 {
+  font-size: 1.5rem;
+  color: #333;
+  margin: 0 0 8px 0;
+}
+
+.petitions-empty p {
+  color: #999;
+  font-size: 1rem;
+  margin: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Petitions Grid */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.petitions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.petition-card-link {
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s ease;
+}
+
+.petition-card-link:hover .petition-card {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+}
+
+.petition-card {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+/* Status Badge */
+.status-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  z-index: 1;
+}
+
+.status-published {
+  background: #e3f2fd;
+  color: #0066cc;
+}
+
+.status-closed {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.status-won {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-draft {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+/* Card Body */
+.card-body {
+  padding: 20px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.petition-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a3a52;
+  margin: 0;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.petition-description {
+  font-size: 0.95rem;
+  color: #666;
+  margin: 0;
+  line-height: 1.5;
+  flex-grow: 1;
+}
+
+.petition-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-top: 12px;
+  border-top: 1px solid #f0f0f0;
+  font-size: 0.85rem;
+}
+
+.creator-info,
+.elu-info {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.creator-info .label,
+.elu-info .label {
+  font-weight: 600;
+  color: #999;
+  min-width: 30px;
+}
+
+.creator-info .value,
+.elu-info .value {
+  color: #333;
+  font-weight: 500;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Card Footer */
+.card-footer {
+  padding: 12px 20px;
+  background: #f9f9f9;
+  border-top: 1px solid #f0f0f0;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.signatures-stat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.95rem;
+}
+
+.signatures-stat .icon {
+  font-size: 1.2rem;
+}
+
+.signatures-stat .count {
+  font-weight: 700;
+  color: #0066cc;
+}
+
+.signatures-stat .label {
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.view-button {
+  color: #0066cc;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+}
+
+.petition-card-link:hover .view-button {
+  color: #0052a3;
+}
+
+/* Responsive Grid */
+@media (max-width: 768px) {
+  .petitions-grid {
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .petitions-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .petition-title {
+    font-size: 1.1rem;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Pagination */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.petitions-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 20px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  flex-wrap: wrap;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.btn-pagination {
+  padding: 8px 16px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  color: #333;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.btn-pagination:hover:not(:disabled) {
+  background: #0066cc;
+  color: white;
+  border-color: #0066cc;
+  transform: translateY(-2px);
+}
+
+.btn-pagination:disabled {
+  color: #ccc;
+  border-color: #eee;
+  cursor: not-allowed;
+  background: #f9f9f9;
+}
+
+.pagination-info {
+  font-size: 0.95rem;
+  color: #666;
+  font-weight: 500;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.total-count {
+  font-size: 0.85rem;
+  color: #999;
+}
+
+.page-numbers {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.page-btn {
+  padding: 6px 12px;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #333;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.page-btn:hover {
+  background: #f0f0f0;
+  border-color: #bbb;
+}
+
+.page-btn.active {
+  background: #0066cc;
+  color: white;
+  border-color: #0066cc;
+}
+
+.dots {
+  color: #999;
+  font-weight: 600;
+  padding: 0 4px;
+}
+
+/* Responsive Pagination */
+@media (max-width: 768px) {
+  .petitions-pagination {
+    gap: 8px;
+    padding: 16px;
+  }
+
+  .btn-pagination {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+
+  .page-numbers {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  .pagination-info {
+    order: 1;
+    margin-bottom: 8px;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Animations */
+/* ═══════════════════════════════════════════════════════════════ */
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Utilities */
+/* ═══════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
