@@ -18,7 +18,9 @@
     "security:check": "npm audit --audit-level=moderate",
     "migrate": "node src/database/migrationRunner.js",
     "migrate:status": "node src/database/migrationRunner.js --status",
-    "migrate:rollback": "node src/database/migrationRunner.js --rollback"
+    "migrate:rollback": "node src/database/migrationRunner.js --rollback",
+    "seed:gamification": "node scripts/seed-gamification.js",
+    "promote:admin": "node scripts/promote-admin.js"
   },
   "keywords": [
     "civic",
@@ -42,6 +44,7 @@
     "sequelize": "^6.32.0",
     "swagger-jsdoc": "^6.2.8",
     "swagger-ui-express": "^5.0.0",
+    "uuid": "^14.0.0",
     "zod": "^3.21.4"
   },
   "devDependencies": {

@@ -11,6 +11,7 @@ import Signature from '../models/Signature.js';
 import Comment from '../models/Comment.js';
 import User from '../models/User.js';
 import Elu from '../models/Elu.js';
+import { translate } from '../services/i18n.js';
 import { authMiddleware, checkOwnership } from '../middlewares/auth.js';
 import { signatureLimiter } from '../middlewares/rateLimiter.js';
 import { Op } from 'sequelize';
@@ -76,7 +77,7 @@ router.get('/', async (req, res, next) => {
     if (!queryValidation.success) {
       return res.status(400).json({
         success: false,
-        error: 'Paramètres de requête invalides',
+        error: translate('error.validation', req.lang),
         details: queryValidation.error.errors,
       });
     }
@@ -160,7 +161,7 @@ router.get('/:id', async (req, res, next) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: 'ID invalide',
+        error: translate('error.badRequest', req.lang),
         details: validation.error.errors,
       });
     }
@@ -186,7 +187,7 @@ router.get('/:id', async (req, res, next) => {
     if (!petition) {
       return res.status(404).json({
         success: false,
-        error: 'Pétition non trouvée',
+        error: translate('error.notFound', req.lang),
       });
     }
 
@@ -266,7 +267,7 @@ router.get('/:id/stats', async (req, res, next) => {
     if (!petition) {
       return res.status(404).json({
         success: false,
-        error: 'Pétition non trouvée',
+        error: translate('error.notFound', req.lang),
       });
     }
 
@@ -325,7 +326,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: 'Données invalides',
+        error: translate('error.validation', req.lang),
         details: validation.error.errors,
       });
     }
@@ -338,7 +339,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
       if (!elu) {
         return res.status(404).json({
           success: false,
-          error: 'Élu non trouvé',
+          error: translate('error.notFound', req.lang),
         });
       }
     }
@@ -371,7 +372,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
 
     res.status(201).json({
       success: true,
-      message: 'Pétition créée',
+      message: translate('petition.created', req.lang),
       data: createdPetition,
     });
   } catch (err) {
@@ -391,7 +392,7 @@ router.put('/:id', authMiddleware, async (req, res, next) => {
     if (!idValidation.success) {
       return res.status(400).json({
         success: false,
-        error: 'ID invalide',
+        error: translate('error.badRequest', req.lang),
         details: idValidation.error.errors,
       });
     }
@@ -404,7 +405,7 @@ router.put('/:id', authMiddleware, async (req, res, next) => {
     if (!petition) {
       return res.status(404).json({
         success: false,
-        error: 'Pétition non trouvée',
+        error: translate('error.notFound', req.lang),
       });
     }
 
@@ -412,7 +413,7 @@ router.put('/:id', authMiddleware, async (req, res, next) => {
     if (petition.citoyenId !== req.user.userId) {
       return res.status(403).json({
         success: false,
-        error: 'Non autorisé à modifier cette pétition',
+        error: translate('error.forbidden', req.lang),
         code: 'FORBIDDEN_EDIT',
       });
     }
@@ -423,7 +424,7 @@ router.put('/:id', authMiddleware, async (req, res, next) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: 'Données invalides',
+        error: translate('error.validation', req.lang),
         details: validation.error.errors,
       });
     }
@@ -437,7 +438,7 @@ router.put('/:id', authMiddleware, async (req, res, next) => {
         if (!elu) {
           return res.status(404).json({
             success: false,
-            error: 'Élu non trouvé',
+            error: translate('error.notFound', req.lang),
           });
         }
       }
@@ -470,7 +471,7 @@ router.put('/:id', authMiddleware, async (req, res, next) => {
 
     res.json({
       success: true,
-      message: 'Pétition mise à jour',
+      message: translate('petition.updated', req.lang),
       data: updatedPetition,
     });
   } catch (err) {
@@ -489,7 +490,7 @@ router.delete('/:id', authMiddleware, async (req, res, next) => {
     if (!idValidation.success) {
       return res.status(400).json({
         success: false,
-        error: 'ID invalide',
+        error: translate('error.badRequest', req.lang),
         details: idValidation.error.errors,
       });
     }
@@ -502,7 +503,7 @@ router.delete('/:id', authMiddleware, async (req, res, next) => {
     if (!petition) {
       return res.status(404).json({
         success: false,
-        error: 'Pétition non trouvée',
+        error: translate('error.notFound', req.lang),
       });
     }
 
@@ -510,7 +511,7 @@ router.delete('/:id', authMiddleware, async (req, res, next) => {
     if (petition.citoyenId !== req.user.userId) {
       return res.status(403).json({
         success: false,
-        error: 'Non autorisé à supprimer cette pétition',
+        error: translate('error.forbidden', req.lang),
         code: 'FORBIDDEN_DELETE',
       });
     }
@@ -525,7 +526,7 @@ router.delete('/:id', authMiddleware, async (req, res, next) => {
 
     res.json({
       success: true,
-      message: 'Pétition supprimée',
+      message: translate('petition.deleted', req.lang),
       data: {
         id,
       },
@@ -547,7 +548,7 @@ router.get('/:id/signatures', async (req, res, next) => {
     if (!idValidation.success) {
       return res.status(400).json({
         success: false,
-        error: 'ID invalide',
+        error: translate('error.badRequest', req.lang),
         details: idValidation.error.errors,
       });
     }
@@ -557,7 +558,7 @@ router.get('/:id/signatures', async (req, res, next) => {
     if (!paginationValidation.success) {
       return res.status(400).json({
         success: false,
-        error: 'Paramètres de pagination invalides',
+        error: translate('error.validation', req.lang),
         details: paginationValidation.error.errors,
       });
     }
@@ -572,7 +573,7 @@ router.get('/:id/signatures', async (req, res, next) => {
     if (!petition) {
       return res.status(404).json({
         success: false,
-        error: 'Pétition non trouvée',
+        error: translate('error.notFound', req.lang),
       });
     }
 
@@ -633,7 +634,7 @@ router.post('/:id/sign', authMiddleware, signatureLimiter, async (req, res, next
     if (!validation.success) {
       return res.status(400).json({
         signed: false,
-        message: 'petition_id invalide',
+        message: translate('error.badRequest', req.lang),
         details: validation.error.errors,
       });
     }
@@ -648,7 +649,7 @@ router.post('/:id/sign', authMiddleware, signatureLimiter, async (req, res, next
     if (!petition) {
       return res.status(404).json({
         signed: false,
-        message: 'Pétition non trouvée',
+        message: translate('error.notFound', req.lang),
       });
     }
 
@@ -658,7 +659,7 @@ router.post('/:id/sign', authMiddleware, signatureLimiter, async (req, res, next
     if (petition.status !== 'published') {
       return res.status(400).json({
         signed: false,
-        message: 'Cette pétition n\'est pas publiée',
+        message: translate('error.badRequest', req.lang),
       });
     }
 
@@ -675,7 +676,7 @@ router.post('/:id/sign', authMiddleware, signatureLimiter, async (req, res, next
     if (existingSignature) {
       return res.status(409).json({
         signed: false,
-        message: 'Vous avez déjà signé cette pétition',
+        message: translate('petition.alreadySigned', req.lang),
       });
     }
 
@@ -693,7 +694,7 @@ router.post('/:id/sign', authMiddleware, signatureLimiter, async (req, res, next
           err.name === 'UniqueConstraintError') {
         return res.status(409).json({
           signed: false,
-          message: 'Vous avez déjà signé cette pétition',
+          message: translate('petition.alreadySigned', req.lang),
         });
       }
       throw err;
@@ -740,7 +741,7 @@ router.delete('/:id/sign', authMiddleware, async (req, res, next) => {
     if (!validation.success) {
       return res.status(400).json({
         unsigned: false,
-        message: 'petition_id invalide',
+        message: translate('error.badRequest', req.lang),
         details: validation.error.errors,
       });
     }
@@ -755,7 +756,7 @@ router.delete('/:id/sign', authMiddleware, async (req, res, next) => {
     if (!petition) {
       return res.status(404).json({
         unsigned: false,
-        message: 'Pétition non trouvée',
+        message: translate('error.notFound', req.lang),
       });
     }
 
@@ -773,7 +774,7 @@ router.delete('/:id/sign', authMiddleware, async (req, res, next) => {
     if (!signature) {
       return res.status(404).json({
         unsigned: false,
-        message: 'Vous n\'aviez pas signé cette pétition',
+        message: translate('error.notFound', req.lang),
       });
     }
 

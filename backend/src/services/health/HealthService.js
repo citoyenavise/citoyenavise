@@ -1,5 +1,5 @@
 import { pool } from '../../database.js';
-import logger from '../../core/utils/logger.js';
+import { logger } from '../../middlewares/logger.js';
 
 export class HealthService {
   /**

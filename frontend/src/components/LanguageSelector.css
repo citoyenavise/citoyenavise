@@ -1,0 +1,36 @@
+.language-selector {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.language-selector button {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #ccc;
+  background: white;
+  color: #333;
+  cursor: pointer;
+  border-radius: 4px;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+}
+
+.language-selector button:hover {
+  border-color: #C8102E;
+  color: #C8102E;
+}
+
+.language-selector button.active {
+  background: #C8102E;
+  color: white;
+  border-color: #C8102E;
+  box-shadow: 0 2px 4px rgba(200, 16, 46, 0.2);
+}
+
+@media (max-width: 768px) {
+  .language-selector button {
+    padding: 0.35rem 0.7rem;
+    font-size: 0.8rem;
+  }
+}

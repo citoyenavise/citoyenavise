@@ -1,5 +1,5 @@
-/**
- * Routes pour les Promesses Électorales
+﻿/**
+ * Routes pour les Promesses Ã‰lectorales
  * GET  /api/v1/promises
  * GET  /api/v1/promises/:id
  * GET  /api/v1/elus/:eluId/promises
@@ -11,13 +11,14 @@
 import express from 'express';
 import { Promise as PromiseModel, Elu } from '../models/index.js';
 import { authMiddleware } from '../middlewares/auth.js';
-import logger from '../core/utils/logger.js';
+import { logger } from '../middlewares/logger.js'
+import { calculateDetailedTransparencyScore, getTransparencyRating } from '../services/transparencyScore.js';
 
 const router = express.Router();
 
 /**
  * GET /api/v1/promises
- * List all promises
+ * List all promises with transparency scores
  */
 router.get('/', async (req, res) => {
   try {
@@ -29,7 +30,7 @@ router.get('/', async (req, res) => {
 
     const promises = await PromiseModel.findAll({
       where,
-      include: [{ model: Elu, as: 'elu' }],
+      include: [{ model: Elu, as: 'elu', include: [{ model: PromiseModel, as: 'Promises', attributes: ['status'], required: false }] }],
       limit: Math.min(parseInt(limit) || 20, 100),
       offset: parseInt(offset) || 0,
       order: [['deadline', 'ASC']],
@@ -37,9 +38,23 @@ router.get('/', async (req, res) => {
 
     const total = await PromiseModel.count({ where });
 
+    const promisesWithTransparency = promises.map(promise => {
+      const transparency = calculateDetailedTransparencyScore(promise.elu);
+      const rating = getTransparencyRating(transparency.overall);
+
+      return {
+        ...promise.toJSON(),
+        eluTransparency: {
+          score: transparency.overall,
+          rating: rating.rating,
+          color: rating.color,
+        },
+      };
+    });
+
     res.json({
       success: true,
-      data: promises,
+      data: promisesWithTransparency,
       total,
       limit,
       offset,
@@ -55,12 +70,12 @@ router.get('/', async (req, res) => {
 
 /**
  * GET /api/v1/promises/:id
- * Get promise detail
+ * Get promise detail with transparency score
  */
 router.get('/:id', async (req, res) => {
   try {
     const promise = await PromiseModel.findByPk(req.params.id, {
-      include: [{ model: Elu, as: 'elu' }],
+      include: [{ model: Elu, as: 'elu', include: [{ model: PromiseModel, as: 'Promises', attributes: ['status'], required: false }] }],
     });
 
     if (!promise) {
@@ -70,9 +85,20 @@ router.get('/:id', async (req, res) => {
       });
     }
 
+    const transparency = calculateDetailedTransparencyScore(promise.elu);
+    const rating = getTransparencyRating(transparency.overall);
+
     res.json({
       success: true,
-      data: promise,
+      data: {
+        ...promise.toJSON(),
+        eluTransparency: {
+          score: transparency.overall,
+          rating: rating.rating,
+          color: rating.color,
+          details: transparency,
+        },
+      },
     });
   } catch (err) {
     logger.error('Error fetching promise', { meta: { error: err.message } });
@@ -85,7 +111,7 @@ router.get('/:id', async (req, res) => {
 
 /**
  * GET /api/v1/elus/:eluId/promises
- * Get all promises for an elected official
+ * Get all promises for an elected official with transparency score
  */
 router.get('/elu/:eluId', async (req, res) => {
   try {
@@ -95,13 +121,28 @@ router.get('/elu/:eluId', async (req, res) => {
     const where = { eluId };
     if (status) where.status = status;
 
+    const elu = await Elu.findByPk(eluId);
+    if (!elu) {
+      return res.status(404).json({
+        success: false,
+        error: 'Elu not found',
+      });
+    }
+
     const promises = await PromiseModel.findAll({
       where,
       order: [['deadline', 'ASC']],
     });
 
+    const transparency = calculateDetailedTransparencyScore({ Promises: promises });
+    const rating = getTransparencyRating(transparency.overall);
+
     res.json({
       success: true,
+      eluId,
+      eluNom: elu.nom,
+      transparency,
+      rating,
       data: promises,
       count: promises.length,
     });
@@ -281,3 +322,4 @@ router.delete('/:id', authMiddleware, async (req, res) => {
 });
 
 export default router;
+

@@ -3,7 +3,7 @@
  * Protège l'API contre les abus de requêtes
  */
 
-import rateLimit from 'express-rate-limit';
+import rateLimit, { ipKeyGenerator } from 'express-rate-limit';
 
 /**
  * Limiteur global : 100 requêtes par IP, toutes les 15 minutes
@@ -41,8 +41,8 @@ export const signatureLimiter = rateLimit({
   statusCode: 429,
   keyGenerator: (req) => {
     // Utiliser l'ID utilisateur comme clé (si authentifié)
-    // Sinon, utiliser l'adresse IP
-    return req.user?.id || req.ip;
+    // Sinon, utiliser l'adresse IP avec support IPv6
+    return req.user?.id || ipKeyGenerator(req);
   },
   skip: (req) => !req.user, // Ne pas limiter si non authentifié (l'auth middleware bloquera)
 });
@@ -56,7 +56,7 @@ export const createActualiteLimiter = rateLimit({
   max: 10, // Limite: 10 actualités par jour
   message: 'Limite quotidienne de créations atteinte. Réessayez demain.',
   statusCode: 429,
-  keyGenerator: (req) => req.user?.id || req.ip,
+  keyGenerator: (req) => req.user?.id || ipKeyGenerator(req),
   skip: (req) => !req.user,
 });
 

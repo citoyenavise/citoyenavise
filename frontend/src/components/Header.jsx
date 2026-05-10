@@ -2,6 +2,7 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../hooks/useAuth'
 import { Avatar } from './ui/Avatar'
 import { Button } from './ui/Button'
+import LanguageSelector from './LanguageSelector'
 
 export function Header() {
   const { user, logout, isAuthenticated } = useAuth()
@@ -40,6 +41,8 @@ export function Header() {
           </div>
 
           <div className="flex items-center gap-6">
+            <LanguageSelector />
+
             {isAuthenticated ? (
               <>
                 <Link to="/notifications" className="relative text-gray-600 hover:text-primary transition">

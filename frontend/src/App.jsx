@@ -1,4 +1,6 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom'
+import { useEffect } from 'react'
+import { useTranslation } from 'react-i18next'
+import { BrowserRouter as Router, Routes, Route, Navigate, useParams, Outlet } from 'react-router-dom'
 import { AuthProvider } from './contexts/AuthContext'
 import { Header } from './components/Header'
 import { ProtectedRoute } from './components/ProtectedRoute'
@@ -15,55 +17,75 @@ import PetitionDetailPage from './pages/PetitionDetailPage'
 import CreatePetitionPage from './pages/CreatePetitionPage'
 import { PetitionsListPage } from './pages/PetitionsListPage'
 
+const LanguageWrapper = () => {
+  const { lang } = useParams()
+  const { i18n } = useTranslation()
+
+  useEffect(() => {
+    if (lang === 'fr' || lang === 'en') {
+      i18n.changeLanguage(lang)
+      localStorage.setItem('language', lang)
+    }
+  }, [lang, i18n])
+
+  return <Outlet />
+}
+
 export default function App() {
   return (
     <Router>
       <AuthProvider>
         <Header />
         <Routes>
+          {/* Routes sans langue (global) */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
 
-          <Route path="/elus" element={<ElussPage />} />
-          <Route path="/elus/:id" element={<EluDetailPage />} />
-          <Route path="/petitions" element={<PetitionsListPage />} />
-          <Route
-            path="/create-petition"
-            element={
-              <ProtectedRoute>
-                <CreatePetitionPage />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/petitions/:id" element={<PetitionDetailPage />} />
+          {/* Routes avec paramètre de langue */}
+          <Route path="/:lang" element={<LanguageWrapper />}>
+            <Route index element={<Home />} />
+            <Route path="petitions" element={<PetitionsListPage />} />
+            <Route path="petitions/:id" element={<PetitionDetailPage />} />
+            <Route
+              path="create-petition"
+              element={
+                <ProtectedRoute>
+                  <CreatePetitionPage />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="elus" element={<ElussPage />} />
+            <Route path="elus/:id" element={<EluDetailPage />} />
 
-          <Route
-            path="/feed"
-            element={
-              <ProtectedRoute>
-                <Feed />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/post/:postId"
-            element={
-              <ProtectedRoute>
-                <PostDetail />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/notifications"
-            element={
-              <ProtectedRoute>
-                <Notifications />
-              </ProtectedRoute>
-            }
-          />
+            <Route
+              path="feed"
+              element={
+                <ProtectedRoute>
+                  <Feed />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="post/:postId"
+              element={
+                <ProtectedRoute>
+                  <PostDetail />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="notifications"
+              element={
+                <ProtectedRoute>
+                  <Notifications />
+                </ProtectedRoute>
+              }
+            />
+          </Route>
 
-          <Route path="/" element={<Home />} />
-          <Route path="*" element={<Navigate to="/feed" replace />} />
+          {/* Redirection par défaut */}
+          <Route path="/" element={<Navigate to="/fr" replace />} />
+          <Route path="*" element={<Navigate to="/fr" replace />} />
         </Routes>
       </AuthProvider>
     </Router>

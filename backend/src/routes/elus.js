@@ -7,6 +7,8 @@ import express from 'express';
 import { z } from 'zod';
 import Elu from '../models/Elu.js';
 import Petition from '../models/Petition.js';
+import Promise from '../models/Promise.js';
+import { calculateDetailedTransparencyScore, getTransparencyRating } from '../services/transparencyScore.js';
 
 const router = express.Router();
 
@@ -16,19 +18,31 @@ const idSchema = z.object({
 
 /**
  * GET /api/v1/elus
- * Lister tous les élus
+ * Lister tous les élus avec score de transparence
  */
 router.get('/', async (req, res, next) => {
   try {
     const elus = await Elu.findAll({
       attributes: ['id', 'nom', 'titre', 'region', 'niveau', 'email', 'photoUrl', 'siteWeb'],
+      include: [{ model: Promise, as: 'Promises', attributes: ['status'], required: false }],
       order: [['nom', 'ASC']],
+    });
+
+    const elusWithTransparency = elus.map(elu => {
+      const transparency = calculateDetailedTransparencyScore(elu);
+      const rating = getTransparencyRating(transparency.overall);
+
+      return {
+        ...elu.toJSON(),
+        transparency,
+        rating,
+      };
     });
 
     res.json({
       success: true,
-      count: elus.length,
-      data: elus,
+      count: elusWithTransparency.length,
+      data: elusWithTransparency,
     });
   } catch (err) {
     next(err);
@@ -37,7 +51,7 @@ router.get('/', async (req, res, next) => {
 
 /**
  * GET /api/v1/elus/:id
- * Obtenir détail d'un élu
+ * Obtenir détail d'un élu avec score de transparence
  */
 router.get('/:id', async (req, res, next) => {
   try {
@@ -54,6 +68,7 @@ router.get('/:id', async (req, res, next) => {
     const { id } = validation.data;
     const elu = await Elu.findByPk(id, {
       attributes: ['id', 'nom', 'titre', 'region', 'niveau', 'email', 'photoUrl', 'siteWeb', 'createdAt', 'updatedAt'],
+      include: [{ model: Promise, as: 'Promises', attributes: ['id', 'titre', 'status', 'deadline', 'completedAt'] }],
     });
 
     if (!elu) {
@@ -63,9 +78,144 @@ router.get('/:id', async (req, res, next) => {
       });
     }
 
+    const transparency = calculateDetailedTransparencyScore(elu);
+    const rating = getTransparencyRating(transparency.overall);
+
     res.json({
       success: true,
-      data: elu,
+      data: {
+        ...elu.toJSON(),
+        transparency,
+        rating,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * GET /api/v1/elus/:id/promises
+ * Lister les promesses d'un élu avec transparence
+ */
+router.get('/:id/promises', async (req, res, next) => {
+  try {
+    const validation = idSchema.safeParse({ id: req.params.id });
+
+    if (!validation.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'ID invalide',
+        details: validation.error.errors,
+      });
+    }
+
+    const { id } = validation.data;
+
+    const elu = await Elu.findByPk(id);
+    if (!elu) {
+      return res.status(404).json({
+        success: false,
+        error: 'Élu non trouvé',
+      });
+    }
+
+    const promises = await Promise.findAll({
+      where: { elu_id: id },
+      attributes: ['id', 'titre', 'description', 'status', 'deadline', 'completedAt', 'createdAt'],
+      order: [['createdAt', 'DESC']],
+    });
+
+    const transparency = calculateDetailedTransparencyScore({ Promises: promises });
+    const rating = getTransparencyRating(transparency.overall);
+
+    res.json({
+      success: true,
+      eluId: id,
+      eluNom: elu.nom,
+      count: promises.length,
+      transparency,
+      rating,
+      data: promises,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * GET /api/v1/elus/:id/transparency
+ * Score de transparence détaillé pour un élu
+ */
+router.get('/:id/transparency', async (req, res, next) => {
+  try {
+    const validation = idSchema.safeParse({ id: req.params.id });
+
+    if (!validation.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'ID invalide',
+        details: validation.error.errors,
+      });
+    }
+
+    const { id } = validation.data;
+
+    const elu = await Elu.findByPk(id, {
+      attributes: ['id', 'nom', 'titre', 'region', 'niveau'],
+      include: [{ model: Promise, as: 'Promises', attributes: ['id', 'titre', 'status', 'deadline', 'completedAt'] }],
+    });
+
+    if (!elu) {
+      return res.status(404).json({
+        success: false,
+        error: 'Élu non trouvé',
+      });
+    }
+
+    const promises = elu.Promises || [];
+
+    if (promises.length === 0) {
+      return res.json({
+        success: true,
+        eluId: id,
+        eluNom: elu.nom,
+        score: 0,
+        totalPromises: 0,
+        completed: 0,
+        inProgress: 0,
+        abandoned: 0,
+        committed: 0,
+        breakdown: {
+          completionRate: 0,
+          keepRate: 0,
+        },
+        message: 'Aucune promesse enregistrée',
+      });
+    }
+
+    const transparency = calculateDetailedTransparencyScore(elu);
+    const rating = getTransparencyRating(transparency.overall);
+
+    res.json({
+      success: true,
+      eluId: id,
+      eluNom: elu.nom,
+      titre: elu.titre,
+      region: elu.region,
+      niveau: elu.niveau,
+      score: transparency.overall,
+      rating: rating.rating,
+      color: rating.color,
+      totalPromises: transparency.totalPromises,
+      completed: transparency.completed,
+      inProgress: transparency.inProgress,
+      abandoned: transparency.abandoned,
+      committed: transparency.committed,
+      breakdown: {
+        completionRate: transparency.completionRate,
+        keepRate: transparency.keepRate,
+      },
     });
   } catch (err) {
     next(err);

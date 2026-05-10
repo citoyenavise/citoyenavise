@@ -10,7 +10,7 @@
 
 import express from 'express';
 import { HealthService } from '../services/health/HealthService.js';
-import logger from '../core/utils/logger.js';
+import { logger } from '../middlewares/logger.js';
 
 const router = express.Router();
 

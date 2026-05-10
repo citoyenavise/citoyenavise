@@ -9,6 +9,7 @@ import User from '../models/User.js';
 import EmailVerification from '../models/EmailVerification.js';
 import { createJWT, generateMagicLink } from '../services/auth.js';
 import { sendMagicLinkEmail } from '../services/email.js';
+import { translate } from '../services/i18n.js';
 import { authMiddleware } from '../middlewares/auth.js';
 import { authLimiter } from '../middlewares/rateLimiter.js';
 import { getConfig } from '../config/env.js';
@@ -50,7 +51,7 @@ router.post('/magic-link', authLimiter, async (req, res, next) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: 'Email invalide',
+        error: translate('error.validation', req.lang),
         details: validation.error.errors,
       });
     }
@@ -98,7 +99,7 @@ router.post('/magic-link', authLimiter, async (req, res, next) => {
 
     res.json({
       success: true,
-      message: 'Lien de connexion envoyé à votre email',
+      message: translate('auth.loginRequested', req.lang, { email }),
       email,
       expiresIn: 900, // 15 minutes en secondes
     });
@@ -130,7 +131,7 @@ router.get('/verify', async (req, res, next) => {
     if (!validation.success) {
       return res.status(400).json({
         success: false,
-        error: 'Token invalide ou manquant',
+        error: translate('error.badRequest', req.lang),
         details: validation.error.errors,
       });
     }
@@ -149,7 +150,7 @@ router.get('/verify', async (req, res, next) => {
     if (!emailVerification) {
       return res.status(401).json({
         success: false,
-        error: 'Token non trouvé ou invalide',
+        error: translate('auth.invalidToken', req.lang),
       });
     }
 
@@ -157,7 +158,7 @@ router.get('/verify', async (req, res, next) => {
     if (new Date() > new Date(emailVerification.expiresAt)) {
       return res.status(401).json({
         success: false,
-        error: 'Lien de connexion expiré',
+        error: translate('auth.tokenExpired', req.lang),
       });
     }
 
@@ -165,7 +166,7 @@ router.get('/verify', async (req, res, next) => {
     if (emailVerification.usedAt) {
       return res.status(401).json({
         success: false,
-        error: 'Ce lien a déjà été utilisé',
+        error: translate('auth.invalidToken', req.lang),
       });
     }
 
@@ -216,7 +217,7 @@ router.post('/logout', authMiddleware, (req, res) => {
 
   res.json({
     success: true,
-    message: 'Déconnecté avec succès',
+    message: translate('auth.logoutSuccess', req.lang),
   });
 });
 

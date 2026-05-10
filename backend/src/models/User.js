@@ -35,6 +35,13 @@ const User = sequelize.define('User', {
     type: DataTypes.DATE,
     field: 'verified_at',
   },
+  role: {
+    type: DataTypes.ENUM('citizen', 'admin'),
+    defaultValue: 'citizen',
+    validate: {
+      isIn: [['citizen', 'admin']],
+    },
+  },
   createdAt: {
     type: DataTypes.DATE,
     field: 'created_at',

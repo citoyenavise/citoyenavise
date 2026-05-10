@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import { getConfig } from './config/env.js';
 import { logger } from './middlewares/logger.js';
 import { globalLimiter } from './middlewares/rateLimiter.js';
+import { i18nMiddleware } from './middlewares/i18n.js';
 import routes from './routes/index.js';
 import { setupSwagger } from './swagger/setup.js';
 import sequelize, { testConnection } from './db/sequelize.js';
@@ -83,6 +84,13 @@ app.use(globalLimiter);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(logger);
+
+// ═══════════════════════════════════════════════════════════════
+// Internationalisation (i18n) - Détection de la langue
+// ═══════════════════════════════════════════════════════════════
+// Extrait la langue de la requête (query param > Accept-Language > préférence utilisateur > 'fr')
+// Disponible via req.lang dans les routes
+app.use(i18nMiddleware);
 
 // Swagger Documentation
 setupSwagger(app);
