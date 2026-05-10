@@ -1,184 +1,138 @@
-version: '3.9'
+﻿version: '3.9'
 
 services:
   # PostgreSQL Database
   postgres:
-    image: postgres:14-alpine
+    image: postgres:15-alpine
     container_name: citoyenavise_postgres
     environment:
-      POSTGRES_USER: ${DB_USER:-postgres}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:-postgres}
-      POSTGRES_DB: ${DB_NAME:-citoyenavise}
-      POSTGRES_INITDB_ARGS: "-c shared_preload_libraries=postgis-3"
+      POSTGRES_USER: staging_user
+      POSTGRES_PASSWORD: staging_password
+      POSTGRES_DB: citoyenavise_staging
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+    ports:
+      - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./backend/database/migrations:/docker-entrypoint-initdb.d
-    ports:
-      - "${DB_PORT:-5432}:5432"
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-postgres}"]
+      test: ["CMD-SHELL", "pg_isready -U staging_user -d citoyenavise_staging"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - citoyenavise
+      - citoyenavise-network
+    labels:
+      - "com.example.description=Citoyenavise PostgreSQL Database"
 
   # Redis Cache
   redis:
     image: redis:7-alpine
     container_name: citoyenavise_redis
-    command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-password}
+    command: redis-server --appendonly yes --requirepass ""
+    ports:
+      - "6379:6379"
     volumes:
       - redis_data:/data
-    ports:
-      - "${REDIS_PORT:-6379}:6379"
     healthcheck:
-      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      test: ["CMD", "redis-cli", "ping"]
       interval: 10s
       timeout: 5s
       retries: 5
     networks:
-      - citoyenavise
+      - citoyenavise-network
+    labels:
+      - "com.example.description=Citoyenavise Redis Cache"
 
-  # Backend API
-  backend:
+  # Node.js Backend API
+  app:
     build:
-      context: ./backend
+      context: .
       dockerfile: Dockerfile
-    container_name: citoyenavise_backend
+    container_name: citoyenavise_app
     depends_on:
       postgres:
         condition: service_healthy
       redis:
         condition: service_healthy
     environment:
-      NODE_ENV: ${NODE_ENV:-production}
-      PORT: ${BACKEND_PORT:-5000}
-
-      # Database
-      DATABASE_URL: postgresql://${DB_USER:-postgres}:${DB_PASSWORD:-postgres}@postgres:5432/${DB_NAME:-citoyenavise}
-
-      # Redis
+      # Load from .env.staging
+      NODE_ENV: staging
+      PORT: 5000
+      DATABASE_URL: postgresql://staging_user:staging_password@postgres:5432/citoyenavise_staging
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_USER: staging_user
+      DB_PASSWORD: staging_password
+      DB_NAME: citoyenavise_staging
+      JWT_SECRET: staging_secret_key_change_in_production_12345678901234567890
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_PASSWORD: ${REDIS_PASSWORD:-password}
-
-      # JWT
-      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET must be set}
-      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:?JWT_REFRESH_SECRET must be set}
-      JWT_EXPIRY_ACCESS: ${JWT_EXPIRY_ACCESS:-24h}
-      JWT_EXPIRY_REFRESH: ${JWT_EXPIRY_REFRESH:-7d}
-
-      # API
-      API_URL: ${API_URL:-http://localhost:5000}
-      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:3000}
-      CORS_ORIGIN: ${CORS_ORIGIN:-http://localhost:3000}
-
-      # Logging
-      LOG_LEVEL: ${LOG_LEVEL:-info}
+      API_URL: http://localhost:5000
+      FRONTEND_URL: http://localhost:3001
+      LOG_LEVEL: debug
+      ENABLE_SWAGGER: "true"
+      ENABLE_CACHE: "true"
     ports:
-      - "${BACKEND_PORT:-5000}:5000"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
-      interval: 30s
-      timeout: 3s
-      retries: 3
-      start_period: 40s
-    restart: unless-stopped
-    networks:
-      - citoyenavise
+      - "5000:5000"
     volumes:
-      - ./backend/logs:/app/logs
-
-  # Frontend (Nginx static serve)
-  frontend:
-    image: nginx:alpine
-    container_name: citoyenavise_frontend
-    volumes:
-      - ./public:/usr/share/nginx/html
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    ports:
-      - "${FRONTEND_PORT:-3000}:80"
-    depends_on:
-      - backend
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost"]
-      interval: 30s
-      timeout: 3s
-      retries: 3
-    restart: unless-stopped
+      # Mount source code for development
+      - ./backend/src:/app/src
+      - ./backend/.eslintrc.json:/app/.eslintrc.json
+      - ./backend/.prettierrc.json:/app/.prettierrc.json
+      # Exclude node_modules
+      - /app/node_modules
     networks:
-      - citoyenavise
+      - citoyenavise-network
+    labels:
+      - "com.example.description=Citoyenavise Backend API"
+    restart: unless-stopped
 
-  # pgAdmin pour dev (optionnel)
+  # Optional: pgAdmin for database management
   pgadmin:
     image: dpage/pgadmin4:latest
     container_name: citoyenavise_pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:-admin@citoyenavise.local}
-      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:-admin}
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_CONFIG_SERVER_MODE: "False"
     ports:
-      - "${PGADMIN_PORT:-5050}:80"
+      - "5050:80"
     depends_on:
       - postgres
-    restart: unless-stopped
     networks:
-      - citoyenavise
+      - citoyenavise-network
+    labels:
+      - "com.example.description=pgAdmin Database Management"
     profiles:
-      - dev
+      - debug  # Only run with: docker-compose --profile debug up
 
-  # Redis Commander pour dev (optionnel)
+  # Optional: Redis Commander for cache management
   redis-commander:
     image: rediscommander/redis-commander:latest
     container_name: citoyenavise_redis_commander
     environment:
-      REDIS_HOSTS: local:redis:6379:0:${REDIS_PASSWORD:-password}
+      - REDIS_HOSTS=local:redis:6379
     ports:
-      - "${REDIS_COMMANDER_PORT:-8081}:8081"
+      - "8081:8081"
     depends_on:
       - redis
-    restart: unless-stopped
     networks:
-      - citoyenavise
+      - citoyenavise-network
+    labels:
+      - "com.example.description=Redis Commander Cache Management"
     profiles:
-      - dev
+      - debug  # Only run with: docker-compose --profile debug up
 
-  # Backup service (production only)
-  backup:
-    image: postgres:14-alpine
-    container_name: citoyenavise_backup
-    environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: ${DB_NAME:-citoyenavise}
-      DB_USER: ${DB_USER:-postgres}
-      DB_PASSWORD: ${DB_PASSWORD:-postgres}
-      BACKUP_DIR: /backups
-      RETENTION_DAYS: ${BACKUP_RETENTION_DAYS:-7}
-      AWS_S3_BUCKET: ${AWS_S3_BUCKET:-}
-      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID:-}
-      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:-}
-    volumes:
-      - ./backend/scripts/backup.sh:/backup.sh:ro
-      - backup_data:/backups
-    entrypoint: /bin/sh -c "while true; do /backup.sh; sleep 86400; done"
-    depends_on:
-      postgres:
-        condition: service_healthy
-    restart: unless-stopped
-    networks:
-      - citoyenavise
-    profiles:
-      - prod
+networks:
+  citoyenavise-network:
+    driver: bridge
+    name: citoyenavise-network
 
 volumes:
   postgres_data:
     driver: local
+    name: citoyenavise_postgres_data
   redis_data:
     driver: local
-  backup_data:
-    driver: local
-
-networks:
-  citoyenavise:
-    driver: bridge
+    name: citoyenavise_redis_data
