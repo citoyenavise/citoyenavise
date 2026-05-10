@@ -1,0 +1,247 @@
+################################################################################
+# Docker Compose Configuration for Staging Environment
+#
+# Extends the base docker-compose.yml with staging-specific settings:
+# - Resource limits
+# - Environment variables for staging
+# - Logging configuration
+# - Restart policies
+#
+# Usage: docker-compose -f docker-compose.staging.yml up -d
+################################################################################
+
+version: '3.9'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: citoyenavise_postgres_staging
+    environment:
+      POSTGRES_USER: staging_user
+      POSTGRES_PASSWORD: staging_password
+      POSTGRES_DB: citoyenavise_staging
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data_staging:/var/lib/postgresql/data
+      - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U staging_user -d citoyenavise_staging"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - citoyenavise-network-staging
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
+        reservations:
+          cpus: '1'
+          memory: 1G
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    labels:
+      - "com.example.description=Citoyenavise PostgreSQL Database (Staging)"
+      - "com.example.environment=staging"
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: citoyenavise_redis_staging
+    command: redis-server --appendonly yes --requirepass "" --maxmemory 512mb --maxmemory-policy allkeys-lru
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data_staging:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - citoyenavise-network-staging
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 256M
+    logging:
+      driver: json-file
+      options:
+        max-size: "5m"
+        max-file: "2"
+    labels:
+      - "com.example.description=Citoyenavise Redis Cache (Staging)"
+      - "com.example.environment=staging"
+
+  # Node.js Backend API
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        NODE_ENV: staging
+    image: citoyenavise:staging
+    container_name: citoyenavise_app_staging
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      # Server Configuration
+      NODE_ENV: staging
+      PORT: 5000
+      API_VERSION: 1.0.0
+      SERVICE_NAME: citoyenavise-backend-staging
+
+      # Database
+      DATABASE_URL: postgresql://staging_user:staging_password@postgres:5432/citoyenavise_staging
+
+      # JWT & Authentication
+      JWT_SECRET: ${JWT_SECRET:-staging_secret_change_in_production}
+      JWT_REFRESH_SECRET: ${JWT_REFRESH_SECRET:-staging_refresh_secret_change_in_production}
+      JWT_EXPIRY_ACCESS: 7d
+      JWT_EXPIRY_REFRESH: 30d
+
+      # CORS - Allow staging frontend
+      CORS_ORIGIN: http://localhost:3001,http://localhost:3000,http://127.0.0.1:3001
+
+      # URLs
+      API_URL: http://localhost:5000
+      FRONTEND_URL: http://localhost:3001
+
+      # Email (Magic Link)
+      SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_SECURE: false
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM: noreply@citoyenavise-staging.org
+      MAIL_SERVICE: ${MAIL_SERVICE:-gmail}
+
+      # Redis Cache
+      REDIS_URL: redis://redis:6379
+
+      # Logging
+      LOG_LEVEL: debug
+
+      # Sentry (Error tracking) - Optional
+      SENTRY_DSN: ${SENTRY_DSN:-}
+
+    ports:
+      - "5000:5000"
+    volumes:
+      # Mount source code for development
+      - ./backend:/app/backend
+      - /app/node_modules
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - citoyenavise-network-staging
+    restart: unless-stopped
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 1G
+        reservations:
+          cpus: '1'
+          memory: 512M
+    logging:
+      driver: json-file
+      options:
+        max-size: "20m"
+        max-file: "5"
+    labels:
+      - "com.example.description=Citoyenavise Backend API (Staging)"
+      - "com.example.environment=staging"
+
+volumes:
+  postgres_data_staging:
+    driver: local
+  redis_data_staging:
+    driver: local
+
+networks:
+  citoyenavise-network-staging:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: br-citoyenavise-staging
+
+################################################################################
+# Optional Services (disabled by default, enable with --profile flag)
+################################################################################
+
+  # pgAdmin - PostgreSQL Admin Panel (Optional)
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: citoyenavise_pgadmin_staging
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    volumes:
+      - pgadmin_data_staging:/var/lib/pgadmin
+    networks:
+      - citoyenavise-network-staging
+    profiles:
+      - debug
+    depends_on:
+      - postgres
+    labels:
+      - "com.example.description=pgAdmin for PostgreSQL (Debug)"
+
+  # Redis Commander - Redis Admin Panel (Optional)
+  redis-commander:
+    image: rediscommander/redis-commander:latest
+    container_name: citoyenavise_redis_commander_staging
+    environment:
+      REDIS_HOSTS: local:redis:6379
+    ports:
+      - "8081:8081"
+    networks:
+      - citoyenavise-network-staging
+    profiles:
+      - debug
+    depends_on:
+      - redis
+    labels:
+      - "com.example.description=Redis Commander (Debug)"
+
+################################################################################
+# USAGE:
+#
+# Start staging environment:
+#   docker-compose -f docker-compose.staging.yml up -d
+#
+# View logs:
+#   docker-compose -f docker-compose.staging.yml logs -f
+#
+# Stop services:
+#   docker-compose -f docker-compose.staging.yml down
+#
+# Start with debug services (pgAdmin, Redis Commander):
+#   docker-compose -f docker-compose.staging.yml --profile debug up -d
+#
+# Remove volumes (warning: deletes data):
+#   docker-compose -f docker-compose.staging.yml down -v
+#
+################################################################################
