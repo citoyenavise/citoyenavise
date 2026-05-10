@@ -7,12 +7,14 @@
 import express from 'express';
 import { z } from 'zod';
 import Petition from '../models/Petition.js';
+import PetitionTranslation from '../models/PetitionTranslation.js';
 import Signature from '../models/Signature.js';
 import Comment from '../models/Comment.js';
 import User from '../models/User.js';
 import Elu from '../models/Elu.js';
 import { translate } from '../services/i18n.js';
 import { authMiddleware, checkOwnership } from '../middlewares/auth.js';
+import { checkAdmin } from '../middlewares/admin.js';
 import { signatureLimiter } from '../middlewares/rateLimiter.js';
 import { Op } from 'sequelize';
 
@@ -63,6 +65,18 @@ const updatePetitionSchema = z.object({
     .optional(),
   eluId: z.number().int().positive().optional().nullable(),
   status: z.enum(['draft', 'published', 'closed', 'won']).optional(),
+});
+
+const translationSchema = z.object({
+  language: z.enum(['en', 'fr']),
+  titre: z.string()
+    .min(10, 'Titre doit avoir minimum 10 caractères')
+    .max(200, 'Titre ne doit pas dépasser 200 caractères')
+    .optional(),
+  description: z.string()
+    .min(20, 'Description doit avoir minimum 20 caractères')
+    .max(2000, 'Description ne doit pas dépasser 2000 caractères')
+    .optional(),
 });
 
 /**
@@ -153,6 +167,8 @@ router.get('/', async (req, res, next) => {
 /**
  * GET /api/v1/petitions/:id
  * Obtenir le détail d'une pétition avec signature count
+ * Query: ?lang=en (default: fr)
+ * Retourne traductions localisées avec fallback français
  */
 router.get('/:id', async (req, res, next) => {
   try {
@@ -167,6 +183,7 @@ router.get('/:id', async (req, res, next) => {
     }
 
     const { id } = validation.data;
+    const lang = req.query.lang || 'fr';
 
     const petition = await Petition.findByPk(id, {
       attributes: ['id', 'titre', 'description', 'status', 'signaturesCount', 'deadline', 'createdAt', 'updatedAt', 'citoyenId', 'eluId'],
@@ -189,6 +206,18 @@ router.get('/:id', async (req, res, next) => {
         success: false,
         error: translate('error.notFound', req.lang),
       });
+    }
+
+    // Appliquer traductions si langue != français
+    if (lang === 'en') {
+      const translation = await PetitionTranslation.findOne({
+        where: { petitionId: id, language: 'en' },
+      });
+
+      if (translation) {
+        petition.titre = translation.titre || petition.titre;
+        petition.description = translation.description || petition.description;
+      }
     }
 
     res.json({
@@ -795,6 +824,89 @@ router.delete('/:id/sign', authMiddleware, async (req, res, next) => {
     res.json({
       unsigned: true,
       totalSignatures: petition.signaturesCount,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * POST /api/v1/petitions/:id/translations
+ * Ajouter ou mettre à jour une traduction de pétition (Admin only)
+ * Body: { language: 'en', titre?: '...', description?: '...' }
+ *
+ * Crée ou met à jour une traduction pour la pétition
+ * Au moins un de titre ou description doit être fourni
+ */
+router.post('/:id/translations', authMiddleware, checkAdmin, async (req, res, next) => {
+  try {
+    // Valider petition_id
+    const idValidation = idSchema.safeParse({ id: req.params.id });
+
+    if (!idValidation.success) {
+      return res.status(400).json({
+        success: false,
+        error: translate('error.badRequest', req.lang),
+        details: idValidation.error.errors,
+      });
+    }
+
+    const { id } = idValidation.data;
+
+    // Valider body
+    const validation = translationSchema.safeParse(req.body);
+
+    if (!validation.success) {
+      return res.status(400).json({
+        success: false,
+        error: translate('error.validation', req.lang),
+        details: validation.error.errors,
+      });
+    }
+
+    const { language, titre, description } = validation.data;
+
+    // Vérifier qu'au moins un champ de traduction est fourni
+    if (!titre && !description) {
+      return res.status(400).json({
+        success: false,
+        error: translate('error.validation', req.lang),
+        details: [{ message: 'Au moins titre ou description doit être fourni' }],
+      });
+    }
+
+    // Vérifier que la pétition existe
+    const petition = await Petition.findByPk(id);
+
+    if (!petition) {
+      return res.status(404).json({
+        success: false,
+        error: translate('error.notFound', req.lang),
+      });
+    }
+
+    // Créer ou mettre à jour la traduction
+    const [translation, created] = await PetitionTranslation.findOrCreate({
+      where: { petitionId: id, language },
+      defaults: {
+        petitionId: id,
+        language,
+        titre: titre || null,
+        description: description || null,
+      },
+    });
+
+    // Mettre à jour si traduction existe
+    if (!created) {
+      if (titre !== undefined) translation.titre = titre;
+      if (description !== undefined) translation.description = description;
+      await translation.save();
+    }
+
+    res.status(created ? 201 : 200).json({
+      success: true,
+      message: created ? 'Traduction créée' : 'Traduction mise à jour',
+      data: translation,
     });
   } catch (err) {
     next(err);
