@@ -5,6 +5,11 @@
 
 import express from 'express';
 import { getConfig, isDevelopment } from '../config/env.js';
+import elusRoutes from './elus.js';
+// import authRoutes from './auth.js';
+// import usersRoutes from './users.js';
+// import postsRoutes from './posts.js';
+// import votesRoutes from './votes.js';
 
 const router = express.Router();
 const config = getConfig();
@@ -41,17 +46,21 @@ router.get('/api/info', (req, res) => {
 });
 
 /**
- * Routes futures à implémenter :
- * - /api/v1/users (comptes citoyens)
- * - /api/v1/events (logging des actions)
- * - /api/v1/votes (votes/sondages)
- * - /api/v1/map (carte citoyenne)
- * - /api/v1/analytics (analytics des actions)
- *
- * Structure préparée pour ajouter des modules :
- * import usersRoutes from './modules/users.js';
- * router.use('/api/v1/users', usersRoutes);
+ * Routes implémentées
  */
+
+// Routes publiques (pas d'authentification requise)
+router.use('/api/v1/elus', elusRoutes);
+
+/**
+ * Routes à implémenter
+ */
+// router.use('/api/v1/auth', authRoutes);     // Authentification (magic link / OTP)
+// router.use('/api/v1/users', usersRoutes);   // Profils citoyens
+// router.use('/api/v1/posts', postsRoutes);   // Posts & idées
+// router.use('/api/v1/votes', votesRoutes);   // Votes & sondages
+// router.use('/api/v1/profiles', profilesRoutes); // Profils publics
+// router.use('/api/v1/initiatives', initiativesRoutes); // Initiatives citoyennes
 
 /**
  * Route de test (à supprimer en production)
