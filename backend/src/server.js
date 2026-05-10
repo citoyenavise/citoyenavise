@@ -1,5 +1,6 @@
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import dotenv from 'dotenv';
 import { getConfig } from './config/env.js';
 import { logger } from './middlewares/logger.js';
@@ -14,7 +15,36 @@ dotenv.config();
 const app = express();
 const config = getConfig();
 
+// ═══════════════════════════════════════════════════════════════
+// Sécurité - Helmet pour les headers HTTP
+// ═══════════════════════════════════════════════════════════════
+// Helmet aide à sécuriser l'application Express en configurant divers headers HTTP
+// Headers inclus par défaut:
+// - Content-Security-Policy (CSP)
+// - X-Frame-Options: DENY
+// - X-Content-Type-Options: nosniff
+// - Strict-Transport-Security (HSTS)
+// - X-XSS-Protection
+app.use(helmet());
+
+// Custom security headers supplémentaires
+app.use((req, res, next) => {
+  // Prevent MIME type sniffing
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  // Prevent clickjacking attacks
+  res.setHeader('X-Frame-Options', 'DENY');
+  // XSS protection
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  // Referrer Policy - Control referrer information
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  // Permissions Policy - Control which features the browser can use
+  res.setHeader('Permissions-Policy', 'geolocation=(), microphone=(), camera=()');
+  next();
+});
+
+// ═══════════════════════════════════════════════════════════════
 // Middlewares globaux
+// ═══════════════════════════════════════════════════════════════
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
