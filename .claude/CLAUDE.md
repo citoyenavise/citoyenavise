@@ -147,19 +147,27 @@ npm test          # Tests (à implémenter)
 ✅ Commit : "feat: implement elu_commitments routes"
 ```
 
-### **Phase 7 : Frontend React (À FAIRE)**
+### **Phase 7 : Frontend React (COMPLÉTÉ ✅)**
 ```
-□ Implémenter composants React
-□ Magic link auth flow
-□ Pages : Pétitions, Élus, Engagements
-□ Commit : "feat: implement frontend UI"
+✅ Implémenter composants React (Header, ProtectedRoute, Toast, UI components)
+✅ Magic link auth flow (Login, Register pages)
+✅ Pages : Pétitions (list/detail), Élus (list/detail), Engagements
+✅ Routing avec react-router-dom
+✅ State management avec Zustand
+✅ API client avec axios
+✅ Commit : "feat: implement frontend React components"
 ```
 
-### **Phase 8 : Tests & Lancement (À FAIRE)**
+### **Phase 8 : Tests & Lancement (EN COURS)**
 ```
-□ Tests automatisés
+✅ Tests automatisés backend (14 fichiers test, >85% couverture)
+✅ Tests automatisés frontend (5 fichiers test, 64 tests passants)
+✅ Configuration CI/CD avec GitHub Actions (Snyk, SonarQube, Jest, Vitest)
+✅ Sécurité HTTP (Helmet + CORS sécurisé)
+✅ Docker & docker-compose pour staging local
+✅ ESLint + Prettier + Husky pre-commit hooks
 □ Seed données test
-□ Documentation complète
+□ Déploiement production
 □ Commit : "release: v1.0.0"
 ```
 
