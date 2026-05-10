@@ -4,10 +4,11 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
+  css: true,
   test: {
     globals: true,
     environment: 'jsdom',
-    setupFiles: [],
+    setupFiles: ['./vitest.setup.js'],
     coverage: {
       provider: 'v8',
       reporter: ['text', 'json', 'html', 'lcov'],
