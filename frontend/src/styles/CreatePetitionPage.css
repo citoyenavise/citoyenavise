@@ -1,0 +1,487 @@
+/**
+ * Styles pour la page Créer une Pétition
+ */
+
+.create-petition-page {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+
+.create-petition-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Header */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.create-petition-header {
+  text-align: center;
+  margin-bottom: 40px;
+  animation: fadeInDown 0.6s ease-out;
+}
+
+.create-petition-header h1 {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #1a3a52;
+  margin: 0 0 12px 0;
+}
+
+.create-petition-header p {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Form */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.create-petition-form {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  margin-bottom: 40px;
+  animation: fadeInUp 0.6s ease-out 0.1s backwards;
+}
+
+/* Form Groups */
+.form-group {
+  margin-bottom: 24px;
+}
+
+.form-group:last-of-type {
+  margin-bottom: 28px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.form-group label .required {
+  color: #ff6b6b;
+  margin-left: 2px;
+}
+
+/* Form Inputs */
+.form-input,
+.form-textarea,
+.form-select {
+  width: 100%;
+  padding: 12px;
+  font-size: 0.95rem;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-family: inherit;
+  transition: all 0.3s ease;
+  box-sizing: border-box;
+}
+
+.form-input,
+.form-textarea {
+  color: #333;
+  background: white;
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: #999;
+}
+
+.form-input:focus,
+.form-textarea:focus,
+.form-select:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.form-input:disabled,
+.form-textarea:disabled,
+.form-select:disabled {
+  background: #f9f9f9;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 120px;
+  font-family: inherit;
+}
+
+.form-select {
+  appearance: none;
+  background: white;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23333' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 36px;
+}
+
+.form-select:disabled {
+  background-color: #f9f9f9;
+  opacity: 0.6;
+}
+
+.form-input.has-error,
+.form-textarea.has-error {
+  border-color: #ff6b6b;
+  background: #fff5f5;
+}
+
+.form-input.has-error:focus,
+.form-textarea.has-error:focus {
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+}
+
+/* Form Help */
+.field-help {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 8px;
+  font-size: 0.85rem;
+  min-height: 20px;
+}
+
+.char-count {
+  color: #999;
+  font-weight: 500;
+}
+
+.error-message {
+  color: #ff6b6b;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* Select Error State */
+.select-error {
+  background: #fff5f5;
+  border: 1px solid #ff6b6b;
+  border-radius: 6px;
+  padding: 12px;
+  text-align: center;
+}
+
+.select-error p {
+  color: #ff6b6b;
+  margin: 0 0 12px 0;
+  font-weight: 500;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: #0066cc;
+  padding: 0;
+  cursor: pointer;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.85rem;
+  transition: all 0.3s ease;
+}
+
+.btn-link:hover {
+  text-decoration: underline;
+  color: #0052a3;
+}
+
+/* Form Errors */
+.form-error {
+  background: #fff5f5;
+  border: 1px solid #ff6b6b;
+  border-radius: 6px;
+  padding: 12px;
+  margin-bottom: 20px;
+}
+
+.form-error p {
+  color: #ff6b6b;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Buttons */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.btn {
+  padding: 12px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  font-family: inherit;
+}
+
+.btn-primary {
+  background: #0066cc;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #0052a3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+}
+
+.btn-primary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.btn-lg {
+  padding: 14px 24px;
+  font-size: 1rem;
+}
+
+.btn-block {
+  width: 100%;
+  display: block;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Form Info */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.form-info {
+  background: #f0f7ff;
+  border: 1px solid #c9e4ff;
+  border-radius: 6px;
+  padding: 16px;
+  margin-top: 20px;
+}
+
+.form-info p {
+  margin: 0;
+  color: #333;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.form-info a {
+  color: #0066cc;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.form-info a:hover {
+  text-decoration: underline;
+  color: #0052a3;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Benefits Section */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.benefits-section {
+  animation: fadeInUp 0.6s ease-out 0.2s backwards;
+}
+
+.benefits-section h2 {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #1a3a52;
+  margin: 0 0 24px 0;
+  text-align: center;
+}
+
+.benefits-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+}
+
+.benefit-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.benefit-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.benefit-icon {
+  font-size: 2.5rem;
+  margin-bottom: 16px;
+  display: inline-block;
+}
+
+.benefit-card h3 {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #1a3a52;
+  margin: 0 0 12px 0;
+}
+
+.benefit-card p {
+  color: #666;
+  margin: 0;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Animations */
+/* ═══════════════════════════════════════════════════════════════ */
+
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Responsive Design */
+/* ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 768px) {
+  .create-petition-header h1 {
+    font-size: 1.8rem;
+  }
+
+  .create-petition-header p {
+    font-size: 1rem;
+  }
+
+  .create-petition-form {
+    padding: 24px;
+  }
+
+  .benefits-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 480px) {
+  .create-petition-page {
+    padding: 20px 12px;
+  }
+
+  .create-petition-header {
+    margin-bottom: 30px;
+  }
+
+  .create-petition-header h1 {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+  }
+
+  .create-petition-header p {
+    font-size: 0.95rem;
+  }
+
+  .create-petition-form {
+    padding: 16px;
+    margin-bottom: 30px;
+  }
+
+  .form-input,
+  .form-textarea,
+  .form-select {
+    font-size: 16px; /* Prevent zoom on mobile */
+  }
+
+  .form-textarea {
+    min-height: 100px;
+  }
+
+  .field-help {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .char-count {
+    margin-top: 4px;
+  }
+
+  .btn-lg {
+    padding: 12px 16px;
+    font-size: 0.95rem;
+  }
+
+  .benefits-section h2 {
+    font-size: 1.3rem;
+  }
+
+  .benefit-card {
+    padding: 16px;
+  }
+
+  .benefit-icon {
+    font-size: 2rem;
+  }
+
+  .benefit-card h3 {
+    font-size: 1rem;
+  }
+
+  .benefit-card p {
+    font-size: 0.9rem;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Accessibility */
+/* ═══════════════════════════════════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .create-petition-header,
+  .create-petition-form,
+  .benefits-section,
+  .benefit-card {
+    animation: none;
+  }
+
+  .form-input,
+  .form-textarea,
+  .form-select,
+  .benefit-card,
+  .btn {
+    transition: none;
+  }
+}

@@ -11,7 +11,8 @@ import { PostDetail } from './pages/PostDetail'
 import { Notifications } from './pages/Notifications'
 import { ElussPage } from './pages/ElussPage'
 import { EluDetailPage } from './pages/EluDetailPage'
-import { PetitionDetailPage } from './pages/PetitionDetailPage'
+import PetitionDetailPage from './pages/PetitionDetailPage'
+import CreatePetitionPage from './pages/CreatePetitionPage'
 import { PetitionsListPage } from './pages/PetitionsListPage'
 
 export default function App() {
@@ -26,6 +27,14 @@ export default function App() {
           <Route path="/elus" element={<ElussPage />} />
           <Route path="/elus/:id" element={<EluDetailPage />} />
           <Route path="/petitions" element={<PetitionsListPage />} />
+          <Route
+            path="/create-petition"
+            element={
+              <ProtectedRoute>
+                <CreatePetitionPage />
+              </ProtectedRoute>
+            }
+          />
           <Route path="/petitions/:id" element={<PetitionDetailPage />} />
 
           <Route
