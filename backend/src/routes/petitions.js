@@ -8,6 +8,7 @@ import express from 'express';
 import { z } from 'zod';
 import Petition from '../models/Petition.js';
 import Signature from '../models/Signature.js';
+import Comment from '../models/Comment.js';
 import User from '../models/User.js';
 import Elu from '../models/Elu.js';
 import { authMiddleware, checkOwnership } from '../middlewares/auth.js';
@@ -23,6 +24,19 @@ const idSchema = z.object({
 const paginationSchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(10),
+});
+
+const statsQuerySchema = z.object({
+  goal: z.coerce.number().int().positive().optional(),
+});
+
+const listPetitionsQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(10),
+  status: z.enum(['draft', 'published', 'closed', 'won']).optional(),
+  elu_id: z.coerce.number().int().positive().optional(),
+  search: z.string().min(2).optional(),
+  sort: z.enum(['signatures_count', 'created_at']).default('created_at'),
 });
 
 const createPetitionSchema = z.object({
@@ -51,41 +65,51 @@ const updatePetitionSchema = z.object({
 
 /**
  * GET /api/v1/petitions
- * Lister les pétitions publiées avec pagination
- * Query: { page, limit, eluId, search, status }
+ * Lister les pétitions avec filtres, recherche et tri
+ * Query: { page, limit, status, elu_id, search, sort }
  */
 router.get('/', async (req, res, next) => {
   try {
-    const paginationValidation = paginationSchema.safeParse(req.query);
+    const queryValidation = listPetitionsQuerySchema.safeParse(req.query);
 
-    if (!paginationValidation.success) {
+    if (!queryValidation.success) {
       return res.status(400).json({
         success: false,
-        error: 'Paramètres de pagination invalides',
-        details: paginationValidation.error.errors,
+        error: 'Paramètres de requête invalides',
+        details: queryValidation.error.errors,
       });
     }
 
-    const { page, limit } = paginationValidation.data;
+    const { page, limit, status, elu_id, search, sort } = queryValidation.data;
     const offset = (page - 1) * limit;
-    const { eluId, search, status } = req.query;
 
     // Construire les filtres
-    const where = { status: status || 'published' };
+    const where = {};
 
-    if (eluId) {
-      const eluIdNum = parseInt(eluId, 10);
-      if (!isNaN(eluIdNum)) {
-        where.eluId = eluIdNum;
-      }
+    // Filtre status (optionnel)
+    if (status) {
+      where.status = status;
     }
 
-    // Recherche full-text
-    if (search && search.length >= 2) {
+    // Filtre elu_id (optionnel)
+    if (elu_id) {
+      where.eluId = elu_id;
+    }
+
+    // Recherche full-text sur titre + description
+    if (search) {
       where[Op.or] = [
         { titre: { [Op.iLike]: `%${search}%` } },
         { description: { [Op.iLike]: `%${search}%` } },
       ];
+    }
+
+    // Déterminer l'ordre de tri
+    let order = [['createdAt', 'DESC']]; // défaut
+    if (sort === 'signatures_count') {
+      order = [['signaturesCount', 'DESC'], ['createdAt', 'DESC']];
+    } else if (sort === 'created_at') {
+      order = [['createdAt', 'DESC']];
     }
 
     // Récupérer pétitions avec relations
@@ -104,7 +128,7 @@ router.get('/', async (req, res, next) => {
           attributes: ['id', 'nom', 'titre', 'region'],
         },
       ],
-      order: [['createdAt', 'DESC']],
+      order,
       limit,
       offset,
     });
@@ -116,6 +140,7 @@ router.get('/', async (req, res, next) => {
       page,
       limit,
       totalPages: Math.ceil(count / limit),
+      sort,
       data: rows,
     });
   } catch (err) {
@@ -167,6 +192,120 @@ router.get('/:id', async (req, res, next) => {
     res.json({
       success: true,
       data: petition,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * GET /api/v1/petitions/:id/stats
+ * Obtenir les statistiques d'une pétition (public)
+ * Query: { goal? } — goal optionnel pour calculer percentageToGoal
+ *
+ * Retour: {
+ *   totalSignatures: 123,
+ *   totalComments: 45,
+ *   createdAt: "2026-05-09",
+ *   creator: { id, nomComplet },
+ *   targetElu: { id, nom },
+ *   percentageToGoal: 75 (ou null si pas goal)
+ * }
+ */
+router.get('/:id/stats', async (req, res, next) => {
+  try {
+    // ═══════════════════════════════════════════════════════════════
+    // 1. Validation petition_id
+    // ═══════════════════════════════════════════════════════════════
+    const idValidation = idSchema.safeParse({ id: req.params.id });
+
+    if (!idValidation.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'petition_id invalide',
+        details: idValidation.error.errors,
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // 2. Validation query params (goal optionnel)
+    // ═══════════════════════════════════════════════════════════════
+    const queryValidation = statsQuerySchema.safeParse(req.query);
+
+    if (!queryValidation.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'Paramètres invalides',
+        details: queryValidation.error.errors,
+      });
+    }
+
+    const petitionId = idValidation.data.id;
+    const { goal } = queryValidation.data;
+
+    // ═══════════════════════════════════════════════════════════════
+    // 3. Récupérer la pétition avec relations
+    // ═══════════════════════════════════════════════════════════════
+    const petition = await Petition.findByPk(petitionId, {
+      attributes: ['id', 'createdAt', 'signaturesCount', 'citoyenId', 'eluId'],
+      include: [
+        {
+          model: User,
+          as: 'creator',
+          attributes: ['id', 'nomComplet'],
+        },
+        {
+          model: Elu,
+          as: 'elu',
+          attributes: ['id', 'nom'],
+        },
+      ],
+    });
+
+    if (!petition) {
+      return res.status(404).json({
+        success: false,
+        error: 'Pétition non trouvée',
+      });
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // 4. Compter les commentaires
+    // ═══════════════════════════════════════════════════════════════
+    const commentCount = await Comment.count({
+      where: { petitionId },
+    });
+
+    // ═══════════════════════════════════════════════════════════════
+    // 5. Calculer percentageToGoal si goal fourni
+    // ═══════════════════════════════════════════════════════════════
+    let percentageToGoal = null;
+
+    if (goal && goal > 0) {
+      percentageToGoal = Math.round(
+        (petition.signaturesCount / goal) * 100
+      );
+    }
+
+    // ═══════════════════════════════════════════════════════════════
+    // 6. Retourner les statistiques
+    // ═══════════════════════════════════════════════════════════════
+    res.json({
+      success: true,
+      data: {
+        totalSignatures: petition.signaturesCount || 0,
+        totalComments: commentCount,
+        createdAt: petition.createdAt.toISOString().split('T')[0],
+        creator: petition.creator ? {
+          id: petition.creator.id,
+          nomComplet: petition.creator.nomComplet,
+        } : null,
+        targetElu: petition.elu ? {
+          id: petition.elu.id,
+          nom: petition.elu.nom,
+        } : null,
+        percentageToGoal,
+      },
     });
   } catch (err) {
     next(err);

@@ -3,6 +3,11 @@
  * Valide et expose la configuration pour toute l'app
  */
 
+import dotenv from 'dotenv';
+
+// Charger les variables d'environnement
+dotenv.config();
+
 const requiredEnvVars = [];
 
 const envConfig = {

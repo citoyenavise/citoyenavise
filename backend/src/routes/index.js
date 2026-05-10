@@ -11,7 +11,7 @@ import circonscriptionsRoutes from './circonscriptions.js';
 import petitionsRoutes from './petitions.js';
 import eluCommitmentsRoutes from './elu-commitments.js';
 import actualitesRoutes from './actualites.js';
-import postsRoutes from './posts.js';
+// import postsRoutes from './posts.js'; // Non utilisé
 import commentsRoutes from './comments.js';
 // import usersRoutes from './users.js';
 // import votesRoutes from './votes.js';
@@ -63,7 +63,7 @@ router.use('/api/v1/circonscriptions', circonscriptionsRoutes);
 router.use('/api/v1/petitions', petitionsRoutes);
 router.use('/api/v1/elu-commitments', eluCommitmentsRoutes);
 router.use('/api/v1/actualites', actualitesRoutes);
-router.use('/api/v1/posts', postsRoutes);
+// router.use('/api/v1/posts', postsRoutes); // Non utilisé
 router.use('/api/v1', commentsRoutes);
 
 /**
