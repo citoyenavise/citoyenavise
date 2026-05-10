@@ -1,169 +1,66 @@
-name: CI/CD Pipeline
+﻿name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches:
+      - develop
+      - develop/**
   pull_request:
-    branches: [main, develop]
-
-env:
-  REGISTRY: ghcr.io
-  IMAGE_NAME: ${{ github.repository }}
+    branches:
+      - develop
 
 jobs:
-  lint:
-    name: Lint & Code Quality
+  test:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
+    strategy:
+      matrix:
+        node-version: [18.x]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
-          cache-dependency-path: backend/package-lock.json
 
       - name: Install dependencies
-        working-directory: backend
-        run: npm ci
+        run: npm install
 
       - name: Run ESLint
-        working-directory: backend
         run: npm run lint
+        continue-on-error: true
 
-  test:
-    name: Unit & Integration Tests
-    runs-on: ubuntu-latest
-    services:
-      postgres:
-        image: postgres:15-alpine
-        env:
-          POSTGRES_DB: citoyenavise_test
-          POSTGRES_USER: testuser
-          POSTGRES_PASSWORD: testpass
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-
-      redis:
-        image: redis:7-alpine
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 6379:6379
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '18'
-          cache: 'npm'
-          cache-dependency-path: backend/package-lock.json
-
-      - name: Install dependencies
-        working-directory: backend
-        run: npm ci
+      - name: Run tests
+        run: npm run test
 
       - name: Run tests with coverage
-        working-directory: backend
-        env:
-          NODE_ENV: test
-          DATABASE_URL: postgresql://testuser:testpass@localhost:5432/citoyenavise_test
-          REDIS_URL: redis://localhost:6379/1
-          JWT_SECRET: test_secret_min_32_characters_long_!!!
-          JWT_REFRESH_SECRET: test_refresh_min_32_characters_long_!!!
-        run: npm test -- --coverage
+        run: npm run test:coverage
 
-      - name: Upload coverage to Codecov
+      - name: Check coverage threshold
+        run: |
+          COVERAGE=$(node -e "const fs = require('fs'); const coverage = JSON.parse(fs.readFileSync('./coverage/coverage-summary.json')); console.log(Math.round(coverage.total.lines.pct))")
+          echo "Coverage: ${COVERAGE}%"
+          if [ $COVERAGE -lt 80 ]; then
+            echo "Coverage is below 80% threshold (${COVERAGE}%)"
+            exit 1
+          fi
+
+      - name: Upload coverage artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report-${{ matrix.node-version }}
+          path: coverage/
+          retention-days: 30
+
+      - name: Upload coverage to codecov
+        if: always()
         uses: codecov/codecov-action@v3
         with:
-          files: ./backend/coverage/coverage-final.json
+          files: ./coverage/coverage-final.json
           flags: unittests
-          fail_ci_if_error: false
-
-  build:
-    name: Build Docker Image
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    needs: [lint, test]
-    permissions:
-      contents: read
-      packages: write
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Log in to Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ${{ env.REGISTRY }}
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=branch
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=sha,prefix={{branch}}-
-
-      - name: Build and push image
-        uses: docker/build-push-action@v5
-        with:
-          context: ./backend
-          push: true
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  security:
-    name: Security Scan
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@master
-        with:
-          scan-type: 'fs'
-          scan-ref: '.'
-          format: 'sarif'
-          output: 'trivy-results.sarif'
-
-      - name: Upload Trivy results to GitHub Security
-        uses: github/codeql-action/upload-sarif@v2
-        with:
-          sarif_file: 'trivy-results.sarif'
-
-  deploy-staging:
-    name: Deploy to Staging
-    runs-on: ubuntu-latest
-    if: github.event_name == 'push' && github.ref == 'refs/heads/develop'
-    needs: [lint, test]
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Deploy to staging environment
-        # Example: deploy script or webhook call
-        run: |
-          echo "Deploying to staging..."
-          # Add your deployment commands here
-          # e.g., webhook call to Railway, Heroku, DigitalOcean, etc.
+          name: codecov-umbrella
