@@ -1,6 +1,7 @@
-﻿/**
+/**
  * Routes pour les pétitions
- * Endpoints publics pour lister/voir + endpoints protégés pour créer/signer
+ * Endpoints publics : lister, voir, signatures
+ * Endpoints protégés : créer, éditer, supprimer
  */
 
 import express from 'express';
@@ -20,25 +21,38 @@ const idSchema = z.object({
 });
 
 const paginationSchema = z.object({
-  limit: z.coerce.number().int().min(1).max(100).default(20),
-  offset: z.coerce.number().int().min(0).default(0),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(10),
 });
 
 const createPetitionSchema = z.object({
   titre: z.string()
-    .min(5, 'Titre doit avoir minimum 5 caractères')
-    .max(255, 'Titre ne doit pas dépasser 255 caractères'),
+    .min(10, 'Titre doit avoir minimum 10 caractères')
+    .max(200, 'Titre ne doit pas dépasser 200 caractères'),
   description: z.string()
     .min(20, 'Description doit avoir minimum 20 caractères')
-    .max(5000, 'Description ne doit pas dépasser 5000 caractères'),
+    .max(2000, 'Description ne doit pas dépasser 2000 caractères'),
   eluId: z.number().int().positive().optional(),
-  deadline: z.string().datetime().optional(),
+  status: z.enum(['draft', 'published', 'closed', 'won']).default('draft'),
+});
+
+const updatePetitionSchema = z.object({
+  titre: z.string()
+    .min(10, 'Titre doit avoir minimum 10 caractères')
+    .max(200, 'Titre ne doit pas dépasser 200 caractères')
+    .optional(),
+  description: z.string()
+    .min(20, 'Description doit avoir minimum 20 caractères')
+    .max(2000, 'Description ne doit pas dépasser 2000 caractères')
+    .optional(),
+  eluId: z.number().int().positive().optional().nullable(),
+  status: z.enum(['draft', 'published', 'closed', 'won']).optional(),
 });
 
 /**
  * GET /api/v1/petitions
  * Lister les pétitions publiées avec pagination
- * Query: { limit, offset, eluId, search }
+ * Query: { page, limit, eluId, search, status }
  */
 router.get('/', async (req, res, next) => {
   try {
@@ -47,16 +61,17 @@ router.get('/', async (req, res, next) => {
     if (!paginationValidation.success) {
       return res.status(400).json({
         success: false,
-        error: 'Paramètres invalides',
+        error: 'Paramètres de pagination invalides',
         details: paginationValidation.error.errors,
       });
     }
 
-    const { limit, offset } = paginationValidation.data;
-    const { eluId, search } = req.query;
+    const { page, limit } = paginationValidation.data;
+    const offset = (page - 1) * limit;
+    const { eluId, search, status } = req.query;
 
     // Construire les filtres
-    const where = { status: 'published' };
+    const where = { status: status || 'published' };
 
     if (eluId) {
       const eluIdNum = parseInt(eluId, 10);
@@ -65,23 +80,23 @@ router.get('/', async (req, res, next) => {
       }
     }
 
-    // Recherche full-text (simple LIKE pour maintenant)
+    // Recherche full-text
     if (search && search.length >= 2) {
       where[Op.or] = [
-        { titre: { [Op.iLike]: \%\%\ } },
-        { description: { [Op.iLike]: \%\%\ } },
+        { titre: { [Op.iLike]: `%${search}%` } },
+        { description: { [Op.iLike]: `%${search}%` } },
       ];
     }
 
     // Récupérer pétitions avec relations
     const { count, rows } = await Petition.findAndCountAll({
       where,
-      attributes: ['id', 'titre', 'description', 'status', 'signaturesCount', 'deadline', 'createdAt'],
+      attributes: ['id', 'titre', 'description', 'status', 'signaturesCount', 'deadline', 'createdAt', 'updatedAt'],
       include: [
         {
           model: User,
           as: 'creator',
-          attributes: ['id', 'email'],
+          attributes: ['id', 'email', 'nomComplet'],
         },
         {
           model: Elu,
@@ -98,8 +113,9 @@ router.get('/', async (req, res, next) => {
       success: true,
       count: rows.length,
       total: count,
+      page,
       limit,
-      offset,
+      totalPages: Math.ceil(count / limit),
       data: rows,
     });
   } catch (err) {
@@ -109,7 +125,7 @@ router.get('/', async (req, res, next) => {
 
 /**
  * GET /api/v1/petitions/:id
- * Obtenir le détail d'une pétition
+ * Obtenir le détail d'une pétition avec signature count
  */
 router.get('/:id', async (req, res, next) => {
   try {
@@ -126,7 +142,7 @@ router.get('/:id', async (req, res, next) => {
     const { id } = validation.data;
 
     const petition = await Petition.findByPk(id, {
-      attributes: ['id', 'titre', 'description', 'status', 'signaturesCount', 'deadline', 'createdAt', 'updatedAt'],
+      attributes: ['id', 'titre', 'description', 'status', 'signaturesCount', 'deadline', 'createdAt', 'updatedAt', 'citoyenId', 'eluId'],
       include: [
         {
           model: User,
@@ -136,7 +152,7 @@ router.get('/:id', async (req, res, next) => {
         {
           model: Elu,
           as: 'elu',
-          attributes: ['id', 'nom', 'titre', 'region', 'email'],
+          attributes: ['id', 'nom', 'titre', 'region', 'email', 'siteWeb'],
         },
       ],
     });
@@ -160,7 +176,7 @@ router.get('/:id', async (req, res, next) => {
 /**
  * POST /api/v1/petitions
  * Créer une nouvelle pétition (protégée)
- * Body: { titre, description, eluId?, deadline? }
+ * Body: { titre, description, eluId?, status? }
  */
 router.post('/', authMiddleware, async (req, res, next) => {
   try {
@@ -174,7 +190,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
       });
     }
 
-    const { titre, description, eluId, deadline } = validation.data;
+    const { titre, description, eluId, status } = validation.data;
 
     // Vérifier que l'élu existe (si fourni)
     if (eluId) {
@@ -187,28 +203,267 @@ router.post('/', authMiddleware, async (req, res, next) => {
       }
     }
 
-    // Créer la pétition en status "draft"
+    // Créer la pétition
     const petition = await Petition.create({
       titre,
       description,
       citoyenId: req.user.userId,
       eluId: eluId || null,
-      status: 'draft',
+      status: status || 'draft',
       signaturesCount: 0,
-      deadline: deadline ? new Date(deadline) : null,
-      createdAt: new Date(),
+    });
+
+    const createdPetition = await Petition.findByPk(petition.id, {
+      attributes: ['id', 'titre', 'description', 'status', 'signaturesCount', 'createdAt', 'citoyenId', 'eluId'],
+      include: [
+        {
+          model: User,
+          as: 'creator',
+          attributes: ['id', 'email', 'nomComplet'],
+        },
+        {
+          model: Elu,
+          as: 'elu',
+          attributes: ['id', 'nom', 'titre', 'region'],
+        },
+      ],
     });
 
     res.status(201).json({
       success: true,
       message: 'Pétition créée',
+      data: createdPetition,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * PUT /api/v1/petitions/:id
+ * Éditer une pétition (protégée, créateur uniquement)
+ * Body: { titre?, description?, eluId?, status? }
+ */
+router.put('/:id', authMiddleware, async (req, res, next) => {
+  try {
+    const idValidation = idSchema.safeParse({ id: req.params.id });
+
+    if (!idValidation.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'ID invalide',
+        details: idValidation.error.errors,
+      });
+    }
+
+    const { id } = idValidation.data;
+
+    // Récupérer la pétition
+    const petition = await Petition.findByPk(id);
+
+    if (!petition) {
+      return res.status(404).json({
+        success: false,
+        error: 'Pétition non trouvée',
+      });
+    }
+
+    // Vérifier que l'utilisateur est le créateur
+    if (petition.citoyenId !== req.user.userId) {
+      return res.status(403).json({
+        success: false,
+        error: 'Non autorisé à modifier cette pétition',
+        code: 'FORBIDDEN_EDIT',
+      });
+    }
+
+    // Valider les données
+    const validation = updatePetitionSchema.safeParse(req.body);
+
+    if (!validation.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'Données invalides',
+        details: validation.error.errors,
+      });
+    }
+
+    const { titre, description, eluId, status } = validation.data;
+
+    // Vérifier que le nouvel élu existe (si fourni)
+    if (eluId !== undefined) {
+      if (eluId !== null) {
+        const elu = await Elu.findByPk(eluId);
+        if (!elu) {
+          return res.status(404).json({
+            success: false,
+            error: 'Élu non trouvé',
+          });
+        }
+      }
+      petition.eluId = eluId;
+    }
+
+    // Mettre à jour les champs
+    if (titre !== undefined) petition.titre = titre;
+    if (description !== undefined) petition.description = description;
+    if (status !== undefined) petition.status = status;
+
+    await petition.save();
+
+    // Récupérer la pétition mise à jour avec relations
+    const updatedPetition = await Petition.findByPk(id, {
+      attributes: ['id', 'titre', 'description', 'status', 'signaturesCount', 'createdAt', 'updatedAt', 'citoyenId', 'eluId'],
+      include: [
+        {
+          model: User,
+          as: 'creator',
+          attributes: ['id', 'email', 'nomComplet'],
+        },
+        {
+          model: Elu,
+          as: 'elu',
+          attributes: ['id', 'nom', 'titre', 'region'],
+        },
+      ],
+    });
+
+    res.json({
+      success: true,
+      message: 'Pétition mise à jour',
+      data: updatedPetition,
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * DELETE /api/v1/petitions/:id
+ * Supprimer une pétition (protégée, créateur uniquement)
+ */
+router.delete('/:id', authMiddleware, async (req, res, next) => {
+  try {
+    const idValidation = idSchema.safeParse({ id: req.params.id });
+
+    if (!idValidation.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'ID invalide',
+        details: idValidation.error.errors,
+      });
+    }
+
+    const { id } = idValidation.data;
+
+    // Récupérer la pétition
+    const petition = await Petition.findByPk(id);
+
+    if (!petition) {
+      return res.status(404).json({
+        success: false,
+        error: 'Pétition non trouvée',
+      });
+    }
+
+    // Vérifier que l'utilisateur est le créateur
+    if (petition.citoyenId !== req.user.userId) {
+      return res.status(403).json({
+        success: false,
+        error: 'Non autorisé à supprimer cette pétition',
+        code: 'FORBIDDEN_DELETE',
+      });
+    }
+
+    // Supprimer les signatures associées en cascade (ou laisser la DB gérer via CASCADE)
+    await Signature.destroy({
+      where: { petitionId: id },
+    });
+
+    // Supprimer la pétition
+    await petition.destroy();
+
+    res.json({
+      success: true,
+      message: 'Pétition supprimée',
       data: {
-        id: petition.id,
-        titre: petition.titre,
-        status: petition.status,
-        citoyenId: petition.citoyenId,
-        createdAt: petition.createdAt,
+        id,
       },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * GET /api/v1/petitions/:id/signatures
+ * Lister les signataires d'une pétition avec pagination
+ * Query: { page, limit }
+ */
+router.get('/:id/signatures', async (req, res, next) => {
+  try {
+    const idValidation = idSchema.safeParse({ id: req.params.id });
+
+    if (!idValidation.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'ID invalide',
+        details: idValidation.error.errors,
+      });
+    }
+
+    const paginationValidation = paginationSchema.safeParse(req.query);
+
+    if (!paginationValidation.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'Paramètres de pagination invalides',
+        details: paginationValidation.error.errors,
+      });
+    }
+
+    const { id } = idValidation.data;
+    const { page, limit } = paginationValidation.data;
+    const offset = (page - 1) * limit;
+
+    // Vérifier que la pétition existe
+    const petition = await Petition.findByPk(id);
+
+    if (!petition) {
+      return res.status(404).json({
+        success: false,
+        error: 'Pétition non trouvée',
+      });
+    }
+
+    // Récupérer les signatures avec pagination
+    const { count, rows } = await Signature.findAndCountAll({
+      where: { petitionId: id },
+      include: [
+        {
+          model: User,
+          as: 'signer',
+          attributes: ['id', 'email', 'nomComplet'],
+        },
+      ],
+      order: [['createdAt', 'DESC']],
+      limit,
+      offset,
+    });
+
+    res.json({
+      success: true,
+      petitionId: id,
+      count: rows.length,
+      total: count,
+      page,
+      limit,
+      totalPages: Math.ceil(count / limit),
+      data: rows.map(sig => ({
+        id: sig.id,
+        signer: sig.signer,
+        createdAt: sig.createdAt,
+      })),
     });
   } catch (err) {
     next(err);
@@ -218,7 +473,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
 /**
  * POST /api/v1/petitions/:id/sign
  * Signer une pétition (protégée, idempotent)
- * Erreur 409 si déjà signé (UNIQUE constraint)
+ * Retourne 409 si déjà signé
  */
 router.post('/:id/sign', authMiddleware, async (req, res, next) => {
   try {
@@ -248,42 +503,110 @@ router.post('/:id/sign', authMiddleware, async (req, res, next) => {
       return res.status(400).json({
         success: false,
         error: 'Cette pétition n\'est pas publiée',
+        code: 'PETITION_NOT_PUBLISHED',
       });
     }
 
-    // Essayer de créer la signature
-    try {
-      const signature = await Signature.create({
+    // Vérifier si l'utilisateur a déjà signé
+    const existingSignature = await Signature.findOne({
+      where: {
         petitionId: id,
         citoyenId: req.user.userId,
-        createdAt: new Date(),
-      });
+      },
+    });
 
-      // Augmenter le compteur de signatures
-      petition.signaturesCount += 1;
-      await petition.save();
-
-      res.status(201).json({
-        success: true,
-        message: 'Pétition signée',
-        data: {
-          petitionId: id,
-          citoyenId: req.user.userId,
-          createdAt: signature.createdAt,
-        },
+    if (existingSignature) {
+      return res.status(409).json({
+        success: false,
+        error: 'Vous avez déjà signé cette pétition',
+        code: 'DUPLICATE_SIGNATURE',
       });
-    } catch (signatureErr) {
-      // Vérifier si c'est une violation de contrainte UNIQUE
-      if (signatureErr.name === 'SequelizeUniqueConstraintError' ||
-          signatureErr.name === 'UniqueConstraintError') {
-        return res.status(409).json({
-          success: false,
-          error: 'Vous avez déjà signé cette pétition',
-          code: 'DUPLICATE_SIGNATURE',
-        });
-      }
-      throw signatureErr;
     }
+
+    // Créer la signature
+    const signature = await Signature.create({
+      petitionId: id,
+      citoyenId: req.user.userId,
+    });
+
+    // Augmenter le compteur de signatures
+    petition.signaturesCount += 1;
+    await petition.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Pétition signée avec succès',
+      data: {
+        id: signature.id,
+        petitionId: id,
+        citoyenId: req.user.userId,
+        createdAt: signature.createdAt,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+});
+
+/**
+ * DELETE /api/v1/petitions/:id/sign
+ * Retirer sa signature d'une pétition (protégée)
+ */
+router.delete('/:id/sign', authMiddleware, async (req, res, next) => {
+  try {
+    const validation = idSchema.safeParse({ id: req.params.id });
+
+    if (!validation.success) {
+      return res.status(400).json({
+        success: false,
+        error: 'ID invalide',
+        details: validation.error.errors,
+      });
+    }
+
+    const { id } = validation.data;
+
+    // Vérifier que la pétition existe
+    const petition = await Petition.findByPk(id);
+
+    if (!petition) {
+      return res.status(404).json({
+        success: false,
+        error: 'Pétition non trouvée',
+      });
+    }
+
+    // Chercher et supprimer la signature
+    const signature = await Signature.findOne({
+      where: {
+        petitionId: id,
+        citoyenId: req.user.userId,
+      },
+    });
+
+    if (!signature) {
+      return res.status(404).json({
+        success: false,
+        error: 'Vous n\'aviez pas signé cette pétition',
+        code: 'SIGNATURE_NOT_FOUND',
+      });
+    }
+
+    await signature.destroy();
+
+    // Diminuer le compteur de signatures
+    if (petition.signaturesCount > 0) {
+      petition.signaturesCount -= 1;
+      await petition.save();
+    }
+
+    res.json({
+      success: true,
+      message: 'Signature retirée',
+      data: {
+        petitionId: id,
+      },
+    });
   } catch (err) {
     next(err);
   }
