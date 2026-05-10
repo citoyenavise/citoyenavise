@@ -4,6 +4,7 @@ import helmet from 'helmet';
 import dotenv from 'dotenv';
 import { getConfig } from './config/env.js';
 import { logger } from './middlewares/logger.js';
+import { globalLimiter } from './middlewares/rateLimiter.js';
 import routes from './routes/index.js';
 import { setupSwagger } from './swagger/setup.js';
 import sequelize, { testConnection } from './db/sequelize.js';
@@ -69,6 +70,12 @@ app.use(cors(corsOptions));
 // Preflight requests handling
 // Les navigateurs envoient une requête OPTIONS avant les requêtes complexes
 app.options('*', cors(corsOptions));
+
+// ═══════════════════════════════════════════════════════════════
+// Rate Limiting - Protection contre les abus
+// ═══════════════════════════════════════════════════════════════
+// Limiteur global : 100 requêtes par IP / 15 minutes
+app.use(globalLimiter);
 
 // ═══════════════════════════════════════════════════════════════
 // Middlewares globaux

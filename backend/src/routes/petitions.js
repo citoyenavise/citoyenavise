@@ -12,6 +12,7 @@ import Comment from '../models/Comment.js';
 import User from '../models/User.js';
 import Elu from '../models/Elu.js';
 import { authMiddleware, checkOwnership } from '../middlewares/auth.js';
+import { signatureLimiter } from '../middlewares/rateLimiter.js';
 import { Op } from 'sequelize';
 
 const router = express.Router();
@@ -612,6 +613,7 @@ router.get('/:id/signatures', async (req, res, next) => {
 /**
  * POST /api/v1/petitions/:id/sign
  * Signer une pétition (protégée, JWT required)
+ * Rate limited: 1 signature par minute par utilisateur
  *
  * Validations:
  * - petition_id (integer positif) ✓ Zod
@@ -621,7 +623,7 @@ router.get('/:id/signatures', async (req, res, next) => {
  * Réponse succès: { signed: true, totalSignatures: 123 }
  * Erreur doublon: 409 { signed: false, message: "Vous avez déjà signé cette pétition" }
  */
-router.post('/:id/sign', authMiddleware, async (req, res, next) => {
+router.post('/:id/sign', authMiddleware, signatureLimiter, async (req, res, next) => {
   try {
     // ═══════════════════════════════════════════════════════════════
     // 1. Validation Zod : petition_id

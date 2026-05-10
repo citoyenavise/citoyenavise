@@ -10,6 +10,7 @@ import EmailVerification from '../models/EmailVerification.js';
 import { createJWT, generateMagicLink } from '../services/auth.js';
 import { sendMagicLinkEmail } from '../services/email.js';
 import { authMiddleware } from '../middlewares/auth.js';
+import { authLimiter } from '../middlewares/rateLimiter.js';
 import { getConfig } from '../config/env.js';
 
 const router = express.Router();
@@ -31,6 +32,7 @@ const verifyTokenSchema = z.object({
 /**
  * POST /api/v1/auth/magic-link
  * Envoyer un lien magic link à l'email
+ * Rate limited: 5 tentatives par IP / 15 minutes
  * Body: { email }
  *
  * Response:
@@ -41,7 +43,7 @@ const verifyTokenSchema = z.object({
  *   "expiresIn": 900
  * }
  */
-router.post('/magic-link', async (req, res, next) => {
+router.post('/magic-link', authLimiter, async (req, res, next) => {
   try {
     const validation = emailSchema.safeParse(req.body);
 
