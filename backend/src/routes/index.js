@@ -5,10 +5,10 @@
 
 import express from 'express';
 import { getConfig, isDevelopment } from '../config/env.js';
+import authRoutes from './auth.js';
 import elusRoutes from './elus.js';
 import circonscriptionsRoutes from './circonscriptions.js';
 import petitionsRoutes from './petitions.js';
-// import authRoutes from './auth.js';
 // import usersRoutes from './users.js';
 // import postsRoutes from './posts.js';
 // import votesRoutes from './votes.js';
@@ -50,6 +50,9 @@ router.get('/api/info', (req, res) => {
 /**
  * Routes implémentées
  */
+
+// Routes d'authentification (publiques)
+router.use('/api/v1/auth', authRoutes);
 
 // Routes publiques (pas d'authentification requise)
 router.use('/api/v1/elus', elusRoutes);
