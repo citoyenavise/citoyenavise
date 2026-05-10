@@ -371,6 +371,190 @@ curl -X DELETE http://localhost:5000/api/v1/elu-commitments/1/track \
 
 ---
 
+## 📝 Posts (Idées & Discussions)
+
+### Public Endpoints
+
+#### 1. Lister les posts
+**GET** `/api/v1/posts`
+
+```bash
+curl "http://localhost:5000/api/v1/posts?statut=published&limit=10"
+```
+
+#### 2. Obtenir détail d'un post
+**GET** `/api/v1/posts/:id`
+
+```bash
+curl http://localhost:5000/api/v1/posts/1
+```
+
+#### 3. Obtenir les commentaires
+**GET** `/api/v1/posts/:id/comments`
+
+```bash
+curl "http://localhost:5000/api/v1/posts/1/comments?limit=20"
+```
+
+#### 4. Obtenir les réponses à un commentaire
+**GET** `/api/v1/posts/:id/comments/:commentId/replies`
+
+```bash
+curl http://localhost:5000/api/v1/posts/1/comments/5/replies
+```
+
+#### 5. Obtenir les likes du post
+**GET** `/api/v1/posts/:id/likes`
+
+```bash
+curl http://localhost:5000/api/v1/posts/1/likes
+```
+
+#### 6. Posts les plus likés
+**GET** `/api/v1/posts/top/liked`
+
+```bash
+curl http://localhost:5000/api/v1/posts/top/liked
+```
+
+#### 7. Posts récents
+**GET** `/api/v1/posts/recent`
+
+```bash
+curl "http://localhost:5000/api/v1/posts/recent?limit=20"
+```
+
+#### 8. Chercher des posts
+**GET** `/api/v1/posts/search?q=terme`
+
+```bash
+curl "http://localhost:5000/api/v1/posts/search?q=éducation&limit=10"
+```
+
+#### 9. Statistiques
+**GET** `/api/v1/posts/stats`
+
+```bash
+curl http://localhost:5000/api/v1/posts/stats
+```
+
+#### 10. Lister tous les tags
+**GET** `/api/v1/tags`
+
+```bash
+curl http://localhost:5000/api/v1/tags
+```
+
+#### 11. Posts par tag
+**GET** `/api/v1/tags/:slug`
+
+```bash
+curl "http://localhost:5000/api/v1/tags/éducation?limit=20"
+```
+
+### Protected Endpoints
+
+#### 1. Créer un post
+**POST** `/api/v1/posts` (Protected)
+
+```bash
+curl -X POST http://localhost:5000/api/v1/posts \
+  -H "Authorization: Bearer TOKEN_HERE" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "titre": "Une super idée pour les écoles",
+    "contenu": "Voici ma proposition pour améliorer l'\''éducation...",
+    "petition_id": 1,
+    "elu_id": 2,
+    "tags": [1, 3]
+  }'
+```
+
+#### 2. Mettre à jour un post
+**PUT** `/api/v1/posts/:id` (Protected - owner only)
+
+```bash
+curl -X PUT http://localhost:5000/api/v1/posts/1 \
+  -H "Authorization: Bearer TOKEN_HERE" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "titre": "Titre modifié",
+    "contenu": "Contenu modifié...",
+    "tags": [1, 2]
+  }'
+```
+
+#### 3. Publier un post
+**POST** `/api/v1/posts/:id/publish` (Protected - owner only)
+
+```bash
+curl -X POST http://localhost:5000/api/v1/posts/1/publish \
+  -H "Authorization: Bearer TOKEN_HERE"
+```
+
+#### 4. Supprimer un post
+**DELETE** `/api/v1/posts/:id` (Protected - owner only)
+
+```bash
+curl -X DELETE http://localhost:5000/api/v1/posts/1 \
+  -H "Authorization: Bearer TOKEN_HERE"
+```
+
+#### 5. Ajouter un commentaire
+**POST** `/api/v1/posts/:id/comments` (Protected)
+
+```bash
+curl -X POST http://localhost:5000/api/v1/posts/1/comments \
+  -H "Authorization: Bearer TOKEN_HERE" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "contenu": "Je suis d'\''accord avec cette idée!",
+    "parent_comment_id": null
+  }'
+```
+
+#### 6. Supprimer un commentaire
+**DELETE** `/api/v1/posts/:id/comments/:commentId` (Protected - owner only)
+
+```bash
+curl -X DELETE http://localhost:5000/api/v1/posts/1/comments/5 \
+  -H "Authorization: Bearer TOKEN_HERE"
+```
+
+#### 7. Liker un post
+**POST** `/api/v1/posts/:id/like` (Protected)
+
+```bash
+curl -X POST http://localhost:5000/api/v1/posts/1/like \
+  -H "Authorization: Bearer TOKEN_HERE"
+```
+
+#### 8. Retirer un like
+**DELETE** `/api/v1/posts/:id/like` (Protected)
+
+```bash
+curl -X DELETE http://localhost:5000/api/v1/posts/1/like \
+  -H "Authorization: Bearer TOKEN_HERE"
+```
+
+#### 9. Liker un commentaire
+**POST** `/api/v1/posts/:id/comments/:commentId/like` (Protected)
+
+```bash
+curl -X POST http://localhost:5000/api/v1/posts/1/comments/5/like \
+  -H "Authorization: Bearer TOKEN_HERE"
+```
+
+#### 10. Retirer like du commentaire
+**DELETE** `/api/v1/posts/:id/comments/:commentId/like` (Protected)
+
+```bash
+curl -X DELETE http://localhost:5000/api/v1/posts/1/comments/5/like \
+  -H "Authorization: Bearer TOKEN_HERE"
+```
+
+---
+
 ## ✅ Checklist de Test
 
 ### Auth Flow

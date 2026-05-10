@@ -93,6 +93,18 @@ Le backend Citoyen Avisé est un serveur Express.js minimaliste avec PostgreSQL 
 - [x] **CommitmentTracking** (NEW)
   - track, untrack, isTracking
   - getTracking, getTrackingCount
+- [x] **Post** (NEW)
+  - list avec filters, findById, create, update, publish, delete
+  - search, getStats, getTopLiked, getRecent
+- [x] **PostComment** (NEW)
+  - add, getComments, getReplies, delete (nested comments)
+- [x] **PostLike** (NEW)
+  - like, unlike, hasLiked, getLikes, countLikes
+- [x] **CommentLike** (NEW)
+  - like, unlike, hasLiked, countLikes
+- [x] **PostTag** (NEW)
+  - create, findAll, findById, findBySlug
+  - getPostsByTag, delete
 
 ### API Routes
 
@@ -229,6 +241,49 @@ Le backend Citoyen Avisé est un serveur Express.js minimaliste avec PostgreSQL 
 - Citizens peuvent tracker engagement
 ```
 
+### Posts
+```
+- Idées/discussions des citoyens
+- Lié à pétitions/élus (nullable)
+- Status: draft → published
+- Commentaires imbriqués
+- Likes sur posts et commentaires
+- Tags pour catégorisation
+- Full-text search français
+```
+
+---
+
+## 📚 API Endpoints Implémentés (50+)
+
+### Posts (Idées & Discussions)
+```
+Public:
+GET    /api/v1/posts                       ✅ Lister (avec filters)
+GET    /api/v1/posts/:id                   ✅ Détail
+GET    /api/v1/posts/:id/comments          ✅ Commentaires
+GET    /api/v1/posts/:id/comments/:cId/replies ✅ Réponses commentaires
+GET    /api/v1/posts/:id/likes             ✅ Utilisateurs qui ont liké
+GET    /api/v1/posts/top/liked             ✅ Top 10 posts
+GET    /api/v1/posts/recent                ✅ Posts récents
+GET    /api/v1/posts/search?q=             ✅ Recherche full-text
+GET    /api/v1/posts/stats                 ✅ Statistiques
+GET    /api/v1/tags                        ✅ Lister tags
+GET    /api/v1/tags/:slug                  ✅ Posts par tag
+
+Protected:
+POST   /api/v1/posts                       ✅ Créer post
+PUT    /api/v1/posts/:id                   ✅ Mettre à jour (owner)
+POST   /api/v1/posts/:id/publish           ✅ Publier (owner)
+DELETE /api/v1/posts/:id                   ✅ Supprimer (owner)
+POST   /api/v1/posts/:id/comments          ✅ Ajouter commentaire
+DELETE /api/v1/posts/:id/comments/:cId     ✅ Supprimer commentaire (owner)
+POST   /api/v1/posts/:id/like              ✅ Liker post
+DELETE /api/v1/posts/:id/like              ✅ Retirer like
+POST   /api/v1/posts/:id/comments/:cId/like ✅ Liker commentaire
+DELETE /api/v1/posts/:id/comments/:cId/like ✅ Retirer like commentaire
+```
+
 ---
 
 ## 🧪 Testing
@@ -297,14 +352,16 @@ backend/
 │   │   ├── Elu.js
 │   │   ├── Circonscription.js
 │   │   ├── Petition.js
-│   │   └── EluCommitment.js
+│   │   ├── EluCommitment.js
+│   │   └── Post.js
 │   ├── routes/
 │   │   ├── index.js                # Main router
 │   │   ├── auth.js
 │   │   ├── elus.js
 │   │   ├── circonscriptions.js
 │   │   ├── petitions.js
-│   │   └── elu-commitments.js
+│   │   ├── elu-commitments.js
+│   │   └── posts.js
 │   ├── middlewares/
 │   │   └── auth.js                 # JWT verification
 │   └── migrations/
@@ -312,7 +369,8 @@ backend/
 │       ├── 002_create_elus.sql
 │       ├── 003_create_circonscriptions.sql
 │       ├── 004_create_petitions.sql
-│       └── 005_create_elu_commitments.sql
+│       ├── 005_create_elu_commitments.sql
+│       └── 006_create_posts.sql
 ├── package.json
 ├── .env.example
 ├── .env                            # (git ignored)
