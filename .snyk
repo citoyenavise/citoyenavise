@@ -1,0 +1,54 @@
+# Snyk Policy File
+# This file contains the vulnerability policy for Citoyen Avisé project
+# https://docs.snyk.io/features/snyk-cli/the-.snyk-file
+
+# Version of this policy file
+version: v1.25.0
+
+# Ignore specific vulnerabilities by ID
+# Format:
+# - SNYK-JS-PACKAGENAME-XXXXXX:
+#     - reason: Brief reason for ignoring
+#     - expires: YYYY-MM-DD (optional, when to re-evaluate)
+#     - created: YYYY-MM-DD
+
+# Example of ignoring a vulnerability (uncomment and customize as needed):
+# - SNYK-JS-LODASH-1018-1234567:
+#     - reason: Low severity, no impact on production code
+#     - expires: 2026-06-10
+
+# Ignore specific files from scanning
+# Paths:
+#   - node_modules/**: Ignore all node_modules (Snyk scans by default)
+#   - dist/**: Ignore build output
+#   - .git/**: Ignore git directory
+
+# Severity thresholds
+# high: Block on high severity vulnerabilities
+# medium: Block on medium or higher
+# low: Block on any vulnerability
+
+# Backend Node.js policy
+backends:
+  nodejs:
+    severity-threshold: high
+    ignore-policy: true
+
+# Frontend React policy
+frontends:
+  react:
+    severity-threshold: high
+    ignore-policy: true
+
+# Dependencies to exclude from scanning
+# exclude:
+#   - dev: false  # Include dev dependencies
+#   - name: packagename  # Ignore specific package
+
+# Patch suggestions
+# auto-patch: false  # Don't auto-patch vulnerabilities
+
+# License compliance
+# license-policy:
+#   commercial: true  # Allow commercial licenses
+#   opensource: true  # Allow open source licenses
