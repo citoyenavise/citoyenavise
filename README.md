@@ -1,7 +1,7 @@
 # Citoyen Avisé
 
-[![CI Status](https://github.com/yourusername/citoyenavise/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/yourusername/citoyenavise/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/yourusername/citoyenavise/branch/develop/graph/badge.svg)](https://codecov.io/gh/yourusername/citoyenavise)
+[![CI Status](https://github.com/citoyenavise/citoyenavise/actions/workflows/ci.yml/badge.svg?branch=develop)](https://github.com/citoyenavise/citoyenavise/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/citoyenavise/citoyenavise/branch/develop/graph/badge.svg)](https://codecov.io/gh/citoyenavise/citoyenavise)
 
 **Plateforme de participation citoyenne** — Comprendre, participer et influencer les décisions publiques
 
@@ -39,7 +39,7 @@ Citoyen Avisé transforme la compréhension des enjeux civiques en actions concr
 
 ```bash
 # Clone le repo
-git clone https://github.com/yourusername/citoyenavise.git
+git clone https://github.com/citoyenavise/citoyenavise.git
 cd citoyenavise
 
 # Installe dépendances
@@ -212,8 +212,8 @@ MIT — Voir [LICENSE](./LICENSE) pour les détails
 ## 📞 Support
 
 - 📧 Email : infocitoyenavise@gmail.com
-- 🐛 Bugs : [Créer une issue](https://github.com/yourusername/citoyenavise/issues)
-- 💬 Questions : [Discussions](https://github.com/yourusername/citoyenavise/discussions)
+- 🐛 Bugs : [Créer une issue](https://github.com/citoyenavise/citoyenavise/issues)
+- 💬 Questions : [Discussions](https://github.com/citoyenavise/citoyenavise/discussions)
 
 ---
 
