@@ -7,6 +7,7 @@ import express from 'express';
 import { getConfig, isDevelopment } from '../config/env.js';
 import elusRoutes from './elus.js';
 import circonscriptionsRoutes from './circonscriptions.js';
+import petitionsRoutes from './petitions.js';
 // import authRoutes from './auth.js';
 // import usersRoutes from './users.js';
 // import postsRoutes from './posts.js';
@@ -53,6 +54,7 @@ router.get('/api/info', (req, res) => {
 // Routes publiques (pas d'authentification requise)
 router.use('/api/v1/elus', elusRoutes);
 router.use('/api/v1/circonscriptions', circonscriptionsRoutes);
+router.use('/api/v1/petitions', petitionsRoutes);
 
 /**
  * Routes à implémenter
