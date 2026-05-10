@@ -93,61 +93,73 @@ npm test          # Tests (à implémenter)
 
 ---
 
-## 🔄 Flux de Travail
+## 🔄 État d'Implémentation
 
-### **Phase 1 : Nettoyage (ACTUEL)**
+### **Phase 1 : Architecture & Setup (COMPLÉTÉ ✅)**
 ```
 ✅ Supprimer app.js + core/
 ✅ Mettre à jour package.json
 ✅ Mettre à jour CLAUDE.md
-→ Commit : "chore: restart with minimal server.js"
+✅ Créer server.js minimal
+✅ Commit : "chore: restart with minimal server.js"
 ```
 
-### **Phase 2 : API Authentification (Semaine 1)**
+### **Phase 2 : Database & Migrations (COMPLÉTÉ ✅)**
 ```
-□ Implémenter services/AuthService.js
-□ Créer routes/auth.js
-□ Routes : POST /register, POST /login, GET /me
-□ Commit : "feat: implement authentication API"
-```
-
-### **Phase 3 : CRUD Utilisateurs (Semaine 1-2)**
-```
-□ Créer models/User.js
-□ Implémenter services/UserService.js
-□ Routes CRUD : GET, POST, PUT, DELETE
-□ Commit : "feat: implement user management API"
+✅ Créer 5 migrations SQL
+✅ Créer models (User, Elu, Circonscription, Petition, EluCommitment)
+✅ Créer database pool & config
+✅ Ajouter indexes et constraints
+✅ Commit : "feat: create database schema"
 ```
 
-### **Phase 4 : Posts & Votes (Semaine 2)**
+### **Phase 3 : API Authentification (COMPLÉTÉ ✅)**
 ```
-□ Modèles Post et Vote
-□ Services correspondants
-□ Routes API
-□ Commit : "feat: implement posts and voting"
+✅ Implémenter EmailService avec magic link
+✅ Implémenter AuthService (JWT, tokens)
+✅ Créer middlewares/auth.js
+✅ Routes : POST /request-login, GET /verify, POST /complete-profile, GET /me, POST /logout
+✅ Commit : "feat: implement magic link authentication"
 ```
 
-### **Phase 5 : Frontend React (Semaine 3)**
+### **Phase 4 : API Élus & Circonscriptions (COMPLÉTÉ ✅)**
 ```
-□ Implémenter composants principaux
-□ Connecter API client
-□ Pages : Login, Feed, Profile
+✅ Routes publiques GET /elus avec filters
+✅ Routes publiques GET /circonscriptions avec filters
+✅ Recherche full-text en français
+✅ Statistiques endpoints
+✅ Commit : "feat: implement elus and circonscriptions API"
+```
+
+### **Phase 5 : API Pétitions (COMPLÉTÉ ✅)**
+```
+✅ Routes publiques (list, detail, signatures, updates, comments, search)
+✅ Routes protégées (create, publish, sign, add updates/comments)
+✅ Ownership checks pour modifications
+✅ Commit : "feat: implement petitions and protected routes"
+```
+
+### **Phase 6 : API Engagements Élus (COMPLÉTÉ ✅)**
+```
+✅ Modèle EluCommitment avec tracking
+✅ Routes publiques (list, search, stats)
+✅ Routes protégées (track, untrack)
+✅ Commit : "feat: implement elu_commitments routes"
+```
+
+### **Phase 7 : Frontend React (À FAIRE)**
+```
+□ Implémenter composants React
+□ Magic link auth flow
+□ Pages : Pétitions, Élus, Engagements
 □ Commit : "feat: implement frontend UI"
 ```
 
-### **Phase 6 : Tests & Docs (Semaine 3-4)**
+### **Phase 8 : Tests & Lancement (À FAIRE)**
 ```
-□ Tests unitaires (services)
-□ Tests d'intégration (API)
-□ Documentation API
-□ Commit : "test: add test coverage"
-```
-
-### **Phase 7 : Lancement**
-```
-□ Deploy en staging
-□ Tests en conditions réelles
-□ Lancement public
+□ Tests automatisés
+□ Seed données test
+□ Documentation complète
 □ Commit : "release: v1.0.0"
 ```
 
@@ -254,36 +266,74 @@ git push origin main
 
 ---
 
-## 📚 API Endpoints (À Implémenter)
+## 📚 API Endpoints (Implémentés ✅)
 
-### Authentification
+### Authentification (Magic Link)
 ```
-POST   /api/v1/auth/register    — Inscription
-POST   /api/v1/auth/login       — Connexion
-GET    /api/v1/auth/me          — Utilisateur actuel
-POST   /api/v1/auth/logout      — Déconnexion
-```
-
-### Utilisateurs
-```
-GET    /api/v1/users/:id        — Profil utilisateur
-PUT    /api/v1/users/:id        — Mettre à jour profil
-DELETE /api/v1/users/:id        — Supprimer compte
+POST   /api/v1/auth/request-login         ✅ Demander magic link
+GET    /api/v1/auth/verify?token=xyz     ✅ Vérifier token
+POST   /api/v1/auth/complete-profile     ✅ Compléter profil (Protected)
+GET    /api/v1/auth/me                   ✅ Utilisateur actuel (Protected)
+POST   /api/v1/auth/logout               ✅ Déconnexion (Protected)
 ```
 
-### Posts & Idées
+### Élus (Public)
 ```
-GET    /api/v1/posts            — Feed
-POST   /api/v1/posts            — Créer post
-GET    /api/v1/posts/:id        — Détail post
-PUT    /api/v1/posts/:id        — Éditer post
-DELETE /api/v1/posts/:id        — Supprimer post
+GET    /api/v1/elus                  ✅ Lister avec filters
+GET    /api/v1/elus/:id              ✅ Détail
+GET    /api/v1/elus/niveau/:niveau   ✅ Filter par niveau
+GET    /api/v1/elus/région/:région   ✅ Filter par région
+GET    /api/v1/elus/search?q=        ✅ Recherche full-text
+GET    /api/v1/elus/stats            ✅ Statistiques
 ```
 
-### Votes
+### Circonscriptions (Public)
 ```
-POST   /api/v1/posts/:id/votes  — Voter sur post
-GET    /api/v1/posts/:id/votes  — Résultats votes
+GET    /api/v1/circonscriptions                   ✅ Lister
+GET    /api/v1/circonscriptions/:id              ✅ Détail
+GET    /api/v1/circonscriptions/by-code-postal   ✅ Par code postal
+GET    /api/v1/circonscriptions/by-région        ✅ Par région
+GET    /api/v1/circonscriptions/search?q=        ✅ Recherche
+GET    /api/v1/circonscriptions/stats            ✅ Statistiques
+```
+
+### Pétitions
+```
+Public:
+GET    /api/v1/petitions                     ✅ Lister (status=published)
+GET    /api/v1/petitions/:id                 ✅ Détail
+GET    /api/v1/petitions/:id/signatures      ✅ Signataires
+GET    /api/v1/petitions/:id/updates         ✅ Mises à jour
+GET    /api/v1/petitions/:id/comments        ✅ Commentaires
+GET    /api/v1/petitions/top/signed          ✅ Top 10
+GET    /api/v1/petitions/search?q=           ✅ Recherche
+GET    /api/v1/petitions/stats               ✅ Statistiques
+
+Protected:
+POST   /api/v1/petitions                     ✅ Créer
+PUT    /api/v1/petitions/:id                 ✅ Mettre à jour (draft)
+POST   /api/v1/petitions/:id/publish         ✅ Publier
+POST   /api/v1/petitions/:id/sign            ✅ Signer
+DELETE /api/v1/petitions/:id/sign            ✅ Retirer signature
+POST   /api/v1/petitions/:id/updates         ✅ Ajouter mise à jour
+DELETE /api/v1/petitions/:id/updates/:id     ✅ Supprimer mise à jour
+POST   /api/v1/petitions/:id/comments        ✅ Ajouter commentaire
+DELETE /api/v1/petitions/:id/comments/:id    ✅ Supprimer commentaire
+```
+
+### Engagements Élus
+```
+Public:
+GET    /api/v1/elu-commitments             ✅ Lister
+GET    /api/v1/elu-commitments/:id         ✅ Détail
+GET    /api/v1/elu-commitments/elu/:eluId  ✅ Par élu
+GET    /api/v1/elu-commitments/status/:s   ✅ Par statut
+GET    /api/v1/elu-commitments/search?q=   ✅ Recherche
+GET    /api/v1/elu-commitments/stats       ✅ Statistiques
+
+Protected:
+POST   /api/v1/elu-commitments/:id/track   ✅ Suivre
+DELETE /api/v1/elu-commitments/:id/track   ✅ Arrêter de suivre
 ```
 
 ---
