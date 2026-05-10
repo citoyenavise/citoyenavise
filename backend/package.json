@@ -9,7 +9,9 @@
     "start": "node src/server.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
-    "lint": "eslint src/",
+    "lint": "eslint src/ __tests__/",
+    "lint:fix": "eslint src/ __tests__/ --fix",
+    "format": "prettier --write \"src/**/*.js\" \"__tests__/**/*.js\"",
     "security:check": "npm audit --audit-level=moderate"
   },
   "keywords": ["civic", "democracy", "api"],
@@ -32,8 +34,11 @@
   },
   "devDependencies": {
     "eslint": "^8.40.0",
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.28.0",
     "jest": "^29.5.0",
     "nodemon": "^2.0.22",
+    "prettier": "^3.0.0",
     "supertest": "^6.3.3"
   }
 }

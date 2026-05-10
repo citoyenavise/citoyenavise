@@ -4,21 +4,28 @@
   "description": "Plateforme civique Citoyen Avisé — Frontend + Backend",
   "private": true,
   "scripts": {
-    "install:all": "npm install && npm --prefix backend install && npm --prefix frontend install",
+    "install:all": "npm install && npm --prefix backend install && npm --prefix frontend install && npm run prepare",
     "dev": "npm --prefix backend run dev & npm --prefix frontend run dev",
     "build": "npm --prefix frontend run build",
     "start": "npm --prefix backend start",
     "start:prod-local": "npm run build && npm --prefix backend start",
     "test": "npm --prefix backend test",
-    "lint": "npm --prefix backend run lint",
+    "lint": "npm --prefix backend run lint && npm --prefix frontend run lint",
+    "lint:fix": "npm --prefix backend run lint:fix && npm --prefix frontend run lint:fix",
+    "format": "npm --prefix backend run format && npm --prefix frontend run format",
     "security:check": "node scripts/security-check.js",
     "security:check:backend": "npm --prefix backend run security:check",
-    "security:check:frontend": "npm --prefix frontend run security:check"
+    "security:check:frontend": "npm --prefix frontend run security:check",
+    "prepare": "husky install"
   },
   "keywords": ["civic", "democracy", "canada"],
   "author": "Citoyen Avisé",
   "license": "MIT",
   "engines": {
     "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "husky": "^8.0.0",
+    "prettier": "^3.0.0"
   }
 }

@@ -1,0 +1,16 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Format with Prettier
+echo "📝 Formatting code with Prettier..."
+npx prettier --write $(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|jsx|ts|tsx)$')
+
+# Lint with ESLint
+echo "🔍 Linting with ESLint..."
+npx eslint $(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|jsx)$') --fix --quiet
+
+# Add formatted/fixed files back
+echo "📦 Adding formatted files..."
+git add $(git diff --cached --name-only --diff-filter=ACM | grep -E '\.(js|jsx|ts|tsx)$')
+
+echo "✅ Pre-commit checks complete!"
