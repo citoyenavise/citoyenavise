@@ -1,0 +1,623 @@
+/**
+ * Styles pour la page Détail d'une Pétition
+ * Layout : Header, Description, Commentaires, Sidebar avec stats
+ */
+
+.petition-detail-page {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  min-height: 100vh;
+  padding: 40px 20px;
+}
+
+.petition-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Back Link */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 24px;
+  padding: 8px 12px;
+  color: #0066cc;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  border-radius: 6px;
+}
+
+.back-link:hover {
+  background: rgba(0, 102, 204, 0.1);
+  color: #0052a3;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Loading State */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 100px 20px;
+  text-align: center;
+}
+
+.spinner {
+  width: 50px;
+  height: 50px;
+  border: 4px solid #f0f0f0;
+  border-top-color: #0066cc;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.loading-state p {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Error State */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.error-state {
+  background: white;
+  border-radius: 12px;
+  padding: 60px 40px;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.error-state h2 {
+  font-size: 1.8rem;
+  color: #ff6b6b;
+  margin: 0 0 16px 0;
+}
+
+.error-state p {
+  font-size: 1.05rem;
+  color: #666;
+  margin: 0 0 24px 0;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Header */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.petition-header {
+  background: white;
+  border-radius: 12px;
+  padding: 32px;
+  margin-bottom: 32px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  position: relative;
+  animation: fadeInUp 0.6s ease-out;
+}
+
+.status-badge {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-published {
+  background: #e3f2fd;
+  color: #0066cc;
+}
+
+.status-closed {
+  background: #f3e5f5;
+  color: #7b1fa2;
+}
+
+.status-won {
+  background: #e8f5e9;
+  color: #2e7d32;
+}
+
+.status-draft {
+  background: #fff3e0;
+  color: #e65100;
+}
+
+.petition-title {
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: #1a3a52;
+  margin: 0 0 24px 0;
+  line-height: 1.3;
+}
+
+.petition-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #f0f0f0;
+}
+
+.creator,
+.target-elu {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.95rem;
+}
+
+.creator .label,
+.target-elu .label {
+  font-weight: 600;
+  color: #999;
+  min-width: 90px;
+}
+
+.creator .value {
+  color: #333;
+  font-weight: 500;
+}
+
+.creator .date {
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.elu-name {
+  color: #0066cc;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.elu-name:hover {
+  text-decoration: underline;
+  color: #0052a3;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Content Wrapper */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.petition-content-wrapper {
+  display: grid;
+  grid-template-columns: 1fr 350px;
+  gap: 32px;
+}
+
+.petition-main {
+  display: flex;
+  flex-direction: column;
+  gap: 32px;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Description Section */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.description-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  animation: fadeInUp 0.6s ease-out 0.1s backwards;
+}
+
+.description-section h2 {
+  font-size: 1.4rem;
+  color: #1a3a52;
+  margin: 0 0 16px 0;
+}
+
+.description-text {
+  font-size: 1rem;
+  color: #555;
+  line-height: 1.8;
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Comments Section */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.comments-section {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  animation: fadeInUp 0.6s ease-out 0.2s backwards;
+}
+
+.comments-section h2 {
+  font-size: 1.4rem;
+  color: #1a3a52;
+  margin: 0 0 24px 0;
+}
+
+/* Comment Form */
+.comment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+  padding-bottom: 24px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.comment-form textarea {
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-family: inherit;
+  resize: vertical;
+  transition: all 0.3s ease;
+}
+
+.comment-form textarea:focus {
+  outline: none;
+  border-color: #0066cc;
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.1);
+}
+
+.comment-form textarea:disabled {
+  background: #f9f9f9;
+  color: #999;
+  cursor: not-allowed;
+}
+
+.form-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.char-count {
+  font-size: 0.85rem;
+  color: #999;
+}
+
+/* Login Prompt */
+.login-prompt {
+  background: #f0f7ff;
+  border: 1px solid #c9e4ff;
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+.login-prompt p {
+  margin: 0 0 12px 0;
+  color: #333;
+  font-weight: 500;
+}
+
+/* Comments List */
+.comments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.loading-text,
+.empty-text {
+  text-align: center;
+  color: #999;
+  padding: 24px;
+  font-style: italic;
+}
+
+.comment {
+  border-left: 3px solid #0066cc;
+  padding-left: 16px;
+  padding: 16px;
+  background: #f9f9f9;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.comment:hover {
+  background: #f0f7ff;
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+  font-size: 0.9rem;
+}
+
+.comment .author {
+  font-weight: 600;
+  color: #333;
+}
+
+.comment .date {
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.comment-text {
+  margin: 0;
+  color: #555;
+  font-size: 0.95rem;
+  line-height: 1.6;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Sidebar */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.petition-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+/* Signatures Card */
+.signatures-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  animation: fadeInUp 0.6s ease-out 0.1s backwards;
+}
+
+.signatures-card h3 {
+  font-size: 1.2rem;
+  color: #1a3a52;
+  margin: 0 0 16px 0;
+}
+
+/* Signature Progress */
+.signature-progress {
+  margin-bottom: 20px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 8px;
+}
+
+.progress-header .current {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #0066cc;
+}
+
+.progress-header .target {
+  font-size: 1rem;
+  color: #999;
+}
+
+.progress-bar {
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #0066cc, #00a8ff);
+  transition: width 0.3s ease;
+  border-radius: 4px;
+}
+
+.progress-percentage {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #0066cc;
+  font-weight: 600;
+}
+
+.auth-prompt {
+  background: #f0f7ff;
+  border: 1px solid #c9e4ff;
+  border-radius: 8px;
+  padding: 12px;
+  text-align: center;
+}
+
+.auth-prompt p {
+  margin: 0 0 12px 0;
+  color: #333;
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+/* Stats Card */
+.stats-card {
+  background: white;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  animation: fadeInUp 0.6s ease-out 0.2s backwards;
+}
+
+.stats-card h3 {
+  font-size: 1.2rem;
+  color: #1a3a52;
+  margin: 0 0 16px 0;
+}
+
+.stats-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stats-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+  padding-bottom: 12px;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.stats-list li:last-child {
+  border-bottom: none;
+}
+
+.stat-label {
+  color: #999;
+  font-weight: 500;
+}
+
+.stat-value {
+  color: #0066cc;
+  font-weight: 700;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Buttons */
+/* ═══════════════════════════════════════════════════════════════ */
+
+.btn {
+  padding: 10px 16px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  font-family: inherit;
+}
+
+.btn-primary {
+  background: #0066cc;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #0052a3;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+}
+
+.btn-secondary {
+  background: #f0f0f0;
+  color: #333;
+  border: 1px solid #ddd;
+}
+
+.btn-secondary:hover:not(:disabled) {
+  background: #e8e8e8;
+}
+
+.btn-danger {
+  background: #ff6b6b;
+  color: white;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #ff5252;
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-block {
+  width: 100%;
+  margin-top: 12px;
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Responsive */
+/* ═══════════════════════════════════════════════════════════════ */
+
+@media (max-width: 968px) {
+  .petition-content-wrapper {
+    grid-template-columns: 1fr;
+  }
+
+  .petition-sidebar {
+    order: -1;
+  }
+}
+
+@media (max-width: 480px) {
+  .petition-header {
+    padding: 20px;
+  }
+
+  .petition-title {
+    font-size: 1.6rem;
+  }
+
+  .status-badge {
+    padding: 4px 10px;
+    font-size: 0.7rem;
+  }
+
+  .petition-meta {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .creator,
+  .target-elu {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .comment-form textarea {
+    font-size: 16px; /* Prevent zoom on mobile */
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════ */
+/* Animations */
+/* ═══════════════════════════════════════════════════════════════ */
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
