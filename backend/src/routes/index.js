@@ -12,6 +12,7 @@ import petitionsRoutes from './petitions.js';
 import eluCommitmentsRoutes from './elu-commitments.js';
 import actualitesRoutes from './actualites.js';
 import postsRoutes from './posts.js';
+import commentsRoutes from './comments.js';
 // import usersRoutes from './users.js';
 // import votesRoutes from './votes.js';
 
@@ -63,6 +64,7 @@ router.use('/api/v1/petitions', petitionsRoutes);
 router.use('/api/v1/elu-commitments', eluCommitmentsRoutes);
 router.use('/api/v1/actualites', actualitesRoutes);
 router.use('/api/v1/posts', postsRoutes);
+router.use('/api/v1', commentsRoutes);
 
 /**
  * Routes avec noms français (aliases)

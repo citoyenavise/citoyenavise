@@ -9,6 +9,7 @@ import Petition from './Petition.js';
 import Signature from './Signature.js';
 import Actualite from './Actualite.js';
 import EmailVerification from './EmailVerification.js';
+import Comment from './Comment.js';
 
 // Define Relations
 // ═══════════════════════════════════════════════════════════════════
@@ -34,6 +35,11 @@ User.hasMany(EmailVerification, {
   as: 'emailVerifications',
 });
 
+User.hasMany(Comment, {
+  foreignKey: 'citoyenId',
+  as: 'comments',
+});
+
 // Elu Relations
 Elu.hasMany(Petition, {
   foreignKey: 'eluId',
@@ -56,6 +62,11 @@ Petition.hasMany(Signature, {
   as: 'signatures',
 });
 
+Petition.hasMany(Comment, {
+  foreignKey: 'petitionId',
+  as: 'comments',
+});
+
 // Signature Relations
 Signature.belongsTo(User, {
   foreignKey: 'citoyenId',
@@ -73,11 +84,22 @@ Actualite.belongsTo(User, {
   as: 'author',
 });
 
+// Comment Relations
+Comment.belongsTo(Petition, {
+  foreignKey: 'petitionId',
+  as: 'petition',
+});
+
+Comment.belongsTo(User, {
+  foreignKey: 'citoyenId',
+  as: 'author',
+});
+
 // ═══════════════════════════════════════════════════════════════════
 // Export all models
 // ═══════════════════════════════════════════════════════════════════
 
-export { User, Elu, Petition, Signature, Actualite, EmailVerification };
+export { User, Elu, Petition, Signature, Actualite, EmailVerification, Comment };
 
 export default {
   User,
@@ -86,4 +108,5 @@ export default {
   Signature,
   Actualite,
   EmailVerification,
+  Comment,
 };
