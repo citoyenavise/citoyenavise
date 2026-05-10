@@ -28,9 +28,14 @@ export function Header() {
               Pétitions
             </Link>
             {isAuthenticated && (
-              <Link to="/feed" className="text-gray-600 hover:text-primary transition font-medium">
-                Fil d'actualité
-              </Link>
+              <>
+                <Link to="/create-petition" className="text-gray-600 hover:text-primary transition font-medium">
+                  Créer pétition
+                </Link>
+                <Link to="/feed" className="text-gray-600 hover:text-primary transition font-medium">
+                  Fil d'actualité
+                </Link>
+              </>
             )}
           </div>
 
@@ -45,7 +50,10 @@ export function Header() {
                 </Link>
 
                 <div className="flex items-center gap-4">
-                  <Avatar name={user?.username || 'User'} size="sm" />
+                  <div className="flex items-center gap-2">
+                    <Avatar name={user?.username || 'User'} size="sm" />
+                    <span className="text-sm text-gray-600">{user?.email}</span>
+                  </div>
                   <Button variant="danger" size="sm" onClick={handleLogout}>
                     Déconnexion
                   </Button>
