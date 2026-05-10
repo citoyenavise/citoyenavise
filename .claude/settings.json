@@ -178,7 +178,17 @@
       "Bash(psql postgresql://postgres:postgres@localhost:5432/citoyenavise_dev -f src/database/migrations/V004_promises.sql)",
       "Bash(ls -la /mnt/c/Users/Dave/citoyenavise/ | head -20)",
       "Read(//mnt/c/Users/Dave/**)",
-      "PowerShell(grep \"^d\")"
+      "PowerShell(grep \"^d\")",
+      "Bash(Remove-Item -Recurse -Force \"c:\\\\Users\\\\Dave\\\\citoyenavise\\\\backend\\\\src\\\\tests\")",
+      "Bash(awk '{added+=$1; removed+=$2} END {print \"Total additions: \" added \"\\\\nTotal deletions: \" removed}')",
+      "PowerShell(cd \"c:\\\\Users\\\\Dave\\\\citoyenavise\\\\backend\"; $env:DATABASE_URL = \\(Get-Content .env | Select-String \"^DATABASE_URL\" | ForEach-Object { $_ -replace 'DATABASE_URL=' }\\).Trim\\(\\); psql $env:DATABASE_URL -f src/migrations/010_i18n.sql 2>&1)",
+      "PowerShell(cd \"c:\\\\Users\\\\Dave\\\\citoyenavise\\\\backend\"; Get-Item -Path @\\(\"docker-compose.yml\", \"Dockerfile\", \".dockerignore\"\\) 2>&1 | Select-Object Name, Length)",
+      "PowerShell(docker compose version 2>&1)",
+      "PowerShell(psql --version 2>&1)",
+      "Bash(node __tests__/i18n.integrity.js)",
+      "PowerShell(head -80)",
+      "Bash(docker-compose up *)",
+      "Bash(docker-compose ps *)"
     ],
     "additionalDirectories": [
       "c:\\Users\\Dave\\citoyenavise\\backend",

@@ -16,6 +16,7 @@
     "arrow-body-style": "warn",
     "consistent-return": "warn",
     "import/extensions": ["error", "ignorePackages"],
+    "import/prefer-default-export": "off",
     "no-param-reassign": "warn",
     "no-use-before-define": "warn",
     "func-names": "off"
