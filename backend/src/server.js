@@ -43,9 +43,36 @@ app.use((req, res, next) => {
 });
 
 // ═══════════════════════════════════════════════════════════════
+// CORS - Cross-Origin Resource Sharing
+// ═══════════════════════════════════════════════════════════════
+// Configuration sécurisée CORS pour contrôler les origines autorisées
+// Prévient les attaques CSRF et contrôle l'accès aux ressources
+const corsOptions = {
+  // Autoriser uniquement les origines spécifiées
+  origin: config.CORS_ORIGIN ? config.CORS_ORIGIN.split(',').map(url => url.trim()) : 'http://localhost:3001',
+  // Autoriser les credentials (cookies, authorization headers)
+  credentials: true,
+  // Options success status (certains navigateurs legacy)
+  optionsSuccessStatus: 200,
+  // Méthodes HTTP autorisées
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
+  // Headers autorisés
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  // Headers exposés au client
+  exposedHeaders: ['X-Total-Count', 'X-Page-Count'],
+  // Cache les résultats des preflight requests (en secondes)
+  maxAge: 86400, // 24 heures
+};
+
+app.use(cors(corsOptions));
+
+// Preflight requests handling
+// Les navigateurs envoient une requête OPTIONS avant les requêtes complexes
+app.options('*', cors(corsOptions));
+
+// ═══════════════════════════════════════════════════════════════
 // Middlewares globaux
 // ═══════════════════════════════════════════════════════════════
-app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(logger);
