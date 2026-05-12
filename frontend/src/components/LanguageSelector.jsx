@@ -1,24 +1,36 @@
 import { useTranslation } from 'react-i18next';
+import { useNavigate, useParams, useLocation } from 'react-router-dom';
 import './LanguageSelector.css';
 
 const LanguageSelector = () => {
   const { i18n } = useTranslation();
+  const navigate = useNavigate();
+  const { lang } = useParams();
+  const location = useLocation();
 
-  const handleLanguageChange = (lang) => {
-    i18n.changeLanguage(lang);
-    localStorage.setItem('language', lang);
+  const handleLanguageChange = (newLang) => {
+    i18n.changeLanguage(newLang);
+    localStorage.setItem('language', newLang);
+
+    // Navigate to same page in new language
+    // Replace current language in pathname with new language
+    const currentLang = lang || 'fr';
+    const newPathname = location.pathname.replace(`/${currentLang}/`, `/${newLang}/`);
+    navigate(newPathname);
   };
+
+  const currentLang = lang || 'fr';
 
   return (
     <div className="language-selector">
       <button
-        className={i18n.language === 'fr' ? 'active' : ''}
+        className={currentLang === 'fr' ? 'active' : ''}
         onClick={() => handleLanguageChange('fr')}
       >
         FR
       </button>
       <button
-        className={i18n.language === 'en' ? 'active' : ''}
+        className={currentLang === 'en' ? 'active' : ''}
         onClick={() => handleLanguageChange('en')}
       >
         EN
