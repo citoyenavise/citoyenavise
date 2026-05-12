@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams, useParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { Card } from '../components/ui/Card';
@@ -13,7 +13,14 @@ export function VerifyPage() {
   const [loading, setLoading] = useState(true);
   const [success, setSuccess] = useState(false);
 
+  // Prevent infinite loop: ensure API is called only once
+  const hasVerified = useRef(false);
+
   useEffect(() => {
+    // Guard: skip if already verified
+    if (hasVerified.current) return;
+    hasVerified.current = true;
+
     const verifyToken = async () => {
       const token = searchParams.get('token');
 
@@ -37,7 +44,7 @@ export function VerifyPage() {
     };
 
     verifyToken();
-  }, [searchParams, verifyMagicLink, navigate, lang]);
+  }, []);
 
   if (loading && !error) {
     return (
