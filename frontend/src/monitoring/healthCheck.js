@@ -3,7 +3,8 @@ import * as Sentry from '@sentry/react';
 const healthCheck = () => {
   setInterval(async () => {
     try {
-      const response = await fetch('/api/v1/health');
+      // Note: /health is a system endpoint, not part of /api/v1/
+      const response = await fetch('/health');
       const data = await response.json();
 
       if (data.status !== 'ok') {

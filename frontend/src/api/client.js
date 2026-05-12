@@ -3,12 +3,13 @@
  * Utilisation simple et centralisée de l'API backend
  *
  * Configuration API:
- * - VITE_API_URL (env): URL absolue (ex: http://backend:5000/api/v1 pour Docker)
- * - Fallback: '/api/v1' (URL relative, fonctionne avec tout backend sur même domaine)
- * - Development: VITE_API_URL='http://localhost:5000/api/v1' ou '/api/v1'
+ * - VITE_API_URL (env): URL absolue (ex: http://backend:3000/api/v1 pour Docker)
+ * - Fallback: '/api' (URL relative, le proxy Vite rétablit en /api/v1/)
+ * - Development: Utilise proxy Vite (/api/* → http://localhost:3000/api/v1/*)
+ * - Production: URL absolue requise
  */
 
-const API_BASE = import.meta.env.VITE_API_URL || '/api/v1';
+const API_BASE = import.meta.env.VITE_API_URL || '/api';
 
 class TokenManager {
   setAccessToken(token) {
@@ -157,6 +158,17 @@ export const api = {
       tokenManager.setAccessToken(accessToken);
       tokenManager.setRefreshToken(refreshToken);
       return response.data;
+    },
+      async requestMagicLink(email) {
+      const response = await client.post('/auth/magic-link', { email });
+      return response;
+    },
+
+    async verifyMagicLink(token) {
+      const response = await client.get(`/auth/verify?token=${encodeURIComponent(token)}`);
+      const { accessToken, user } = response;
+      tokenManager.setAccessToken(accessToken);
+      return { accessToken, user };
     },
 
     async login(email, password) {
