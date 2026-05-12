@@ -21,10 +21,22 @@ import './index.css';
 // Initialize health check
 healthCheck();
 
+// Render app with Sentry ErrorBoundary if available, otherwise use simple fragment
+const renderApp = () => {
+  // Check if Sentry.ErrorBoundary exists (it might not if Sentry is disabled)
+  if (Sentry.ErrorBoundary) {
+    return (
+      <Sentry.ErrorBoundary fallback={<ErrorPage />} showDialog>
+        <App />
+      </Sentry.ErrorBoundary>
+    );
+  }
+  // Fallback: render without Sentry ErrorBoundary
+  return <App />;
+};
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
-    <Sentry.ErrorBoundary fallback={<ErrorPage />} showDialog>
-      <App />
-    </Sentry.ErrorBoundary>
+    {renderApp()}
   </React.StrictMode>,
 );
