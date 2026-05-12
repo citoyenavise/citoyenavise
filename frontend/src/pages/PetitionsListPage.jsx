@@ -1,11 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { api } from '../api/client';
 import { Card } from '../components/ui/Card';
 import { Button } from '../components/ui/Button';
 import { Loader } from '../components/ui/Loader';
 
 export function PetitionsListPage() {
+  const { lang } = useParams();
+  const { i18n } = useTranslation();
   const [petitions, setPetitions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -14,6 +17,15 @@ export function PetitionsListPage() {
   const [total, setTotal] = useState(0);
   const [search, setSearch] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+
+  const currentLang = lang || i18n.language || 'fr';
+
+  const getLocalizedValue = (value) => {
+    if (!value) return '';
+    if (typeof value === 'string') return value;
+    if (typeof value === 'object') return value[currentLang] || value.fr || '';
+    return '';
+  };
 
   useEffect(() => {
     const loadPetitions = async () => {
@@ -25,8 +37,9 @@ export function PetitionsListPage() {
           params.search = searchQuery;
         }
         const response = await api.petitions.list(params);
-        setPetitions(response.data || []);
-        setTotal(response.total || 0);
+        const data = Array.isArray(response) ? response : response.data || [];
+        setPetitions(data);
+        setTotal(response.total || data.length || 0);
       } catch (err) {
         setError(err.message || 'Erreur lors du chargement des pétitions');
         console.error('Erreur:', err);
@@ -36,7 +49,7 @@ export function PetitionsListPage() {
     };
 
     loadPetitions();
-  }, [limit, offset, searchQuery]);
+  }, [limit, offset, searchQuery];
 
   const handleSearch = (e) => {
     e.preventDefault();
@@ -100,19 +113,19 @@ export function PetitionsListPage() {
         <div className="space-y-4">
           {petitions.map((petition) => (
             <Card key={petition.id} className="hover:shadow-md transition p-6">
-              <Link to={`/petitions/${petition.id}`}>
+              <Link to={`/${lang}/petitions/${petition.id}`}>
                 <h2 className="text-xl font-bold text-gray-900 hover:text-blue-600 mb-2">
-                  {petition.titre}
+                  {getLocalizedValue(petition.titre)}
                 </h2>
               </Link>
 
               <p className="text-gray-700 mb-3 line-clamp-2">
-                {petition.description}
+                {getLocalizedValue(petition.description)}
               </p>
 
               <div className="flex items-center justify-between mb-4">
                 <div className="flex gap-4 text-sm text-gray-600">
-                  <span>📝 {petition.signaturesCount || 0} signatures</span>
+                  <span>📝 {petition.signatures_count || 0} signatures</span>
                   {petition.deadline && (
                     <span>
                       📅{' '}
@@ -127,7 +140,7 @@ export function PetitionsListPage() {
                   <p className="text-sm text-blue-700">
                     Adressée à{' '}
                     <Link
-                      to={`/elus/${petition.elu.id}`}
+                      to={`/${lang}/elus/${petition.elu.id}`}
                       className="font-semibold hover:underline"
                     >
                       {petition.elu.nom}
@@ -137,7 +150,7 @@ export function PetitionsListPage() {
                 </div>
               )}
 
-              <Link to={`/petitions/${petition.id}`}>
+              <Link to={`/${lang}/petitions/${petition.id}`}>
                 <Button variant="primary" className="w-full">
                   Voir et signer
                 </Button>

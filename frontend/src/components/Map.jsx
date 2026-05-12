@@ -4,6 +4,7 @@ import 'leaflet/dist/leaflet.css';
 import 'leaflet.markercluster/dist/MarkerCluster.css';
 import 'leaflet.markercluster/dist/MarkerCluster.Default.css';
 import 'leaflet.markercluster';
+import { useMap } from 'react-leaflet';
 import './Map.css';
 
 // Lazy load Leaflet components
@@ -11,7 +12,7 @@ const MapContainer = lazy(() => import('react-leaflet').then((mod) => ({ default
 const TileLayer = lazy(() => import('react-leaflet').then((mod) => ({ default: mod.TileLayer })));
 
 const MarkerClusterWrapper = ({ markers }) => {
-  const map = require('react-leaflet').useMap();
+  const map = useMap();
 
   useEffect(() => {
     const markerClusterGroup = L.markerClusterGroup();

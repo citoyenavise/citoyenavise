@@ -26,12 +26,15 @@ const LoadingFallback = () => <div style={{ padding: '2rem', textAlign: 'center'
 const LanguageWrapper = () => {
   const { lang } = useParams();
   const { i18n } = useTranslation();
+  const SUPPORTED_LANGS = ['fr', 'en'];
+
+  if (!SUPPORTED_LANGS.includes(lang)) {
+    return <Navigate to="/fr" replace />;
+  }
 
   useEffect(() => {
-    if (lang === 'fr' || lang === 'en') {
-      i18n.changeLanguage(lang);
-      localStorage.setItem('language', lang);
-    }
+    i18n.changeLanguage(lang);
+    localStorage.setItem('language', lang);
   }, [lang, i18n]);
 
   return <Outlet />;
