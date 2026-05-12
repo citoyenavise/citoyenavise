@@ -11,6 +11,7 @@ import { ProtectedRoute } from './components/ProtectedRoute';
 // Code splitting with React.lazy
 const PetitionsListPage = React.lazy(() => import('./pages/PetitionsListPage'));
 const PetitionDetail = React.lazy(() => import('./pages/PetitionDetail'));
+const ElusPage = React.lazy(() => import('./pages/ElusPage'));
 const EluDetail = React.lazy(() => import('./pages/EluDetail'));
 const ActualitesPage = React.lazy(() => import('./pages/ActualitesPage'));
 const CreatePetitionPage = React.lazy(() => import('./pages/CreatePetitionPage'));
