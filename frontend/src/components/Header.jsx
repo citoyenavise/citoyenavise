@@ -67,14 +67,9 @@ export function Header() {
                 </div>
               </>
             ) : (
-              <div className="flex gap-4">
-                <Button variant="outline" onClick={() => navigate(`/${currentLang}/login`)}>
-                  Connexion
-                </Button>
-                <Button onClick={() => navigate(`/${currentLang}/register`)}>
-                  S'inscrire
-                </Button>
-              </div>
+              <Button variant="outline" onClick={() => navigate(`/${currentLang}/login`)}>
+                Connexion
+              </Button>
             )}
           </div>
         </div>
