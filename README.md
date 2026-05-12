@@ -118,10 +118,27 @@ Une plateforme open-source permettant aux citoyens québécois de :
 
 ## 📦 Installation & Setup
 
+### ⚡ Démarrage Rapide (5 minutes)
+```powershell
+# 1. Cloner le repo (une seule fois)
+git clone https://github.com/citoyenavise/platform.git
+cd citoyenavise
+
+# 2. Installer dépendances (une seule fois)
+cd backend && npm install && cd ../frontend && npm install && cd ..
+
+# 3. Configurer .env (une seule fois)
+# - Copier backend/.env.example → backend/.env
+# - Les valeurs par défaut sont OK pour dev local
+
+# 4. Démarrer (chaque session de développement)
+.\scripts\dev.ps1
+```
+
 ### Prérequis
 - Node.js 18+
 - PostgreSQL 12+
-- Docker & Docker Compose (optionnel)
+- Docker & Docker Compose (optionnel pour DB local)
 
 ### 1. Clone Repository
 ```bash
@@ -133,24 +150,24 @@ cd citoyenavise
 ```bash
 cd backend
 
-# Copier env
+# Copier env (configuration par défaut est OK pour dev local)
 cp .env.example .env
 
 # Installer dépendances
 npm install
 
-# Démarrer la base de données
+# (Optionnel) Démarrer PostgreSQL localement
 docker-compose up -d postgres
+# Alternative: Utiliser une BD PostgreSQL existante
 
-# Exécuter migrations
+# (Optionnel) Exécuter migrations/seed
 npm run migrate
-
-# (Optionnel) Remplir données test
 npm run seed
 
-# Démarrer le serveur
+# ✅ Démarrer le serveur
 npm run dev
-# → http://localhost:3000
+# → Backend API: http://localhost:3000
+# → Swagger Docs: http://localhost:3000/api-docs
 ```
 
 ### 3. Setup Frontend
@@ -160,12 +177,13 @@ cd ../frontend
 # Installer dépendances
 npm install
 
-# Copier env
+# Copier env (configuration par défaut pointe vers backend)
 cp .env.example .env
 
-# Démarrer Vite dev server
+# ✅ Démarrer Vite dev server
 npm run dev
-# → http://localhost:5173
+# → Frontend: http://localhost:5173
+# → Login: http://localhost:5173/fr/login
 ```
 
 ### 4. Vérifier Installation
@@ -287,16 +305,38 @@ GitHub Actions Pipeline:
 
 ## 🚀 Déploiement
 
-### Development
+### ⚡ Quick Start (Recommandé)
+```powershell
+# Windows - Lancer backend ET frontend simultanément
+.\scripts\dev.ps1
+
+# Résultat:
+# ✅ Backend:   http://localhost:3000
+# ✅ Frontend:  http://localhost:5173
+# ✅ Login:     http://localhost:5173/fr/login
+```
+
+### Development (Manuel)
 ```bash
-# Backend
+# Terminal 1 - Backend
 cd backend
 npm run dev
+# → http://localhost:3000
 
-# Frontend (autre terminal)
+# Terminal 2 - Frontend (attendre que backend soit prêt)
 cd frontend
 npm run dev
+# → http://localhost:5173
 ```
+
+### ⚠️ Important: Ports
+- **Backend** : Port **3000** (Express)
+- **Frontend** : Port **5173** (Vite) 
+- **API Proxy** : `/api/*` → `http://localhost:3000/api/v1/*`
+
+**Ne pas modifier les ports** - Configuration automatique dans:
+- `frontend/vite.config.js` : `port: 5173, strictPort: true`
+- `backend/.env` : `PORT=3000, FRONTEND_URL=http://localhost:5173`
 
 ### Staging (Docker)
 ```bash
