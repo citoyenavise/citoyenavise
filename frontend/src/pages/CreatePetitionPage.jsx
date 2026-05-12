@@ -4,12 +4,16 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { api } from '../api/client';
+import { useAuth } from '../hooks/useAuth';
 import Toast from '../components/Toast';
 import '../styles/CreatePetitionPage.css';
 
 function CreatePetitionPage() {
   const navigate = useNavigate();
+  const { lang } = useParams();
+  const { isAuthenticated } = useAuth();
 
   // ═══════════════════════════════════════════════════════════════
   // State - Form Data
@@ -42,15 +46,14 @@ function CreatePetitionPage() {
   // Check Authentication
   // ═══════════════════════════════════════════════════════════════
   useEffect(() => {
-    const token = localStorage.getItem('authToken');
-    if (!token) {
-      navigate('/login', { state: { from: '/create-petition' } });
+    if (!isAuthenticated) {
+      navigate(`/${lang}/login`, { state: { from: `/${lang}/petitions/create` } });
       return;
     }
 
     // Fetch élus
     fetchElus();
-  }, [navigate]);
+  }, [navigate, isAuthenticated, lang]);
 
   // ═══════════════════════════════════════════════════════════════
   // Fetch Élus
@@ -60,13 +63,8 @@ function CreatePetitionPage() {
       setElusLoading(true);
       setElusError(null);
 
-      const response = await fetch('/api/v1/elus?limit=100');
-      if (!response.ok) {
-        throw new Error('Erreur lors du chargement des élus');
-      }
-
-      const data = await response.json();
-      setElus(data.data || []);
+      const response = await api.elus.list({ limit: 100 });
+      setElus(Array.isArray(response) ? response : response.data || []);
     } catch (err) {
       console.error('Erreur fetch élus:', err);
       setElusError(err.message);
@@ -139,10 +137,9 @@ function CreatePetitionPage() {
 
     try {
       setIsSubmitting(true);
-      const token = localStorage.getItem('authToken');
 
-      if (!token) {
-        navigate('/login');
+      if (!isAuthenticated) {
+        navigate(`/${lang}/login`);
         return;
       }
 
@@ -154,56 +151,31 @@ function CreatePetitionPage() {
 
       // Ajouter eluId si sélectionné
       if (formData.eluId) {
-        submitData.eluId = parseInt(formData.eluId, 10);
+        submitData.elu_id = parseInt(formData.eluId, 10);
       }
 
       // Submit à l'API
-      const response = await fetch('/api/v1/petitions', {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(submitData),
-      });
-
-      const data = await response.json();
-
-      // Handle Zod validation errors
-      if (response.status === 400) {
-        // Erreur de validation
-        const validationErrors = {};
-
-        if (data.details && Array.isArray(data.details)) {
-          data.details.forEach((error) => {
-            const field = error.path?.[0] || 'general';
-            validationErrors[field] = error.message;
-          });
-        } else if (data.error) {
-          validationErrors.general = data.error;
-        }
-
-        setErrors(validationErrors);
-        showToast('Veuillez corriger les erreurs du formulaire', 'error');
-        return;
-      }
-
-      if (!response.ok) {
-        throw new Error(data.error || 'Erreur lors de la création de la pétition');
-      }
+      const data = await api.petitions.create(submitData);
 
       // Success
       showToast('Pétition créée avec succès! 🎉', 'success');
 
       // Redirect to petition detail
-      const petitionId = data.data?.id;
-      if (petitionId) {
+      if (data?.id) {
         setTimeout(() => {
-          navigate(`/petitions/${petitionId}`);
+          navigate(`/${lang}/petitions/${data.id}`);
         }, 1000);
       }
     } catch (err) {
       console.error('Erreur création pétition:', err);
+      if (err.details && Array.isArray(err.details)) {
+        const validationErrors = {};
+        err.details.forEach((error) => {
+          const field = error.path?.[0] || 'general';
+          validationErrors[field] = error.message;
+        });
+        setErrors(validationErrors);
+      }
       showToast(err.message || 'Erreur lors de la création', 'error');
     } finally {
       setIsSubmitting(false);

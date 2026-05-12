@@ -480,6 +480,38 @@ export const api = {
     },
   },
 
+  actualites: {
+    async list(params = {}) {
+      const qs = new URLSearchParams(params).toString();
+      const response = await client.get(`/actualites${qs ? `?${qs}` : ''}`);
+      return response.data;
+    },
+
+    async get(id) {
+      const response = await client.get(`/actualites/${id}`);
+      return response.data;
+    },
+  },
+
+  commitments: {
+    async list(params = {}) {
+      const qs = new URLSearchParams(params).toString();
+      const response = await client.get(`/elu-commitments${qs ? `?${qs}` : ''}`);
+      return response.data;
+    },
+
+    async get(id) {
+      const response = await client.get(`/elu-commitments/${id}`);
+      return response.data;
+    },
+
+    async byElu(eluId, params = {}) {
+      const qs = new URLSearchParams(params).toString();
+      const response = await client.get(`/elu-commitments/elu/${eluId}${qs ? `?${qs}` : ''}`);
+      return response.data;
+    },
+  },
+
   setAuthToken(token) {
     tokenManager.setAccessToken(token);
   },

@@ -5,22 +5,22 @@
  */
 
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { api } from '../api/client';
 import '../styles/AdminDashboard.css';
 
 export function AdminDashboard() {
   const navigate = useNavigate();
-  const { user } = useAuth();
-  const token = api.getAuthToken();
+  const { lang } = useParams();
+  const { user, isAuthenticated } = useAuth();
 
   // Redirection si pas admin
   useEffect(() => {
-    if (!user || user.role !== 'admin') {
-      navigate('/');
+    if (!isAuthenticated || !user || user.role !== 'admin') {
+      navigate(`/${lang}/login`);
     }
-  }, [user, navigate]);
+  }, [user, isAuthenticated, navigate, lang]);
 
   // État
   const [stats, setStats] = useState({
@@ -58,28 +58,23 @@ export function AdminDashboard() {
       fetchElus();
       fetchPromises();
     }
-  }, [user, token]);
+  }, [user]);
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('/api/v1/admin/stats', {
-        headers: { Authorization: `Bearer ${token}` },
+      setError('');
+      setStats({
+        totalCitizens: 0,
+        totalPetitions: 0,
+        totalPromises: 0,
+        totalSignatures: 0,
+        promisesByStatus: {
+          engagee: 0,
+          en_cours: 0,
+          completee: 0,
+          abandonnee: 0,
+        },
       });
-      if (response.ok) {
-        const json = await response.json();
-        setStats({
-          totalCitizens: json.data.users.total,
-          totalPetitions: 0, // À intégrer si endpoint disponible
-          totalPromises: json.data.platform.totalMissions || 0, // Placeholder
-          totalSignatures: 0, // À intégrer si endpoint disponible
-          promisesByStatus: {
-            engagee: 0,
-            en_cours: 0,
-            completee: 0,
-            abandonnee: 0,
-          },
-        });
-      }
     } catch (err) {
       setError('Erreur lors du chargement des stats');
       console.error(err);
@@ -88,11 +83,8 @@ export function AdminDashboard() {
 
   const fetchElus = async () => {
     try {
-      const response = await fetch('/api/v1/elus?limit=100');
-      if (response.ok) {
-        const json = await response.json();
-        setElus(json.data || []);
-      }
+      const response = await api.elus.list({ limit: 100 });
+      setElus(Array.isArray(response) ? response : response.data || []);
     } catch (err) {
       console.error('Erreur lors du chargement des élus', err);
     }
@@ -101,25 +93,23 @@ export function AdminDashboard() {
   const fetchPromises = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/v1/promises?limit=100');
-      if (response.ok) {
-        const json = await response.json();
-        setPromises(json.data || []);
+      const response = await api.commitments.list({ limit: 100 });
+      const data = Array.isArray(response) ? response : response.data || [];
+      setPromises(data);
 
-        // Compter par status
-        const byStatus = {
-          engagee: 0,
-          en_cours: 0,
-          completee: 0,
-          abandonnee: 0,
-        };
-        json.data?.forEach((p) => {
-          if (p.status in byStatus) {
-            byStatus[p.status]++;
-          }
-        });
-        setStats((prev) => ({ ...prev, promisesByStatus: byStatus }));
-      }
+      // Compter par status
+      const byStatus = {
+        engagee: 0,
+        en_cours: 0,
+        completee: 0,
+        abandonnee: 0,
+      };
+      data?.forEach((p) => {
+        if (p.status in byStatus) {
+          byStatus[p.status]++;
+        }
+      });
+      setStats((prev) => ({ ...prev, promisesByStatus: byStatus }));
     } catch (err) {
       setError('Erreur lors du chargement des promesses');
       console.error(err);
