@@ -64,9 +64,10 @@ export function verifyJWT(token) {
 /**
  * Génère un token magic link (aléatoire, 32 bytes)
  * @param {string} email - Email du citoyen
+ * @param {string} lang - Langue (fr|en), défaut: fr
  * @returns {object} { token, expiresAt, magicLinkUrl }
  */
-export function generateMagicLink(email) {
+export function generateMagicLink(email, lang = 'fr') {
   if (!email) {
     throw new Error('email is required');
   }
@@ -77,8 +78,8 @@ export function generateMagicLink(email) {
   // Expiration: 15 minutes
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
-  // URL de vérification
-  const magicLinkUrl = `${config.FRONTEND_URL}/verify?token=${token}`;
+  // URL de vérification (utilise la langue fournie)
+  const magicLinkUrl = `${config.FRONTEND_URL}/${lang}/verify?token=${token}`;
 
   return {
     token,

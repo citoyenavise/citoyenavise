@@ -67,8 +67,8 @@ router.post('/magic-link', authLimiter, async (req, res, next) => {
       });
     }
 
-    // Générer magic link token
-    const { token, expiresAt, magicLinkUrl } = generateMagicLink(email);
+    // Générer magic link token (passer la langue actuelle)
+    const { token, expiresAt, magicLinkUrl } = generateMagicLink(email, req.lang || 'fr');
 
     // Stocker le token en BD
     await EmailVerification.create({
@@ -218,6 +218,56 @@ router.post('/logout', authMiddleware, (req, res) => {
     success: true,
     message: translate('auth.logoutSuccess', req.lang),
   });
+});
+
+/**
+ * GET /api/v1/auth/me
+ * Récupérer le profil de l'utilisateur connecté
+ * Requires: JWT token (authentification)
+ *
+ * Response:
+ * {
+ *   "success": true,
+ *   "user": {
+ *     "id": 1,
+ *     "email": "user@example.com",
+ *     "nomComplet": "...",
+ *     "province": "...",
+ *     "codePostal": "...",
+ *     "role": "citizen",
+ *     "verifiedAt": "2026-05-11T..."
+ *   }
+ * }
+ */
+router.get('/me', authMiddleware, async (req, res, next) => {
+  try {
+    const user = await User.findByPk(req.user.userId, {
+      attributes: [
+        'id',
+        'email',
+        'nomComplet',
+        'province',
+        'codePostal',
+        'role',
+        'verifiedAt',
+        'createdAt',
+      ],
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: translate('auth.userNotFound', req.lang),
+      });
+    }
+
+    res.json({
+      success: true,
+      user,
+    });
+  } catch (err) {
+    next(err);
+  }
 });
 
 export default router;
