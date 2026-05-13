@@ -109,10 +109,8 @@ router.get('/', async (req, res, next) => {
     // Construire les filtres
     const where = {};
 
-    // Filtre status (optionnel)
-    if (status) {
-      where.status = status;
-    }
+    // Filtre status : par défaut afficher uniquement les pétitions publiées
+    where.status = status || 'published';
 
     // Filtre elu_id (optionnel)
     if (elu_id) {

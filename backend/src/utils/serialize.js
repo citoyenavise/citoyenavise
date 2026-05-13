@@ -2,9 +2,8 @@
  * Utilitaires de sérialisation - Convertir camelCase → snake_case
  */
 
-const camelToSnakeCase = (str) => {
-  return str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
-};
+const camelToSnakeCase = (str) =>
+  str.replace(/[A-Z]/g, (letter) => `_${letter.toLowerCase()}`);
 
 /**
  * Convertir un objet de camelCase à snake_case (récursif)

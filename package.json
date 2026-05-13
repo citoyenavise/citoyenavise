@@ -18,13 +18,18 @@
     "security:check:frontend": "npm --prefix frontend run security:check",
     "prepare": "husky install"
   },
-  "keywords": ["civic", "democracy", "canada"],
+  "keywords": [
+    "civic",
+    "democracy",
+    "canada"
+  ],
   "author": "Citoyen Avisé",
   "license": "MIT",
   "engines": {
     "node": ">=18.0.0"
   },
   "devDependencies": {
+    "axios": "^1.16.0",
     "husky": "^8.0.0",
     "prettier": "^3.0.0"
   }

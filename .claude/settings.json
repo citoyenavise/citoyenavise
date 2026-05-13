@@ -188,7 +188,12 @@
       "Bash(node __tests__/i18n.integrity.js)",
       "PowerShell(head -80)",
       "Bash(docker-compose up *)",
-      "Bash(docker-compose ps *)"
+      "Bash(docker-compose ps *)",
+      "PowerShell(cd \"c:\\\\Users\\\\Dave\\\\citoyenavise\"; powershell -NoExit -Command \".\\\\scripts\\\\dev.ps1\" 2>&1 | Select-Object -First 30)",
+      "PowerShell($content = Get-Content \"c:\\\\Users\\\\Dave\\\\citoyenavise\\\\scripts\\\\dev.ps1\" -Raw; [scriptblock]::Create\\($content\\) | Out-Null; Write-Host \"Script syntax OK\")",
+      "Bash(cd c:\\\\\\\\Users\\\\\\\\Dave\\\\\\\\citoyenavise)",
+      "PowerShell(mkdir -Force 'c:\\\\Users\\\\Dave\\\\citoyenavise\\\\backend\\\\scripts')",
+      "Bash(timeout 5 node src/server.js)"
     ],
     "additionalDirectories": [
       "c:\\Users\\Dave\\citoyenavise\\backend",

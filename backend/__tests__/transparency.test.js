@@ -3,7 +3,7 @@ import { describe, it, expect, beforeAll, afterAll } from '@jest/globals';
 import sequelize from '../src/db/sequelize.js';
 import app from '../src/server.js';
 import Elu from '../src/models/Elu.js';
-import { Promise as PromiseModel } from '../src/models/Promise.js';
+import PromiseModel from '../src/models/Promise.js';
 
 let testElus = [];
 let testPromises = [];

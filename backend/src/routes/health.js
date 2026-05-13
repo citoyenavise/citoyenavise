@@ -40,14 +40,18 @@ router.get('/', async (req, res) => {
   try {
     const health = await HealthService.getHealth();
 
-    // Return 200 if all systems OK
-    res.status(200).json(health);
+    // Return 200 if all systems OK with service name
+    res.status(200).json({
+      service: 'citoyenavise-api',
+      ...health,
+    });
   } catch (err) {
     logger.error('Health check failed', {
       meta: { error: err.message },
     });
 
     res.status(503).json({
+      service: 'citoyenavise-api',
       status: 'unhealthy',
       timestamp: new Date().toISOString(),
       error: err.message,

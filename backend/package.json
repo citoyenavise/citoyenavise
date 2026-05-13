@@ -8,6 +8,7 @@
     "dev": "nodemon src/server.js",
     "start": "node src/server.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
+    "test:lint": "node --experimental-vm-modules node_modules/jest/bin/jest.js __tests__/lint.test.js --verbose",
     "test:coverage": "node --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
     "test:ci": "node --experimental-vm-modules node_modules/jest/bin/jest.js __tests__/ci.test.js --verbose",
     "test:e2e": "playwright test __tests__/e2e.test.js",
