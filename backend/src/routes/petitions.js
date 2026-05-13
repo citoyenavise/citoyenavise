@@ -354,7 +354,7 @@ router.get('/:id/stats', async (req, res, next) => {
       data: {
         totalSignatures: petition.signaturesCount || 0,
         totalComments: commentCount,
-        createdAt: petition.createdAt.toISOString().split('T')[0],
+        createdAt: petition.createdAt ? petition.createdAt.toISOString().split('T')[0] : null,
         creator: petition.creator
           ? {
               id: petition.creator.id,
