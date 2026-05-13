@@ -49,7 +49,7 @@ export function PetitionsListPage() {
     };
 
     loadPetitions();
-  }, [limit, offset, searchQuery];
+  }, [limit, offset, searchQuery]);
 
   const handleSearch = (e) => {
     e.preventDefault();
