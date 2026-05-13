@@ -88,7 +88,7 @@ export function PetitionDetail() {
         <div className="grid grid-cols-2 gap-4 mb-6 text-sm">
           <div>
             <p className="text-gray-500">Créateur</p>
-            <p className="font-semibold">{petition.creator?.nom || 'N/A'}</p>
+            <p className="font-semibold">{petition.creator?.nom_complet || 'N/A'}</p>
           </div>
           <div>
             <p className="text-gray-500">Signatures</p>

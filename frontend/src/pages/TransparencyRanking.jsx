@@ -31,7 +31,7 @@ export function TransparencyRanking() {
     setSortBy(field);
     const sorted = [...elus].sort((a, b) => {
       if (field === 'transparency') {
-        return (b.transparencyIndex || 0) - (a.transparencyIndex || 0);
+        return (b.transparency?.overall || 0) - (a.transparency?.overall || 0);
       }
       if (field === 'commitments') {
         return (b.commitments_count || 0) - (a.commitments_count || 0);
@@ -101,14 +101,14 @@ export function TransparencyRanking() {
                   <td className="px-4 py-3 text-center">
                     <span
                       className={`inline-block px-3 py-1 rounded font-semibold text-white ${
-                        (elu.transparencyIndex || 0) > 70
+                        (elu.transparency?.overall || 0) > 70
                           ? 'bg-green-500'
-                          : (elu.transparencyIndex || 0) > 40
+                          : (elu.transparency?.overall || 0) > 40
                           ? 'bg-yellow-500'
                           : 'bg-red-500'
                       }`}
                     >
-                      {Math.round(elu.transparencyIndex || 0)}%
+                      {Math.round(elu.transparency?.overall || 0)}%
                     </span>
                   </td>
                   <td className="px-4 py-3 text-center font-semibold">

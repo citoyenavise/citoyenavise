@@ -42,7 +42,7 @@ router.get('/', async (req, res, next) => {
       include: [
         {
           model: Promise,
-          as: 'Promises',
+          as: 'promises',
           attributes: ['status'],
           required: false,
         },
@@ -57,7 +57,7 @@ router.get('/', async (req, res, next) => {
 
       return toSnakeCase({
         ...eluJson,
-        commitments_count: eluJson.Promises ? eluJson.Promises.length : 0,
+        commitments_count: eluJson.promises ? eluJson.promises.length : 0,
         transparency,
         rating,
       });
@@ -108,7 +108,7 @@ router.get('/:id', async (req, res, next) => {
       include: [
         {
           model: Promise,
-          as: 'Promises',
+          as: 'promises',
           attributes: ['id', 'titre', 'status', 'deadline', 'completedAt'],
         },
       ],
@@ -180,18 +180,18 @@ router.get('/:id/promises', async (req, res, next) => {
     });
 
     const transparency = calculateDetailedTransparencyScore({
-      Promises: promises,
+      promises,
     });
     const rating = getTransparencyRating(transparency.overall);
 
     res.json({
       success: true,
-      eluId: id,
-      eluNom: elu.nom,
+      elu_id: id,
+      elu_nom: elu.nom,
       count: promises.length,
-      transparency,
-      rating,
-      data: promises,
+      transparency: toSnakeCase(transparency),
+      rating: toSnakeCase(rating),
+      data: promises.map(p => toSnakeCase(p.toJSON())),
     });
   } catch (err) {
     next(err);
@@ -221,7 +221,7 @@ router.get('/:id/transparency', async (req, res, next) => {
       include: [
         {
           model: Promise,
-          as: 'Promises',
+          as: 'promises',
           attributes: ['id', 'titre', 'status', 'deadline', 'completedAt'],
         },
       ],
@@ -234,22 +234,22 @@ router.get('/:id/transparency', async (req, res, next) => {
       });
     }
 
-    const promises = elu.Promises || [];
+    const promises = elu.promises || [];
 
     if (promises.length === 0) {
       return res.json({
         success: true,
-        eluId: id,
-        eluNom: elu.nom,
+        elu_id: id,
+        elu_nom: elu.nom,
         score: 0,
-        totalPromises: 0,
+        total_promises: 0,
         completed: 0,
-        inProgress: 0,
+        in_progress: 0,
         abandoned: 0,
         committed: 0,
         breakdown: {
-          completionRate: 0,
-          keepRate: 0,
+          completion_rate: 0,
+          keep_rate: 0,
         },
         message: 'Aucune promesse enregistrée',
       });
@@ -260,23 +260,23 @@ router.get('/:id/transparency', async (req, res, next) => {
 
     res.json({
       success: true,
-      eluId: id,
-      eluNom: elu.nom,
+      elu_id: id,
+      elu_nom: elu.nom,
       titre: elu.titre,
       region: elu.region,
       niveau: elu.niveau,
       score: transparency.overall,
       rating: rating.rating,
       color: rating.color,
-      totalPromises: transparency.totalPromises,
+      total_promises: transparency.totalPromises,
       completed: transparency.completed,
-      inProgress: transparency.inProgress,
+      in_progress: transparency.inProgress,
       abandoned: transparency.abandoned,
       committed: transparency.committed,
-      breakdown: {
+      breakdown: toSnakeCase(transparency.breakdown || {
         completionRate: transparency.completionRate,
         keepRate: transparency.keepRate,
-      },
+      }),
     });
   } catch (err) {
     next(err);
@@ -325,10 +325,10 @@ router.get('/:id/petitions', async (req, res, next) => {
 
     res.json({
       success: true,
-      eluId: id,
-      eluNom: elu.nom,
+      elu_id: id,
+      elu_nom: elu.nom,
       count: petitions.length,
-      data: petitions,
+      data: petitions.map(p => toSnakeCase(p.toJSON())),
     });
   } catch (err) {
     next(err);
