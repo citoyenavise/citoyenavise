@@ -168,7 +168,9 @@ async function initializeApp() {
   }
 }
 
-// Lancer l'application
-initializeApp();
+// Lancer l'application (sauf en environnement de test pour éviter process.exit)
+if (process.env.NODE_ENV !== 'test') {
+  initializeApp();
+}
 
 export default app;
