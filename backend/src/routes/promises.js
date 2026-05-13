@@ -11,7 +11,7 @@
 import express from 'express';
 import { Promise as PromiseModel, Elu } from '../models/index.js';
 import { authMiddleware } from '../middlewares/auth.js';
-import { logger } from '../middlewares/logger.js';
+import { checkAdmin } from '../middlewares/admin.js';
 import {
   calculateDetailedTransparencyScore,
   getTransparencyRating,
@@ -40,7 +40,7 @@ router.get('/', async (req, res) => {
           include: [
             {
               model: PromiseModel,
-              as: 'Promises',
+              as: 'promises',
               attributes: ['status'],
               required: false,
             },
@@ -76,7 +76,7 @@ router.get('/', async (req, res) => {
       offset,
     });
   } catch (err) {
-    logger.error('Error fetching promises', { meta: { error: err.message } });
+    console.error('Error fetching promises:', err.message);
     res.status(500).json({
       success: false,
       error: err.message,
@@ -98,7 +98,7 @@ router.get('/:id', async (req, res) => {
           include: [
             {
               model: PromiseModel,
-              as: 'Promises',
+              as: 'promises',
               attributes: ['status'],
               required: false,
             },
@@ -130,7 +130,7 @@ router.get('/:id', async (req, res) => {
       },
     });
   } catch (err) {
-    logger.error('Error fetching promise', { meta: { error: err.message } });
+    console.error('Error fetching promise:', err.message);
     res.status(500).json({
       success: false,
       error: err.message,
@@ -178,9 +178,7 @@ router.get('/elu/:eluId', async (req, res) => {
       count: promises.length,
     });
   } catch (err) {
-    logger.error('Error fetching elu promises', {
-      meta: { error: err.message },
-    });
+    console.error('Error fetching elu promises:', err.message);
     res.status(500).json({
       success: false,
       error: err.message,
@@ -192,7 +190,7 @@ router.get('/elu/:eluId', async (req, res) => {
  * POST /api/v1/elus/:eluId/promises
  * Create a new promise (protected - admin only)
  */
-router.post('/:eluId/promises', authMiddleware, async (req, res) => {
+router.post('/:eluId/promises', authMiddleware, checkAdmin, async (req, res) => {
   try {
     const { eluId } = req.params;
     const { titre, description, status, deadline } = req.body;
@@ -228,7 +226,7 @@ router.post('/:eluId/promises', authMiddleware, async (req, res) => {
       data: promise,
     });
   } catch (err) {
-    logger.error('Error creating promise', { meta: { error: err.message } });
+    console.error('Error creating promise:', err.message);
     res.status(500).json({
       success: false,
       error: err.message,
@@ -240,7 +238,7 @@ router.post('/:eluId/promises', authMiddleware, async (req, res) => {
  * PUT /api/v1/promises/:id
  * Update a promise (protected - admin only)
  */
-router.put('/:id', authMiddleware, async (req, res) => {
+router.put('/:id', authMiddleware, checkAdmin, async (req, res) => {
   try {
     const { titre, description, status, deadline, completedAt } = req.body;
 
@@ -266,7 +264,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
       data: promise,
     });
   } catch (err) {
-    logger.error('Error updating promise', { meta: { error: err.message } });
+    console.error('Error updating promise:', err.message);
     res.status(500).json({
       success: false,
       error: err.message,
@@ -276,9 +274,9 @@ router.put('/:id', authMiddleware, async (req, res) => {
 
 /**
  * PUT /api/v1/promises/:id/status
- * Update promise status (protected)
+ * Update promise status (protected - admin only)
  */
-router.put('/:id/status', authMiddleware, async (req, res) => {
+router.put('/:id/status', authMiddleware, checkAdmin, async (req, res) => {
   try {
     const { status } = req.body;
 
@@ -317,9 +315,7 @@ router.put('/:id/status', authMiddleware, async (req, res) => {
       data: promise,
     });
   } catch (err) {
-    logger.error('Error updating promise status', {
-      meta: { error: err.message },
-    });
+    console.error('Error updating promise status:', err.message);
     res.status(500).json({
       success: false,
       error: err.message,
@@ -331,7 +327,7 @@ router.put('/:id/status', authMiddleware, async (req, res) => {
  * DELETE /api/v1/promises/:id
  * Delete a promise (protected - admin only)
  */
-router.delete('/:id', authMiddleware, async (req, res) => {
+router.delete('/:id', authMiddleware, checkAdmin, async (req, res) => {
   try {
     const promise = await PromiseModel.findByPk(req.params.id);
     if (!promise) {
@@ -348,7 +344,7 @@ router.delete('/:id', authMiddleware, async (req, res) => {
       message: 'Promise deleted successfully',
     });
   } catch (err) {
-    logger.error('Error deleting promise', { meta: { error: err.message } });
+    console.error('Error deleting promise:', err.message);
     res.status(500).json({
       success: false,
       error: err.message,
