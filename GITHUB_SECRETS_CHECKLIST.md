@@ -208,7 +208,7 @@ Value: https://xxxxx@xxxxx.ingest.sentry.io/xxxxx
 **À ajouter en GitHub Secrets :**
 ```
 Name:  SLACK_WEBHOOK_URL
-Value: https://hooks.slack.com/services/T00000000/B00000000/XXXXXXXXXXXX
+Value: <URL_SLACK_WEBHOOK_OBTENUE_SUR_api.slack.com>
 ```
 
 **Usage** : Notifications CI/CD failures dans Slack
@@ -304,3 +304,4 @@ jobs:
 
 **Status** : Prêt pour configuration  
 **Prochaine étape** : Aller sur https://github.com/citoyenavise/citoyenavise/settings/secrets/actions et ajouter les secrets
+
