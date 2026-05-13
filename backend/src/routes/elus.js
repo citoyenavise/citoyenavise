@@ -8,6 +8,7 @@ import { z } from 'zod';
 import Elu from '../models/Elu.js';
 import Petition from '../models/Petition.js';
 import Promise from '../models/Promise.js';
+import { toSnakeCase } from '../utils/serialize.js';
 import {
   calculateDetailedTransparencyScore,
   getTransparencyRating,
@@ -35,6 +36,8 @@ router.get('/', async (req, res, next) => {
         'email',
         'photoUrl',
         'siteWeb',
+        'latitude',
+        'longitude',
       ],
       include: [
         {
@@ -50,12 +53,14 @@ router.get('/', async (req, res, next) => {
     const elusWithTransparency = elus.map((elu) => {
       const transparency = calculateDetailedTransparencyScore(elu);
       const rating = getTransparencyRating(transparency.overall);
+      const eluJson = elu.toJSON();
 
-      return {
-        ...elu.toJSON(),
+      return toSnakeCase({
+        ...eluJson,
+        commitments_count: eluJson.Promises ? eluJson.Promises.length : 0,
         transparency,
         rating,
-      };
+      });
     });
 
     res.json({
@@ -95,6 +100,8 @@ router.get('/:id', async (req, res, next) => {
         'email',
         'photoUrl',
         'siteWeb',
+        'latitude',
+        'longitude',
         'createdAt',
         'updatedAt',
       ],
@@ -116,14 +123,16 @@ router.get('/:id', async (req, res, next) => {
 
     const transparency = calculateDetailedTransparencyScore(elu);
     const rating = getTransparencyRating(transparency.overall);
+    const eluJson = elu.toJSON();
 
     res.json({
       success: true,
-      data: {
-        ...elu.toJSON(),
+      data: toSnakeCase({
+        ...eluJson,
+        commitments_count: eluJson.Promises ? eluJson.Promises.length : 0,
         transparency,
         rating,
-      },
+      }),
     });
   } catch (err) {
     next(err);

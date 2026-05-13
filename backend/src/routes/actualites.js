@@ -7,6 +7,7 @@ import express from 'express';
 import { z } from 'zod';
 import Actualite from '../models/Actualite.js';
 import User from '../models/User.js';
+import { toSnakeCase } from '../utils/serialize.js';
 import { authMiddleware, checkOwnership } from '../middlewares/auth.js';
 
 const router = express.Router();
@@ -67,7 +68,7 @@ router.get('/', async (req, res, next) => {
     res.json({
       success: true,
       count: actualites.length,
-      data: actualites,
+      data: actualites.map(a => toSnakeCase(a.toJSON())),
     });
   } catch (err) {
     next(err);
@@ -129,7 +130,7 @@ router.get('/:id', async (req, res, next) => {
 
     res.json({
       success: true,
-      data: actualite,
+      data: toSnakeCase(actualite.toJSON()),
     });
   } catch (err) {
     next(err);
@@ -167,14 +168,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
     res.status(201).json({
       success: true,
       message: 'Actualité créée',
-      data: {
-        id: actualite.id,
-        titre: actualite.titre,
-        contenu: actualite.contenu,
-        status: actualite.status,
-        authorId: actualite.authorId,
-        createdAt: actualite.createdAt,
-      },
+      data: toSnakeCase(actualite.toJSON()),
     });
   } catch (err) {
     next(err);

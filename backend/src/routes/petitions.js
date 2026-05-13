@@ -13,6 +13,7 @@ import Signature from '../models/Signature.js';
 import Comment from '../models/Comment.js';
 import User from '../models/User.js';
 import Elu from '../models/Elu.js';
+import { toSnakeCase } from '../utils/serialize.js';
 import { translate } from '../services/i18n.js';
 import { authMiddleware, checkOwnership } from '../middlewares/auth.js';
 import { checkAdmin } from '../middlewares/admin.js';
@@ -173,9 +174,9 @@ router.get('/', async (req, res, next) => {
       total: count,
       page,
       limit,
-      totalPages: Math.ceil(count / limit),
+      total_pages: Math.ceil(count / limit),
       sort,
-      data: rows,
+      data: rows.map(r => toSnakeCase(r.toJSON())),
     });
   } catch (err) {
     next(err);
@@ -251,7 +252,7 @@ router.get('/:id', async (req, res, next) => {
 
     res.json({
       success: true,
-      data: petition,
+      data: toSnakeCase(petition.toJSON()),
     });
   } catch (err) {
     next(err);
