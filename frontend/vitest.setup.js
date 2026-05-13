@@ -61,3 +61,25 @@ beforeAll(() => {
 afterAll(() => {
   console.error = originalError
 })
+
+// ───────────────────────────────────────────────────────────────
+// i18next — initialisation minimale pour environnement de test
+// Évite "i18n.changeLanguage is not a function" dans App.test.jsx
+// Pas de HttpBackend : aucun appel réseau pendant les tests.
+// ───────────────────────────────────────────────────────────────
+import i18n from 'i18next'
+import { initReactI18next } from 'react-i18next'
+
+if (!i18n.isInitialized) {
+  i18n
+    .use(initReactI18next)
+    .init({
+      lng: 'fr',
+      fallbackLng: 'fr',
+      interpolation: { escapeValue: false },
+      resources: {
+        fr: { translation: {} },
+        en: { translation: {} },
+      },
+    })
+}

@@ -69,7 +69,7 @@ services:
       REDIS_HOST: redis
       REDIS_PORT: 6379
       API_URL: http://localhost:5000
-      FRONTEND_URL: http://localhost:3001
+      FRONTEND_URL: http://localhost:5173
       LOG_LEVEL: debug
       ENABLE_SWAGGER: "true"
       ENABLE_CACHE: "true"
