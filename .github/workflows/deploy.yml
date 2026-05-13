@@ -2,117 +2,188 @@ name: Deploy
 
 on:
   push:
-    branches:
-      - main
+    branches: [main]
     paths:
       - 'backend/**'
-      - 'public/**'
-      - 'docker-compose.yml'
+      - 'frontend/**'
       - 'Dockerfile'
+      - 'docker-compose.yml'
+      - '.github/workflows/deploy.yml'
+  workflow_dispatch:
 
 env:
+  IMAGE_NAME: citoyenavise-backend
   REGISTRY: docker.io
-  IMAGE_NAME: citoyenavise/backend
 
 jobs:
-  build:
+  build-and-push:
     name: Build & Push Docker Image
     runs-on: ubuntu-latest
-    permissions:
-      contents: read
+    outputs:
+      image_tags: ${{ steps.meta.outputs.tags }}
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
-      - name: Log in to Docker Hub
-        if: github.event_name != 'pull_request'
-        uses: docker/login-action@v2
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USERNAME }}
           password: ${{ secrets.DOCKER_PASSWORD }}
 
       - name: Extract metadata
         id: meta
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ secrets.DOCKER_USERNAME }}/${{ env.IMAGE_NAME }}
           tags: |
-            type=ref,event=branch
-            type=semver,pattern={{version}}
-            type=semver,pattern={{major}}.{{minor}}
-            type=sha
+            type=raw,value=latest
+            type=sha,prefix=sha-,format=short
 
-      - name: Build and push Docker image
-        uses: docker/build-push-action@v4
+      - name: Build and push
+        uses: docker/build-push-action@v5
         with:
-          context: ./backend
-          push: ${{ github.event_name != 'pull_request' }}
+          context: .
+          file: ./Dockerfile
+          push: true
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache
-          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:buildcache,mode=max
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
 
-  deploy-staging:
-    name: Deploy to Staging
+  deploy-render:
+    name: Trigger Render Deploy
+    needs: build-and-push
     runs-on: ubuntu-latest
-    needs: build
-    if: github.ref == 'refs/heads/main'
-    environment: staging
+    environment: production
+    outputs:
+      deploy_id: ${{ steps.trigger.outputs.deploy_id }}
     steps:
-      - uses: actions/checkout@v3
-
-      - name: Deploy to staging server
-        env:
-          DEPLOY_KEY: ${{ secrets.STAGING_DEPLOY_KEY }}
-          DEPLOY_HOST: ${{ secrets.STAGING_HOST }}
-          DEPLOY_USER: ${{ secrets.STAGING_USER }}
+      - name: Trigger Render deploy
+        id: trigger
         run: |
-          mkdir -p ~/.ssh
-          echo "$DEPLOY_KEY" > ~/.ssh/deploy_key
-          chmod 600 ~/.ssh/deploy_key
-          ssh-keyscan -H $DEPLOY_HOST >> ~/.ssh/known_hosts
+          set -euo pipefail
+          response=$(curl -sS -w "\nHTTP_CODE:%{http_code}" -X POST \
+            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -H "Accept: application/json" \
+            -H "Content-Type: application/json" \
+            -d '{"clearCache":"do_not_clear"}' \
+            "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys")
 
-          ssh -i ~/.ssh/deploy_key $DEPLOY_USER@$DEPLOY_HOST << 'EOF'
-          cd /home/deploy/citoyenavise
-          git pull origin main
-          npm install
-          npm run setup:db
-          npm run migrate
-          docker-compose up -d
-          EOF
+          http_code=$(echo "$response" | grep "HTTP_CODE:" | cut -d: -f2)
+          body=$(echo "$response" | sed '/HTTP_CODE:/d')
 
-      - name: Health check
+          echo "Render API response:"
+          echo "$body"
+
+          if [ "$http_code" != "201" ]; then
+            echo "::error::Render deploy trigger failed (HTTP $http_code)"
+            exit 1
+          fi
+
+          deploy_id=$(echo "$body" | jq -r '.id')
+          echo "deploy_id=$deploy_id" >> "$GITHUB_OUTPUT"
+          echo "Triggered deploy: $deploy_id"
+
+      - name: Wait for deploy completion
         run: |
-          for i in {1..30}; do
-            if curl -f http://${{ secrets.STAGING_HOST }}/health > /dev/null 2>&1; then
-              echo "✅ Staging is healthy"
-              exit 0
-            fi
-            echo "Waiting for staging... ($i/30)"
-            sleep 5
+          set -euo pipefail
+          max_attempts=40
+          attempt=0
+          deploy_id="${{ steps.trigger.outputs.deploy_id }}"
+
+          while [ $attempt -lt $max_attempts ]; do
+            status=$(curl -sS \
+              -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+              -H "Accept: application/json" \
+              "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys/$deploy_id" \
+              | jq -r '.status')
+
+            echo "Attempt $((attempt+1))/$max_attempts: status=$status"
+
+            case "$status" in
+              live)
+                echo "Deploy succeeded"
+                exit 0
+                ;;
+              build_failed|update_failed|canceled|deactivated)
+                echo "::error::Deploy failed with status: $status"
+                exit 1
+                ;;
+            esac
+
+            attempt=$((attempt+1))
+            sleep 30
           done
-          echo "❌ Staging health check failed"
+
+          echo "::error::Deploy timed out after $((max_attempts*30))s"
           exit 1
 
-      - name: Notify Slack
-        if: failure()
-        uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          text: 'Staging deployment failed'
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
-
   notify:
-    name: Notify
+    name: Notify Slack
+    needs: [build-and-push, deploy-render]
     runs-on: ubuntu-latest
-    needs: [build, deploy-staging]
-    if: success()
+    if: always()
     steps:
-      - name: Slack notification
-        uses: 8398a7/action-slack@v3
+      - name: Notify success
+        if: needs.deploy-render.result == 'success'
+        uses: slackapi/slack-github-action@v1.27.0
         with:
-          status: success
-          text: '✅ Deployment to staging successful'
-          webhook_url: ${{ secrets.SLACK_WEBHOOK }}
+          webhook-type: incoming-webhook
+          webhook: ${{ secrets.SLACK_WEBHOOK }}
+          payload: |
+            {
+              "text": "✅ citoyenavise.org deployed successfully",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*✅ Deployment succeeded*\n*Commit:* `${{ github.sha }}`\n*Author:* ${{ github.actor }}\n*Branch:* `${{ github.ref_name }}`"
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": { "type": "plain_text", "text": "View workflow" },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                  ]
+                }
+              ]
+            }
+
+      - name: Notify failure
+        if: failure() || needs.build-and-push.result == 'failure' || needs.deploy-render.result == 'failure'
+        uses: slackapi/slack-github-action@v1.27.0
+        with:
+          webhook-type: incoming-webhook
+          webhook: ${{ secrets.SLACK_WEBHOOK }}
+          payload: |
+            {
+              "text": "❌ citoyenavise.org deployment FAILED",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*❌ Deployment failed*\n*Commit:* `${{ github.sha }}`\n*Author:* ${{ github.actor }}\n*Branch:* `${{ github.ref_name }}`\n*Build:* ${{ needs.build-and-push.result }}\n*Deploy:* ${{ needs.deploy-render.result }}"
+                  }
+                },
+                {
+                  "type": "actions",
+                  "elements": [
+                    {
+                      "type": "button",
+                      "text": { "type": "plain_text", "text": "View logs" },
+                      "url": "${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}"
+                    }
+                  ]
+                }
+              ]
+            }
