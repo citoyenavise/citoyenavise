@@ -191,7 +191,7 @@ router.get('/:id/promises', async (req, res, next) => {
       count: promises.length,
       transparency: toSnakeCase(transparency),
       rating: toSnakeCase(rating),
-      data: promises.map(p => toSnakeCase(p.toJSON())),
+      data: promises.map((p) => toSnakeCase(p.toJSON())),
     });
   } catch (err) {
     next(err);
@@ -273,10 +273,12 @@ router.get('/:id/transparency', async (req, res, next) => {
       in_progress: transparency.inProgress,
       abandoned: transparency.abandoned,
       committed: transparency.committed,
-      breakdown: toSnakeCase(transparency.breakdown || {
-        completionRate: transparency.completionRate,
-        keepRate: transparency.keepRate,
-      }),
+      breakdown: toSnakeCase(
+        transparency.breakdown || {
+          completionRate: transparency.completionRate,
+          keepRate: transparency.keepRate,
+        }
+      ),
     });
   } catch (err) {
     next(err);
@@ -328,7 +330,7 @@ router.get('/:id/petitions', async (req, res, next) => {
       elu_id: id,
       elu_nom: elu.nom,
       count: petitions.length,
-      data: petitions.map(p => toSnakeCase(p.toJSON())),
+      data: petitions.map((p) => toSnakeCase(p.toJSON())),
     });
   } catch (err) {
     next(err);

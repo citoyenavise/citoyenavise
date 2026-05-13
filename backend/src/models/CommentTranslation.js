@@ -10,11 +10,11 @@ const CommentTranslation = sequelize.define(
       autoIncrement: true,
     },
     commentId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.BIGINT,
       allowNull: false,
       field: 'comment_id',
       references: {
-        model: 'comments',
+        model: 'petition_comments',
         key: 'id',
       },
       onDelete: 'CASCADE',

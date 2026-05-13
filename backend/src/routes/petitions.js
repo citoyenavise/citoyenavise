@@ -176,7 +176,7 @@ router.get('/', async (req, res, next) => {
       limit,
       total_pages: Math.ceil(count / limit),
       sort,
-      data: rows.map(r => toSnakeCase(r.toJSON())),
+      data: rows.map((r) => toSnakeCase(r.toJSON())),
     });
   } catch (err) {
     next(err);
@@ -354,7 +354,9 @@ router.get('/:id/stats', async (req, res, next) => {
       data: {
         totalSignatures: petition.signaturesCount || 0,
         totalComments: commentCount,
-        createdAt: petition.createdAt ? petition.createdAt.toISOString().split('T')[0] : null,
+        createdAt: petition.createdAt
+          ? petition.createdAt.toISOString().split('T')[0]
+          : null,
         creator: petition.creator
           ? {
               id: petition.creator.id,

@@ -20,7 +20,7 @@ export const swaggerDefinition = {
   },
   servers: [
     {
-      url: 'http://localhost:5000/api/v1',
+      url: 'http://localhost:3000/api/v1',
       description: 'Développement',
     },
     {
@@ -62,7 +62,7 @@ export const swaggerDefinition = {
     // ═══════════════════════════════════════════════════════════════════
     // AUTHENTIFICATION
     // ═══════════════════════════════════════════════════════════════════
-    '/auth/request-login': {
+    '/auth/magic-link': {
       post: {
         tags: ['Authentification'],
         summary: 'Demander magic link',
@@ -143,33 +143,6 @@ export const swaggerDefinition = {
             },
           },
           401: { description: 'Token invalide ou expiré' },
-        },
-      },
-    },
-    '/auth/complete-profile': {
-      post: {
-        tags: ['Authentification'],
-        summary: 'Compléter le profil',
-        security: [{ bearerAuth: [] }],
-        requestBody: {
-          required: true,
-          content: {
-            'application/json': {
-              schema: {
-                type: 'object',
-                properties: {
-                  nomComplet: { type: 'string' },
-                  province: { type: 'string' },
-                  codePostal: { type: 'string' },
-                },
-                required: ['nomComplet'],
-              },
-            },
-          },
-        },
-        responses: {
-          200: { description: 'Profil mis à jour' },
-          400: { description: 'Données invalides' },
         },
       },
     },

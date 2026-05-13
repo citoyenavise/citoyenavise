@@ -190,49 +190,54 @@ router.get('/elu/:eluId', async (req, res) => {
  * POST /api/v1/elus/:eluId/promises
  * Create a new promise (protected - admin only)
  */
-router.post('/:eluId/promises', authMiddleware, checkAdmin, async (req, res) => {
-  try {
-    const { eluId } = req.params;
-    const { titre, description, status, deadline } = req.body;
+router.post(
+  '/:eluId/promises',
+  authMiddleware,
+  checkAdmin,
+  async (req, res) => {
+    try {
+      const { eluId } = req.params;
+      const { titre, description, status, deadline } = req.body;
 
-    // Validate required fields
-    if (!titre) {
-      return res.status(400).json({
+      // Validate required fields
+      if (!titre) {
+        return res.status(400).json({
+          success: false,
+          error: 'Titre is required',
+        });
+      }
+
+      // Check if elu exists
+      const elu = await Elu.findByPk(eluId);
+      if (!elu) {
+        return res.status(404).json({
+          success: false,
+          error: 'Elu not found',
+        });
+      }
+
+      // Create promise
+      const promise = await PromiseModel.create({
+        eluId,
+        titre,
+        description,
+        status: status || 'engagee',
+        deadline,
+      });
+
+      res.status(201).json({
+        success: true,
+        data: promise,
+      });
+    } catch (err) {
+      console.error('Error creating promise:', err.message);
+      res.status(500).json({
         success: false,
-        error: 'Titre is required',
+        error: err.message,
       });
     }
-
-    // Check if elu exists
-    const elu = await Elu.findByPk(eluId);
-    if (!elu) {
-      return res.status(404).json({
-        success: false,
-        error: 'Elu not found',
-      });
-    }
-
-    // Create promise
-    const promise = await PromiseModel.create({
-      eluId,
-      titre,
-      description,
-      status: status || 'engagee',
-      deadline,
-    });
-
-    res.status(201).json({
-      success: true,
-      data: promise,
-    });
-  } catch (err) {
-    console.error('Error creating promise:', err.message);
-    res.status(500).json({
-      success: false,
-      error: err.message,
-    });
   }
-});
+);
 
 /**
  * PUT /api/v1/promises/:id

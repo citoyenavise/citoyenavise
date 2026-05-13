@@ -57,6 +57,13 @@ User.hasMany(EmailVerification, {
   foreignKey: 'userId',
   as: 'emailVerifications',
 });
+EmailVerification.belongsTo(User, {
+  foreignKey: 'userId',
+});
+
+EmailVerification.belongsTo(User, {
+  foreignKey: 'userId',
+});
 
 User.hasMany(Comment, {
   foreignKey: 'citoyenId',

@@ -68,7 +68,7 @@ router.get('/', async (req, res, next) => {
     res.json({
       success: true,
       count: actualites.length,
-      data: actualites.map(a => toSnakeCase(a.toJSON())),
+      data: actualites.map((a) => toSnakeCase(a.toJSON())),
     });
   } catch (err) {
     next(err);

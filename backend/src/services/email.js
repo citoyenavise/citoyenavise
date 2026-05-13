@@ -20,31 +20,43 @@ function getTransporter() {
     return transporter;
   }
 
-  // En développement, utiliser un service de test
-  if (config.NODE_ENV === 'development') {
-    // nodemailer.createTestAccount() peut être utilisé pour les tests
-    // Pour maintenant, retourner un transporter fake
+  // Mode "fake" si Brevo n'est pas configuré (utile pour tests CI ou démarrage)
+  const brevoConfigured =
+    process.env.BREVO_SMTP_USER && process.env.BREVO_SMTP_PASS;
+
+  if (!brevoConfigured) {
+    console.warn('[Email] ⚠️ Brevo non configuré, mode console activé');
     transporter = {
       sendMail: async (mailOptions) => {
-        console.log('📧 [DEV] Email would be sent:', {
-          to: mailOptions.to,
-          subject: mailOptions.subject,
-        });
+        console.log('📧 [DEV/NO-SMTP] Email simulé:');
+        console.log('   To     :', mailOptions.to);
+        console.log('   Subject:', mailOptions.subject);
+        if (mailOptions.text) {
+          const linkMatch = mailOptions.text.match(/https?:\/\/[^\s]+/);
+          if (linkMatch) console.log('   Link   :', linkMatch[0]);
+        }
         return { messageId: `dev-${Date.now()}` };
       },
     };
-  } else {
-    // Production: utiliser SMTP réel
-    transporter = nodemailer.createTransport({
-      host: process.env.SMTP_HOST || 'smtp.gmail.com',
-      port: parseInt(process.env.SMTP_PORT || '587', 10),
-      secure: process.env.SMTP_SECURE === 'true', // true for 465, false for other ports
-      auth: {
-        user: process.env.SMTP_USER,
-        pass: process.env.SMTP_PASSWORD,
-      },
-    });
+    return transporter;
   }
+
+  // SMTP réel via Brevo
+  transporter = nodemailer.createTransport({
+    host: process.env.BREVO_SMTP_HOST || 'smtp-relay.brevo.com',
+    port: parseInt(process.env.BREVO_SMTP_PORT || '587', 10),
+    secure: false, // STARTTLS sur 587
+    auth: {
+      user: process.env.BREVO_SMTP_USER,
+      pass: process.env.BREVO_SMTP_PASS,
+    },
+  });
+
+  // Vérification au démarrage (non-bloquant)
+  transporter.verify((err) => {
+    if (err) console.error('[Email] ❌ Brevo SMTP failed:', err.message);
+    else console.log('[Email] ✅ Brevo SMTP connected');
+  });
 
   return transporter;
 }
@@ -63,7 +75,7 @@ export async function sendMagicLinkEmail(email, magicLinkUrl) {
   const transporter = getTransporter();
 
   const mailOptions = {
-    from: process.env.SMTP_FROM || 'noreply@citoyenavise.org',
+    from: `"${process.env.MAIL_FROM_NAME || 'Citoyen Avisé'}" <${process.env.MAIL_FROM_ADDRESS || 'noreply@citoyenavise.org'}>`,
     to: email,
     subject: '🔐 Votre lien de connexion - Citoyen Avisé',
     html: `
@@ -136,7 +148,7 @@ export async function sendWelcomeEmail(email, nomComplet = null) {
   const transporter = getTransporter();
 
   const mailOptions = {
-    from: process.env.SMTP_FROM || 'noreply@citoyenavise.org',
+    from: `"${process.env.MAIL_FROM_NAME || 'Citoyen Avisé'}" <${process.env.MAIL_FROM_ADDRESS || 'noreply@citoyenavise.org'}>`,
     to: email,
     subject: '👋 Bienvenue à Citoyen Avisé!',
     html: `
@@ -190,7 +202,7 @@ export async function sendTestEmail(email) {
   const transporter = getTransporter();
 
   const mailOptions = {
-    from: process.env.SMTP_FROM || 'noreply@citoyenavise.org',
+    from: `"${process.env.MAIL_FROM_NAME || 'Citoyen Avisé'}" <${process.env.MAIL_FROM_ADDRESS || 'noreply@citoyenavise.org'}>`,
     to: email,
     subject: '🧪 Email de test - Citoyen Avisé',
     text: "Cet email confirme que le service d'email fonctionne correctement.",

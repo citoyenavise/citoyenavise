@@ -8,6 +8,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  // Au démarrage : vérifier si l'utilisateur est déjà connecté
   useEffect(() => {
     const checkAuth = async () => {
       if (!api.auth.isAuthenticated()) {
@@ -16,8 +17,9 @@ export function AuthProvider({ children }) {
       }
 
       try {
-        const currentUser = await api.auth.me();
-        setUser(currentUser);
+        const response = await api.auth.me();
+        // Le backend retourne { success, user }
+        setUser(response.user || response);
         setError(null);
       } catch (err) {
         api.auth.logout_local();
@@ -31,13 +33,13 @@ export function AuthProvider({ children }) {
     checkAuth();
   }, []);
 
-  const login = async (email, password) => {
+  // Demander un magic link par email
+  const requestMagicLink = async (email) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await api.auth.login(email, password);
-      setUser(data.user);
-      return data;
+      const response = await api.auth.requestMagicLink(email);
+      return response;
     } catch (err) {
       setError(err.message);
       throw err;
@@ -46,13 +48,14 @@ export function AuthProvider({ children }) {
     }
   };
 
-  const register = async (email, password, username) => {
+  // Vérifier un magic link (depuis VerifyPage)
+  const verifyMagicLink = async (token) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await api.auth.register(email, password, username);
-      setUser(data.user);
-      return data;
+      const { accessToken, user: userData } = await api.auth.verifyMagicLink(token);
+      setUser(userData);
+      return { accessToken, user: userData };
     } catch (err) {
       setError(err.message);
       throw err;
@@ -78,8 +81,8 @@ export function AuthProvider({ children }) {
     user,
     loading,
     error,
-    login,
-    register,
+    requestMagicLink,
+    verifyMagicLink,
     logout,
     isAuthenticated: !!user,
   };

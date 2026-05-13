@@ -36,7 +36,9 @@ export function setupSwagger(app) {
     res.json(swaggerDefinition);
   });
 
-  console.log('✅ Swagger UI available at http://localhost:5000/api-docs');
+  console.log(
+    `✅ Swagger UI available at http://localhost:${process.env.PORT || 3000}/api-docs`
+  );
 }
 
 export default setupSwagger;

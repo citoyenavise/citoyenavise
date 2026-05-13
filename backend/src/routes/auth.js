@@ -68,7 +68,10 @@ router.post('/magic-link', authLimiter, async (req, res, next) => {
     }
 
     // Générer magic link token (passer la langue actuelle)
-    const { token, expiresAt, magicLinkUrl } = generateMagicLink(email, req.lang || 'fr');
+    const { token, expiresAt, magicLinkUrl } = generateMagicLink(
+      email,
+      req.lang || 'fr'
+    );
 
     // Stocker le token en BD
     await EmailVerification.create({
