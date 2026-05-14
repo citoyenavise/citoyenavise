@@ -130,10 +130,11 @@ async function initializeApp() {
       throw new Error('Impossible de se connecter à la base de données');
     }
 
-    // Synchroniser les modèles à chaque démarrage (idempotent : alter:false ne modifie pas l'existant)
-    // Crée les tables manquantes en production sans toucher aux données existantes.
-    console.log('🔄 Synchronisation des modèles avec la base de données...');
-    await sequelize.sync({ alter: false });
+    // Synchroniser les modèles à chaque démarrage
+    // alter contrôlé par variable d'env SYNC_ALTER (false par défaut, true pour réalignement ponctuel)
+    const syncAlter = process.env.SYNC_ALTER === 'true';
+    console.log(`🔄 Synchronisation des modèles avec la base de données (alter:${syncAlter})...`);
+    await sequelize.sync({ alter: syncAlter });
     console.log('✅ Modèles synchronisés');
 
     // Démarrer le serveur
