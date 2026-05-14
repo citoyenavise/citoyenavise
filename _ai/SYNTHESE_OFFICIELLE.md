@@ -21,7 +21,7 @@
 | Version du document | V2 — intégrée |
 | Dernière révision | 2026-05-13 |
 | Phase actuelle | Restructuration post-over-engineering vers MVP |
-| Avancement global | **~97 %** (CI/CD hardened, prod stable post-incident, rotation BD effectuée. Reste seed Québec via endpoint admin + Phase F technique + Phases G-K vision) |
+| Avancement global | **~98 %** (CI/CD hardened, prod stable, seed Québec ville LIVE en prod via endpoint admin. Reste Phase F technique + Phases G-K vision) |
 | URL publique production | **https://citoyenavise.org** |
 | URL API publique production | **https://api.citoyenavise.org** |
 
@@ -90,7 +90,7 @@ citoyenavise.org est, simultanément :
 | 20. Laboratoire de participation citoyenne | 0 % | 🔴 Post-MVP |
 | 21. IA civique (« L'Utopie ») | 0 % | 🔴 Vision future |
 
-**MVP fonctionnel déployé** : **85 % → 97 %**.
+**MVP fonctionnel déployé** : **85 % → 98 %**.
 **Plateforme cible (vision complète)** : **~30 %**.
 
 ---
@@ -486,7 +486,7 @@ GET    /api-docs                         (Swagger UI)
 | 18 | ✅ Résolu | `Circonscription.js` refactorisé du legacy `pg` pool vers Sequelize | `backend/src/models/Circonscription.js` | ✅ Commit 2d8a70e |
 | 19 | 🟡 Moyenne | `SYNC_ALTER=true` doit être retiré de Render env après utilisation | dashboard Render | Retirer manuellement après chaque réalignement |
 | 20 | 🟠 Élevée | Workflow `Tests & Quality` : test hang après `lint.test.js` (timeout 5min, SIGTERM exit 143). Tests `Promise.test.js` + `lint.test.js` passent, mais un test suivant bloque indéfiniment. | `backend/__tests__/*.test.js` | Identifier le test fautif (probable async non résolu ou connexion BD non fermée). À traiter en Phase F. |
-| 21 | 🟠 Élevée | Seed Québec ville pas exécuté en prod : 1 pétition résiduelle générique en BD. Bloque démarrage du pilote Québec. | BD prod | Créer endpoint admin `POST /api/v1/admin/seed-petitions` protégé par `ADMIN_SEED_TOKEN`, trigger via curl. |
+| 21 | ✅ Résolu | Seed Québec ville LIVE en prod via endpoint admin `POST /api/v1/admin/seed-petitions` (token-protégé, idempotent). 3 pétitions Québec créées (ids 6,7,8) + user système (id 12) + élu manquant Caroline Matte (id 6). Count total prod : 4 pétitions. | `backend/src/routes/admin-seed.js` | ✅ Commit `147e3d0` + trigger HTTP 200 le 2026-05-14 |
 | 22 | 🟡 Moyenne | Inbound IP BD Render = `0.0.0.0/0` (ouvert mondial). Permet le seed depuis local mais surface d'attaque large. | dashboard Render → BD | Serrer post-MVP à la plage Render interne + IP opérateur. |
 | 23 | 🟡 Moyenne | BD Render Free **expire le 5 juin 2026** ; toutes données seront supprimées sans upgrade. | dashboard Render → BD | Décision avant fin mai : upgrade Starter (~7 USD/mois) ou export + nouvelle instance. |
 
@@ -724,6 +724,7 @@ GET    /api-docs                         (Swagger UI)
 | 2026-05-14 | Opérateur | **🚨 Incident sécurité — fuite DATABASE_URL en clair** : la connection string complète (avec mot de passe en clair) a été collée dans la conversation lors d'une tentative de seed local. **Rotation effectuée** : nouveau credential par `New default credential` dans Render BD + ancien supprimé. Ancien mot de passe désormais révoqué. |
 | 2026-05-14 | Opérateur | **Service IDs Render notés** : backend `srv-d7tq5p6gvqtc73brefcg` (Frankfurt, Node) | BD `dpg-d7tvmg1kh4rs738bk0h0-a` (PostgreSQL 15 Free, expire 2026-06-05) | database `citoyenavise_db_xrim` | username `citoyenavise_db`. |
 | 2026-05-14 | Opérateur | **Cleanup repo** : 10+ fichiers untracked à noms corrompus (issus du pager `less` accidentellement déclenché en milieu de session) supprimés via `git clean -f -e _ai/DECISIONS_STRATEGIQUES_Q6_O5.md`. Working tree clean. |
+| 2026-05-14 | Opérateur | **🎯 Bug #21 RÉSOLU — Seed Québec ville LIVE en prod** : création endpoint `POST /api/v1/admin/seed-petitions` (`backend/src/routes/admin-seed.js`, monté `/api/v1/admin` dans `routes/index.js`). Protégé par token statique `ADMIN_SEED_TOKEN` configuré dans Render Environment. Idempotent (`findOrCreate` sur titre/email). Trigger via `curl -X POST -H "Authorization: Bearer $TOKEN"` → HTTP 200, response JSON détaillée. **3 pétitions Québec en prod** (ids 6, 7, 8 — pistes cyclables, RTC, espaces verts Sainte-Foy), toutes `published`. User système (id 12) + élu Caroline Matte (id 6) créés. **Phase G débloquée**. Commit `147e3d0`. Avancement global : 97 % → **98 %**. |
 
 ---
 
