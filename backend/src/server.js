@@ -130,12 +130,11 @@ async function initializeApp() {
       throw new Error('Impossible de se connecter à la base de données');
     }
 
-    // Synchroniser les modèles (développement uniquement)
-    if (config.NODE_ENV === 'development') {
-      console.log('🔄 Synchronisation des modèles avec la base de données...');
-      await sequelize.sync({ alter: false });
-      console.log('✅ Modèles synchronisés');
-    }
+    // Synchroniser les modèles à chaque démarrage (idempotent : alter:false ne modifie pas l'existant)
+    // Crée les tables manquantes en production sans toucher aux données existantes.
+    console.log('🔄 Synchronisation des modèles avec la base de données...');
+    await sequelize.sync({ alter: false });
+    console.log('✅ Modèles synchronisés');
 
     // Démarrer le serveur
     const server = app.listen(config.PORT, () => {
