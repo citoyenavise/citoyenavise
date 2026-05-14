@@ -26,8 +26,9 @@ export function ElusPage() {
           params.search = searchQuery;
         }
         const response = await api.elus.list(params);
-        setElus(Array.isArray(response.data) ? response.data : response.data || []);
-        setTotal(response.total || 0);
+        const data = Array.isArray(response) ? response : (response?.data || []);
+        setElus(data);
+        setTotal(response?.total || response?.count || data.length);
       } catch (err) {
         setError(err.message || 'Erreur lors du chargement des élus');
         console.error('Erreur:', err);
