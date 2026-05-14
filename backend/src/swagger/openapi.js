@@ -57,6 +57,11 @@ export const swaggerDefinition = {
       name: 'Circonscriptions',
       description: 'Districts électoraux et géolocalisation',
     },
+    {
+      name: 'Admin',
+      description:
+        'Endpoints administratifs (token-protected via ADMIN_SEED_TOKEN, séparé du JWT utilisateur)',
+    },
   ],
   paths: {
     // ═══════════════════════════════════════════════════════════════════
@@ -534,6 +539,127 @@ export const swaggerDefinition = {
         },
       },
     },
+
+    // ═══════════════════════════════════════════════════════════════════
+    // ADMIN (token statique ADMIN_SEED_TOKEN)
+    // ═══════════════════════════════════════════════════════════════════
+    '/admin/seed-petitions': {
+      post: {
+        tags: ['Admin'],
+        summary: 'Seeder les pétitions Québec ville (idempotent)',
+        description:
+          'Crée (ou retrouve) le user système, les 3 élus Québec et les 3 pétitions seed via `findOrCreate` (sur email pour les élus, sur titre pour les pétitions). Réutilisable Phase H pour Lévis, Saguenay. Aucun doublon possible.',
+        security: [{ adminSeedAuth: [] }],
+        responses: {
+          200: {
+            description: 'Seed exécuté',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean', example: true },
+                    systemUser: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'integer' },
+                        email: {
+                          type: 'string',
+                          example: 'system@citoyenavise.org',
+                        },
+                        created: { type: 'boolean' },
+                      },
+                    },
+                    elus: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          id: { type: 'integer' },
+                          nom: { type: 'string' },
+                          created: { type: 'boolean' },
+                        },
+                      },
+                    },
+                    petitions: {
+                      type: 'array',
+                      items: {
+                        type: 'object',
+                        properties: {
+                          id: { type: 'integer' },
+                          titre: { type: 'string' },
+                          status: { type: 'string', example: 'published' },
+                          created: { type: 'boolean' },
+                        },
+                      },
+                    },
+                    summary: {
+                      type: 'object',
+                      properties: {
+                        elus_created: { type: 'integer' },
+                        elus_existing: { type: 'integer' },
+                        petitions_created: { type: 'integer' },
+                        petitions_existing: { type: 'integer' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          401: { description: 'Token invalide ou manquant' },
+          503: {
+            description:
+              'ADMIN_SEED_TOKEN non configuré côté serveur (env var manquante)',
+          },
+        },
+      },
+    },
+    '/admin/petitions/{id}': {
+      delete: {
+        tags: ['Admin'],
+        summary: 'Supprimer une pétition par id (idempotent — 404 si déjà absent)',
+        description:
+          "Suppression administrative d'une pétition. Utilisé notamment pour le cleanup de la pétition résiduelle générique post-seed Québec. Token statique requis.",
+        security: [{ adminSeedAuth: [] }],
+        parameters: [
+          {
+            in: 'path',
+            name: 'id',
+            required: true,
+            schema: { type: 'integer', minimum: 1 },
+            description: 'ID numérique de la pétition à supprimer',
+          },
+        ],
+        responses: {
+          200: {
+            description: 'Pétition supprimée — snapshot retourné',
+            content: {
+              'application/json': {
+                schema: {
+                  type: 'object',
+                  properties: {
+                    success: { type: 'boolean', example: true },
+                    deleted: {
+                      type: 'object',
+                      properties: {
+                        id: { type: 'integer' },
+                        titre: { type: 'string' },
+                        status: { type: 'string' },
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+          400: { description: 'ID invalide (non entier ou ≤ 0)' },
+          401: { description: 'Token invalide ou manquant' },
+          404: { description: 'Pétition introuvable (déjà supprimée)' },
+          503: { description: 'ADMIN_SEED_TOKEN non configuré côté serveur' },
+        },
+      },
+    },
   },
   components: {
     securitySchemes: {
@@ -542,6 +668,13 @@ export const swaggerDefinition = {
         scheme: 'bearer',
         bearerFormat: 'JWT',
         description: 'Bearer token JWT (obtenu via /auth/verify)',
+      },
+      adminSeedAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'static',
+        description:
+          "Token statique ADMIN_SEED_TOKEN (configuré dans Render Environment, séparé du JWT utilisateur). À transmettre dans le header `Authorization: Bearer <token>`.",
       },
     },
   },
