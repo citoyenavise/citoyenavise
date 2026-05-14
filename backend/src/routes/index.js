@@ -18,6 +18,7 @@ import healthRoutes from './health.js';
 import promisesRoutes from './promises.js';
 // import gamificationRoutes from './gamification.js'; // Désactivé - services manquants
 // import adminRoutes from './admin.js'; // Désactivé - modèles non essentiels
+import adminSeedRoutes from './admin-seed.js';
 // import civicTutorialsRoutes from './civic-tutorials.js'; // Désactivé - dépendances problématiques
 import transparencyRoutes from './transparency.js';
 // import usersRoutes from './users.js';
@@ -71,6 +72,7 @@ router.use('/api/v1/promises', promisesRoutes);
 router.use('/api/v1/transparency', transparencyRoutes);
 // router.use('/api/v1/gamification', gamificationRoutes); // Désactivé
 // router.use('/api/v1/admin', adminRoutes); // Désactivé
+router.use('/api/v1/admin', adminSeedRoutes);
 // router.use('/api/v1/tutorials', civicTutorialsRoutes); // Désactivé
 router.use('/api/v1', commentsRoutes);
 
