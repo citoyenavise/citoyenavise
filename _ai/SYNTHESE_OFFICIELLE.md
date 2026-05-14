@@ -598,6 +598,14 @@ GET    /api-docs                         (Swagger UI)
 
 ## 16. ORDRE DE PRIORITÉ (FEUILLE DE ROUTE OPÉRATIONNELLE)
 
+### 🔥 PRIORITÉ IMMÉDIATE — À TRAITER AVANT FIN MAI 2026
+
+| ⏰ | Tâche | Échéance | Détail |
+|----|-------|----------|--------|
+| 🔥 | **#23 BD Render Free expire** — décision upgrade Starter (~7 USD/mois) OU migration Neon free OU export+re-création | **5 juin 2026** (perte totale des données prod sans action) | cf. §14 #23 |
+
+### Roadmap historique
+
 | Rang | Tâche | Phase | Bloquant pour |
 |------|-------|-------|---------------|
 | 1 | Installer `gh` CLI + auth | A.2 | tout le reste |
@@ -725,6 +733,8 @@ GET    /api-docs                         (Swagger UI)
 | 2026-05-14 | Opérateur | **Service IDs Render notés** : backend `srv-d7tq5p6gvqtc73brefcg` (Frankfurt, Node) | BD `dpg-d7tvmg1kh4rs738bk0h0-a` (PostgreSQL 15 Free, expire 2026-06-05) | database `citoyenavise_db_xrim` | username `citoyenavise_db`. |
 | 2026-05-14 | Opérateur | **Cleanup repo** : 10+ fichiers untracked à noms corrompus (issus du pager `less` accidentellement déclenché en milieu de session) supprimés via `git clean -f -e _ai/DECISIONS_STRATEGIQUES_Q6_O5.md`. Working tree clean. |
 | 2026-05-14 | Opérateur | **🎯 Bug #21 RÉSOLU — Seed Québec ville LIVE en prod** : création endpoint `POST /api/v1/admin/seed-petitions` (`backend/src/routes/admin-seed.js`, monté `/api/v1/admin` dans `routes/index.js`). Protégé par token statique `ADMIN_SEED_TOKEN` configuré dans Render Environment. Idempotent (`findOrCreate` sur titre/email). Trigger via `curl -X POST -H "Authorization: Bearer $TOKEN"` → HTTP 200, response JSON détaillée. **3 pétitions Québec en prod** (ids 6, 7, 8 — pistes cyclables, RTC, espaces verts Sainte-Foy), toutes `published`. User système (id 12) + élu Caroline Matte (id 6) créés. **Phase G débloquée**. Commit `147e3d0`. Avancement global : 97 % → **98 %**. |
+| 2026-05-14 | Opérateur | **🧹 N1 — Cleanup pétition résiduelle générique** : ajout endpoint `DELETE /api/v1/admin/petitions/:id` (token-protected, idempotent — 404 si déjà supprimé) dans `admin-seed.js`. Trigger via curl DELETE → suppression de la pétition id=1 « Améliorer l'accès aux soins dentaires pour tous » (vestige de l'ancien seed générique). **BD prod parfaitement alignée pour le pilote Québec** : 3 pétitions uniquement (ids 6, 7, 8). Commit `e936187`. |
+| 2026-05-14 | Opérateur | **📌 Roadmap §16 — priorité immédiate marquée** : ajout d'une sous-section « 🔥 PRIORITÉ IMMÉDIATE » en tête de §16 pour signaler #23 (BD Render Free expire 5 juin 2026). Visibilité accrue pour ne pas oublier la décision business upgrade/migration avant fin mai. |
 
 ---
 
