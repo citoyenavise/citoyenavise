@@ -9,6 +9,7 @@ import { Header } from './components/Header';
 import { ProtectedRoute } from './components/ProtectedRoute';
 
 // Code splitting with React.lazy
+const HomePage = React.lazy(() => import('./pages/HomePage'));
 const PetitionsListPage = React.lazy(() => import('./pages/PetitionsListPage'));
 const PetitionDetail = React.lazy(() => import('./pages/PetitionDetail'));
 const ElusPage = React.lazy(() => import('./pages/ElusPage'));
@@ -63,6 +64,7 @@ function App() {
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
             <Route path="/:lang" element={<LanguageWrapper />}>
+              <Route index element={<HomePage />} />
               <Route path="petitions" element={<PetitionsListPage />} />
               <Route path="petitions/:id" element={<PetitionDetail />} />
               <Route path="petitions/create" element={<ProtectedRoute><CreatePetitionPage /></ProtectedRoute>} />

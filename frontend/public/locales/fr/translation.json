@@ -72,5 +72,39 @@
     "page": "Page",
     "of": "sur",
     "view": "Voir"
+  },
+  "home": {
+    "hero": {
+      "title": "Plateforme civique canadienne",
+      "subtitle": "Connectez-vous aux élus, suivez les promesses, participez aux décisions qui vous touchent. Québec ville (phase pilote).",
+      "cta_petitions": "Découvrir les pétitions",
+      "cta_map": "Explorer la carte"
+    },
+    "actions": {
+      "title": "Agissez maintenant",
+      "elus_title": "Élus",
+      "elus_desc": "Découvrez qui vous représente, explorez leurs profils et leurs engagements.",
+      "petitions_title": "Pétitions",
+      "petitions_desc": "Signez les pétitions citoyennes qui vous importent ou créez-en une.",
+      "map_title": "Carte civique",
+      "map_desc": "Visualisez l'activité citoyenne et les élus près de chez vous."
+    },
+    "recent_petitions": {
+      "title": "Pétitions populaires",
+      "none": "Aucune pétition pour le moment."
+    },
+    "values": {
+      "title": "Nos valeurs",
+      "transparency_title": "Transparence",
+      "transparency_desc": "Accès clair à l'information institutionnelle, sources vérifiables, traçabilité.",
+      "participation_title": "Participation",
+      "participation_desc": "Chaque citoyen peut agir, proposer, voter. La parole est un droit.",
+      "empowerment_title": "Empowerment",
+      "empowerment_desc": "Grandir en compétence civique. Chaque interaction vous prépare pour la suivante."
+    },
+    "pilot": {
+      "title": "Phase pilote — Québec ville",
+      "description": "Citoyenavise.org se concentre actuellement sur Québec ville pour valider la plateforme avec une première communauté avant une expansion provinciale et nationale."
+    }
   }
 }

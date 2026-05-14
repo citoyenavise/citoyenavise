@@ -72,5 +72,39 @@
     "page": "Page",
     "of": "of",
     "view": "View"
+  },
+  "home": {
+    "hero": {
+      "title": "Canadian Civic Platform",
+      "subtitle": "Connect with elected officials, track promises, participate in decisions that matter to you. Quebec City (pilot phase).",
+      "cta_petitions": "Discover petitions",
+      "cta_map": "Explore the map"
+    },
+    "actions": {
+      "title": "Take action now",
+      "elus_title": "Elected Officials",
+      "elus_desc": "Discover who represents you, explore their profiles and commitments.",
+      "petitions_title": "Petitions",
+      "petitions_desc": "Sign citizen petitions that matter to you or create your own.",
+      "map_title": "Civic Map",
+      "map_desc": "Visualize civic activity and elected officials near you."
+    },
+    "recent_petitions": {
+      "title": "Popular petitions",
+      "none": "No petitions at the moment."
+    },
+    "values": {
+      "title": "Our values",
+      "transparency_title": "Transparency",
+      "transparency_desc": "Clear access to institutional information, verifiable sources, full traceability.",
+      "participation_title": "Participation",
+      "participation_desc": "Every citizen can act, propose, vote. Your voice matters.",
+      "empowerment_title": "Empowerment",
+      "empowerment_desc": "Grow in civic competence. Each interaction prepares you for the next."
+    },
+    "pilot": {
+      "title": "Pilot phase — Quebec City",
+      "description": "Citoyenavise.org is currently focused on Quebec City to validate the platform with an initial community before provincial and national expansion."
+    }
   }
 }
