@@ -184,3 +184,5 @@ export function PetitionsListPage() {
     </div>
   );
 }
+
+export default PetitionsListPage;
