@@ -85,35 +85,35 @@ const usersData = Array.from({ length: 10 }, (_, i) => ({
 }));
 
 /**
- * Pétitions de test
+ * Pétitions seed ancrées à Québec ville (phase pilote)
  */
 const petitionsData = [
   {
-    titre: 'Améliorer l\'accès aux soins dentaires pour tous',
-    description: `Les soins dentaires au Canada coûtent extremement cher. Beaucoup de citoyens ne peuvent pas se permettre
-    des détartrage réguliers ou des détartrage. Nous demandons au gouvernement d'inclure les soins dentaires dans
-    le système de santé universel, comme c'est le cas dans plusieurs autres pays développés.
-    Cette mesure serait beneficial pour la santé publique et réduirait les inégalités d'accès aux soins.`,
+    titre: 'Étendre le réseau de pistes cyclables sécurisées à Québec',
+    description: `Le réseau cyclable de Québec ville est fragmenté et incomplet. Les cyclistes ne peuvent pas se déplacer
+    en toute sécurité entre les quartiers. Nous demandons à la Ville de Québec d'investir dans la création de pistes
+    cyclables protégées, particulièrement sur les axes Est-Ouest (Grande-Allée, Route de l'Église, Boulevard Hochelaga).
+    Une infrastructure cyclable sécurisée encouragerait les déplacements actifs, réduirait la congestion automobile
+    et améliorerait la santé publique. C'est une priorité pour une ville durable et vivable.`,
     eluId: 1, // Marthe Belleville
   },
   {
-    titre: 'Augmenter les investissements en transports en commun',
-    description: `Le réseau de transports en commun est saturé aux heures de pointe et de nombreux autobus sont en retard.
-    Nous demandons une augmentation significative des budgets alloués aux transports publics pour:
-    - Acheter de nouveaux autobus plus modernes et écologiques
-    - Augmenter la fréquence des lignes principales
-    - Étendre le réseau vers les banlieues
-    - Réduire les tarifs pour les étudiants et les personnes à revenu faible
-    Cette investissement créerait des milliers d'emplois et réduirait la congestion routière.`,
+    titre: 'Améliorer la fréquence des autobus RTC en banlieue de Québec',
+    description: `Les citoyens des banlieues (Sainte-Foy, Sillery, Beauport) dépendent du RTC pour se déplacer, mais
+    la fréquence des autobus est insuffisante. Attendre 30-40 minutes entre deux autobus décourage l'utilisation
+    du transport en commun. Nous demandons à la Ville et au RTC d'augmenter la fréquence des lignes de banlieue
+    à au moins un autobus toutes les 15 minutes aux heures de pointe. Cela réduirait les embouteillages,
+    diminuerait les émissions de carbone et rendrait le RTC vraiment accessible à tous.`,
     eluId: 3, // Sophie Goyette
   },
   {
-    titre: 'Protéger les forêts anciennes du Québec',
-    description: `Les forêts anciennes du Québec sont des écosystèmes fragiles et irremplaçables.
-    Elles abritent des espèces en danger et jouent un rôle crucial dans la lutte contre les changements climatiques.
-    Nous demandons un moratoire immédiat sur l'exploitation forestière dans les forêts de plus de 100 ans.
-    Le gouvernement doit mettre en place une stratégie de conservation long terme et investir dans
-    la recherche sur ces écosystèmes précieux pour les générations futures.`,
+    titre: 'Préserver les espaces verts du quartier Sainte-Foy contre la densification excessive',
+    description: `Le quartier Sainte-Foy est menacé par une densification immobilière rapide et non planifiée.
+    Les espaces verts disparaissent pour faire place à des immeubles résidentiels de grande hauteur.
+    Nous demandons à la Ville de Québec de protéger les parcs et boisés du secteur (Parc du Bois-de-Coulonge, etc.)
+    en adoptant un plan de conservation des espaces naturels. La Ville doit exiger que les nouveaux projets immobiliers
+    préservent les milieux naturels et offrent des espaces verts accessibles au public.
+    Une densification sans verdure nuit à la qualité de vie.`,
     eluId: 5, // Caroline Matte
   },
 ];
