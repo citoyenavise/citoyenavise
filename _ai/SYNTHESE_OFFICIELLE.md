@@ -21,7 +21,7 @@
 | Version du document | V2 — intégrée |
 | Dernière révision | 2026-05-13 |
 | Phase actuelle | Restructuration post-over-engineering vers MVP |
-| Avancement global | **~95 %** (citoyenavise.org Live + HTTPS + tous parcours utilisateurs fonctionnels. Reste Phase F technique + Phases G-K vision) |
+| Avancement global | **~97 %** (CI/CD hardened, prod stable post-incident, rotation BD effectuée. Reste seed Québec via endpoint admin + Phase F technique + Phases G-K vision) |
 | URL publique production | **https://citoyenavise.org** |
 | URL API publique production | **https://api.citoyenavise.org** |
 
@@ -90,7 +90,7 @@ citoyenavise.org est, simultanément :
 | 20. Laboratoire de participation citoyenne | 0 % | 🔴 Post-MVP |
 | 21. IA civique (« L'Utopie ») | 0 % | 🔴 Vision future |
 
-**MVP fonctionnel déployé** : **85 % → 96 %**.
+**MVP fonctionnel déployé** : **85 % → 97 %**.
 **Plateforme cible (vision complète)** : **~30 %**.
 
 ---
@@ -485,6 +485,10 @@ GET    /api-docs                         (Swagger UI)
 | 17 | 🟡 Moyenne | Master Action Matrix : 7/12 actions manquantes | UX | Cadrer en Phase G |
 | 18 | ✅ Résolu | `Circonscription.js` refactorisé du legacy `pg` pool vers Sequelize | `backend/src/models/Circonscription.js` | ✅ Commit 2d8a70e |
 | 19 | 🟡 Moyenne | `SYNC_ALTER=true` doit être retiré de Render env après utilisation | dashboard Render | Retirer manuellement après chaque réalignement |
+| 20 | 🟠 Élevée | Workflow `Tests & Quality` : test hang après `lint.test.js` (timeout 5min, SIGTERM exit 143). Tests `Promise.test.js` + `lint.test.js` passent, mais un test suivant bloque indéfiniment. | `backend/__tests__/*.test.js` | Identifier le test fautif (probable async non résolu ou connexion BD non fermée). À traiter en Phase F. |
+| 21 | 🟠 Élevée | Seed Québec ville pas exécuté en prod : 1 pétition résiduelle générique en BD. Bloque démarrage du pilote Québec. | BD prod | Créer endpoint admin `POST /api/v1/admin/seed-petitions` protégé par `ADMIN_SEED_TOKEN`, trigger via curl. |
+| 22 | 🟡 Moyenne | Inbound IP BD Render = `0.0.0.0/0` (ouvert mondial). Permet le seed depuis local mais surface d'attaque large. | dashboard Render → BD | Serrer post-MVP à la plage Render interne + IP opérateur. |
+| 23 | 🟡 Moyenne | BD Render Free **expire le 5 juin 2026** ; toutes données seront supprimées sans upgrade. | dashboard Render → BD | Décision avant fin mai : upgrade Starter (~7 USD/mois) ou export + nouvelle instance. |
 
 ---
 
@@ -710,6 +714,16 @@ GET    /api-docs                         (Swagger UI)
 | 2026-05-14 | Opérateur | **Chantier 1 — Bug #18 résolu** : `Circonscription.js` refactorisé de legacy pg pool vers Sequelize. Ajout méthodes statiques (list, findById, findByCodePostal, etc.). Routes `/api/v1/circonscriptions` restaurées. Commit : `2d8a70e`. |
 | 2026-05-14 | Opérateur | **Chantier 2 — Page d'accueil créée** : HomePage.jsx implémentée avec sections Hero, Actions (3 cards), Pétitions récentes, Valeurs (Transparence/Participation/Empowerment), Info Pilote. Route index ajoutée à `/fr/` et `/en/`. Traductions FR+EN complètes. Build Vite OK. Commit : `4b5f135`. |
 | 2026-05-14 | Opérateur | **Chantier 3 — Seed Québec ville** : 3 pétitions thématiques ancrées Québec ville (pistes cyclables, transport RTC, espaces verts Sainte-Foy). Remplace seed générique. Prête pour Phase G pilote. Commit : `2a558a1`. |
+| 2026-05-14 | Opérateur | **Chantier A — CI Deploy hardening** : `deploy.yml` corrigé — alignement secret `RENDER_SERVICE_ID_BACKEND` (avec suffixe) + trim défensif `tr -d '[:space:]'` (protège contre trailing whitespace dans le secret) + bump `slackapi/slack-github-action` v1.27.0 → v2.0.0. Commit `18a3dd0` + ré-itération `69705e6`. Workflow Deploy passe ✓ en 2m25s. |
+| 2026-05-14 | Opérateur | **Chantier B — CI Tests setup:db** : ajout du script `setup:db` manquant (`backend/scripts/setup-test-db.js` + entrée dans `package.json`) + injection `JWT_SECRET` dans l'env de l'étape Setup database de `test.yml` + ajout trigger `workflow_dispatch` pour déclenchements manuels. Commits `4f28787` + `b110df7`. Setup DB passe ; un test hang plus loin (cf. §14 #20). |
+| 2026-05-14 | Opérateur | **Chantier C — Doc /health** : §13.6 corrigée — endpoint réel = `/health` (hors préfixe API), non `/api/v1/health` comme documenté précédemment. Commit `c2a5238`. |
+| 2026-05-14 | Opérateur | **Chantier D — Seeder idempotent** : `seed.js` migré de `Petition.create()` (non idempotent, crash sur 2e exécution) vers `Petition.findOrCreate({ where: { titre } })` + statut `published` forcé sur les 3 pétitions Québec (au lieu de seulement la première). Commit `f296934`. |
+| 2026-05-14 | Opérateur | **Doc stratégique trackée** : `_ai/DECISIONS_STRATEGIQUES_Q6_O5.md` ajouté au repo (était untracked depuis sa création). Commit `3c1de97`. |
+| 2026-05-14 | Opérateur | **Merge sur main + push** : 6 commits poussés vers `origin/main` (`18a3dd0` → `9b2af02` → `69705e6` → `b110df7`). Render auto-deploy validé. |
+| 2026-05-14 | Opérateur | **🚨 Incident sécurité — DATABASE_URL écrasée** : valeur effacée par erreur dans Render Environment et sauvegardée à `postgresql://`. Backend resté vivant grâce à l'ancienne valeur en mémoire (l'env est lue au démarrage, pas à chaque requête). Render n'a pas redéployé immédiatement (rollback ou délai). **Récupération** : Internal Database URL re-récupérée depuis la page BD Render et re-collée dans Environment. Service repris ✓. |
+| 2026-05-14 | Opérateur | **🚨 Incident sécurité — fuite DATABASE_URL en clair** : la connection string complète (avec mot de passe en clair) a été collée dans la conversation lors d'une tentative de seed local. **Rotation effectuée** : nouveau credential par `New default credential` dans Render BD + ancien supprimé. Ancien mot de passe désormais révoqué. |
+| 2026-05-14 | Opérateur | **Service IDs Render notés** : backend `srv-d7tq5p6gvqtc73brefcg` (Frankfurt, Node) | BD `dpg-d7tvmg1kh4rs738bk0h0-a` (PostgreSQL 15 Free, expire 2026-06-05) | database `citoyenavise_db_xrim` | username `citoyenavise_db`. |
+| 2026-05-14 | Opérateur | **Cleanup repo** : 10+ fichiers untracked à noms corrompus (issus du pager `less` accidentellement déclenché en milieu de session) supprimés via `git clean -f -e _ai/DECISIONS_STRATEGIQUES_Q6_O5.md`. Working tree clean. |
 
 ---
 
