@@ -23,14 +23,9 @@ export function MapPage() {
         const uniqueRegions = [...new Set(data.map((e) => e.region).filter(Boolean))];
         setRegions(uniqueRegions.sort());
 
-        const markers = data.map((elu) => ({
-          id: elu.id,
-          name: elu.nom,
-          lat: elu.latitude,
-          lng: elu.longitude,
-          titre: elu.titre,
-          region: elu.region,
-        }));
+        // On passe les élus tels quels — Map.jsx lit marker.nom, marker.latitude, marker.longitude.
+        // On filtre seulement ceux qui ont des coordonnées valides.
+        const markers = data.filter((elu) => elu.latitude != null && elu.longitude != null);
         setElus(markers);
       } catch (err) {
         setError(err.message || 'Erreur lors du chargement de la carte');
