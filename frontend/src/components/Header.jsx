@@ -49,12 +49,7 @@ export function Header() {
 
             {isAuthenticated ? (
               <>
-                <Link to={`/${currentLang}/notifications`} className="relative text-gray-600 hover:text-primary transition">
-                  🔔
-                  <span className="absolute -top-2 -right-2 bg-error text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                    3
-                  </span>
-                </Link>
+                {/* Notification bell hidden until /notifications route + real data wired (Phase G) */}
 
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
