@@ -19,7 +19,7 @@ const config = getConfig();
 const elusData = [
   {
     nom: 'Marthe Belleville',
-    titre: 'Députée',
+    titre: 'Député',
     region: 'Québec',
     niveau: 'fédéral',
     email: 'marthe.belleville@parl.gc.ca',
@@ -41,7 +41,7 @@ const elusData = [
   },
   {
     nom: 'Sophie Goyette',
-    titre: 'Ministre',
+    titre: 'Député',
     region: 'Montréal',
     niveau: 'provincial',
     email: 'sophie.goyette@assnat.qc.ca',
@@ -63,7 +63,7 @@ const elusData = [
   },
   {
     nom: 'Caroline Matte',
-    titre: 'Conseillère',
+    titre: 'Conseiller',
     region: 'Calgary',
     niveau: 'municipal',
     email: 'cmatte@ville.calgary.ab.ca',
