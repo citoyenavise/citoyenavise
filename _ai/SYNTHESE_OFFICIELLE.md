@@ -21,7 +21,7 @@
 | Version du document | V2 — intégrée |
 | Dernière révision | 2026-05-13 |
 | Phase actuelle | Restructuration post-over-engineering vers MVP |
-| Avancement global | **~62 %** (MVP) |
+| Avancement global | **~85 %** (MVP backend + frontend Live, DB OK, SMTP OK, CI/CD prête) |
 
 ---
 
@@ -481,6 +481,8 @@ GET    /api-docs                         (Swagger UI)
 | 15 | 🟢 Faible | `JWT_SECRET` staging visible dans `docker-compose.yml` | infra | Externaliser |
 | 16 | 🟠 Élevée | Vision (NPKI/PDE/KGE) non outillée | architecture | Cadrer en Phase H/J |
 | 17 | 🟡 Moyenne | Master Action Matrix : 7/12 actions manquantes | UX | Cadrer en Phase G |
+| 18 | 🟠 Élevée | `Circonscription.js` utilise legacy `pg` pool au lieu de Sequelize → `/api/v1/circonscriptions` retourne 500 | `backend/src/models/Circonscription.js` | Refactor en Sequelize en Phase F |
+| 19 | 🟡 Moyenne | `SYNC_ALTER=true` doit être retiré de Render env après utilisation | dashboard Render | Retirer manuellement après chaque réalignement |
 
 ---
 
@@ -693,6 +695,13 @@ GET    /api-docs                         (Swagger UI)
 |------|--------|--------------|
 | 2026-05-13 | Opérateur | Création de la synthèse officielle (V1) |
 | 2026-05-13 | Opérateur | **V2 — Intégration du MASTER INVENTORY** : ajout vision / mission / positionnement, valeurs fondamentales, cycle utilisateur, Master Action Matrix, Citizen Awakening System, Laboratoire de participation, rôle stratégique des établissements, infrastructure de données publiques (NPKI/DAL/PDE/KGE/GIL/PPL/IVC/ARE), gamification post-MVP, IA « L'Utopie », phases G à K, questions ouvertes (§23). |
+| 2026-05-13 | Opérateur | **V2.1 — Phase A finalisée + Phase B exécutée** : B1 (PetitionsListPage syntax) corrigé `d24df3a`, B2 (NODE_ENV=test guard) `65b1402`, B3 (i18n vitest stub) `2d21d25`, deploy.yml refactoré Render `bdb3726`, SonarQube retiré `3f24b1d`, ports alignés `1091ad9`, synthèse intégrée `d652dbc`, merge feature/port-coherence `82cae00`, Slack URL sanitization `1502faa`. |
+| 2026-05-13 | Opérateur | **Phase B.2 — 7 secrets GitHub configurés** : DOCKER_USERNAME, DOCKER_PASSWORD, RENDER_API_KEY, RENDER_SERVICE_ID_BACKEND, RENDER_SERVICE_ID_FRONTEND, SLACK_WEBHOOK, SNYK_TOKEN. SLACK_WEBHOOK rotation suite à détection GitHub Push Protection. RENDER_API_KEY rotation suite à fuite ponctuelle dans conversation. |
+| 2026-05-13 | Opérateur | **Phase B.3-B.4 — Backend Render reconfiguré** : service `citoyenavise-backend-1` repointé du repo `citoyenavise/citoyenavise-backend` vers monorepo `citoyenavise/citoyenavise` avec rootDir=`backend`, runtime=Node, build=`npm install`, start=`npm start`. Variables runtime configurées (DATABASE_URL, JWT_SECRET, FRONTEND_URL, CORS_ORIGIN, SMTP_HOST/PORT/USER/PASSWORD/FROM, NODE_ENV, PORT). |
+| 2026-05-13 | Opérateur | **Backend MVP Live** — service `citoyenavise-backend-1` opérationnel sur https://citoyenavise-backend-1.onrender.com. 4/5 routes critiques en 200 : `/health`, `/api/v1/elus`, `/api/v1/petitions`, `/api-docs`. Commit déployé : `2919e4a` (sync inconditionnel) puis `1148bb3` (SYNC_ALTER ponctuel). |
+| 2026-05-13 | Opérateur | **Brevo SMTP configuré et testé** — emails transactionnels opérationnels via `smtp-relay.brevo.com:587`. Compte créé, SMTP key `citoyenavise-prod` active, test email validé. |
+| 2026-05-13 | Opérateur | **Finalisation MVP** : SYNC_ALTER retiré de Render env (mode safe). Frontend Render testé OK (status 200). Repo `citoyenavise/citoyenavise-backend` archivé (read-only, source obsolète). |
+| 2026-05-13 | Opérateur | **🎉 MVP CITOYENAVISE.ORG DÉPLOYÉ EN PRODUCTION** — Backend + Frontend + DB + SMTP + CI/CD + Secrets opérationnels. Avancement global : 62 % → **85 %**. |
 
 ---
 
