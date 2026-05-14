@@ -71,7 +71,7 @@ jobs:
             -H "Accept: application/json" \
             -H "Content-Type: application/json" \
             -d '{"clearCache":"do_not_clear"}' \
-            "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys")
+            "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID_BACKEND }}/deploys")
 
           http_code=$(echo "$response" | grep "HTTP_CODE:" | cut -d: -f2)
           body=$(echo "$response" | sed '/HTTP_CODE:/d')
@@ -99,7 +99,7 @@ jobs:
             status=$(curl -sS \
               -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
               -H "Accept: application/json" \
-              "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID }}/deploys/$deploy_id" \
+              "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID_BACKEND }}/deploys/$deploy_id" \
               | jq -r '.status')
 
             echo "Attempt $((attempt+1))/$max_attempts: status=$status"
@@ -130,7 +130,7 @@ jobs:
     steps:
       - name: Notify success
         if: needs.deploy-render.result == 'success'
-        uses: slackapi/slack-github-action@v1.27.0
+        uses: slackapi/slack-github-action@v2.0.0
         with:
           webhook-type: incoming-webhook
           webhook: ${{ secrets.SLACK_WEBHOOK }}
@@ -160,7 +160,7 @@ jobs:
 
       - name: Notify failure
         if: failure() || needs.build-and-push.result == 'failure' || needs.deploy-render.result == 'failure'
-        uses: slackapi/slack-github-action@v1.27.0
+        uses: slackapi/slack-github-action@v2.0.0
         with:
           webhook-type: incoming-webhook
           webhook: ${{ secrets.SLACK_WEBHOOK }}
