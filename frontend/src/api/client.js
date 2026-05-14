@@ -189,7 +189,8 @@ export const api = {
 
     async me() {
       const response = await client.get('/auth/me');
-      return response.data;
+      // Backend retourne { success, user } directement (pas { data: user })
+      return response.user || response.data || response;
     },
 
     isAuthenticated() {

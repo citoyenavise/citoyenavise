@@ -18,9 +18,17 @@ export function AuthProvider({ children }) {
 
       try {
         const response = await api.auth.me();
-        // Le backend retourne { success, user }
-        setUser(response.user || response);
-        setError(null);
+        // api.auth.me() retourne maintenant l'objet user directement
+        // Fallback robuste : on cherche dans tous les formats possibles
+        const userData = response?.user || response?.data?.user || response?.data || response;
+        if (userData && (userData.id || userData.email)) {
+          setUser(userData);
+          setError(null);
+        } else {
+          // Réponse vide ou mal formée → considérer comme non-authentifié
+          api.auth.logout_local();
+          setUser(null);
+        }
       } catch (err) {
         api.auth.logout_local();
         setUser(null);
