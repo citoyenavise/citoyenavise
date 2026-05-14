@@ -5,6 +5,7 @@
 
 import User from './User.js';
 import Elu from './Elu.js';
+import Circonscription from './Circonscription.js';
 import Petition from './Petition.js';
 import Signature from './Signature.js';
 import Actualite from './Actualite.js';
@@ -228,6 +229,7 @@ Comment.hasMany(CommentTranslation, {
 export {
   User,
   Elu,
+  Circonscription,
   Petition,
   Signature,
   Actualite,
@@ -245,6 +247,7 @@ export {
 export default {
   User,
   Elu,
+  Circonscription,
   Petition,
   Signature,
   Actualite,

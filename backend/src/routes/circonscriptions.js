@@ -4,10 +4,7 @@
  */
 
 import express from 'express';
-import {
-  Circonscription,
-  CodePostalCirconscription,
-} from '../models/Circonscription.js';
+import Circonscription from '../models/Circonscription.js';
 
 const router = express.Router();
 
