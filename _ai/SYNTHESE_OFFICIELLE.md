@@ -21,7 +21,9 @@
 | Version du document | V2 — intégrée |
 | Dernière révision | 2026-05-13 |
 | Phase actuelle | Restructuration post-over-engineering vers MVP |
-| Avancement global | **~85 %** (MVP backend + frontend Live, DB OK, SMTP OK, CI/CD prête) |
+| Avancement global | **~95 %** (citoyenavise.org Live + HTTPS + tous parcours utilisateurs fonctionnels. Reste Phase F technique + Phases G-K vision) |
+| URL publique production | **https://citoyenavise.org** |
+| URL API publique production | **https://api.citoyenavise.org** |
 
 ---
 
@@ -702,6 +704,8 @@ GET    /api-docs                         (Swagger UI)
 | 2026-05-13 | Opérateur | **Brevo SMTP configuré et testé** — emails transactionnels opérationnels via `smtp-relay.brevo.com:587`. Compte créé, SMTP key `citoyenavise-prod` active, test email validé. |
 | 2026-05-13 | Opérateur | **Finalisation MVP** : SYNC_ALTER retiré de Render env (mode safe). Frontend Render testé OK (status 200). Repo `citoyenavise/citoyenavise-backend` archivé (read-only, source obsolète). |
 | 2026-05-13 | Opérateur | **🎉 MVP CITOYENAVISE.ORG DÉPLOYÉ EN PRODUCTION** — Backend + Frontend + DB + SMTP + CI/CD + Secrets opérationnels. Avancement global : 62 % → **85 %**. |
+| 2026-05-14 | Opérateur | **Session de finalisation MVP** : 11 bugs corrigés (audit response unwrapping, ports, syntaxe, default exports, auth persistance, Brevo SMTP port 2525, default petition status published, Map init Leaflet, etc.). Signature de pétition validée end-to-end. **MVP UI 100 % fonctionnel**. Avancement : 85 % → **92 %**. |
+| 2026-05-14 | Opérateur | **🌐 DOMAINE citoyenavise.org LIVE** — DNS Namecheap (A `@`→216.24.57.1, CNAME `www`/`api` → Render), HTTPS Let's Encrypt auto, env vars Render mises à jour (`CORS_ORIGIN`, `FRONTEND_URL`, `VITE_API_URL` → `*.citoyenavise.org`). Émails DKIM + DMARC Brevo configurés. **Site en production sur son domaine officiel**. Avancement : 92 % → **95 %**. |
 
 ---
 
