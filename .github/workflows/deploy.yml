@@ -64,14 +64,18 @@ jobs:
     steps:
       - name: Trigger Render deploy
         id: trigger
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID_RAW: ${{ secrets.RENDER_SERVICE_ID_BACKEND }}
         run: |
           set -euo pipefail
+          RENDER_SERVICE_ID="$(echo -n "$RENDER_SERVICE_ID_RAW" | tr -d '[:space:]')"
           response=$(curl -sS -w "\nHTTP_CODE:%{http_code}" -X POST \
-            -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+            -H "Authorization: Bearer $RENDER_API_KEY" \
             -H "Accept: application/json" \
             -H "Content-Type: application/json" \
             -d '{"clearCache":"do_not_clear"}' \
-            "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID_BACKEND }}/deploys")
+            "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys")
 
           http_code=$(echo "$response" | grep "HTTP_CODE:" | cut -d: -f2)
           body=$(echo "$response" | sed '/HTTP_CODE:/d')
@@ -89,17 +93,21 @@ jobs:
           echo "Triggered deploy: $deploy_id"
 
       - name: Wait for deploy completion
+        env:
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+          RENDER_SERVICE_ID_RAW: ${{ secrets.RENDER_SERVICE_ID_BACKEND }}
         run: |
           set -euo pipefail
+          RENDER_SERVICE_ID="$(echo -n "$RENDER_SERVICE_ID_RAW" | tr -d '[:space:]')"
           max_attempts=40
           attempt=0
           deploy_id="${{ steps.trigger.outputs.deploy_id }}"
 
           while [ $attempt -lt $max_attempts ]; do
             status=$(curl -sS \
-              -H "Authorization: Bearer ${{ secrets.RENDER_API_KEY }}" \
+              -H "Authorization: Bearer $RENDER_API_KEY" \
               -H "Accept: application/json" \
-              "https://api.render.com/v1/services/${{ secrets.RENDER_SERVICE_ID_BACKEND }}/deploys/$deploy_id" \
+              "https://api.render.com/v1/services/$RENDER_SERVICE_ID/deploys/$deploy_id" \
               | jq -r '.status')
 
             echo "Attempt $((attempt+1))/$max_attempts: status=$status"

@@ -82,6 +82,7 @@ jobs:
         working-directory: backend
         env:
           DATABASE_URL: postgresql://postgres:postgres@localhost:5432/citoyenavise_test
+          JWT_SECRET: test_secret_min_32_chars_long_enough
           NODE_ENV: test
         run: npm run setup:db
 
