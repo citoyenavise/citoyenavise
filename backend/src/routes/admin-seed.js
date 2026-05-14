@@ -177,4 +177,48 @@ router.post('/seed-petitions', adminSeedAuth, async (req, res) => {
   }
 });
 
+/**
+ * DELETE /petitions/:id
+ * Supprime une petition par son id (admin only, token-protected).
+ * Idempotent : 404 si deja inexistante.
+ *
+ * Usage prod :
+ *   curl -X DELETE -H "Authorization: Bearer $ADMIN_SEED_TOKEN" \
+ *     https://api.citoyenavise.org/api/v1/admin/petitions/1
+ */
+router.delete('/petitions/:id', adminSeedAuth, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    if (Number.isNaN(id) || id <= 0) {
+      return res.status(400).json({
+        success: false,
+        error: 'ID invalide (doit etre un entier positif)',
+      });
+    }
+    const petition = await Petition.findByPk(id);
+    if (!petition) {
+      return res.status(404).json({
+        success: false,
+        error: `Petition id ${id} introuvable`,
+      });
+    }
+    const snapshot = {
+      id: petition.id,
+      titre: petition.titre,
+      status: petition.status,
+    };
+    await petition.destroy();
+    return res.json({
+      success: true,
+      deleted: snapshot,
+    });
+  } catch (err) {
+    console.error('Admin delete petition error:', err);
+    return res.status(500).json({
+      success: false,
+      error: err.message,
+    });
+  }
+});
+
 export default router;
