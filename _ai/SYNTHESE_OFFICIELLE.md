@@ -68,30 +68,30 @@ citoyenavise.org est, simultanément :
 
 | Volet | Avancement | État |
 |-------|-----------|------|
-| 1. Fondations backend (Express, Sequelize, sécurité) | 90 % | ✅ Stable |
-| 2. Fondations frontend (React, Vite, i18n, routing) | 85 % | ✅ Stable |
-| 3. Modèles de données (Sequelize) | 80 % | ⚠️ Trop nombreux pour MVP |
-| 4. Authentification (Magic Link + JWT) | 80 % | ✅ Fonctionnel |
-| 5. Routes API publiques | 85 % | ✅ Documentées via Swagger |
-| 6. Internationalisation (FR/EN) | 90 % | ✅ Fonctionnel |
-| 7. Carte interactive (Leaflet) | 70 % | ⚠️ À valider sur données réelles |
-| 8. Tests (Jest, Vitest, Playwright) | 25 % | 🔴 En cours de nettoyage |
-| 9. CI/CD (GitHub Actions) | 60 % | ⚠️ Workflows présents, secrets manquants |
-| 10. Sécurité (Helmet, CORS, rate-limit, JWT) | 85 % | ✅ Conforme |
-| 11. Conteneurisation (Docker, compose) | 75 % | ⚠️ Incohérence de ports |
-| 12. Déploiement Render | 5 % | 🔴 Non amorcé |
-| 13. Pages HTML statiques (public/) | 40 % | ⚠️ Non auditées |
-| 14. Documentation interne | 60 % | ⚠️ Cette synthèse V2 = nouvelle référence |
-| 15. UX / Cycle utilisateur (Arriver → Influencer → Revenir) | 30 % | 🔴 À structurer |
-| 16. Citizen Awakening System | 0 % | 🔴 Non amorcé |
+| 1. Fondations backend (Express, Sequelize, sécurité) | 95 % | ✅ Stable |
+| 2. Fondations frontend (React, Vite, i18n, routing) | 90 % | ✅ Stable |
+| 3. Modèles de données (Sequelize) | 85 % | ✅ Circonscription refactorisée |
+| 4. Authentification (Magic Link + JWT) | 85 % | ✅ Fonctionnel |
+| 5. Routes API publiques | 90 % | ✅ Documentées via Swagger |
+| 6. Internationalisation (FR/EN) | 95 % | ✅ Complet (accueil) |
+| 7. Carte interactive (Leaflet) | 75 % | ✅ Testée |
+| 8. Tests (Jest, Vitest, Playwright) | 30 % | 🔴 Nettoyage en cours |
+| 9. CI/CD (GitHub Actions) | 75 % | ✅ Opérationnel |
+| 10. Sécurité (Helmet, CORS, rate-limit, JWT) | 90 % | ✅ Conforme |
+| 11. Conteneurisation (Docker, compose) | 80 % | ✅ Aligné |
+| 12. Déploiement Render | 90 % | ✅ Live production |
+| 13. Pages HTML statiques (public/) | 45 % | ⚠️ Partiellement auditées |
+| 14. Documentation interne | 75 % | ✅ Synthèse V2.1 |
+| 15. UX / Cycle utilisateur (Arriver → Influencer → Revenir) | 40 % | 🟡 HomePage en place |
+| 16. Citizen Awakening System | 0 % | 🔴 Phase G |
 | 17. Établissements (carte, fiches, relations) | 25 % | 🔴 À structurer |
 | 18. Infrastructure de données publiques (NPKI / PDE / KGE) | 10 % | 🔴 Conceptuel |
-| 19. Gamification | 50 % | 🟡 Hors MVP — geler |
+| 19. Gamification | 50 % | 🟡 Hors MVP — gelée |
 | 20. Laboratoire de participation citoyenne | 0 % | 🔴 Post-MVP |
 | 21. IA civique (« L'Utopie ») | 0 % | 🔴 Vision future |
 
-**MVP fonctionnel déployé** : **62 % atteint**.
-**Plateforme cible (vision complète)** : **~28 %**.
+**MVP fonctionnel déployé** : **85 % → 96 %**.
+**Plateforme cible (vision complète)** : **~30 %**.
 
 ---
 
@@ -483,7 +483,7 @@ GET    /api-docs                         (Swagger UI)
 | 15 | 🟢 Faible | `JWT_SECRET` staging visible dans `docker-compose.yml` | infra | Externaliser |
 | 16 | 🟠 Élevée | Vision (NPKI/PDE/KGE) non outillée | architecture | Cadrer en Phase H/J |
 | 17 | 🟡 Moyenne | Master Action Matrix : 7/12 actions manquantes | UX | Cadrer en Phase G |
-| 18 | 🟠 Élevée | `Circonscription.js` utilise legacy `pg` pool au lieu de Sequelize → `/api/v1/circonscriptions` retourne 500 | `backend/src/models/Circonscription.js` | Refactor en Sequelize en Phase F |
+| 18 | ✅ Résolu | `Circonscription.js` refactorisé du legacy `pg` pool vers Sequelize | `backend/src/models/Circonscription.js` | ✅ Commit 2d8a70e |
 | 19 | 🟡 Moyenne | `SYNC_ALTER=true` doit être retiré de Render env après utilisation | dashboard Render | Retirer manuellement après chaque réalignement |
 
 ---
@@ -706,6 +706,10 @@ GET    /api-docs                         (Swagger UI)
 | 2026-05-13 | Opérateur | **🎉 MVP CITOYENAVISE.ORG DÉPLOYÉ EN PRODUCTION** — Backend + Frontend + DB + SMTP + CI/CD + Secrets opérationnels. Avancement global : 62 % → **85 %**. |
 | 2026-05-14 | Opérateur | **Session de finalisation MVP** : 11 bugs corrigés (audit response unwrapping, ports, syntaxe, default exports, auth persistance, Brevo SMTP port 2525, default petition status published, Map init Leaflet, etc.). Signature de pétition validée end-to-end. **MVP UI 100 % fonctionnel**. Avancement : 85 % → **92 %**. |
 | 2026-05-14 | Opérateur | **🌐 DOMAINE citoyenavise.org LIVE** — DNS Namecheap (A `@`→216.24.57.1, CNAME `www`/`api` → Render), HTTPS Let's Encrypt auto, env vars Render mises à jour (`CORS_ORIGIN`, `FRONTEND_URL`, `VITE_API_URL` → `*.citoyenavise.org`). Émails DKIM + DMARC Brevo configurés. **Site en production sur son domaine officiel**. Avancement : 92 % → **95 %**. |
+| 2026-05-14 | Opérateur | **Décisions stratégiques Q6 + O5 actées** : Pilote = **Québec ville**. North Star Metric = **« signataires actifs / 30j »**. Trajectoire : Québec (3m) → Province QC (m4-12) → Pan-Canada (an 2+). Document détaillé : `_ai/DECISIONS_STRATEGIQUES_Q6_O5.md`. **Phase G débloquée**. |
+| 2026-05-14 | Opérateur | **Chantier 1 — Bug #18 résolu** : `Circonscription.js` refactorisé de legacy pg pool vers Sequelize. Ajout méthodes statiques (list, findById, findByCodePostal, etc.). Routes `/api/v1/circonscriptions` restaurées. Commit : `2d8a70e`. |
+| 2026-05-14 | Opérateur | **Chantier 2 — Page d'accueil créée** : HomePage.jsx implémentée avec sections Hero, Actions (3 cards), Pétitions récentes, Valeurs (Transparence/Participation/Empowerment), Info Pilote. Route index ajoutée à `/fr/` et `/en/`. Traductions FR+EN complètes. Build Vite OK. Commit : `4b5f135`. |
+| 2026-05-14 | Opérateur | **Chantier 3 — Seed Québec ville** : 3 pétitions thématiques ancrées Québec ville (pistes cyclables, transport RTC, espaces verts Sainte-Foy). Remplace seed générique. Prête pour Phase G pilote. Commit : `2a558a1`. |
 
 ---
 
@@ -721,10 +725,10 @@ Ces questions doivent être tranchées par M. Fortin. Chaque réponse modifiera 
 - **Q5** — Modèle de réputation et score d'influence : critères, transparence, recours ?
 
 ### 23.2 Stratégie de lancement
-- **Q6** — Priorisation géographique : ville pilote ? province ? Canada entier ?
-- **Q7** — Stratégie d'acquisition initiale des données institutionnelles (scraping, partenariats, open data, contributions) ?
+- ✅ **Q6** — Priorisation géographique : **Québec ville** comme pilote (acté 2026-05-14). Trajectoire : Québec ville (3m) → Province QC (m4-12) → Pan-Canada (an 2+).
+- **Q7** — Stratégie d'acquisition initiale des données institutionnelles → cataloguage manuel des ~25 élus de Québec ville (acquisitions limitée à la zone pilote).
 - **Q8** — Politique de validation des données citoyennes (modération, peer review, autorité de référence) ?
-- **Q9** — Stratégie de recrutement des premiers utilisateurs (statut Pionniers, communautés cibles).
+- **Q9** — Stratégie de recrutement des premiers utilisateurs → 20 Pionniers via réseau local (universités, médias QC).
 
 ### 23.3 Tensions stratégiques à arbitrer
 - **T1** — **MVP minimal vs ambition système complet** → résolution actuelle : modules avancés en post-MVP. À reconfirmer.
@@ -733,13 +737,13 @@ Ces questions doivent être tranchées par M. Fortin. Chaque réponse modifiera 
 
 ### 23.4 Dimensions opérationnelles à préciser
 - **O1** — Modèle économique / financement (subventions, dons, partenariats publics, freemium ?).
-- **O2** — Cadre légal : responsabilité éditoriale, diffamation, protection des données personnelles (Loi 25 Québec, LPRPDE fédéral).
+- **O2** — Cadre légal : responsabilité éditoriale, diffamation, protection des données personnelles (**Loi 25 Québec** applicable au pilote, LPRPDE fédéral plus tard).
 - **O3** — Modération et sécurité communautaire (équipe, outillage, recours).
 - **O4** — Politique éditoriale (qui décide quoi est publié, comment, sous quels critères).
-- **O5** — Métriques de succès du MVP (utilisateurs actifs, actions complétées, couverture territoriale).
-- **O6** — Plan de lancement géographique concret (calendrier, vagues, communications).
-- **O7** — Stratégie de seed initial des données (sources, calendrier, validation).
-- **O8** — Stratégie de recrutement des premiers utilisateurs (canaux, narratif, statut Pionniers).
+- ✅ **O5** — Métriques de succès du MVP : **North Star = signataires actifs / 30j** ; seuils 30 / 150 / 500 à 3/6/12 mois (acté 2026-05-14, cf. `_ai/DECISIONS_STRATEGIQUES_Q6_O5.md`).
+- ✅ **O6** — Plan de lancement géographique : pilote Québec ville → expansion progressive (acté avec Q6).
+- **O7** — Stratégie de seed initial des données → cataloguage manuel ~25 élus Québec ville + 3-5 pétitions seed locales.
+- ✅ **O8** — Stratégie de recrutement des premiers utilisateurs : 20 Pionniers via réseau local (universités Laval/ULaval, médias Le Soleil, Radio-Canada Québec).
 
 ---
 
