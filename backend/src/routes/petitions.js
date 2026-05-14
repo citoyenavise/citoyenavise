@@ -406,12 +406,13 @@ router.post('/', authMiddleware, async (req, res, next) => {
     }
 
     // Créer la pétition
+    // MVP : défaut 'published' (pas de workflow de modération). À durcir en Phase G.
     const petition = await Petition.create({
       titre,
       description,
       citoyenId: req.user.userId,
       eluId: eluId || null,
-      status: status || 'draft',
+      status: status || 'published',
       signaturesCount: 0,
     });
 
