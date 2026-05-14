@@ -155,20 +155,23 @@ async function seed() {
     }
     console.log(`✅ ${createdUsers.length} utilisateurs créés\n`);
 
-    // 3. Créer pétitions
+    // 3. Créer pétitions (idempotent via findOrCreate sur titre)
     console.log('📋 Création des pétitions...');
     const createdPetitions = [];
 
     for (let i = 0; i < petitionsData.length; i++) {
       const petitionData = petitionsData[i];
-      const petition = await Petition.create({
-        ...petitionData,
-        citoyenId: createdUsers[i].id, // Assigner à un utilisateur différent
-        status: i === 0 ? 'published' : 'draft', // Première pétition publiée
-        signaturesCount: i === 0 ? 42 : 0,
+      const [petition, created] = await Petition.findOrCreate({
+        where: { titre: petitionData.titre },
+        defaults: {
+          ...petitionData,
+          citoyenId: createdUsers[i].id,
+          status: 'published',
+          signaturesCount: 0,
+        },
       });
       createdPetitions.push(petition);
-      console.log(`  ✓ "${petition.titre}" (${petition.status})`);
+      console.log(`  ${created ? '✓ créé' : '↺ existant'} : "${petition.titre}" (${petition.status})`);
     }
     console.log(`✅ ${createdPetitions.length} pétitions créées\n`);
 

@@ -18,6 +18,7 @@
     "format": "prettier --write \"src/**/*.js\" \"__tests__/**/*.js\"",
     "security:check": "npm audit --audit-level=moderate",
     "migrate": "node scripts/migrate.js",
+    "setup:db": "node scripts/setup-test-db.js",
     "db:check-tables": "node scripts/check-tables.js",
     "seed": "node seeders/seed.js",
     "seed:gamification": "node scripts/seed-gamification.js",

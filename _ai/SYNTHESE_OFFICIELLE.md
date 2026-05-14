@@ -456,7 +456,7 @@ GET    /api/v1/civic-tutorials
 GET    /api/v1/transparency/ranking
 GET    /api/v1/gamification
 GET    /api/v1/admin/*                   (protégé)
-GET    /api/v1/health
+GET    /health                            (Render health probe — hors préfixe API)
 GET    /api-docs                         (Swagger UI)
 ```
 
