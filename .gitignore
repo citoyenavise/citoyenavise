@@ -6,3 +6,6 @@ gen1.py
 gen2.py
 gen3.py
 generate_pages.py
+
+# Fichiers de snapshot temporaires
+_ai/snapshot_*.txt
