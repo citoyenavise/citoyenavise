@@ -17,7 +17,7 @@ export function ActualitesPage() {
       setError(null);
       try {
         const response = await api.actualites.list({ status: 'published' });
-        setActualites(Array.isArray(response) ? response : response || []);
+        setActualites(Array.isArray(response) ? response : response.data || []);
       } catch (err) {
         setError(err.message || 'Erreur lors du chargement des actualités');
         console.error('Erreur:', err);

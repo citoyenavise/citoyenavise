@@ -22,7 +22,7 @@ export function EluDetail() {
 
         try {
           const commitmentsResponse = await api.commitments.byElu(id);
-          setCommitments(Array.isArray(commitmentsResponse) ? commitmentsResponse : []);
+          setCommitments(Array.isArray(commitmentsResponse) ? commitmentsResponse : (commitmentsResponse?.data || []));
         } catch (err) {
           console.error('Erreur lors du chargement des engagements:', err);
           setCommitments([]);
