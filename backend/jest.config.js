@@ -17,5 +17,9 @@ export default {
     }
   },
   coverageReporters: ['text', 'json', 'html', 'lcov'],
-  verbose: true
+  verbose: true,
+  // Force la sortie de Jest pour éviter le hang post-tests
+  // (handles externes : timers express-rate-limit, sockets supertest).
+  // Réf. SYNTHESE_OFFICIELLE.md §14 #20.
+  forceExit: true
 };
