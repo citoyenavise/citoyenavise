@@ -21,7 +21,7 @@
 | Version du document | V2 — intégrée |
 | Dernière révision | 2026-05-13 |
 | Phase actuelle | Restructuration post-over-engineering vers MVP |
-| Avancement global | **~98 %** (CI/CD hardened, prod stable, seed Québec ville LIVE en prod via endpoint admin. Reste Phase F technique + Phases G-K vision) |
+| Avancement global | **~99 %** (CI/CD hardened, prod stable, seed Québec ville LIVE, **BD migrée vers Neon Free (Frankfurt) 2026-05-14**. Reste Phase F technique + Phases G-K vision) |
 | URL publique production | **https://citoyenavise.org** |
 | URL API publique production | **https://api.citoyenavise.org** |
 
@@ -488,7 +488,7 @@ GET    /api-docs                         (Swagger UI)
 | 20 | 🟠 Élevée | Workflow `Tests & Quality` : test hang après `lint.test.js` (timeout 5min, SIGTERM exit 143). Tests `Promise.test.js` + `lint.test.js` passent, mais un test suivant bloque indéfiniment. | `backend/__tests__/*.test.js` | Identifier le test fautif (probable async non résolu ou connexion BD non fermée). À traiter en Phase F. |
 | 21 | ✅ Résolu | Seed Québec ville LIVE en prod via endpoint admin `POST /api/v1/admin/seed-petitions` (token-protégé, idempotent). 3 pétitions Québec créées (ids 6,7,8) + user système (id 12) + élu manquant Caroline Matte (id 6). Count total prod : 4 pétitions. | `backend/src/routes/admin-seed.js` | ✅ Commit `147e3d0` + trigger HTTP 200 le 2026-05-14 |
 | 22 | 🟡 Moyenne — bloqué Hobby | Inbound IP BD Render = `0.0.0.0/0` (ouvert mondial). **Investigué 2026-05-14** : la règle est héritée du Workspace (Affected by: Workspace + Environment) et **non-modifiable sur plan Hobby**. L'ajout d'une règle BD locale s'additionne (ne remplace pas). Mitigation actuelle : credentials BD forts (rotation faite), endpoint admin token-protected, pas d'accès SSH. | dashboard Render → BD | À débloquer lors du passage plan Pro (Workspace-level Inbound Rules deviendront éditables). Phase F. |
-| 23 | 🟠 En cours | BD Render Free **expire le 5 juin 2026** ; toutes données seront supprimées sans upgrade. **Décision 2026-05-14 : migration vers Neon Free (option B)** — gratuit, 0.5 GB, pas d'expiration, branching gratuit, réveil <1s. | dashboard Render → BD + Neon | Migration prévue : créer compte Neon → dump pg_dump Render → restore psql Neon → update DATABASE_URL backend → tests → cleanup BD Render. Voir nouvelle session opérateur. |
+| 23 | ✅ Résolu | BD migrée de Render Free vers Neon Free. **Migration exécutée 2026-05-14 (session 22h00-22h06 EDT)** : dump pg_dump 64 KB (27 tables, 42 lignes) → restore psql Neon (54s, intégrité 100% validée par counts par table) → bascule DATABASE_URL backend Render vers Neon Pooled URL (Frankfurt → Frankfurt, latence < 5ms). Backend redeploy 22:06 EDT, /health OK, /petitions retourne les 3 pétitions Québec attendues. Dump local conservé 30 jours dans `_brouillons/backup_render_20260514.sql`. BD Render Free reste vivante jusqu'au 5 juin (expiration native) ou suppression manuelle après 7 jours de stabilité Neon. | dashboard Neon + Render | ✅ Backend tournant sur Neon |
 
 ---
 
@@ -602,7 +602,8 @@ GET    /api-docs                         (Swagger UI)
 
 | ⏰ | Tâche | Échéance | Détail |
 |----|-------|----------|--------|
-| 🔥 | **#23 BD Render Free expire** — décision upgrade Starter (~7 USD/mois) OU migration Neon free OU export+re-création | **5 juin 2026** (perte totale des données prod sans action) | cf. §14 #23 |
+| ✅ | **#23 BD Render Free expire** — RÉSOLU 2026-05-14 par migration vers Neon Free (Frankfurt) | ~~5 juin 2026~~ | cf. §14 #23 |
+| 🟡 | Supprimer BD Render Free après 7 jours de stabilité Neon en prod | ~2026-05-21 | cf. §14 #23 — confirmation 7 jours puis suppression manuelle dashboard Render |
 
 ### Roadmap historique
 
@@ -738,6 +739,12 @@ GET    /api-docs                         (Swagger UI)
 | 2026-05-14 | Opérateur | **📖 N2 — Swagger doc endpoints admin** : `openapi.js` étendu avec tag `Admin`, 2 paths documentés (`POST /admin/seed-petitions` avec schéma de réponse complet + `DELETE /admin/petitions/{id}` avec params + codes 200/400/401/404/503) et nouveau securityScheme `adminSeedAuth` (bearer statique, distinct du JWT utilisateur). Visible sur `https://api.citoyenavise.org/api-docs/` section Admin. Commit `20ac213`. |
 | 2026-05-14 | Opérateur | **🔒 #22 INVESTIGUÉ — bloqué par plan Hobby** : tentative de durcissement IP whitelist BD. Constat : règle `0.0.0.0/0 everywhere` héritée du **Workspace** (« Affected by: Workspace, Environment ») et **non-modifiable** au niveau BD sur plan Hobby (pas de bouton Delete sur les règles héritées). L'ajout d'une règle BD locale s'additionne (ne remplace pas). Mitigation actuelle (acceptable pour MVP pilote) : credentials BD forts + rotation faite + endpoint admin token-protected. Reporté à passage Pro. |
 | 2026-05-14 | Opérateur | **📌 Décision #23 — Migration BD vers Neon Free actée** : option B retenue. Justifications : 0 USD/an (vs 84 USD Render Starter), pas d'expiration, free tier 0.5 GB suffisant pilote Québec, branching gratuit (staging), réveil <1s (vs 50s Render Free). Migration unique ~1h. Plan de migration à exécuter en session opérateur dédiée. |
+| 2026-05-14 | Opérateur | **🔧 Règle 6.3 CLAUDE.md ajoutée — Syntaxe blocs de code** : les blocs triple-backtick sont strictement réservés au code exécutable/copiable (PowerShell, bash, SQL, JSON, contenu fichier). Chaque bloc DOIT indiquer son langage. Aucun texte adressé au propriétaire dans un bloc. Règle permanente toutes sessions. |
+| 2026-05-14 | Opérateur | **🚨 INCIDENT 2h downtime — DATABASE_URL Render Internal vs External** : pendant la préparation de la migration Neon, rotation du credential BD Render. L'opérateur a fait copier l'**External Database URL** dans `DATABASE_URL` backend (au lieu de l'Internal initialement utilisée). Conséquence : driver pg 8.x interprète `sslmode=require` comme `sslmode=verify-full` → certificat self-signed Render rejeté → `Connection terminated unexpectedly` → backend down. 2h de troubleshooting (3 rotations credentials successives `2a86` → `1fv8` → `hgd0`, ajout `?uselibpqcompat=true&sslmode=require`, modification code Sequelize proposée mais refusée). **Résolution** : remettre l'**Internal Database URL** (sans paramètre SSL) dans `DATABASE_URL`. Service recovered 21:35 EDT. |
+| 2026-05-14 | Opérateur | **🔧 Règle 6.4 CLAUDE.md ajoutée — DATABASE_URL = Internal URL uniquement** : suite à l'incident ci-dessus, règle permanente consignée. Toute rotation de credential BD Render doit utiliser l'Internal Database URL (sans paramètres SSL). L'External Database URL est réservée aux opérations depuis l'extérieur du réseau Render (ex: pg_dump local). |
+| 2026-05-14 | Opérateur | **🚀 MIGRATION BD RENDER → NEON RÉUSSIE** : (1) projet Neon `citoyenavise` créé en region eu-central-1 (Frankfurt) avec PG17, db `neondb`, role `neondb_owner`. (2) Dump pg_dump v18.3 → fichier 64 KB (27 tables, 2411 lignes SQL, ~42 lignes de data : 6 élus, 7 pétitions, 12 users, 16 email_verifications, 1 schema_versions). (3) Restore psql vers Neon Direct URL en 54s, 6 setval (sequences) réinitialisées. (4) Intégrité validée 100% par counts par table (27 tables comparées, match parfait avec dump). (5) DATABASE_URL backend Render basculée vers Neon Pooled URL. (6) Backend redeploy 22:06 EDT, `/health` OK, `/petitions` retourne les 3 pétitions Québec attendues. Latence prod 20ms (Frankfurt → Frankfurt). Dump local conservé 30 jours dans `_brouillons/backup_render_20260514.sql`. Bug #23 résolu. |
+| 2026-05-14 | Opérateur | **Service IDs Neon notés** : projet `citoyenavise` (region AWS eu-central-1 Frankfurt, PG17) | endpoint `ep-bold-frost-alaabvre` | database `neondb` | role `neondb_owner` | branche par défaut `production` | 2 URLs disponibles : Pooled (`-pooler` dans hostname, utilisée par backend Render production) et Direct (utilisée pour dump/restore/admin SQL). Neon Auth désactivé (auth Magic Link maintenue côté backend). |
+| 2026-05-14 | Opérateur | **📌 Avancement global 98% → 99%** : MVP en production sur Neon, BD sans expiration, base technique consolidée. Prochaine priorité : suppression BD Render Free après 7 jours de stabilité (~2026-05-21). |
 
 ---
 

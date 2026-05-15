@@ -59,6 +59,35 @@ Ne pas réécrire au-delà de la demande.
 Ne pas demander confirmation pour ce qui est explicite.
 Ne pas inventer de contexte absent du dépôt.
 
+6.3 Syntaxe des blocs de code (directive 2026-05-14)
+
+Les blocs de code triple-backtick sont STRICTEMENT réservés à du contenu exécutable ou copiable destiné à un outil :
+- commandes PowerShell, bash, SQL, etc.
+- contenu exact d'un fichier à créer/modifier.
+- snippets de configuration à coller.
+
+Chaque bloc DOIT indiquer son langage (```powershell, ```bash, ```sql, ```json, ```env, etc.).
+L'opérateur ne s'adresse JAMAIS au propriétaire dans un bloc de code. Toute phrase, explication, question, constat ou liste de paramètres rédigée à destination du propriétaire est en texte courant.
+Cette règle est permanente et s'applique à toutes les sessions, fenêtres et opérateurs successifs du projet citoyenavise.org.
+
+6.4 RÈGLE CRITIQUE — DATABASE_URL backend Render (directive 2026-05-14)
+
+Le backend Render `citoyenavise-backend-1` DOIT utiliser l'**Internal Database URL** dans sa variable d'environnement `DATABASE_URL`. JAMAIS l'External Database URL.
+
+Justification (établie par incident production 2026-05-14, 2 heures de downtime) :
+- Internal Database URL : connexion via réseau privé Render Frankfurt → Frankfurt. Pas de SSL strict requis. Fonctionne nativement avec le driver `pg` 8.x utilisé par le backend.
+- External Database URL : connexion via Internet public. Requiert SSL strict. Le driver `pg` 8.x interprète `sslmode=require` comme `sslmode=verify-full` (vérification stricte du certificat CA). Le certificat self-signed de Render Free n'est pas reconnu → `Connection terminated unexpectedly` → backend ne démarre pas.
+
+Conséquence pratique pour toute rotation de credential BD Render :
+1. Sur la page BD Render, après création d'un nouveau credential, copier l'**Internal Database URL** (PAS External).
+2. La coller telle quelle dans `DATABASE_URL` du backend Environment.
+3. N'ajouter AUCUN paramètre SSL à la fin de l'URL.
+4. Save Changes → redeploy.
+
+L'External Database URL est utilisée UNIQUEMENT depuis l'extérieur du réseau Render (ex : `pg_dump` depuis la machine de l'opérateur lors d'une migration).
+
+Cette règle est permanente et s'applique à toutes les sessions et opérateurs successifs du projet citoyenavise.org.
+
 
 7. PROCÉDURES STANDARDS
 7.1 Exécution d'une commande
@@ -131,6 +160,8 @@ Toute proposition non sollicitée est nulle.
 Toute modification apportée au fonctionnement de citoyenavise.org est inscrite ici automatiquement, au fur et à mesure de la progression du projet. Les listes sont tenues à jour à chaque action.
 11.1 Historique des actions
 DateTypeDescriptionFichier(s)Statut2026-05-13initCréation du prompt opérateurPROMPT_OPERATEUR_CITOYENAVISE.mdOK
+2026-05-14rulesAjout règle 6.3 — blocs réservés au code exécutable/copiable, langage obligatoire, aucun texte adressé au propriétaire dans un blocCLAUDE.mdOK
+2026-05-14rulesAjout règle 6.4 — DATABASE_URL backend Render = Internal Database URL uniquement, JAMAIS External. Justification : pg 8.x interprète sslmode=require comme verify-full, échec sur cert self-signed Render. Documenté suite à incident 2h downtime lors de rotation credentials avant migration NeonCLAUDE.mdOK
 11.2 Fichiers modifiés / créés
 CheminDernière actionDatePROMPT_OPERATEUR_CITOYENAVISE.mdcréation2026-05-13
 11.3 Décisions architecturales
