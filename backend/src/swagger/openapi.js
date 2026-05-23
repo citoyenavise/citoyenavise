@@ -618,7 +618,8 @@ export const swaggerDefinition = {
     '/admin/petitions/{id}': {
       delete: {
         tags: ['Admin'],
-        summary: 'Supprimer une pétition par id (idempotent — 404 si déjà absent)',
+        summary:
+          'Supprimer une pétition par id (idempotent — 404 si déjà absent)',
         description:
           "Suppression administrative d'une pétition. Utilisé notamment pour le cleanup de la pétition résiduelle générique post-seed Québec. Token statique requis.",
         security: [{ adminSeedAuth: [] }],
@@ -674,7 +675,7 @@ export const swaggerDefinition = {
         scheme: 'bearer',
         bearerFormat: 'static',
         description:
-          "Token statique ADMIN_SEED_TOKEN (configuré dans Render Environment, séparé du JWT utilisateur). À transmettre dans le header `Authorization: Bearer <token>`.",
+          'Token statique ADMIN_SEED_TOKEN (configuré dans Render Environment, séparé du JWT utilisateur). À transmettre dans le header `Authorization: Bearer <token>`.',
       },
     },
   },

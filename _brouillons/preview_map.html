@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8" />
+<title>Prévisualisation carte — citoyenavise.org</title>
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+      crossorigin="" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css" />
+<link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css" />
+<style>
+  html, body { margin: 0; padding: 0; height: 100%; background: #1a1f2e; color: #e5ebf3; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+  header { padding: 10px 16px; background: linear-gradient(90deg, #e91e63, #f06292); color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+  header h1 { font-size: 14px; font-weight: 600; margin: 0; }
+  header .meta { font-size: 11px; opacity: 0.9; }
+  #map { width: 100%; height: calc(100vh - 41px); background: #1a1f2e; }
+  .elu-popup h3 { margin: 0 0 4px; font-size: 14px; color: #1a1f2e; }
+  .elu-popup p { margin: 0 0 2px; font-size: 12px; color: #555; }
+  .elu-popup .btn-detail { display: inline-block; margin-top: 6px; padding: 4px 10px; font-size: 12px; color: #fff; background: #e91e63; text-decoration: none; border-radius: 4px; }
+  .leaflet-container { background: #1a1f2e; }
+</style>
+</head>
+<body>
+<header>
+  <h1>★ Citoyen Avisé — prévisualisation carte (Dark Matter + zone pilote)</h1>
+  <div class="meta">Centre 45.5, -73.5 · zoom 9 · maxZoom 19 · CartoDB Dark Matter · cercle pilote 25 km</div>
+</header>
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
+        crossorigin=""></script>
+<script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+<script>
+  var map = L.map('map', {
+    center: [45.5, -73.5],
+    zoom: 9,
+    maxZoom: 19,
+    scrollWheelZoom: true
+  });
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}.png', {
+    subdomains: ['a', 'b', 'c', 'd'],
+    attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+    maxZoom: 19
+  }).addTo(map);
+
+  L.circle([45.5017, -73.5673], {
+    radius: 25000,
+    color: '#f06292',
+    weight: 1.2,
+    opacity: 0.55,
+    fillColor: '#e91e63',
+    fillOpacity: 0.18
+  }).addTo(map).bindTooltip('Zone pilote — Montréal', { permanent: false, direction: 'top' });
+
+  var cluster = L.markerClusterGroup();
+  var demo = [
+    { lat: 45.5017, lng: -73.5673, label: 'Centre-ville Montréal', titre: 'Démonstration', region: 'Montréal' },
+    { lat: 45.5500, lng: -73.6500, label: 'Côte-des-Neiges',       titre: 'Démonstration', region: 'Montréal' },
+    { lat: 45.5650, lng: -73.5800, label: 'Plateau-Mont-Royal',    titre: 'Démonstration', region: 'Montréal' },
+    { lat: 45.4750, lng: -73.6200, label: 'LaSalle',               titre: 'Démonstration', region: 'Montréal' },
+    { lat: 45.6066, lng: -73.7124, label: 'Laval',                 titre: 'Démonstration', region: 'Laval' },
+    { lat: 45.5312, lng: -73.5183, label: 'Longueuil',             titre: 'Démonstration', region: 'Montérégie' }
+  ];
+
+  demo.forEach(function (m) {
+    var popup =
+      '<div class="elu-popup">' +
+        '<h3>' + m.label + '</h3>' +
+        '<p>' + m.titre + '</p>' +
+        '<p>' + m.region + '</p>' +
+        '<a href="#" class="btn-detail">Voir profil complet</a>' +
+      '</div>';
+    cluster.addLayer(L.marker([m.lat, m.lng]).bindPopup(popup));
+  });
+  map.addLayer(cluster);
+</script>
+</body>
+</html>

@@ -451,10 +451,217 @@ export const api = {
       return response.data;
     },
 
+    async summary(id) {
+      const response = await client.get(`/elus/${id}/summary`);
+      return response;
+    },
+
+    async getPromises(id, params = {}) {
+      const qs = new URLSearchParams(params).toString();
+      const response = await client.get(`/elus/${id}/promises${qs ? `?${qs}` : ''}`);
+      return response;
+    },
+
+    async getActions(id, params = {}) {
+      const qs = new URLSearchParams(params).toString();
+      const response = await client.get(`/elus/${id}/actions${qs ? `?${qs}` : ''}`);
+      return response;
+    },
+
+    async getVotes(id, params = {}) {
+      const qs = new URLSearchParams(params).toString();
+      const response = await client.get(`/elus/${id}/votes${qs ? `?${qs}` : ''}`);
+      return response;
+    },
+
+    async getControverses(id, params = {}) {
+      const qs = new URLSearchParams(params).toString();
+      const response = await client.get(`/elus/${id}/controverses${qs ? `?${qs}` : ''}`);
+      return response;
+    },
+
+    async getFinancement(id, params = {}) {
+      const qs = new URLSearchParams(params).toString();
+      const response = await client.get(`/elus/${id}/financement${qs ? `?${qs}` : ''}`);
+      return response;
+    },
+
+    async getMandats(id, params = {}) {
+      const qs = new URLSearchParams(params).toString();
+      const response = await client.get(`/elus/${id}/mandats${qs ? `?${qs}` : ''}`);
+      return response;
+    },
+
+    async getChangelog(id, params = {}) {
+      const qs = new URLSearchParams(params).toString();
+      const response = await client.get(`/elus/${id}/changelog${qs ? `?${qs}` : ''}`);
+      return response;
+    },
+
+    async getComments(id, params = {}) {
+      const qs = new URLSearchParams(params).toString();
+      const response = await client.get(`/elus/${id}/comments${qs ? `?${qs}` : ''}`);
+      return response;
+    },
+
+    async postComment(id, payload) {
+      const response = await client.post(`/elus/${id}/comments`, payload);
+      return response.data;
+    },
+
+    async deleteComment(id, commentId) {
+      await client.delete(`/elus/${id}/comments/${commentId}`);
+    },
+
+    async follow(id, prefs = {}) {
+      const response = await client.post(`/elus/${id}/follow`, prefs);
+      return response;
+    },
+
+    async unfollow(id) {
+      await client.delete(`/elus/${id}/follow`);
+    },
+
+    async followStatus(id) {
+      const response = await client.get(`/elus/${id}/follow-status`);
+      return response;
+    },
+
+    async contact(id, payload) {
+      const response = await client.post(`/elus/${id}/contact`, payload);
+      return response;
+    },
+
     async getPetitions(id, params = {}) {
       const qs = new URLSearchParams(params).toString();
       const response = await client.get(`/elus/${id}/petitions${qs ? `?${qs}` : ''}`);
       return response.data;
+    },
+  },
+
+  adminElus: {
+    // Élu CRUD
+    async createElu(payload) {
+      const r = await client.post('/admin/elus', payload);
+      return r.data;
+    },
+    async updateElu(id, payload) {
+      const r = await client.put(`/admin/elus/${id}`, payload);
+      return r.data;
+    },
+    async deleteElu(id) {
+      await client.delete(`/admin/elus/${id}`);
+    },
+
+    // Sous-CRUD : promesses
+    async createPromise(eluId, payload) {
+      const r = await client.post(`/admin/elus/${eluId}/promises`, payload);
+      return r.data;
+    },
+    async updatePromise(eluId, promiseId, payload) {
+      const r = await client.put(`/admin/elus/${eluId}/promises/${promiseId}`, payload);
+      return r.data;
+    },
+    async deletePromise(eluId, promiseId) {
+      await client.delete(`/admin/elus/${eluId}/promises/${promiseId}`);
+    },
+
+    // Sous-CRUD : actions
+    async createAction(eluId, payload) {
+      const r = await client.post(`/admin/elus/${eluId}/actions`, payload);
+      return r.data;
+    },
+    async updateAction(eluId, actionId, payload) {
+      const r = await client.put(`/admin/elus/${eluId}/actions/${actionId}`, payload);
+      return r.data;
+    },
+    async deleteAction(eluId, actionId) {
+      await client.delete(`/admin/elus/${eluId}/actions/${actionId}`);
+    },
+
+    // Sous-CRUD : votes
+    async createVote(eluId, payload) {
+      const r = await client.post(`/admin/elus/${eluId}/votes`, payload);
+      return r.data;
+    },
+    async updateVote(eluId, voteId, payload) {
+      const r = await client.put(`/admin/elus/${eluId}/votes/${voteId}`, payload);
+      return r.data;
+    },
+    async deleteVote(eluId, voteId) {
+      await client.delete(`/admin/elus/${eluId}/votes/${voteId}`);
+    },
+
+    // Sous-CRUD : controverses
+    async createControverse(eluId, payload) {
+      const r = await client.post(`/admin/elus/${eluId}/controverses`, payload);
+      return r.data;
+    },
+    async updateControverse(eluId, cid, payload) {
+      const r = await client.put(`/admin/elus/${eluId}/controverses/${cid}`, payload);
+      return r.data;
+    },
+    async deleteControverse(eluId, cid) {
+      await client.delete(`/admin/elus/${eluId}/controverses/${cid}`);
+    },
+
+    // Sous-CRUD : donateurs
+    async createDonateur(eluId, payload) {
+      const r = await client.post(`/admin/elus/${eluId}/donateurs`, payload);
+      return r.data;
+    },
+    async updateDonateur(eluId, did, payload) {
+      const r = await client.put(`/admin/elus/${eluId}/donateurs/${did}`, payload);
+      return r.data;
+    },
+    async deleteDonateur(eluId, did) {
+      await client.delete(`/admin/elus/${eluId}/donateurs/${did}`);
+    },
+
+    // Sous-CRUD : liens d'intérêts
+    async createLien(eluId, payload) {
+      const r = await client.post(`/admin/elus/${eluId}/liens-interets`, payload);
+      return r.data;
+    },
+    async updateLien(eluId, lid, payload) {
+      const r = await client.put(`/admin/elus/${eluId}/liens-interets/${lid}`, payload);
+      return r.data;
+    },
+    async deleteLien(eluId, lid) {
+      await client.delete(`/admin/elus/${eluId}/liens-interets/${lid}`);
+    },
+
+    // Sous-CRUD : mandats
+    async createMandat(eluId, payload) {
+      const r = await client.post(`/admin/elus/${eluId}/mandats`, payload);
+      return r.data;
+    },
+    async updateMandat(eluId, mid, payload) {
+      const r = await client.put(`/admin/elus/${eluId}/mandats/${mid}`, payload);
+      return r.data;
+    },
+    async deleteMandat(eluId, mid) {
+      await client.delete(`/admin/elus/${eluId}/mandats/${mid}`);
+    },
+
+    // Modération commentaires
+    async moderateComment(eluId, cid, payload) {
+      const r = await client.put(`/admin/elus/${eluId}/comments/${cid}/moderate`, payload);
+      return r.data;
+    },
+    async repondreComment(eluId, cid, reponse) {
+      const r = await client.put(`/admin/elus/${eluId}/comments/${cid}/reponse`, { reponse });
+      return r.data;
+    },
+
+    // Synchronisation
+    async sync(source, opts = {}) {
+      const r = await client.post(`/admin/elus/sync/${source}`, opts);
+      return r;
+    },
+    async syncCsv(csvContent, opts = {}) {
+      const r = await client.post('/admin/elus/sync-csv', { csv: csvContent, ...opts });
+      return r;
     },
   },
 
@@ -509,6 +716,15 @@ export const api = {
     async byElu(eluId, params = {}) {
       const qs = new URLSearchParams(params).toString();
       const response = await client.get(`/elu-commitments/elu/${eluId}${qs ? `?${qs}` : ''}`);
+      return response.data;
+    },
+  },
+
+  network: {
+    // Lot 3 — Snapshot Québec + Canada en parallèle pour NetworkSidebar.
+    // Retourne { canada: {...}, quebec: {...} }.
+    async snapshot() {
+      const response = await client.get('/network/snapshot');
       return response.data;
     },
   },

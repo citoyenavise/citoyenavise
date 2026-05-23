@@ -35,11 +35,23 @@ const statsQuerySchema = z.object({
   goal: z.coerce.number().int().positive().optional(),
 });
 
+const ENJEUX_VALEURS = [
+  'taxes',
+  'logement',
+  'sante',
+  'elections',
+  'droits',
+  'environnement',
+  'energie',
+  'autre',
+];
+
 const listPetitionsQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(10),
   status: z.enum(['draft', 'published', 'closed', 'won']).optional(),
   elu_id: z.coerce.number().int().positive().optional(),
+  enjeu: z.enum(ENJEUX_VALEURS).optional(),
   search: z.string().min(2).optional(),
   sort: z.enum(['signatures_count', 'created_at']).default('created_at'),
 });
@@ -54,6 +66,7 @@ const createPetitionSchema = z.object({
     .min(20, 'Description doit avoir minimum 20 caractères')
     .max(2000, 'Description ne doit pas dépasser 2000 caractères'),
   eluId: z.number().int().positive().optional(),
+  enjeu: z.enum(ENJEUX_VALEURS).optional().nullable(),
   status: z.enum(['draft', 'published', 'closed', 'won']).default('draft'),
 });
 
@@ -69,6 +82,7 @@ const updatePetitionSchema = z.object({
     .max(2000, 'Description ne doit pas dépasser 2000 caractères')
     .optional(),
   eluId: z.number().int().positive().optional().nullable(),
+  enjeu: z.enum(ENJEUX_VALEURS).optional().nullable(),
   status: z.enum(['draft', 'published', 'closed', 'won']).optional(),
 });
 
@@ -103,7 +117,8 @@ router.get('/', async (req, res, next) => {
       });
     }
 
-    const { page, limit, status, elu_id, search, sort } = queryValidation.data;
+    const { page, limit, status, elu_id, enjeu, search, sort } =
+      queryValidation.data;
     const offset = (page - 1) * limit;
 
     // Construire les filtres
@@ -115,6 +130,11 @@ router.get('/', async (req, res, next) => {
     // Filtre elu_id (optionnel)
     if (elu_id) {
       where.eluId = elu_id;
+    }
+
+    // Filtre enjeu (Lot 2)
+    if (enjeu) {
+      where.enjeu = enjeu;
     }
 
     // Recherche full-text sur titre + description
@@ -137,6 +157,7 @@ router.get('/', async (req, res, next) => {
     }
 
     // Récupérer pétitions avec relations
+    // Note : latitude/longitude de l'élu inclus pour affichage carte (Lot 1.3)
     const { count, rows } = await Petition.findAndCountAll({
       where,
       attributes: [
@@ -144,6 +165,7 @@ router.get('/', async (req, res, next) => {
         'titre',
         'description',
         'status',
+        'enjeu',
         'signaturesCount',
         'deadline',
         'createdAt',
@@ -158,7 +180,7 @@ router.get('/', async (req, res, next) => {
         {
           model: Elu,
           as: 'elu',
-          attributes: ['id', 'nom', 'titre', 'region'],
+          attributes: ['id', 'nom', 'titre', 'region', 'latitude', 'longitude'],
         },
       ],
       order,
@@ -208,6 +230,7 @@ router.get('/:id', async (req, res, next) => {
         'titre',
         'description',
         'status',
+        'enjeu',
         'signaturesCount',
         'deadline',
         'createdAt',
@@ -392,7 +415,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
       });
     }
 
-    const { titre, description, eluId, status } = validation.data;
+    const { titre, description, eluId, enjeu, status } = validation.data;
 
     // Vérifier que l'élu existe (si fourni)
     if (eluId) {
@@ -412,6 +435,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
       description,
       citoyenId: req.user.userId,
       eluId: eluId || null,
+      enjeu: enjeu || null,
       status: status || 'published',
       signaturesCount: 0,
     });
@@ -422,6 +446,7 @@ router.post('/', authMiddleware, async (req, res, next) => {
         'titre',
         'description',
         'status',
+        'enjeu',
         'signaturesCount',
         'createdAt',
         'citoyenId',
@@ -500,7 +525,7 @@ router.put('/:id', authMiddleware, async (req, res, next) => {
       });
     }
 
-    const { titre, description, eluId, status } = validation.data;
+    const { titre, description, eluId, enjeu, status } = validation.data;
 
     // Vérifier que le nouvel élu existe (si fourni)
     if (eluId !== undefined) {
@@ -519,6 +544,7 @@ router.put('/:id', authMiddleware, async (req, res, next) => {
     // Mettre à jour les champs
     if (titre !== undefined) petition.titre = titre;
     if (description !== undefined) petition.description = description;
+    if (enjeu !== undefined) petition.enjeu = enjeu;
     if (status !== undefined) petition.status = status;
 
     await petition.save();
@@ -530,6 +556,7 @@ router.put('/:id', authMiddleware, async (req, res, next) => {
         'titre',
         'description',
         'status',
+        'enjeu',
         'signaturesCount',
         'createdAt',
         'updatedAt',

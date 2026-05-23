@@ -118,7 +118,7 @@ describe('GET /api/v1/petitions (filtres, recherche, tri)', () => {
     if (elu2) await elu2.destroy();
     if (user1) await user1.destroy();
     if (user2) await user2.destroy();
-    await sequelize.close();
+    // sequelize.close() retiré (Famille A) — instance partagée, forceExit handle exit
   });
 
   describe('✅ Pagination', () => {

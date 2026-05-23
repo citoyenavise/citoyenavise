@@ -268,6 +268,23 @@ export function AdminDashboard() {
       <div className="admin-header">
         <h1>👑 Tableau de Bord Administrateur</h1>
         <p>Gestion des promesses électorales et statistiques</p>
+        <div style={{ marginTop: '12px' }}>
+          <button
+            type="button"
+            onClick={() => navigate(`/${lang}/admin/elus`)}
+            style={{
+              padding: '8px 16px',
+              background: '#1a5c8e',
+              color: 'white',
+              border: 'none',
+              borderRadius: '4px',
+              fontWeight: 600,
+              cursor: 'pointer',
+            }}
+          >
+            🏛️ Administration des élus (Phase G.2)
+          </button>
+        </div>
       </div>
 
       {error && (

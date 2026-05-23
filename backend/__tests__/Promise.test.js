@@ -8,9 +8,9 @@ import sequelize from '../src/db/sequelize.js';
 
 describe('Promise Model (Sequelize)', () => {
   beforeAll(async () => {
-    // Sync models with database
+    // sync alter:false — schéma déjà appliqué au boot serveur (Famille A bug Phase F)
     try {
-      await sequelize.sync({ alter: true });
+      await sequelize.sync({ alter: false });
     } catch (err) {
       console.warn('⚠️  Database sync warning:', err.message);
     }
@@ -134,7 +134,7 @@ describe('Promise Model (Sequelize)', () => {
 
   afterAll(async () => {
     try {
-      await sequelize.close();
+      // sequelize.close() retiré (Famille A) — instance partagée, forceExit handle exit
     } catch (err) {
       console.warn('⚠️  Database close warning:', err.message);
     }

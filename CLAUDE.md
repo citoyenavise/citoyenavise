@@ -162,8 +162,32 @@ Toute modification apportée au fonctionnement de citoyenavise.org est inscrite 
 DateTypeDescriptionFichier(s)Statut2026-05-13initCréation du prompt opérateurPROMPT_OPERATEUR_CITOYENAVISE.mdOK
 2026-05-14rulesAjout règle 6.3 — blocs réservés au code exécutable/copiable, langage obligatoire, aucun texte adressé au propriétaire dans un blocCLAUDE.mdOK
 2026-05-14rulesAjout règle 6.4 — DATABASE_URL backend Render = Internal Database URL uniquement, JAMAIS External. Justification : pg 8.x interprète sslmode=require comme verify-full, échec sur cert self-signed Render. Documenté suite à incident 2h downtime lors de rotation credentials avant migration NeonCLAUDE.mdOK
+2026-05-22featLot 1 carte fonctionnelle (Phase G.1) — Dark Matter CARTO, centre Québec pilote zoom 12, cercle pilote rose 7 km, icônes distinctes élu/pétition, popups stylés, suppression clustering Leaflet (L.layerGroup), endpoint /api/v1/petitions étendu (elu.lat/lng)Map.jsx, Map.css, map.css, MapPage.jsx, petitions.js (+ suppression EluMarker.jsx/css)OK
+2026-05-22featLot 2 référentiel enjeux (Phase G.1) — colonne enjeu VARCHAR(20) + CHECK + index, 8 catégories civiques, filtre backend GET /petitions?enjeu=, pills frontend MapPage, badge coloré popup, migration V011 + endpoint admin /migrate-petition-enjeu, seeders enrichisV011_petition_enjeu.sql, migrate-v011-petition-enjeu.js, Petition.js, petitions.js, admin-seed.js, seed.js, MapPage.jsx, Map.jsx, Map.css, map.cssOK
+2026-05-22cleanupPhase F partiel — bugs #24/#25/#26/#27/#28/#30 traités : trust proxy Express, suppression backend/tests/ (CJS vestiges), suppression 3 tests modules gelés (Gamification/pde/Admin), alignement Elu transparency.test.js, mapping ASCII→accent niveau dans route transparency, suppression duplicate src/__tests__/signatures.test.js, fix afterAll transparency (no drop/close)server.js, transparency.js, transparency.test.js, suppression backend/tests/ + 3 tests __tests__/ + src/__tests__/OK
+2026-05-22featPhase G.2 — Fiche descriptive élu complète. 10 migrations SQL (V012-V021) : extension Elu (parti, mandat, contact, statut), Promise (source, date_promesse), tables actions, votes, controverses, donateurs, liens_interets, elu_comments, elu_follows, mandats, elu_changelog. 9 nouveaux modèles Sequelize + audit trail automatique via hooks. 20+ endpoints lecture + 27 endpoints CRUD admin protégés (adminAuth + Zod). ElectoralSyncService (openparliament + ourcommons + CSV). Refonte EluDetail.jsx : 10 écrans UX + navigation onglets + 10 composants elu/*. AdminElusPage.jsx : interface admin complète + modération commentaires. Import fédéral 45ᵉ législature : 343 députés + 96 sénateurs + 9 juges + 1 GG = 449 élus. Normalisation régions (ISO→FR) + partis (EN→FR). 15 tests Jest verts.V012→V021 + Elu.js + Promise.js + Action.js + Vote.js + Controverse.js + Donateur.js + LienInteret.js + EluComment.js + EluFollow.js + Mandat.js + EluChangelog.js + models/index.js + routes/elus.js + routes/admin-elus.js + routes/index.js + services/auditLog.js + services/electoralSync.js + services/transparencyScore.js + services/EmailService.js + middlewares/rateLimiter.js + 10 scripts migrate + scripts/normalize-elus.js + scripts/elus-stats.js + scripts/sync-elus.js + scripts/purge-and-import-federal.js + data/federal-extras.csv + 13 fichiers frontend (api/client.js, hooks/useEluData.js, components/elu/* x10, pages/EluDetail.jsx, pages/AdminElusPage.jsx, App.jsx, AdminDashboard.jsx) + __tests__/elus-fiche.test.jsOK
 11.2 Fichiers modifiés / créés
 CheminDernière actionDatePROMPT_OPERATEUR_CITOYENAVISE.mdcréation2026-05-13
+frontend/src/components/Map.jsxmodification2026-05-22
+frontend/src/components/Map.cssmodification2026-05-22
+frontend/src/styles/map.cssmodification2026-05-22
+frontend/src/pages/MapPage.jsxmodification2026-05-22
+backend/src/routes/petitions.jsmodification2026-05-22
+frontend/src/components/EluMarker.jsxsuppression2026-05-22
+frontend/src/components/EluMarker.csssuppression2026-05-22
+backend/src/database/migrations/V011_petition_enjeu.sqlcréation2026-05-22
+backend/scripts/migrate-v011-petition-enjeu.jscréation2026-05-22
+backend/src/models/Petition.jsmodification2026-05-22
+backend/src/routes/admin-seed.jsmodification2026-05-22
+backend/seeders/seed.jsmodification2026-05-22
+backend/src/server.jsmodification2026-05-22 (trust proxy)
+backend/src/routes/transparency.jsmodification2026-05-22 (NIVEAU_MAP)
+backend/__tests__/transparency.test.jsmodification2026-05-22 (alignement + afterAll)
+backend/tests/suppression2026-05-22 (vestiges CJS, 8 fichiers + 2 dossiers)
+backend/__tests__/Gamification.test.jssuppression2026-05-22
+backend/__tests__/pde.test.jssuppression2026-05-22
+backend/__tests__/Admin.test.jssuppression2026-05-22
+backend/src/__tests__/suppression2026-05-22 (doublon signatures.test.js)
 11.3 Décisions architecturales
 DateDécisionJustification2026-05-13Hébergement : RenderChoix du propriétaire
 11.4 Secrets configurés (nom uniquement)

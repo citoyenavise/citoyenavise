@@ -60,9 +60,24 @@ export const createActualiteLimiter = rateLimit({
   skip: (req) => !req.user,
 });
 
+/**
+ * Limiteur de contact élu : 3 messages par heure par utilisateur
+ * Empêche le spam via le formulaire de contact direct (Phase G.2 Lot 11)
+ */
+export const eluContactLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 heure
+  max: 3,
+  message:
+    'Limite atteinte : 3 messages par heure. Réessayez plus tard.',
+  statusCode: 429,
+  keyGenerator: (req) => req.user?.id || ipKeyGenerator(req),
+  skip: (req) => !req.user,
+});
+
 export default {
   globalLimiter,
   authLimiter,
   signatureLimiter,
   createActualiteLimiter,
+  eluContactLimiter,
 };

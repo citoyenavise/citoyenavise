@@ -1,0 +1,185 @@
+/* ============================================================
+   NetworkSidebar — Lot 3 Phase G.1
+   Palette : rose CitoyenAvise (#ec4899) pour le scope Québec
+            cyan (#06b6d4) pour le scope Canada
+   ============================================================ */
+
+.cv-network-sidebar {
+  width: 280px;
+  flex: 0 0 280px;
+  background: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  padding: 1rem 0.85rem;
+  overflow-y: auto;
+  height: 100%;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+/* ─── Profil utilisateur ─────────────────────────────── */
+
+.cv-network-profile {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  margin-bottom: 1rem;
+  background: linear-gradient(135deg, #fdf2f8 0%, #ffffff 100%);
+  border: 1px solid #fce7f3;
+  border-radius: 10px;
+}
+
+.cv-network-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.05rem;
+  flex-shrink: 0;
+}
+
+.cv-network-profile-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.cv-network-profile-name {
+  font-weight: 600;
+  font-size: 0.92rem;
+  color: #111827;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.cv-network-profile-meta {
+  font-size: 0.78rem;
+  color: #6b7280;
+  margin-top: 2px;
+}
+
+.cv-network-login-cta {
+  display: inline-block;
+  width: 100%;
+  text-align: center;
+  padding: 0.6rem 0.9rem;
+  background: #ec4899;
+  color: #ffffff !important;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: background 0.15s ease;
+}
+
+.cv-network-login-cta:hover {
+  background: #be185d;
+}
+
+/* ─── Bloc scope ─────────────────────────────────────── */
+
+.cv-network-scope {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  margin-bottom: 0.85rem;
+  overflow: hidden;
+}
+
+.cv-network-scope-header {
+  padding: 0.6rem 0.85rem;
+  border-top: 3px solid;
+  background: #f9fafb;
+  border-bottom: 1px solid #f3f4f6;
+}
+
+.cv-network-scope-header h3 {
+  margin: 0;
+  font-size: 0.78rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.cv-network-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  padding: 0.85rem;
+}
+
+.cv-network-counter {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  padding: 0.4rem 0.5rem;
+  background: #f9fafb;
+  border-radius: 6px;
+}
+
+.cv-network-counter-value {
+  font-size: 1.35rem;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.1;
+}
+
+.cv-network-counter-label {
+  font-size: 0.72rem;
+  color: #6b7280;
+  margin-top: 2px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+/* ─── Loading / erreur ───────────────────────────────── */
+
+.cv-network-loading {
+  padding: 1.2rem;
+  text-align: center;
+  color: #9ca3af;
+  font-size: 0.85rem;
+}
+
+.cv-network-error {
+  margin-bottom: 0.85rem;
+  padding: 0.6rem 0.85rem;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  color: #991b1b;
+  font-size: 0.78rem;
+}
+
+/* ─── Footer ─────────────────────────────────────────── */
+
+.cv-network-footer {
+  margin-top: auto;
+  padding-top: 0.85rem;
+  border-top: 1px solid #f3f4f6;
+  text-align: center;
+  font-size: 0.72rem;
+  color: #9ca3af;
+}
+
+/* ─── Responsive ─────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .cv-network-sidebar {
+    width: 100%;
+    flex: 0 0 auto;
+    max-height: 280px;
+    border-right: none;
+    border-bottom: 1px solid #e5e7eb;
+  }
+
+  .cv-network-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}

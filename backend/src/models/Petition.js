@@ -48,6 +48,29 @@ const Petition = sequelize.define(
         isIn: [['draft', 'published', 'closed', 'won']],
       },
     },
+    // Référentiel enjeux (Lot 2, migration V011)
+    // 8 thématiques civiques + nullable pour rétro-compat
+    enjeu: {
+      type: DataTypes.STRING(20),
+      allowNull: true,
+      validate: {
+        isIn: {
+          args: [
+            [
+              'taxes',
+              'logement',
+              'sante',
+              'elections',
+              'droits',
+              'environnement',
+              'energie',
+              'autre',
+            ],
+          ],
+          msg: 'Enjeu invalide. Valeurs autorisées : taxes, logement, sante, elections, droits, environnement, energie, autre.',
+        },
+      },
+    },
     signaturesCount: {
       type: DataTypes.INTEGER,
       field: 'signatures_count',

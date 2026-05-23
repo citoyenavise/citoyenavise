@@ -57,7 +57,7 @@ const Circonscription = sequelize.define(
   }
 );
 
-Circonscription.list = async function(filters = {}, limit = 50, offset = 0) {
+Circonscription.list = async function (filters = {}, limit = 50, offset = 0) {
   const { niveau, région, searchTerm, codePostal } = filters;
   const where = {};
 
@@ -69,21 +69,25 @@ Circonscription.list = async function(filters = {}, limit = 50, offset = 0) {
     where,
     limit: Math.min(limit, 100),
     offset: parseInt(offset),
-    order: [['niveau', 'DESC'], ['région', 'ASC'], ['nom', 'ASC']],
+    order: [
+      ['niveau', 'DESC'],
+      ['région', 'ASC'],
+      ['nom', 'ASC'],
+    ],
   });
 };
 
-Circonscription.findById = async function(id) {
+Circonscription.findById = async function (id) {
   return this.findByPk(id);
 };
 
-Circonscription.findByCodePostal = async function(codePostal, niveau = null) {
+Circonscription.findByCodePostal = async function (codePostal, niveau = null) {
   const where = { codePostal };
   if (niveau) where.niveau = niveau;
   return this.findAll({ where });
 };
 
-Circonscription.findByRégion = async function(région, niveau = null) {
+Circonscription.findByRégion = async function (région, niveau = null) {
   const where = { région: { [Op.iLike]: `%${région}%` } };
   if (niveau) where.niveau = niveau;
   return this.findAll({
@@ -92,11 +96,11 @@ Circonscription.findByRégion = async function(région, niveau = null) {
   });
 };
 
-Circonscription.listByNiveau = async function(niveau, limit = 50, offset = 0) {
+Circonscription.listByNiveau = async function (niveau, limit = 50, offset = 0) {
   return this.list({ niveau }, limit, offset);
 };
 
-Circonscription.getStats = async function() {
+Circonscription.getStats = async function () {
   const count = await this.count();
   const niveaux = await this.count({
     distinct: true,
@@ -114,7 +118,7 @@ Circonscription.getStats = async function() {
   };
 };
 
-Circonscription.search = async function(searchTerm, limit = 50, offset = 0) {
+Circonscription.search = async function (searchTerm, limit = 50, offset = 0) {
   return this.list({ searchTerm }, limit, offset);
 };
 

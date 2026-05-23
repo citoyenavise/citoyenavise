@@ -111,7 +111,7 @@ describe('GET /api/v1/petitions/:id/stats', () => {
     if (testElu) await testElu.destroy();
     if (otherUser) await otherUser.destroy();
     if (testUser) await testUser.destroy();
-    await sequelize.close();
+    // sequelize.close() retiré (Famille A) — instance partagée, forceExit handle exit
   });
 
   describe('✅ Cas de succès', () => {

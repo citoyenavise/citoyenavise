@@ -10,49 +10,47 @@ let testPromises = [];
 
 describe('Transparency API', () => {
   beforeAll(async () => {
-    await sequelize.sync({ alter: true });
+    // sync alter:false — schéma déjà appliqué au boot serveur, alter:true cassait
+    // sur Circonscription.elus_ids INTEGER[] (Famille A bug Phase F)
+    await sequelize.sync({ alter: false });
 
     // Créer des élus de test avec différents niveaux
+    // Bug #26 corrigé : aligné sur modèle Elu (nom seul, niveau='fédéral', titre='Conseiller')
     testElus = await Promise.all([
       Elu.create({
-        prenom: 'Jean',
-        nom: 'Dupont',
+        nom: 'Jean Dupont',
         titre: 'Député',
         niveau: 'provincial',
         region: 'Montréal',
-        email: 'jean@test.com',
+        email: 'jean.transparency@test.com',
       }),
       Elu.create({
-        prenom: 'Marie',
-        nom: 'Martin',
+        nom: 'Marie Martin',
         titre: 'Sénateur',
-        niveau: 'federal',
+        niveau: 'fédéral',
         region: 'Québec',
-        email: 'marie@test.com',
+        email: 'marie.transparency@test.com',
       }),
       Elu.create({
-        prenom: 'Pierre',
-        nom: 'Bernard',
+        nom: 'Pierre Bernard',
         titre: 'Maire',
         niveau: 'municipal',
         region: 'Toronto',
-        email: 'pierre@test.com',
+        email: 'pierre.transparency@test.com',
       }),
       Elu.create({
-        prenom: 'Sophie',
-        nom: 'Arsenault',
-        titre: 'Conseillère',
+        nom: 'Sophie Arsenault',
+        titre: 'Conseiller',
         niveau: 'municipal',
         region: 'Montréal',
-        email: 'sophie@test.com',
+        email: 'sophie.transparency@test.com',
       }),
       Elu.create({
-        prenom: 'Marc',
-        nom: 'Zaplata',
+        nom: 'Marc Zaplata',
         titre: 'Député',
         niveau: 'provincial',
         region: 'Laval',
-        email: 'marc@test.com',
+        email: 'marc.transparency@test.com',
       }),
     ]);
 
@@ -135,8 +133,15 @@ describe('Transparency API', () => {
   });
 
   afterAll(async () => {
-    await sequelize.drop();
-    await sequelize.close();
+    // Bug #28 corrigé : ne pas drop ni close (instance partagée avec autres tests).
+    // Nettoyage ciblé des entités créées par ce test uniquement.
+    try {
+      await Promise.all(testPromises.map((p) => p.destroy({ force: true })));
+      await Promise.all(testElus.map((e) => e.destroy({ force: true })));
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.warn('⚠️ Nettoyage transparency partiel:', err.message);
+    }
   });
 
   describe('GET /api/v1/transparency/ranking', () => {
@@ -183,7 +188,8 @@ describe('Transparency API', () => {
         .query({ level: 'federal' });
 
       expect(res.status).toBe(200);
-      expect(res.body.data.every((e) => e.niveau === 'federal')).toBe(true);
+      // BD stocke 'fédéral' (avec accent), API accepte 'federal' (mapping route)
+      expect(res.body.data.every((e) => e.niveau === 'fédéral')).toBe(true);
     });
 
     it('should paginate correctly with page and limit', async () => {

@@ -67,7 +67,7 @@ describe('Signatures - Idempotence & UNIQUE Constraint', () => {
     if (testPetition) await testPetition.destroy();
     if (testElu) await testElu.destroy();
     if (testUser) await testUser.destroy();
-    await sequelize.close();
+    // sequelize.close() retiré (Famille A) — instance partagée, forceExit handle exit
   });
 
   describe('POST /api/v1/petitions/:id/sign', () => {

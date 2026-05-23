@@ -21,6 +21,15 @@ const rankingQuerySchema = z.object({
   sort: z.enum(['score', 'name']).default('score'),
 });
 
+// Mapping API (ASCII) → BD (avec accent)
+// Le modèle Elu valide 'fédéral' (avec accent) mais l'API accepte 'federal' (sans accent)
+// pour faciliter les query string. Cleanup F.4 (bug #26).
+const NIVEAU_MAP = {
+  federal: 'fédéral',
+  provincial: 'provincial',
+  municipal: 'municipal',
+};
+
 /**
  * GET /api/v1/transparency/ranking
  * Classement des élus par score de transparence
@@ -42,7 +51,7 @@ router.get('/ranking', async (req, res, next) => {
     // Fetch tous les élus avec leurs promesses
     const where = {};
     if (level) {
-      where.niveau = level;
+      where.niveau = NIVEAU_MAP[level] || level;
     }
 
     const elus = await Elu.findAll({
@@ -196,7 +205,7 @@ router.get('/stats', async (req, res, next) => {
 
     const where = {};
     if (level) {
-      where.niveau = level;
+      where.niveau = NIVEAU_MAP[level] || level;
     }
 
     const elus = await Elu.findAll({

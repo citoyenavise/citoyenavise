@@ -238,6 +238,97 @@ class EmailService {
   }
 
   /**
+   * Relayer un message d'un citoyen à un élu
+   * Phase G.2 - Lot 11 : formulaire de contact direct sur fiche élu
+   *
+   * @param {Object} elu - { nom, titre, email }
+   * @param {Object} citoyen - { username, email }
+   * @param {string} sujet
+   * @param {string} message
+   * @returns {Promise<boolean>}
+   */
+  async relayToElu(elu, citoyen, sujet, message) {
+    if (!this.initialized) {
+      throw new Error('Email service not initialized');
+    }
+
+    if (!elu.email) {
+      throw new Error("Cet élu n'a pas d'email public configuré");
+    }
+
+    const safeSubject = String(sujet || '').slice(0, 200);
+    const safeMessage = String(message || '').slice(0, 5000);
+    const safeCitoyenName = String(citoyen.username || 'Citoyen').slice(0, 80);
+    const safeCitoyenEmail = String(citoyen.email || '').slice(0, 254);
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="utf-8">
+        <style>
+          body { font-family: Arial, sans-serif; color: #333; line-height: 1.5; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background-color: #1a5c8e; color: white; padding: 18px; }
+          .content { padding: 20px; background-color: #f9f9f9; }
+          .meta { font-size: 12px; color: #666; border-top: 1px solid #ccc; padding-top: 12px; margin-top: 20px; }
+          .message { background: #fff; padding: 16px; border-left: 4px solid #1a5c8e; white-space: pre-wrap; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h2 style="margin:0;">Message citoyen via citoyenavise.org</h2>
+          </div>
+          <div class="content">
+            <p><strong>Destinataire :</strong> ${elu.titre || ''} ${elu.nom}</p>
+            <p><strong>De :</strong> ${safeCitoyenName} &lt;${safeCitoyenEmail}&gt;</p>
+            <p><strong>Sujet :</strong> ${safeSubject}</p>
+            <div class="message">${safeMessage.replace(/</g, '&lt;').replace(/>/g, '&gt;')}</div>
+            <div class="meta">
+              Ce message vous est transmis par citoyenavise.org —
+              plateforme civique canadienne de transparence.<br>
+              Vous pouvez répondre directement à ce courriel ; votre réponse
+              sera envoyée à l'expéditeur.
+            </div>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const textContent = [
+      `Destinataire : ${elu.titre || ''} ${elu.nom}`,
+      `De : ${safeCitoyenName} <${safeCitoyenEmail}>`,
+      `Sujet : ${safeSubject}`,
+      '',
+      safeMessage,
+      '',
+      '---',
+      'Transmis par citoyenavise.org',
+    ].join('\n');
+
+    try {
+      const fromAddress =
+        process.env.SMTP_FROM || process.env.SMTP_USER || 'noreply@citoyenavise.org';
+
+      await this.transporter.sendMail({
+        from: `"Citoyen Avisé (relais)" <${fromAddress}>`,
+        to: elu.email,
+        replyTo: safeCitoyenEmail,
+        subject: `[Citoyen Avisé] ${safeSubject}`,
+        html: htmlContent,
+        text: textContent,
+      });
+
+      return true;
+    } catch (err) {
+      console.error('❌ Failed to relay message to élu:', err.message);
+      throw err;
+    }
+  }
+
+  /**
    * Tester connexion SMTP
    */
   async testConnection() {

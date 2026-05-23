@@ -1,10 +1,39 @@
 /**
  * Elu Model
- * Représente les élus (Députés, Sénateurs, Maires, Conseillers)
+ * Représente les élus à tous les niveaux (fédéral, provincial, municipal)
+ * Phase G.2 - Lot 1 : extension fiche descriptive complète
  */
 
 import { DataTypes } from 'sequelize';
 import sequelize from '../db/sequelize.js';
+
+const TITRES_AUTORISES = [
+  'Député',
+  'Sénateur',
+  'Premier ministre',
+  'Ministre',
+  'Vice-PM',
+  'Président Chambre',
+  'Président Sénat',
+  'Gouverneur général',
+  'Juge',
+  'Maire',
+  'Conseiller',
+  'Autre',
+];
+
+const NIVEAUX_AUTORISES = ['fédéral', 'provincial', 'municipal'];
+
+const STATUTS_AUTORISES = ['actif', 'sortant', 'ancien', 'candidat', 'decede'];
+
+const CAUSES_FIN_AUTORISEES = [
+  'fin_mandat',
+  'demission',
+  'defaite_electorale',
+  'deces',
+  'revocation',
+  'autre',
+];
 
 const Elu = sequelize.define(
   'Elu',
@@ -14,6 +43,8 @@ const Elu = sequelize.define(
       primaryKey: true,
       autoIncrement: true,
     },
+
+    // Identité
     nom: {
       type: DataTypes.STRING(255),
       allowNull: false,
@@ -22,9 +53,26 @@ const Elu = sequelize.define(
       type: DataTypes.STRING(100),
       allowNull: false,
       validate: {
-        isIn: [['Député', 'Sénateur', 'Maire', 'Conseiller', 'Autre']],
+        isIn: [TITRES_AUTORISES],
       },
     },
+    poste: {
+      type: DataTypes.STRING(150),
+    },
+    rolesSecondaires: {
+      type: DataTypes.TEXT,
+      field: 'roles_secondaires',
+    },
+    partiPolitique: {
+      type: DataTypes.STRING(100),
+      field: 'parti_politique',
+    },
+    partiCouleur: {
+      type: DataTypes.STRING(20),
+      field: 'parti_couleur',
+    },
+
+    // Géographie / circonscription
     region: {
       type: DataTypes.STRING(50),
       allowNull: false,
@@ -33,26 +81,89 @@ const Elu = sequelize.define(
       type: DataTypes.STRING(50),
       allowNull: false,
       validate: {
-        isIn: [['fédéral', 'provincial', 'municipal']],
+        isIn: [NIVEAUX_AUTORISES],
       },
     },
+    circonscriptionId: {
+      type: DataTypes.INTEGER,
+      field: 'circonscription_id',
+    },
+
+    // Mandat
+    mandatDebut: {
+      type: DataTypes.DATEONLY,
+      field: 'mandat_debut',
+    },
+    mandatFin: {
+      type: DataTypes.DATEONLY,
+      field: 'mandat_fin',
+    },
+    legislature: {
+      type: DataTypes.STRING(10),
+    },
+
+    // Contact
     email: {
       type: DataTypes.STRING(255),
     },
-    photoUrl: {
-      type: DataTypes.STRING(500),
-      field: 'photo_url',
+    telephone: {
+      type: DataTypes.STRING(30),
+    },
+    adresseBureau: {
+      type: DataTypes.TEXT,
+      field: 'adresse_bureau',
     },
     siteWeb: {
       type: DataTypes.STRING(500),
       field: 'site_web',
     },
+    reseauxSociaux: {
+      type: DataTypes.JSONB,
+      field: 'reseaux_sociaux',
+      defaultValue: {},
+    },
+
+    // Visuels
+    photoUrl: {
+      type: DataTypes.STRING(500),
+      field: 'photo_url',
+    },
+
+    // Géolocalisation
     latitude: {
       type: DataTypes.FLOAT,
     },
     longitude: {
       type: DataTypes.FLOAT,
     },
+
+    // Cycle de vie
+    statut: {
+      type: DataTypes.STRING(20),
+      defaultValue: 'actif',
+      validate: {
+        isIn: [STATUTS_AUTORISES],
+      },
+    },
+    causeFin: {
+      type: DataTypes.STRING(50),
+      field: 'cause_fin',
+      validate: {
+        isIn: [[...CAUSES_FIN_AUTORISEES, null]],
+      },
+    },
+
+    // Traçabilité source
+    sourceUrl: {
+      type: DataTypes.TEXT,
+      field: 'source_url',
+    },
+    sourceDerniereMaj: {
+      type: DataTypes.DATE,
+      field: 'source_derniere_maj',
+    },
+
+    // Timestamps
     createdAt: {
       type: DataTypes.DATE,
       field: 'created_at',
@@ -67,5 +178,13 @@ const Elu = sequelize.define(
     timestamps: false,
   }
 );
+
+// Exports utilitaires
+export {
+  TITRES_AUTORISES,
+  NIVEAUX_AUTORISES,
+  STATUTS_AUTORISES,
+  CAUSES_FIN_AUTORISEES,
+};
 
 export default Elu;

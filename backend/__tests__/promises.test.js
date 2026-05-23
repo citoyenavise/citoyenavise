@@ -15,7 +15,8 @@ let adminToken;
 
 describe('Promises API', () => {
   beforeAll(async () => {
-    await sequelize.sync({ alter: true });
+    // sync alter:false — schéma déjà appliqué au boot serveur (Famille A bug Phase F)
+    await sequelize.sync({ alter: false });
 
     testUser = await User.create({
       email: 'test@example.com',
@@ -54,7 +55,7 @@ describe('Promises API', () => {
 
   afterAll(async () => {
     await sequelize.drop();
-    await sequelize.close();
+    // sequelize.close() retiré (Famille A) — instance partagée, forceExit handle exit
   });
 
   describe('GET /api/v1/promises returns by elu', () => {

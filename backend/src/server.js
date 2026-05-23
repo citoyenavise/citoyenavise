@@ -18,6 +18,16 @@ const app = express();
 const config = getConfig();
 
 // ═══════════════════════════════════════════════════════════════
+// Trust Proxy — Render / Neon / reverse proxy (Bug #30)
+// ═══════════════════════════════════════════════════════════════
+// Render et autres reverse proxies injectent l'IP client via X-Forwarded-For.
+// Sans ce réglage : express-rate-limit calcule le rate limit sur l'IP du proxy
+// (mêmes valeurs pour tous les clients) → mitigation IP non opérante + warning
+// ERR_ERL_UNEXPECTED_X_FORWARDED_FOR dans les logs.
+// Valeur 1 = faire confiance au premier proxy en amont (Render).
+app.set('trust proxy', 1);
+
+// ═══════════════════════════════════════════════════════════════
 // Sécurité - Helmet pour les headers HTTP
 // ═══════════════════════════════════════════════════════════════
 // Helmet aide à sécuriser l'application Express en configurant divers headers HTTP
@@ -133,7 +143,9 @@ async function initializeApp() {
     // Synchroniser les modèles à chaque démarrage
     // alter contrôlé par variable d'env SYNC_ALTER (false par défaut, true pour réalignement ponctuel)
     const syncAlter = process.env.SYNC_ALTER === 'true';
-    console.log(`🔄 Synchronisation des modèles avec la base de données (alter:${syncAlter})...`);
+    console.log(
+      `🔄 Synchronisation des modèles avec la base de données (alter:${syncAlter})...`
+    );
     await sequelize.sync({ alter: syncAlter });
     console.log('✅ Modèles synchronisés');
 

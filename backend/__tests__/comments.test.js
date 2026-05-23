@@ -87,7 +87,7 @@ describe('Comments Routes', () => {
     if (testElu) await testElu.destroy();
     if (otherUser) await otherUser.destroy();
     if (testUser) await testUser.destroy();
-    await sequelize.close();
+    // sequelize.close() retiré (Famille A) — instance partagée, forceExit handle exit
   });
 
   describe('GET /api/v1/petitions/:id/comments', () => {

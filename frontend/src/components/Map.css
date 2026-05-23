@@ -1,34 +1,188 @@
-/* Map styling */
+/* ============================================================
+   Map styling — citoyenavise.org
+   Palette : rose CitoyenAvise (#ec4899), cyan pétitions (#06b6d4)
+   Fond : CARTO Dark Matter
+   ============================================================ */
+
 .map-container {
   height: 600px;
   width: 100%;
 }
 
-/* Marker cluster custom colors */
+/* ============================================================
+   Marqueurs personnalisés (Lot 1.2)
+   ============================================================ */
+
+.cv-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+.cv-marker-pin {
+  position: relative;
+  width: 32px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50% 50% 50% 0;
+  transform: rotate(-45deg);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.45);
+  border: 2px solid rgba(255, 255, 255, 0.85);
+}
+
+.cv-marker-pin svg {
+  transform: rotate(45deg);
+}
+
+.cv-marker-pin-elu {
+  background: linear-gradient(135deg, #ec4899 0%, #be185d 100%);
+}
+
+.cv-marker-pin-petition {
+  background: linear-gradient(135deg, #06b6d4 0%, #0e7490 100%);
+}
+
+/* ============================================================
+   Clusters personnalisés
+   ============================================================ */
+
+.cv-cluster {
+  background: transparent !important;
+  border: none !important;
+}
+
+.cv-cluster-inner {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: rgba(236, 72, 153, 0.85);
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 14px;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+}
+
+/* Vestiges classes leaflet.markercluster — neutralisés
+   (le iconCreateFunction custom prend le relais) */
 .marker-cluster {
   background-clip: padding-box;
 }
 
-.marker-cluster-small {
-  background-color: #e8a538;
+/* ============================================================
+   Popups stylés (Lot 1.4 — préparé ici)
+   ============================================================ */
+
+.leaflet-popup-content-wrapper {
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+  background: #ffffff;
+  padding: 0;
 }
 
-.marker-cluster-small div {
-  background-color: #f39c12;
+.leaflet-popup-content {
+  margin: 0;
+  padding: 14px 16px 12px;
+  min-width: 220px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  color: #1f2937;
 }
 
-.marker-cluster-medium {
-  background-color: #d67e3c;
+.leaflet-popup-tip {
+  background: #ffffff;
 }
 
-.marker-cluster-medium div {
-  background-color: #e74c3c;
+.cv-popup .cv-popup-type {
+  display: inline-block;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-bottom: 8px;
 }
 
-.marker-cluster-large {
-  background-color: #c0392b;
+.cv-popup-elu .cv-popup-type {
+  background: #fce7f3;
+  color: #be185d;
 }
 
-.marker-cluster-large div {
-  background-color: #c0392b;
+.cv-popup-petition .cv-popup-type {
+  background: #cffafe;
+  color: #0e7490;
 }
+
+.cv-popup h3 {
+  margin: 0 0 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #111827;
+  line-height: 1.3;
+}
+
+.cv-popup-meta {
+  margin: 2px 0;
+  font-size: 13px;
+  color: #4b5563;
+  line-height: 1.4;
+}
+
+.cv-popup-link {
+  display: inline-block;
+  margin-top: 10px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.15s ease;
+}
+
+.cv-popup-elu .cv-popup-link {
+  background: #ec4899;
+  color: #ffffff;
+}
+
+.cv-popup-elu .cv-popup-link:hover {
+  background: #be185d;
+}
+
+.cv-popup-petition .cv-popup-link {
+  background: #06b6d4;
+  color: #ffffff;
+}
+
+.cv-popup-petition .cv-popup-link:hover {
+  background: #0e7490;
+}
+
+/* ============================================================
+   Badge enjeu dans popup (Lot 2)
+   ============================================================ */
+
+.cv-popup-enjeu {
+  display: inline-block;
+  margin: 4px 0 6px;
+  padding: 3px 9px;
+  border-radius: 9999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+}
+
+.cv-popup-enjeu-environnement { background: #d1fae5; color: #065f46; border-color: #a7f3d0; }
+.cv-popup-enjeu-taxes         { background: #fef3c7; color: #92400e; border-color: #fde68a; }
+.cv-popup-enjeu-logement      { background: #ffedd5; color: #9a3412; border-color: #fed7aa; }
+.cv-popup-enjeu-sante         { background: #fee2e2; color: #991b1b; border-color: #fecaca; }
+.cv-popup-enjeu-elections     { background: #ede9fe; color: #5b21b6; border-color: #ddd6fe; }
+.cv-popup-enjeu-droits        { background: #e0e7ff; color: #3730a3; border-color: #c7d2fe; }
+.cv-popup-enjeu-energie       { background: #fef9c3; color: #854d0e; border-color: #fef08a; }
+.cv-popup-enjeu-autre         { background: #f3f4f6; color: #374151; border-color: #e5e7eb; }

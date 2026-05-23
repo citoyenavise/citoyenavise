@@ -110,7 +110,7 @@ describe("Pétitions - Suite d'intégration complète", () => {
     if (user1) await user1.destroy();
     if (user2) await user2.destroy();
     if (user3) await user3.destroy();
-    await sequelize.close();
+    // sequelize.close() retiré (Famille A) — instance partagée, forceExit handle exit
   });
 
   // ═══════════════════════════════════════════════════════════════

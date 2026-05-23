@@ -19,8 +19,10 @@ import promisesRoutes from './promises.js';
 // import gamificationRoutes from './gamification.js'; // Désactivé - services manquants
 // import adminRoutes from './admin.js'; // Désactivé - modèles non essentiels
 import adminSeedRoutes from './admin-seed.js';
+import adminElusRoutes from './admin-elus.js';
 // import civicTutorialsRoutes from './civic-tutorials.js'; // Désactivé - dépendances problématiques
 import transparencyRoutes from './transparency.js';
+import networkRoutes from './network.js';
 // import usersRoutes from './users.js';
 // import votesRoutes from './votes.js';
 
@@ -70,9 +72,11 @@ router.use('/api/v1/actualites', actualitesRoutes);
 router.use('/api/v1/promises', promisesRoutes);
 // router.use('/api/v1/posts', postsRoutes); // Non utilisé
 router.use('/api/v1/transparency', transparencyRoutes);
+router.use('/api/v1/network', networkRoutes);
 // router.use('/api/v1/gamification', gamificationRoutes); // Désactivé
 // router.use('/api/v1/admin', adminRoutes); // Désactivé
 router.use('/api/v1/admin', adminSeedRoutes);
+router.use('/api/v1/admin/elus', adminElusRoutes);
 // router.use('/api/v1/tutorials', civicTutorialsRoutes); // Désactivé
 router.use('/api/v1', commentsRoutes);
 

@@ -96,6 +96,7 @@ const petitionsData = [
     Une infrastructure cyclable sécurisée encouragerait les déplacements actifs, réduirait la congestion automobile
     et améliorerait la santé publique. C'est une priorité pour une ville durable et vivable.`,
     eluId: 1, // Marthe Belleville
+    enjeu: 'environnement',
   },
   {
     titre: 'Améliorer la fréquence des autobus RTC en banlieue de Québec',
@@ -105,6 +106,7 @@ const petitionsData = [
     à au moins un autobus toutes les 15 minutes aux heures de pointe. Cela réduirait les embouteillages,
     diminuerait les émissions de carbone et rendrait le RTC vraiment accessible à tous.`,
     eluId: 3, // Sophie Goyette
+    enjeu: 'autre',
   },
   {
     titre: 'Préserver les espaces verts du quartier Sainte-Foy contre la densification excessive',
@@ -115,6 +117,7 @@ const petitionsData = [
     préservent les milieux naturels et offrent des espaces verts accessibles au public.
     Une densification sans verdure nuit à la qualité de vie.`,
     eluId: 5, // Caroline Matte
+    enjeu: 'environnement',
   },
 ];
 
@@ -170,8 +173,13 @@ async function seed() {
           signaturesCount: 0,
         },
       });
+      // Backfill enjeu si pétition pré-existait sans cette colonne (V011)
+      if (!created && petitionData.enjeu && petition.enjeu !== petitionData.enjeu) {
+        petition.enjeu = petitionData.enjeu;
+        await petition.save();
+      }
       createdPetitions.push(petition);
-      console.log(`  ${created ? '✓ créé' : '↺ existant'} : "${petition.titre}" (${petition.status})`);
+      console.log(`  ${created ? '✓ créé' : '↺ existant'} : "${petition.titre}" (${petition.status}, enjeu=${petition.enjeu || 'NULL'})`);
     }
     console.log(`✅ ${createdPetitions.length} pétitions créées\n`);
 

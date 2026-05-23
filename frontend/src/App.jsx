@@ -19,6 +19,7 @@ const CreatePetitionPage = React.lazy(() => import('./pages/CreatePetitionPage')
 const MapPage = React.lazy(() => import('./pages/MapPage'));
 const TransparencyRanking = React.lazy(() => import('./pages/TransparencyRanking'));
 const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
+const AdminElusPage = React.lazy(() => import('./pages/AdminElusPage'));
 const Login = React.lazy(() => import('./pages/Login'));
 const VerifyPage = React.lazy(() => import('./pages/VerifyPage'));
 // Loading fallback
@@ -74,6 +75,7 @@ function App() {
               <Route path="carte" element={<MapPage />} />
               <Route path="transparence/ranking" element={<TransparencyRanking />} />
               <Route path="admin" element={<ProtectedRoute><AdminDashboard /></ProtectedRoute>} />
+              <Route path="admin/elus" element={<ProtectedRoute><AdminElusPage /></ProtectedRoute>} />
               <Route path="login" element={<Login />} />
               <Route path="verify" element={<VerifyPage />} />
             </Route>

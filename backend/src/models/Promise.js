@@ -1,10 +1,21 @@
 /**
  * Promise Model
- * Représente les promesses électorales des élus
+ * Représente les promesses électorales et engagements publics des élus
+ * Phase G.2 - Lot 2 : ajout traçabilité source + date_promesse + contexte
  */
 
 import { DataTypes } from 'sequelize';
 import sequelize from '../db/sequelize.js';
+
+const CONTEXTES_AUTORISES = [
+  'campagne',
+  'discours',
+  'communique',
+  'entrevue',
+  'plateforme',
+  'budget',
+  'autre',
+];
 
 const Promise = sequelize.define(
   'Promise',
@@ -32,6 +43,26 @@ const Promise = sequelize.define(
         isIn: [['engagee', 'en_cours', 'completee', 'abandonnee']],
       },
     },
+
+    // Traçabilité source (V013)
+    source: {
+      type: DataTypes.STRING(255),
+    },
+    sourceUrl: {
+      type: DataTypes.TEXT,
+      field: 'source_url',
+    },
+    datePromesse: {
+      type: DataTypes.DATEONLY,
+      field: 'date_promesse',
+    },
+    contexte: {
+      type: DataTypes.STRING(100),
+      validate: {
+        isIn: [[...CONTEXTES_AUTORISES, null]],
+      },
+    },
+
     deadline: {
       type: DataTypes.DATE,
     },
@@ -55,4 +86,5 @@ const Promise = sequelize.define(
   }
 );
 
+export { CONTEXTES_AUTORISES };
 export default Promise;
