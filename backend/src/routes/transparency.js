@@ -17,7 +17,12 @@ const router = express.Router();
 const rankingQuerySchema = z.object({
   level: z.enum(['federal', 'provincial', 'municipal']).optional(),
   page: z.coerce.number().int().positive('Page doit être > 0').default(1),
-  limit: z.coerce.number().int().min(1).max(100).default(10),
+  limit: z.coerce
+    .number()
+    .int()
+    .min(1)
+    .default(10)
+    .transform((v) => Math.min(v, 100)),
   sort: z.enum(['score', 'name']).default('score'),
 });
 
@@ -148,7 +153,7 @@ router.get('/top', async (req, res, next) => {
       include: [
         {
           model: Promise,
-          as: 'Promises',
+          as: 'promises',
           attributes: ['status'],
           required: false,
         },
@@ -214,7 +219,7 @@ router.get('/stats', async (req, res, next) => {
       include: [
         {
           model: Promise,
-          as: 'Promises',
+          as: 'promises',
           attributes: ['status'],
           required: false,
         },

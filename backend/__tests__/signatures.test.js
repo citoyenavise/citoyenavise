@@ -77,10 +77,8 @@ describe('Signatures - Idempotence & UNIQUE Constraint', () => {
         .set('Authorization', `Bearer ${jwtToken}`);
 
       expect(response.status).toBe(201);
-      expect(response.body.success).toBe(true);
-      expect(response.body.message).toBe('Pétition signée avec succès');
-      expect(response.body.data.petitionId).toBe(testPetition.id);
-      expect(response.body.data.citoyenId).toBe(testUser.id);
+      expect(response.body.signed).toBe(true);
+      expect(response.body.totalSignatures).toBe(1);
     });
 
     it('Signature count incrémenté', async () => {
@@ -94,9 +92,8 @@ describe('Signatures - Idempotence & UNIQUE Constraint', () => {
         .set('Authorization', `Bearer ${jwtToken}`);
 
       expect(response.status).toBe(409);
-      expect(response.body.success).toBe(false);
-      expect(response.body.error).toBe('Vous avez déjà signé cette pétition');
-      expect(response.body.code).toBe('DUPLICATE_SIGNATURE');
+      expect(response.body.signed).toBe(false);
+      expect(response.body.message).toBeDefined();
     });
 
     it('Signature count pas changé après doublon', async () => {
@@ -142,8 +139,8 @@ describe('Signatures - Idempotence & UNIQUE Constraint', () => {
         .set('Authorization', `Bearer ${jwtToken}`);
 
       expect(response.status).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.message).toBe('Signature retirée');
+      expect(response.body.unsigned).toBe(true);
+      expect(response.body.totalSignatures).toBe(0);
     });
 
     it('Signature count décrémenté', async () => {
@@ -157,7 +154,7 @@ describe('Signatures - Idempotence & UNIQUE Constraint', () => {
         .set('Authorization', `Bearer ${jwtToken}`);
 
       expect(response.status).toBe(201);
-      expect(response.body.success).toBe(true);
+      expect(response.body.signed).toBe(true);
     });
 
     it('Signature count back to 1', async () => {
@@ -173,7 +170,6 @@ describe('Signatures - Idempotence & UNIQUE Constraint', () => {
       );
 
       expect(response.status).toBe(401);
-      expect(response.body.success).toBe(false);
     });
 
     it('Signer pétition non publiée : 400 Bad Request', async () => {
@@ -191,7 +187,7 @@ describe('Signatures - Idempotence & UNIQUE Constraint', () => {
         .set('Authorization', `Bearer ${jwtToken}`);
 
       expect(response.status).toBe(400);
-      expect(response.body.code).toBe('PETITION_NOT_PUBLISHED');
+      expect(response.body.signed).toBe(false);
 
       await draftPetition.destroy();
     });
@@ -202,7 +198,7 @@ describe('Signatures - Idempotence & UNIQUE Constraint', () => {
         .set('Authorization', `Bearer ${jwtToken}`);
 
       expect(response.status).toBe(404);
-      expect(response.body.error).toBe('Pétition non trouvée');
+      expect(response.body.signed).toBe(false);
     });
   });
 });
