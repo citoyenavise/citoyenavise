@@ -96,6 +96,10 @@ describe('Phase G.2 — Fiche descriptive élu', () => {
 
   afterAll(async () => {
     await Elu.destroy({ where: { id: testEluId } });
+    // Force fermeture connexions Sequelize pour éviter hang CI (bug #20 ré-émergent)
+    if (sequelize.connectionManager && sequelize.connectionManager.pool) {
+      await sequelize.connectionManager.close();
+    }
   });
 
   it('GET /api/v1/elus/:id expose tous les champs étendus', async () => {
