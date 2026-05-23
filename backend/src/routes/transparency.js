@@ -60,7 +60,7 @@ router.get('/ranking', async (req, res, next) => {
       include: [
         {
           model: Promise,
-          as: 'Promises',
+          as: 'promises',
           attributes: ['status'],
           required: false,
         },

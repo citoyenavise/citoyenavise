@@ -59,7 +59,9 @@ export async function logCreate({
       source,
       sourceDetails,
       modifiePar,
-      nouvelleValeur: JSON.stringify(instance.toJSON ? instance.toJSON() : instance),
+      nouvelleValeur: JSON.stringify(
+        instance.toJSON ? instance.toJSON() : instance
+      ),
     });
   } catch (err) {
     console.error('[auditLog] logCreate erreur :', err.message);
@@ -85,9 +87,18 @@ export async function logDelete({
       source,
       sourceDetails,
       modifiePar,
-      ancienneValeur: JSON.stringify(instance.toJSON ? instance.toJSON() : instance),
+      ancienneValeur: JSON.stringify(
+        instance.toJSON ? instance.toJSON() : instance
+      ),
     });
   } catch (err) {
+    // Ignore FK violations (cascade delete already removed parent)
+    if (
+      err.name === 'SequelizeForeignKeyConstraintError' ||
+      err.message?.includes('elu_changelog_elu_id_fkey')
+    ) {
+      return;
+    }
     console.error('[auditLog] logDelete erreur :', err.message);
   }
 }
