@@ -88,9 +88,8 @@ export const calculateDetailedTransparencyScore = (elu) => {
     sourcedCount += votes.filter((v) => v.sourceUrl || v.source_url).length;
     sourcedCount += actions.filter((a) => a.sourceUrl || a.source_url).length;
   }
-  const completudeSources = totalEntities > 0
-    ? (sourcedCount / totalEntities) * 100
-    : 0;
+  const completudeSources =
+    totalEntities > 0 ? (sourcedCount / totalEntities) * 100 : 0;
 
   // === Score global pondéré ===
   // Si aucune donnée du tout : score 0
@@ -138,7 +137,8 @@ export const calculateDetailedTransparencyScore = (elu) => {
       completionRate: Math.round(completionRate),
       keepRate: Math.round(keepRate),
       participationRate: Math.round(participationRate),
-      alignementRate: alignementRate !== null ? Math.round(alignementRate) : null,
+      alignementRate:
+        alignementRate !== null ? Math.round(alignementRate) : null,
       completudeSources: Math.round(completudeSources),
     },
   };

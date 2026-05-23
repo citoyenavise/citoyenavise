@@ -51,15 +51,22 @@ function auditOpts(req) {
 }
 
 function ok(res, data, status = 200) {
-  return res.status(status).json({ success: true, data: toSnakeCase(data.toJSON ? data.toJSON() : data) });
+  return res.status(status).json({
+    success: true,
+    data: toSnakeCase(data.toJSON ? data.toJSON() : data),
+  });
 }
 
 function notFound(res, what = 'Ressource') {
-  return res.status(404).json({ success: false, error: `${what} non trouvé(e)` });
+  return res
+    .status(404)
+    .json({ success: false, error: `${what} non trouvé(e)` });
 }
 
 function badInput(res, errors) {
-  return res.status(400).json({ success: false, error: 'Payload invalide', details: errors });
+  return res
+    .status(400)
+    .json({ success: false, error: 'Payload invalide', details: errors });
 }
 
 // ═══════════════════════════════════════════════════════════════════
@@ -162,7 +169,10 @@ router.put('/:id/promises/:promiseId', async (req, res, next) => {
     const v = promiseSchema.partial().safeParse(req.body);
     if (!v.success) return badInput(res, v.error.errors);
     const p = await Promise.findOne({
-      where: { id: idSchema.parse(req.params.promiseId), eluId: idSchema.parse(req.params.id) },
+      where: {
+        id: idSchema.parse(req.params.promiseId),
+        eluId: idSchema.parse(req.params.id),
+      },
     });
     if (!p) return notFound(res, 'Promesse');
     await p.update(v.data, auditOpts(req));
@@ -175,7 +185,10 @@ router.put('/:id/promises/:promiseId', async (req, res, next) => {
 router.delete('/:id/promises/:promiseId', async (req, res, next) => {
   try {
     const p = await Promise.findOne({
-      where: { id: idSchema.parse(req.params.promiseId), eluId: idSchema.parse(req.params.id) },
+      where: {
+        id: idSchema.parse(req.params.promiseId),
+        eluId: idSchema.parse(req.params.id),
+      },
     });
     if (!p) return notFound(res, 'Promesse');
     await p.destroy(auditOpts(req));
@@ -190,7 +203,17 @@ router.delete('/:id/promises/:promiseId', async (req, res, next) => {
 // ═══════════════════════════════════════════════════════════════════
 
 const actionSchema = z.object({
-  type: z.enum(['loi', 'projet_loi', 'motion', 'vote', 'decision', 'declaration', 'intervention', 'communique', 'autre']),
+  type: z.enum([
+    'loi',
+    'projet_loi',
+    'motion',
+    'vote',
+    'decision',
+    'declaration',
+    'intervention',
+    'communique',
+    'autre',
+  ]),
   titre: z.string().min(1).max(255),
   description: z.string().optional().nullable(),
   date: z.string(),
@@ -219,7 +242,10 @@ router.put('/:id/actions/:actionId', async (req, res, next) => {
     const v = actionSchema.partial().safeParse(req.body);
     if (!v.success) return badInput(res, v.error.errors);
     const a = await Action.findOne({
-      where: { id: idSchema.parse(req.params.actionId), eluId: idSchema.parse(req.params.id) },
+      where: {
+        id: idSchema.parse(req.params.actionId),
+        eluId: idSchema.parse(req.params.id),
+      },
     });
     if (!a) return notFound(res, 'Action');
     await a.update(v.data, auditOpts(req));
@@ -232,7 +258,10 @@ router.put('/:id/actions/:actionId', async (req, res, next) => {
 router.delete('/:id/actions/:actionId', async (req, res, next) => {
   try {
     const a = await Action.findOne({
-      where: { id: idSchema.parse(req.params.actionId), eluId: idSchema.parse(req.params.id) },
+      where: {
+        id: idSchema.parse(req.params.actionId),
+        eluId: idSchema.parse(req.params.id),
+      },
     });
     if (!a) return notFound(res, 'Action');
     await a.destroy(auditOpts(req));
@@ -280,7 +309,10 @@ router.put('/:id/votes/:voteId', async (req, res, next) => {
     const v = voteSchema.partial().safeParse(req.body);
     if (!v.success) return badInput(res, v.error.errors);
     const vote = await Vote.findOne({
-      where: { id: idSchema.parse(req.params.voteId), eluId: idSchema.parse(req.params.id) },
+      where: {
+        id: idSchema.parse(req.params.voteId),
+        eluId: idSchema.parse(req.params.id),
+      },
     });
     if (!vote) return notFound(res, 'Vote');
     await vote.update(v.data, auditOpts(req));
@@ -293,7 +325,10 @@ router.put('/:id/votes/:voteId', async (req, res, next) => {
 router.delete('/:id/votes/:voteId', async (req, res, next) => {
   try {
     const vote = await Vote.findOne({
-      where: { id: idSchema.parse(req.params.voteId), eluId: idSchema.parse(req.params.id) },
+      where: {
+        id: idSchema.parse(req.params.voteId),
+        eluId: idSchema.parse(req.params.id),
+      },
     });
     if (!vote) return notFound(res, 'Vote');
     await vote.destroy(auditOpts(req));
@@ -308,17 +343,30 @@ router.delete('/:id/votes/:voteId', async (req, res, next) => {
 // ═══════════════════════════════════════════════════════════════════
 
 const controverseSchema = z.object({
-  type: z.enum(['scandale', 'enquete', 'sanction', 'correction', 'allegation', 'condamnation', 'rappel_ethique', 'autre']),
+  type: z.enum([
+    'scandale',
+    'enquete',
+    'sanction',
+    'correction',
+    'allegation',
+    'condamnation',
+    'rappel_ethique',
+    'autre',
+  ]),
   gravite: z.enum(['mineure', 'moderee', 'majeure']).optional().nullable(),
   titre: z.string().min(1).max(255),
   description: z.string().optional().nullable(),
   positionOfficielle: z.string().optional().nullable(),
-  statut: z.enum(['en_cours', 'cloturee', 'rejetee', 'confirmee', 'non_lieu']).optional(),
+  statut: z
+    .enum(['en_cours', 'cloturee', 'rejetee', 'confirmee', 'non_lieu'])
+    .optional(),
   dateDebut: z.string(),
   dateFin: z.string().optional().nullable(),
   source: z.string().max(255).optional().nullable(),
   sourceUrl: z.string().optional().nullable(),
-  sourcesComplementaires: z.array(z.object({ label: z.string(), url: z.string() })).optional(),
+  sourcesComplementaires: z
+    .array(z.object({ label: z.string(), url: z.string() }))
+    .optional(),
   isPublished: z.boolean().optional(),
   validatedByAdmin: z.boolean().optional(),
 });
@@ -349,7 +397,10 @@ router.put('/:id/controverses/:cid', async (req, res, next) => {
     const v = controverseSchema.partial().safeParse(req.body);
     if (!v.success) return badInput(res, v.error.errors);
     const c = await Controverse.findOne({
-      where: { id: idSchema.parse(req.params.cid), eluId: idSchema.parse(req.params.id) },
+      where: {
+        id: idSchema.parse(req.params.cid),
+        eluId: idSchema.parse(req.params.id),
+      },
     });
     if (!c) return notFound(res, 'Controverse');
 
@@ -369,7 +420,10 @@ router.put('/:id/controverses/:cid', async (req, res, next) => {
 router.delete('/:id/controverses/:cid', async (req, res, next) => {
   try {
     const c = await Controverse.findOne({
-      where: { id: idSchema.parse(req.params.cid), eluId: idSchema.parse(req.params.id) },
+      where: {
+        id: idSchema.parse(req.params.cid),
+        eluId: idSchema.parse(req.params.id),
+      },
     });
     if (!c) return notFound(res, 'Controverse');
     await c.destroy(auditOpts(req));
@@ -385,12 +439,24 @@ router.delete('/:id/controverses/:cid', async (req, res, next) => {
 
 const donateurSchema = z.object({
   nom: z.string().min(1).max(255),
-  typeDonateur: z.enum(['particulier', 'entreprise', 'syndicat', 'organisme', 'parti', 'comite', 'anonyme', 'autre']),
+  typeDonateur: z.enum([
+    'particulier',
+    'entreprise',
+    'syndicat',
+    'organisme',
+    'parti',
+    'comite',
+    'anonyme',
+    'autre',
+  ]),
   montant: z.number().nonnegative().optional().nullable(),
   devise: z.string().length(3).optional(),
   date: z.string(),
   anneeFiscale: z.number().int().optional().nullable(),
-  typeDon: z.enum(['monetaire', 'service', 'bien', 'pret', 'evenement', 'autre']).optional().nullable(),
+  typeDon: z
+    .enum(['monetaire', 'service', 'bien', 'pret', 'evenement', 'autre'])
+    .optional()
+    .nullable(),
   campagne: z.string().max(150).optional().nullable(),
   source: z.string().max(255).optional().nullable(),
   sourceUrl: z.string().optional().nullable(),
@@ -416,7 +482,10 @@ router.put('/:id/donateurs/:did', async (req, res, next) => {
     const v = donateurSchema.partial().safeParse(req.body);
     if (!v.success) return badInput(res, v.error.errors);
     const d = await Donateur.findOne({
-      where: { id: idSchema.parse(req.params.did), eluId: idSchema.parse(req.params.id) },
+      where: {
+        id: idSchema.parse(req.params.did),
+        eluId: idSchema.parse(req.params.id),
+      },
     });
     if (!d) return notFound(res, 'Donateur');
     await d.update(v.data, auditOpts(req));
@@ -429,7 +498,10 @@ router.put('/:id/donateurs/:did', async (req, res, next) => {
 router.delete('/:id/donateurs/:did', async (req, res, next) => {
   try {
     const d = await Donateur.findOne({
-      where: { id: idSchema.parse(req.params.did), eluId: idSchema.parse(req.params.id) },
+      where: {
+        id: idSchema.parse(req.params.did),
+        eluId: idSchema.parse(req.params.id),
+      },
     });
     if (!d) return notFound(res, 'Donateur');
     await d.destroy(auditOpts(req));
@@ -444,7 +516,17 @@ router.delete('/:id/donateurs/:did', async (req, res, next) => {
 // ═══════════════════════════════════════════════════════════════════
 
 const lienSchema = z.object({
-  type: z.enum(['directorat', 'actionnariat', 'emploi', 'consultation', 'lobby', 'beneficiaire', 'famille', 'association', 'autre']),
+  type: z.enum([
+    'directorat',
+    'actionnariat',
+    'emploi',
+    'consultation',
+    'lobby',
+    'beneficiaire',
+    'famille',
+    'association',
+    'autre',
+  ]),
   entite: z.string().min(1).max(255),
   role: z.string().max(150).optional().nullable(),
   secteur: z.string().max(100).optional().nullable(),
@@ -478,9 +560,12 @@ router.put('/:id/liens-interets/:lid', async (req, res, next) => {
     const v = lienSchema.partial().safeParse(req.body);
     if (!v.success) return badInput(res, v.error.errors);
     const l = await LienInteret.findOne({
-      where: { id: idSchema.parse(req.params.lid), eluId: idSchema.parse(req.params.id) },
+      where: {
+        id: idSchema.parse(req.params.lid),
+        eluId: idSchema.parse(req.params.id),
+      },
     });
-    if (!l) return notFound(res, 'Lien d\'intérêt');
+    if (!l) return notFound(res, "Lien d'intérêt");
     await l.update(v.data, auditOpts(req));
     return ok(res, l);
   } catch (e) {
@@ -491,11 +576,14 @@ router.put('/:id/liens-interets/:lid', async (req, res, next) => {
 router.delete('/:id/liens-interets/:lid', async (req, res, next) => {
   try {
     const l = await LienInteret.findOne({
-      where: { id: idSchema.parse(req.params.lid), eluId: idSchema.parse(req.params.id) },
+      where: {
+        id: idSchema.parse(req.params.lid),
+        eluId: idSchema.parse(req.params.id),
+      },
     });
-    if (!l) return notFound(res, 'Lien d\'intérêt');
+    if (!l) return notFound(res, "Lien d'intérêt");
     await l.destroy(auditOpts(req));
-    return res.json({ success: true, message: 'Lien d\'intérêt supprimé' });
+    return res.json({ success: true, message: "Lien d'intérêt supprimé" });
   } catch (e) {
     next(e);
   }
@@ -517,7 +605,17 @@ const mandatSchema = z.object({
   legislature: z.string().max(10).optional().nullable(),
   dateDebut: z.string(),
   dateFin: z.string().optional().nullable(),
-  causeFin: z.enum(['fin_mandat', 'demission', 'defaite_electorale', 'deces', 'revocation', 'autre']).optional().nullable(),
+  causeFin: z
+    .enum([
+      'fin_mandat',
+      'demission',
+      'defaite_electorale',
+      'deces',
+      'revocation',
+      'autre',
+    ])
+    .optional()
+    .nullable(),
   estActuel: z.boolean().optional(),
   source: z.string().max(255).optional().nullable(),
   sourceUrl: z.string().optional().nullable(),
@@ -573,7 +671,10 @@ router.put('/:id/mandats/:mid', async (req, res, next) => {
 router.delete('/:id/mandats/:mid', async (req, res, next) => {
   try {
     const m = await Mandat.findOne({
-      where: { id: idSchema.parse(req.params.mid), eluId: idSchema.parse(req.params.id) },
+      where: {
+        id: idSchema.parse(req.params.mid),
+        eluId: idSchema.parse(req.params.id),
+      },
     });
     if (!m) return notFound(res, 'Mandat');
     await m.destroy(auditOpts(req));
@@ -598,7 +699,10 @@ router.put('/:id/comments/:cid/moderate', async (req, res, next) => {
     if (!v.success) return badInput(res, v.error.errors);
 
     const c = await EluComment.findOne({
-      where: { id: idSchema.parse(req.params.cid), eluId: idSchema.parse(req.params.id) },
+      where: {
+        id: idSchema.parse(req.params.cid),
+        eluId: idSchema.parse(req.params.id),
+      },
     });
     if (!c) return notFound(res, 'Commentaire');
 
@@ -625,7 +729,10 @@ router.put('/:id/comments/:cid/reponse', async (req, res, next) => {
     if (!v.success) return badInput(res, v.error.errors);
 
     const c = await EluComment.findOne({
-      where: { id: idSchema.parse(req.params.cid), eluId: idSchema.parse(req.params.id) },
+      where: {
+        id: idSchema.parse(req.params.cid),
+        eluId: idSchema.parse(req.params.id),
+      },
     });
     if (!c) return notFound(res, 'Commentaire');
 

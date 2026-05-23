@@ -151,7 +151,9 @@ describe('Phase G.2 — Fiche descriptive élu', () => {
   });
 
   it('GET /api/v1/elus/:id/controverses retourne uniquement publiées', async () => {
-    const res = await request(app).get(`/api/v1/elus/${testEluId}/controverses`);
+    const res = await request(app).get(
+      `/api/v1/elus/${testEluId}/controverses`
+    );
     expect(res.status).toBe(200);
     expect(res.body.count).toBe(1);
     expect(res.body.data[0].type).toBe('allegation');
@@ -174,13 +176,15 @@ describe('Phase G.2 — Fiche descriptive élu', () => {
   });
 
   it('GET /api/v1/elus/:id/follow-status (non authentifié) retourne followed=false', async () => {
-    const res = await request(app).get(`/api/v1/elus/${testEluId}/follow-status`);
+    const res = await request(app).get(
+      `/api/v1/elus/${testEluId}/follow-status`
+    );
     expect(res.status).toBe(200);
     expect(res.body.followed).toBe(false);
     expect(typeof res.body.total_followers).toBe('number');
   });
 
-  it('GET /api/v1/elus/:id/changelog retourne le journal d\'audit', async () => {
+  it("GET /api/v1/elus/:id/changelog retourne le journal d'audit", async () => {
     const res = await request(app).get(`/api/v1/elus/${testEluId}/changelog`);
     expect(res.status).toBe(200);
     expect(res.body.success).toBe(true);

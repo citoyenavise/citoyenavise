@@ -527,18 +527,20 @@ router.get('/:id/votes', async (req, res, next) => {
       paire: votes.filter((v) => v.position === 'paire').length,
     };
 
-    stats.participation_pct = stats.total > 0
-      ? Math.round(((stats.total - stats.absent) / stats.total) * 100)
-      : 0;
+    stats.participation_pct =
+      stats.total > 0
+        ? Math.round(((stats.total - stats.absent) / stats.total) * 100)
+        : 0;
 
     const votesAvecAlignement = votes.filter((v) => v.alignementParti !== null);
-    stats.alignement_parti_pct = votesAvecAlignement.length > 0
-      ? Math.round(
-          (votesAvecAlignement.filter((v) => v.alignementParti).length /
-            votesAvecAlignement.length) *
-            100
-        )
-      : null;
+    stats.alignement_parti_pct =
+      votesAvecAlignement.length > 0
+        ? Math.round(
+            (votesAvecAlignement.filter((v) => v.alignementParti).length /
+              votesAvecAlignement.length) *
+              100
+          )
+        : null;
 
     res.json({
       success: true,
@@ -653,8 +655,10 @@ router.get('/:id/financement', async (req, res, next) => {
 
     // === Donateurs ===
     const whereDonateurs = { eluId: id, isPublished: true };
-    if (req.query.annee) whereDonateurs.anneeFiscale = parseInt(req.query.annee, 10);
-    if (req.query.type_donateur) whereDonateurs.typeDonateur = req.query.type_donateur;
+    if (req.query.annee)
+      whereDonateurs.anneeFiscale = parseInt(req.query.annee, 10);
+    if (req.query.type_donateur)
+      whereDonateurs.typeDonateur = req.query.type_donateur;
 
     const donateurs = await Donateur.findAll({
       where: whereDonateurs,
@@ -723,7 +727,9 @@ router.get('/:id/financement', async (req, res, next) => {
     });
 
     const liensActuels = liensInterets.filter((l) => l.actuel).length;
-    const liensDeclares = liensInterets.filter((l) => l.declareOfficiellement).length;
+    const liensDeclares = liensInterets.filter(
+      (l) => l.declareOfficiellement
+    ).length;
 
     res.json({
       success: true,
@@ -829,7 +835,9 @@ router.get('/:id/comments', async (req, res, next) => {
  * Statut initial : 'en_attente' (modération admin requise)
  */
 const createCommentSchema = z.object({
-  type: z.enum(['commentaire', 'question', 'signalement']).default('commentaire'),
+  type: z
+    .enum(['commentaire', 'question', 'signalement'])
+    .default('commentaire'),
   contenu: z.string().min(1).max(5000),
   parent_id: z.number().int().positive().optional(),
 });
@@ -931,7 +939,7 @@ router.delete(
       if (comment.citoyenId !== req.user.id) {
         return res.status(403).json({
           success: false,
-          error: 'Non autorisé — suppression réservée à l\'auteur',
+          error: "Non autorisé — suppression réservée à l'auteur",
         });
       }
 
@@ -1007,11 +1015,15 @@ router.post('/:id/follow', authMiddleware, async (req, res, next) => {
     // Mise à jour des préférences si fourniture explicite
     if (!created && Object.keys(prefs).length > 0) {
       const updates = {};
-      if (prefs.notif_promesse !== undefined) updates.notifPromesse = prefs.notif_promesse;
-      if (prefs.notif_action !== undefined) updates.notifAction = prefs.notif_action;
+      if (prefs.notif_promesse !== undefined)
+        updates.notifPromesse = prefs.notif_promesse;
+      if (prefs.notif_action !== undefined)
+        updates.notifAction = prefs.notif_action;
       if (prefs.notif_vote !== undefined) updates.notifVote = prefs.notif_vote;
-      if (prefs.notif_controverse !== undefined) updates.notifControverse = prefs.notif_controverse;
-      if (prefs.notif_fin_mandat !== undefined) updates.notifFinMandat = prefs.notif_fin_mandat;
+      if (prefs.notif_controverse !== undefined)
+        updates.notifControverse = prefs.notif_controverse;
+      if (prefs.notif_fin_mandat !== undefined)
+        updates.notifFinMandat = prefs.notif_fin_mandat;
       await follow.update(updates);
     }
 

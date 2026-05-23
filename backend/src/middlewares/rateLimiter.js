@@ -67,8 +67,7 @@ export const createActualiteLimiter = rateLimit({
 export const eluContactLimiter = rateLimit({
   windowMs: 60 * 60 * 1000, // 1 heure
   max: 3,
-  message:
-    'Limite atteinte : 3 messages par heure. Réessayez plus tard.',
+  message: 'Limite atteinte : 3 messages par heure. Réessayez plus tard.',
   statusCode: 429,
   keyGenerator: (req) => req.user?.id || ipKeyGenerator(req),
   skip: (req) => !req.user,

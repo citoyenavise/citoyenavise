@@ -83,10 +83,14 @@ async function fetchOurCommons() {
     titre: 'Député',
     niveau: 'fédéral',
     partiPolitique: normalizeParti(m.CaucusShortName || null),
-    region: normalizeRegion(m.ConstituencyProvinceTerritoryName || m.ProvinceTerritoryName || null),
+    region: normalizeRegion(
+      m.ConstituencyProvinceTerritoryName || m.ProvinceTerritoryName || null
+    ),
     legislature: '45',
     statut: 'actif',
-    sourceUrl: m.HonorificTitle ? `https://www.ourcommons.ca/Members/en/${(m.PersonOfficialFirstName || '').toLowerCase()}-${(m.PersonOfficialLastName || '').toLowerCase()}` : null,
+    sourceUrl: m.HonorificTitle
+      ? `https://www.ourcommons.ca/Members/en/${(m.PersonOfficialFirstName || '').toLowerCase()}-${(m.PersonOfficialLastName || '').toLowerCase()}`
+      : null,
     circonscriptionNom: m.ConstituencyName || null,
     _raw: m,
   }));
@@ -112,7 +116,9 @@ async function fetchOpenParliament(limit = 400) {
     nom: p.name || '',
     titre: 'Député',
     niveau: 'fédéral',
-    partiPolitique: normalizeParti(p.current_party?.short_name?.en || p.current_party?.name?.en || null),
+    partiPolitique: normalizeParti(
+      p.current_party?.short_name?.en || p.current_party?.name?.en || null
+    ),
     region: normalizeRegion(p.current_riding?.province || null),
     legislature: '45',
     statut: 'actif',
@@ -197,7 +203,10 @@ function fetchCsv(csvContent) {
 // Diff : compare snapshot source vs base de données
 // ═══════════════════════════════════════════════════════════════════
 
-async function diffWithDatabase(fetched, { niveau = 'fédéral', legislature = '45' } = {}) {
+async function diffWithDatabase(
+  fetched,
+  { niveau = 'fédéral', legislature = '45' } = {}
+) {
   const existing = await Elu.findAll({
     where: { niveau, statut: 'actif' },
     attributes: [
@@ -304,13 +313,20 @@ async function applyChanges(
 
   if (dryRun) {
     result.preview = {
-      to_create: plan.toCreate.map((f) => ({ nom: f.nom, titre: f.titre, region: f.region })),
+      to_create: plan.toCreate.map((f) => ({
+        nom: f.nom,
+        titre: f.titre,
+        region: f.region,
+      })),
       to_update: plan.toUpdate.map((u) => ({
         id: u.existing.id,
         nom: u.existing.nom,
         changes: u.changes,
       })),
-      to_mark_sortant: plan.toMarkSortant.map((e) => ({ id: e.id, nom: e.nom })),
+      to_mark_sortant: plan.toMarkSortant.map((e) => ({
+        id: e.id,
+        nom: e.nom,
+      })),
     };
     return result;
   }
@@ -371,7 +387,11 @@ async function applyChanges(
       );
       result.updated += 1;
     } catch (err) {
-      result.errors.push({ id: u.existing.id, op: 'update', message: err.message });
+      result.errors.push({
+        id: u.existing.id,
+        op: 'update',
+        message: err.message,
+      });
     }
   }
 
@@ -385,7 +405,11 @@ async function applyChanges(
         );
         // Fermer mandat actuel
         await Mandat.update(
-          { estActuel: false, dateFin: new Date().toISOString().slice(0, 10), causeFin: 'fin_mandat' },
+          {
+            estActuel: false,
+            dateFin: new Date().toISOString().slice(0, 10),
+            causeFin: 'fin_mandat',
+          },
           {
             where: { eluId: e.id, estActuel: true },
             ...auditOpts({ raison: 'sync_absent_de_la_source' }),
@@ -393,7 +417,11 @@ async function applyChanges(
         );
         result.marked_sortant += 1;
       } catch (err) {
-        result.errors.push({ id: e.id, op: 'mark_sortant', message: err.message });
+        result.errors.push({
+          id: e.id,
+          op: 'mark_sortant',
+          message: err.message,
+        });
       }
     }
   } else {
@@ -420,11 +448,16 @@ const SOURCES_MAP = {
 export async function syncFromSource(source, opts = {}) {
   const config = SOURCES_MAP[source];
   if (!config) {
-    throw new Error(`Source inconnue : ${source}. Valides : ${Object.keys(SOURCES_MAP).join(', ')}`);
+    throw new Error(
+      `Source inconnue : ${source}. Valides : ${Object.keys(SOURCES_MAP).join(', ')}`
+    );
   }
 
   const fetched = await config.fetch();
-  const plan = await diffWithDatabase(fetched, { niveau: 'fédéral', legislature: '45' });
+  const plan = await diffWithDatabase(fetched, {
+    niveau: 'fédéral',
+    legislature: '45',
+  });
   return applyChanges(plan, {
     source: config.auditSource,
     userId: opts.userId || null,

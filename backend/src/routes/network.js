@@ -37,9 +37,12 @@ async function getSnapshot(eluWhere, userWhere) {
   const elusCount = await Elu.count({ where: eluWhere });
 
   // 2. Récupérer les IDs des élus du scope (pour filtrer pétitions/signatures)
-  const elusIds = Object.keys(eluWhere).length > 0
-    ? (await Elu.findAll({ where: eluWhere, attributes: ['id'] })).map((e) => e.id)
-    : null; // null = tous
+  const elusIds =
+    Object.keys(eluWhere).length > 0
+      ? (await Elu.findAll({ where: eluWhere, attributes: ['id'] })).map(
+          (e) => e.id
+        )
+      : null; // null = tous
 
   // 3. Compter les pétitions publiées (filtrées par scope si applicable)
   const petitionsWhere = { status: 'published' };
@@ -110,7 +113,7 @@ router.get('/snapshot', async (req, res, next) => {
     // Scope Québec = élus avec region IN QUEBEC_REGIONS + users avec province IN QUEBEC_PROVINCES
     const quebec = await getSnapshot(
       { region: { [Op.in]: QUEBEC_REGIONS } },
-      { province: { [Op.in]: QUEBEC_PROVINCES } },
+      { province: { [Op.in]: QUEBEC_PROVINCES } }
     );
 
     res.json({

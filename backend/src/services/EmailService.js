@@ -310,7 +310,9 @@ class EmailService {
 
     try {
       const fromAddress =
-        process.env.SMTP_FROM || process.env.SMTP_USER || 'noreply@citoyenavise.org';
+        process.env.SMTP_FROM ||
+        process.env.SMTP_USER ||
+        'noreply@citoyenavise.org';
 
       await this.transporter.sendMail({
         from: `"Citoyen Avisé (relais)" <${fromAddress}>`,
