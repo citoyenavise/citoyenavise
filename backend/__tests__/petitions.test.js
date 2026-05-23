@@ -36,7 +36,7 @@ async function createTestUser(suffix = '') {
 async function createTestElu(suffix = '') {
   return Elu.create({
     nom: `Test Elu${suffix}`,
-    titre: 'Députée',
+    titre: 'Député',
     region: 'Québec',
     niveau: 'fédéral',
     email: `elu${suffix}@parl.gc.ca`,
@@ -534,3 +534,4 @@ describe("Pétitions - Suite d'intégration complète", () => {
     });
   });
 });
+ 

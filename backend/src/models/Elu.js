@@ -9,16 +9,24 @@ import sequelize from '../db/sequelize.js';
 
 const TITRES_AUTORISES = [
   'Député',
+  'Députée',
   'Sénateur',
+  'Sénatrice',
   'Premier ministre',
+  'Première ministre',
   'Ministre',
   'Vice-PM',
   'Président Chambre',
+  'Présidente Chambre',
   'Président Sénat',
+  'Présidente Sénat',
   'Gouverneur général',
+  'Gouverneure générale',
   'Juge',
   'Maire',
+  'Mairesse',
   'Conseiller',
+  'Conseillère',
   'Autre',
 ];
 
