@@ -12,10 +12,16 @@
  */
 
 import express from 'express';
+import fs from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import sequelize from '../db/sequelize.js';
 import User from '../models/User.js';
 import Elu from '../models/Elu.js';
 import Petition from '../models/Petition.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 const router = express.Router();
 
@@ -322,6 +328,111 @@ router.post('/migrate-petition-enjeu', adminSeedAuth, async (req, res) => {
       success: false,
       error: err.message,
       partial: result,
+    });
+  }
+});
+
+/**
+ * POST /migrate/:version
+ * Endpoint generique d'application de migration SQL Phase G.2.
+ *
+ * Version doit etre dans la whitelist V012..V021 (extensible si besoin).
+ * Le fichier SQL est resolu via glob V{version}_*.sql dans src/database/migrations/.
+ * Idempotent : chaque migration SQL utilise IF NOT EXISTS / DO $$ BEGIN IF NOT EXISTS.
+ *
+ * Code mort a nettoyer apres usage (cf. R-2 rapport Phase G.2, Option a).
+ *
+ * Usage prod (PowerShell) :
+ *   $env:T = "<ADMIN_SEED_TOKEN>"
+ *   foreach ($v in 'V012','V013','V014','V015','V016','V017','V018','V019','V020','V021') {
+ *     Write-Host "=== $v ==="
+ *     curl.exe -s -X POST -H "Authorization: Bearer $env:T" `
+ *       "https://citoyenavise-backend-1.onrender.com/api/v1/admin/migrate/$v"
+ *     Write-Host ""
+ *   }
+ *
+ * Reponse succes : { success: true, version, file, durationMs }
+ * Reponse echec  : { success: false, version, file, error, original, durationMs }
+ */
+const ALLOWED_MIGRATIONS = [
+  'V012', 'V013', 'V014', 'V015', 'V016',
+  'V017', 'V018', 'V019', 'V020', 'V021',
+];
+
+router.post('/migrate/:version', adminSeedAuth, async (req, res) => {
+  const { version } = req.params;
+
+  if (!ALLOWED_MIGRATIONS.includes(version)) {
+    return res.status(400).json({
+      success: false,
+      error: `Version non autorisee: ${version}`,
+      allowed: ALLOWED_MIGRATIONS,
+    });
+  }
+
+  const migrationsDir = path.resolve(__dirname, '../database/migrations');
+  let filename;
+  try {
+    const files = fs.readdirSync(migrationsDir);
+    filename = files.find(
+      (f) => f.startsWith(`${version}_`) && f.endsWith('.sql')
+    );
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      version,
+      error: `Cannot read migrations dir: ${err.message}`,
+      dir: migrationsDir,
+    });
+  }
+
+  if (!filename) {
+    return res.status(404).json({
+      success: false,
+      version,
+      error: `Fichier SQL ${version}_*.sql introuvable`,
+      dir: migrationsDir,
+    });
+  }
+
+  const sqlPath = path.join(migrationsDir, filename);
+  let sql;
+  try {
+    sql = fs.readFileSync(sqlPath, 'utf8');
+  } catch (err) {
+    return res.status(500).json({
+      success: false,
+      version,
+      file: filename,
+      error: `Read SQL failed: ${err.message}`,
+    });
+  }
+
+  const start = Date.now();
+  try {
+    await sequelize.query(sql);
+    const durationMs = Date.now() - start;
+    console.log(
+      `[migrate ${version}] OK file=${filename} duration=${durationMs}ms`
+    );
+    return res.json({
+      success: true,
+      version,
+      file: filename,
+      durationMs,
+    });
+  } catch (err) {
+    const durationMs = Date.now() - start;
+    console.error(
+      `[migrate ${version}] FAILED file=${filename} err=${err.message}`
+    );
+    return res.status(500).json({
+      success: false,
+      version,
+      file: filename,
+      error: err.message,
+      original: err.original ? err.original.message : null,
+      durationMs,
     });
   }
 });
