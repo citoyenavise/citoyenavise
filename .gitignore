@@ -10,6 +10,10 @@ generate_pages.py
 # Fichiers de snapshot temporaires
 _ai/snapshot_*.txt
 
+# Logs de CI/debug temporaires
+_brouillons/*.log
+_brouillons/*.tmp
+
 node_modules/
 backend/node_modules/
 frontend/node_modules/

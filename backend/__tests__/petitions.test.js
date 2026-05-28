@@ -534,4 +534,3 @@ describe("Pétitions - Suite d'intégration complète", () => {
     });
   });
 });
- 
