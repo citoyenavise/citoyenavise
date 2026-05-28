@@ -19,6 +19,7 @@ import sequelize from '../db/sequelize.js';
 import User from '../models/User.js';
 import Elu from '../models/Elu.js';
 import Petition from '../models/Petition.js';
+import { syncFromSource, syncFromCsv } from '../services/electoralSync.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -355,8 +356,16 @@ router.post('/migrate-petition-enjeu', adminSeedAuth, async (req, res) => {
  * Reponse echec  : { success: false, version, file, error, original, durationMs }
  */
 const ALLOWED_MIGRATIONS = [
-  'V012', 'V013', 'V014', 'V015', 'V016',
-  'V017', 'V018', 'V019', 'V020', 'V021',
+  'V012',
+  'V013',
+  'V014',
+  'V015',
+  'V016',
+  'V017',
+  'V018',
+  'V019',
+  'V020',
+  'V021',
 ];
 
 router.post('/migrate/:version', adminSeedAuth, async (req, res) => {
@@ -433,6 +442,109 @@ router.post('/migrate/:version', adminSeedAuth, async (req, res) => {
       error: err.message,
       original: err.original ? err.original.message : null,
       durationMs,
+    });
+  }
+});
+
+/**
+ * POST /import-federal
+ * Import fédéral 45ᵉ législature : 338 députés (openparliament) + 106 extras CSV.
+ *
+ * Body :
+ *   {
+ *     purge?: boolean       // TRUNCATE elus avant import (ignoré si dry_run)
+ *     dry_run?: boolean     // simulation, aucune écriture
+ *     with_extras?: boolean // inclut data/federal-extras.csv (sénateurs, GG, juges)
+ *   }
+ *
+ * Sécurité : protégé par ADMIN_SEED_TOKEN. En dry-run, la purge n'est jamais
+ * appliquée — seule la simulation diff est calculée.
+ *
+ * Usage prod :
+ *   curl -X POST -H "Authorization: Bearer $ADMIN_SEED_TOKEN" \
+ *     -H "Content-Type: application/json" \
+ *     -d '{"purge":true,"with_extras":true}' \
+ *     https://citoyenavise-backend-1.onrender.com/api/v1/admin/import-federal
+ */
+router.post('/import-federal', adminSeedAuth, async (req, res) => {
+  const {
+    purge = false,
+    dry_run: dryRun = false,
+    with_extras: withExtras = false,
+  } = req.body || {};
+
+  const log = [];
+  const willPurge = purge && !dryRun;
+  let purgedCount = 0;
+
+  try {
+    if (purge) {
+      const [before] = await sequelize.query('SELECT COUNT(*) AS c FROM elus');
+      purgedCount = parseInt(before[0].c, 10);
+      if (willPurge) {
+        await sequelize.query('TRUNCATE TABLE elus RESTART IDENTITY CASCADE');
+        log.push(`purge: ${purgedCount} elus supprimes`);
+      } else {
+        log.push(`purge (dry-run): ${purgedCount} elus seraient supprimes`);
+      }
+    }
+
+    const deputes = await syncFromSource('openparliament', {
+      dryRun,
+      autoMarkSortant: false,
+    });
+    log.push(
+      `deputes: created=${deputes.created || 0} updated=${deputes.updated || 0} errors=${deputes.errors?.length || 0}`
+    );
+
+    let extras = null;
+    if (withExtras) {
+      const csvPath = path.resolve(__dirname, '../../data/federal-extras.csv');
+      if (!fs.existsSync(csvPath)) {
+        return res.status(500).json({
+          success: false,
+          error: `CSV introuvable : ${csvPath}`,
+          partial: { log, purgedCount, deputes },
+        });
+      }
+      const csvContent = fs.readFileSync(csvPath, 'utf8');
+      extras = await syncFromCsv(csvContent, {
+        niveau: 'fédéral',
+        legislature: '45',
+        dryRun,
+        autoMarkSortant: false,
+      });
+      log.push(
+        `extras: created=${extras.created || 0} updated=${extras.updated || 0} errors=${extras.errors?.length || 0}`
+      );
+    }
+
+    const [bilan] = await sequelize.query(
+      `SELECT statut, niveau, COUNT(*) AS c
+         FROM elus
+         GROUP BY statut, niveau
+         ORDER BY niveau, statut`
+    );
+    const [totalRow] = await sequelize.query('SELECT COUNT(*) AS c FROM elus');
+    const total = parseInt(totalRow[0].c, 10);
+
+    return res.json({
+      success: true,
+      dry_run: dryRun,
+      purge: { requested: purge, applied: willPurge, count: purgedCount },
+      deputes,
+      extras,
+      bilan,
+      total,
+      log,
+    });
+  } catch (err) {
+    console.error('Admin import-federal error:', err);
+    return res.status(500).json({
+      success: false,
+      error: err.message,
+      stack: err.stack?.split('\n').slice(0, 5),
+      partial: { log, purgedCount },
     });
   }
 });
