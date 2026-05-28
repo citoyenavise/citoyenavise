@@ -1,0 +1,99 @@
+.nav-haut {
+  background-color: var(--color-fond);
+  border-bottom: 1px solid var(--color-bordure);
+  transition: var(--transition-couleur);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+.nav-haut-conteneur {
+  max-width: var(--largeur-conteneur);
+  margin: 0 auto;
+  padding: var(--espacement-4) var(--espacement-6);
+  display: flex;
+  align-items: center;
+  gap: var(--espacement-8);
+}
+
+.nav-haut-logo {
+  color: var(--color-texte);
+  text-decoration: none;
+  font-family: var(--font-titre);
+  font-weight: var(--epaisseur-tres-grasse);
+  font-size: var(--texte-lg);
+  letter-spacing: 0.08em;
+  transition: var(--transition-couleur);
+  white-space: nowrap;
+}
+
+.nav-haut-logo:hover {
+  color: var(--color-vert-sauge);
+}
+
+.nav-haut-logo-texte {
+  display: inline-block;
+}
+
+.nav-haut-principal {
+  flex: 1;
+  min-width: 0;
+}
+
+.nav-haut-liste {
+  display: flex;
+  list-style: none;
+  gap: var(--espacement-6);
+  padding: 0;
+  margin: 0;
+  flex-wrap: wrap;
+}
+
+.nav-haut-lien {
+  display: inline-block;
+  color: var(--color-texte);
+  text-decoration: none;
+  font-family: var(--font-texte);
+  font-size: var(--texte-sm);
+  font-weight: var(--epaisseur-moyenne);
+  padding: var(--espacement-2) 0;
+  border-bottom: 2px solid transparent;
+  transition: var(--transition-couleur);
+}
+
+.nav-haut-lien:hover {
+  color: var(--color-vert-sauge);
+  border-bottom-color: var(--color-bordure);
+}
+
+.nav-haut-lien-actif {
+  color: var(--color-vert-sauge);
+  border-bottom-color: var(--color-vert-sauge);
+}
+
+.nav-haut-lien:focus-visible {
+  outline: 2px solid var(--color-vert-sauge);
+  outline-offset: 2px;
+  border-radius: var(--rayon-sm);
+}
+
+.nav-haut-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--espacement-3);
+  flex-shrink: 0;
+}
+
+@media (max-width: 900px) {
+  .nav-haut-conteneur {
+    flex-wrap: wrap;
+    gap: var(--espacement-4);
+  }
+  .nav-haut-principal {
+    order: 3;
+    flex-basis: 100%;
+  }
+  .nav-haut-liste {
+    gap: var(--espacement-4);
+  }
+}

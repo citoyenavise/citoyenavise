@@ -1,0 +1,23 @@
+.bascule-theme {
+  background-color: transparent;
+  border: 1px solid var(--color-bordure);
+  border-radius: var(--rayon-sm);
+  color: var(--color-texte-doux);
+  font-family: var(--font-texte);
+  font-size: var(--texte-xs);
+  font-weight: var(--epaisseur-moyenne);
+  letter-spacing: 0.03em;
+  padding: var(--espacement-2) var(--espacement-3);
+  cursor: pointer;
+  transition: var(--transition-couleur);
+}
+
+.bascule-theme:hover {
+  color: var(--color-vert-sauge);
+  border-color: var(--color-vert-sauge);
+}
+
+.bascule-theme:focus-visible {
+  outline: 2px solid var(--color-vert-sauge);
+  outline-offset: 2px;
+}

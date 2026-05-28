@@ -1,0 +1,54 @@
+.pied-de-page {
+  background-color: var(--color-fond-secondaire);
+  border-top: 1px solid var(--color-bordure);
+  padding: var(--espacement-10) 0;
+  margin-top: var(--espacement-16);
+  transition: var(--transition-couleur);
+}
+
+.pied-de-page-conteneur {
+  max-width: var(--largeur-conteneur);
+  margin: 0 auto;
+  padding: 0 var(--espacement-6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espacement-4);
+}
+
+.pied-de-page-liste {
+  display: flex;
+  list-style: none;
+  gap: var(--espacement-6);
+  padding: 0;
+  margin: 0;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.pied-de-page-lien {
+  color: var(--color-texte-doux);
+  font-family: var(--font-texte);
+  font-size: var(--texte-sm);
+  text-decoration: none;
+  transition: var(--transition-couleur);
+}
+
+.pied-de-page-lien:hover {
+  color: var(--color-vert-sauge);
+}
+
+.pied-de-page-lien:focus-visible {
+  outline: 2px solid var(--color-vert-sauge);
+  outline-offset: 2px;
+  border-radius: var(--rayon-sm);
+}
+
+.pied-de-page-mention {
+  color: var(--color-texte-doux);
+  font-family: var(--font-texte);
+  font-size: var(--texte-xs);
+  text-align: center;
+  max-width: 60ch;
+  line-height: var(--hauteur-ligne);
+}
