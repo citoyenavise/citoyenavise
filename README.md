@@ -456,7 +456,7 @@ This project is licensed under the GPL 3.0 - see [LICENSE](LICENSE) file for det
 - **Development Team** - Citoyen Avisé
 
 **Contributors**
-- [Open for contributors!](CONTRIBUTING.md)
+- [Open for contributors!](docs/CONTRIBUTING.md)
 
 ---
 

@@ -35,8 +35,6 @@ out
 # Documentation
 docs
 README.md
-CONTRIBUTING.md
-SECURITY.md
 
 # CI/CD
 .github

@@ -10,11 +10,6 @@ generate_pages.py
 # Fichiers de snapshot temporaires
 _ai/snapshot_*.txt
 
-# Logs de CI/debug temporaires
-_brouillons/*.log
-_brouillons/*.tmp
-_brouillons/*.json
-
 # Docker Compose overrides (config locale - ex: port 5433 pour conflit PG natif)
 docker-compose.override.yml
 docker-compose.override.yaml
