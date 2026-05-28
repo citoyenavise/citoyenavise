@@ -1,7 +1,7 @@
 import React, { Suspense, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  BrowserRouter, Routes, Route, Navigate,
+  HashRouter, Routes, Route, Navigate,
 } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -51,7 +51,7 @@ function App() {
   }, [i18n]);
 
   return (
-    <BrowserRouter>
+    <HashRouter>
       <AuthProvider>
         <Suspense fallback={<ChargementFallback />}>
           <Routes>
@@ -127,7 +127,7 @@ function App() {
           </Routes>
         </Suspense>
       </AuthProvider>
-    </BrowserRouter>
+    </HashRouter>
   );
 }
 
