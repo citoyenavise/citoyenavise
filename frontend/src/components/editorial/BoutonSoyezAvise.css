@@ -1,0 +1,28 @@
+.bouton-soyez-avise {
+  font-family: var(--font-titre);
+  font-style: italic;
+  font-weight: var(--epaisseur-moyenne);
+  color: var(--color-texte);
+  font-size: var(--texte-xl);
+  text-align: center;
+  margin-top: var(--espacement-12);
+  padding-top: var(--espacement-6);
+  border-top: 1px solid var(--color-bordure);
+  letter-spacing: 0.02em;
+}
+
+.bouton-soyez-avise-conclusion {
+  color: var(--color-texte);
+}
+
+.bouton-soyez-avise-interrogation {
+  color: var(--color-vert-sauge);
+}
+
+.bouton-soyez-avise-urgence {
+  color: var(--color-ocre-laiteux);
+}
+
+.bouton-soyez-avise-remerciement {
+  color: var(--color-vert-sauge);
+}

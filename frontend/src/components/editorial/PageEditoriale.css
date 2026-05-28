@@ -1,0 +1,188 @@
+.page-editoriale {
+  max-width: var(--largeur-conteneur);
+  margin: 0 auto;
+  padding: var(--espacement-8) var(--espacement-6) var(--espacement-12);
+  color: var(--color-texte);
+}
+
+.page-editoriale-header {
+  margin-bottom: var(--espacement-10);
+  padding-bottom: var(--espacement-6);
+  border-bottom: 1px solid var(--color-bordure);
+}
+
+.page-editoriale-titre {
+  font-family: var(--font-titre);
+  font-weight: var(--epaisseur-tres-grasse);
+  font-size: var(--texte-4xl);
+  line-height: var(--hauteur-ligne-titre);
+  color: var(--color-texte);
+  margin: 0 0 var(--espacement-4);
+  max-width: var(--largeur-lecture);
+}
+
+.page-editoriale-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: var(--espacement-2) var(--espacement-3);
+}
+
+.page-editoriale-corps {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: var(--espacement-10);
+  align-items: start;
+}
+
+.page-editoriale-aside {
+  position: relative;
+}
+
+.page-editoriale-contenu {
+  font-family: var(--font-texte);
+  font-size: var(--texte-base);
+  line-height: var(--hauteur-ligne);
+  color: var(--color-texte);
+  max-width: var(--largeur-lecture);
+}
+
+.page-editoriale-contenu h2 {
+  font-family: var(--font-titre);
+  font-size: var(--texte-2xl);
+  line-height: var(--hauteur-ligne-titre);
+  font-weight: var(--epaisseur-grasse);
+  margin: var(--espacement-10) 0 var(--espacement-4);
+  color: var(--color-texte);
+  scroll-margin-top: 6rem;
+}
+
+.page-editoriale-contenu h3 {
+  font-family: var(--font-titre);
+  font-size: var(--texte-xl);
+  font-weight: var(--epaisseur-grasse);
+  margin: var(--espacement-6) 0 var(--espacement-3);
+  color: var(--color-texte);
+  scroll-margin-top: 6rem;
+}
+
+.page-editoriale-contenu p {
+  margin: 0 0 var(--espacement-4);
+}
+
+.page-editoriale-contenu ul,
+.page-editoriale-contenu ol {
+  margin: 0 0 var(--espacement-4);
+  padding-left: var(--espacement-6);
+}
+
+.page-editoriale-contenu li {
+  margin-bottom: var(--espacement-2);
+}
+
+.page-editoriale-contenu strong {
+  font-weight: var(--epaisseur-grasse);
+  color: var(--color-texte);
+}
+
+.page-editoriale-contenu em {
+  font-style: italic;
+}
+
+.page-editoriale-contenu blockquote {
+  margin: var(--espacement-6) 0;
+  padding: var(--espacement-4) var(--espacement-6);
+  border-left: 3px solid var(--color-vert-sauge);
+  background-color: var(--color-fond-secondaire);
+  font-style: italic;
+  color: var(--color-texte-doux);
+}
+
+.page-editoriale-contenu code {
+  font-family: var(--font-data);
+  font-size: 0.92em;
+  background-color: var(--color-fond-secondaire);
+  padding: 0.1em 0.4em;
+  border-radius: var(--rayon-sm);
+  color: var(--color-texte);
+}
+
+.page-editoriale-contenu pre {
+  font-family: var(--font-data);
+  background-color: var(--color-fond-secondaire);
+  padding: var(--espacement-4);
+  border-radius: var(--rayon-md);
+  overflow-x: auto;
+  margin: 0 0 var(--espacement-4);
+  border: 1px solid var(--color-bordure);
+}
+
+.page-editoriale-contenu pre code {
+  background: transparent;
+  padding: 0;
+}
+
+.page-editoriale-contenu table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--espacement-4) 0;
+  font-size: var(--texte-sm);
+}
+
+.page-editoriale-contenu th,
+.page-editoriale-contenu td {
+  padding: var(--espacement-3) var(--espacement-4);
+  border-bottom: 1px solid var(--color-bordure);
+  text-align: left;
+  vertical-align: top;
+}
+
+.page-editoriale-contenu th {
+  font-family: var(--font-titre);
+  font-weight: var(--epaisseur-grasse);
+  background-color: var(--color-fond-secondaire);
+  color: var(--color-texte);
+}
+
+.page-editoriale-contenu a {
+  color: var(--color-vert-sauge);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: var(--transition-couleur);
+}
+
+.page-editoriale-contenu a:hover {
+  color: var(--color-ocre-laiteux);
+}
+
+.page-editoriale-contenu hr {
+  border: none;
+  border-top: 1px solid var(--color-bordure);
+  margin: var(--espacement-8) 0;
+}
+
+.wikilink-resolu {
+  color: var(--color-vert-sauge);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+}
+
+.wikilink-non-resolu {
+  color: var(--color-texte-doux);
+  text-decoration: underline dashed;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  cursor: help;
+}
+
+@media (max-width: 1024px) {
+  .page-editoriale-corps {
+    grid-template-columns: 1fr;
+    gap: var(--espacement-6);
+  }
+  .page-editoriale-titre {
+    font-size: var(--texte-3xl);
+  }
+}

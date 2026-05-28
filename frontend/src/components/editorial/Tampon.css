@@ -1,0 +1,50 @@
+.tampon {
+  display: inline-block;
+  font-family: var(--font-titre);
+  font-weight: var(--epaisseur-grasse);
+  font-size: var(--texte-xs);
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 0.25rem 0.6rem;
+  border-radius: 2px;
+  vertical-align: middle;
+  line-height: 1;
+  white-space: nowrap;
+  transition: var(--transition-couleur);
+}
+
+.tampon-verifie {
+  background-color: var(--tampon-verifie-fond);
+  color: var(--tampon-verifie-texte);
+}
+
+.tampon-public {
+  background-color: var(--tampon-public-fond);
+  color: var(--tampon-public-texte);
+}
+
+.tampon-officiel {
+  background-color: var(--tampon-officiel-fond);
+  color: var(--tampon-officiel-texte);
+}
+
+.tampon-en-attente {
+  background-color: var(--tampon-en-attente-fond);
+  color: var(--tampon-en-attente-texte);
+  border: 1px solid var(--tampon-en-attente-bordure);
+  padding: calc(0.25rem - 1px) calc(0.6rem - 1px);
+}
+
+.tampon-a-jour {
+  display: inline;
+  background: transparent;
+  color: var(--tampon-a-jour-couleur);
+  font-family: var(--font-data);
+  font-weight: var(--epaisseur-moyenne);
+  font-size: var(--texte-xs);
+  letter-spacing: 0.05em;
+  text-transform: none;
+  padding: 0;
+  border-bottom: 1px solid var(--tampon-a-jour-couleur);
+  border-radius: 0;
+}

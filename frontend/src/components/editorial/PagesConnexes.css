@@ -1,0 +1,50 @@
+.pages-connexes {
+  margin-top: var(--espacement-10);
+  padding: var(--espacement-6);
+  background-color: var(--color-fond-secondaire);
+  border-left: 3px solid var(--color-vert-sauge);
+  border-radius: var(--rayon-sm);
+  transition: var(--transition-couleur);
+}
+
+.pages-connexes-titre {
+  font-family: var(--font-titre);
+  font-weight: var(--epaisseur-grasse);
+  font-size: var(--texte-lg);
+  margin: 0 0 var(--espacement-3);
+  color: var(--color-texte);
+}
+
+.pages-connexes-liste {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: var(--espacement-2);
+}
+
+.pages-connexes-item {
+  padding: 0;
+}
+
+.pages-connexes-lien {
+  display: inline-block;
+  color: var(--color-vert-sauge);
+  font-family: var(--font-texte);
+  font-size: var(--texte-base);
+  text-decoration: none;
+  padding: var(--espacement-1) 0;
+  border-bottom: 1px solid transparent;
+  transition: var(--transition-couleur);
+}
+
+.pages-connexes-lien:hover {
+  color: var(--color-ocre-laiteux);
+  border-bottom-color: var(--color-ocre-laiteux);
+}
+
+.pages-connexes-lien:focus-visible {
+  outline: 2px solid var(--color-vert-sauge);
+  outline-offset: 2px;
+  border-radius: var(--rayon-sm);
+}
