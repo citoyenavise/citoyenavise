@@ -7,6 +7,7 @@ import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
 import Layout from './components/layout/Layout';
 import Accueil from './pages/Accueil';
+import CentreControle from './pages/CentreControle';
 import RouteHub from './pages/editorial/RouteHub';
 import RouteEditoriale from './pages/editorial/RouteEditoriale';
 
@@ -93,6 +94,14 @@ function App() {
               />
               <Route path="login" element={<Login />} />
               <Route path="verify" element={<VerifyPage />} />
+              <Route
+                path="centre-controle"
+                element={(
+                  <ProtectedRoute>
+                    <CentreControle />
+                  </ProtectedRoute>
+                )}
+              />
 
               {/* Routes editoriales dynamiques
                   (matchent par categorie/sous-categorie du manifest) */}
