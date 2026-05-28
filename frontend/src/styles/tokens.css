@@ -1,0 +1,144 @@
+/* tokens.css
+ *
+ * Variables de design — Vision-Incarnée CITOYEN AVISÉ
+ * Palette terre adoucie (lactée), typographie éditoriale, animations strictes.
+ *
+ * Règles opposables Vision-Incarnée (couche 4) :
+ *   - Durée unique : 200ms
+ *   - Easing unique : ease-out
+ *   - Propriétés animables : opacity, background-color, border-color, color
+ *   - Propriétés INTERDITES : transform, scale, translate, rotate
+ *
+ * Mode sombre activé via [data-theme='dark'] sur <html>.
+ * Choix utilisateur mémorisé en localStorage.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+:root {
+  /* ===== PALETTE — Mode clair (défaut) ===== */
+  --color-fond: #FAF6EE;
+  --color-fond-secondaire: #F1EBE0;
+  --color-texte: #3D362E;
+  --color-texte-doux: #6B6359;
+  --color-vert-sauge: #4A6B5C;
+  --color-vert-sauge-clair: #7A9B8C;
+  --color-ocre-laiteux: #C49464;
+  --color-ocre-laiteux-clair: #D4AC85;
+  --color-bordure: #E5DCC9;
+  --color-bordure-douce: #F0E8D7;
+
+  /* ===== TAMPONS SIGNATURE (Vision-Incarnée couche 6) ===== */
+  --tampon-verifie-fond: #C49464;
+  --tampon-verifie-texte: #FAF6EE;
+  --tampon-public-fond: #4A6B5C;
+  --tampon-public-texte: #FAF6EE;
+  --tampon-officiel-fond: #3D362E;
+  --tampon-officiel-texte: #FAF6EE;
+  --tampon-en-attente-fond: transparent;
+  --tampon-en-attente-texte: #6B6359;
+  --tampon-en-attente-bordure: #6B6359;
+  --tampon-a-jour-couleur: #6B6359;
+
+  /* ===== TYPOGRAPHIE ===== */
+  --font-titre: 'Lora', Georgia, 'Times New Roman', serif;
+  --font-texte: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-data: 'JetBrains Mono', 'Consolas', 'Courier New', monospace;
+
+  /* Échelle modulaire (ratio 1.25 — quinte mineure) */
+  --texte-xs: 0.75rem;
+  --texte-sm: 0.875rem;
+  --texte-base: 1rem;
+  --texte-lg: 1.25rem;
+  --texte-xl: 1.5rem;
+  --texte-2xl: 1.875rem;
+  --texte-3xl: 2.5rem;
+  --texte-4xl: 3rem;
+  --texte-5xl: 3.75rem;
+
+  --hauteur-ligne: 1.65;
+  --hauteur-ligne-titre: 1.2;
+  --hauteur-ligne-data: 1.4;
+
+  --epaisseur-normale: 400;
+  --epaisseur-moyenne: 500;
+  --epaisseur-grasse: 600;
+  --epaisseur-tres-grasse: 700;
+
+  /* ===== ESPACEMENT (échelle 4px) ===== */
+  --espacement-1: 0.25rem;
+  --espacement-2: 0.5rem;
+  --espacement-3: 0.75rem;
+  --espacement-4: 1rem;
+  --espacement-5: 1.25rem;
+  --espacement-6: 1.5rem;
+  --espacement-8: 2rem;
+  --espacement-10: 2.5rem;
+  --espacement-12: 3rem;
+  --espacement-16: 4rem;
+  --espacement-20: 5rem;
+  --espacement-24: 6rem;
+
+  /* ===== RAYONS ===== */
+  --rayon-sm: 4px;
+  --rayon-md: 8px;
+  --rayon-lg: 12px;
+
+  /* ===== ANIMATION (strict) ===== */
+  --duree-transition: 200ms;
+  --easing-transition: ease-out;
+  --transition-couleur:
+    color var(--duree-transition) var(--easing-transition),
+    background-color var(--duree-transition) var(--easing-transition),
+    border-color var(--duree-transition) var(--easing-transition),
+    opacity var(--duree-transition) var(--easing-transition);
+
+  /* ===== LARGEURS DE LECTURE ===== */
+  --largeur-lecture: 68ch;
+  --largeur-conteneur: 1280px;
+  --largeur-hub: 1024px;
+}
+
+/* ===== MODE SOMBRE ===== */
+[data-theme='dark'] {
+  --color-fond: #2A2520;
+  --color-fond-secondaire: #332D27;
+  --color-texte: #EFE6D3;
+  --color-texte-doux: #B8AE9E;
+  --color-vert-sauge: #5C8270;
+  --color-vert-sauge-clair: #7DA694;
+  --color-ocre-laiteux: #C49464;
+  --color-ocre-laiteux-clair: #D4AC85;
+  --color-bordure: #4A4137;
+  --color-bordure-douce: #3A332C;
+
+  --tampon-verifie-texte: #2A2520;
+  --tampon-public-texte: #EFE6D3;
+  --tampon-officiel-fond: #EFE6D3;
+  --tampon-officiel-texte: #2A2520;
+  --tampon-en-attente-texte: #B8AE9E;
+  --tampon-en-attente-bordure: #B8AE9E;
+  --tampon-a-jour-couleur: #B8AE9E;
+}
+
+/* Préférence système (utilisée seulement si l'utilisateur n'a pas explicitement choisi) */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']):not([data-theme='dark']) {
+    --color-fond: #2A2520;
+    --color-fond-secondaire: #332D27;
+    --color-texte: #EFE6D3;
+    --color-texte-doux: #B8AE9E;
+    --color-vert-sauge: #5C8270;
+    --color-vert-sauge-clair: #7DA694;
+    --color-bordure: #4A4137;
+    --color-bordure-douce: #3A332C;
+
+    --tampon-verifie-texte: #2A2520;
+    --tampon-public-texte: #EFE6D3;
+    --tampon-officiel-fond: #EFE6D3;
+    --tampon-officiel-texte: #2A2520;
+    --tampon-en-attente-texte: #B8AE9E;
+    --tampon-en-attente-bordure: #B8AE9E;
+    --tampon-a-jour-couleur: #B8AE9E;
+  }
+}

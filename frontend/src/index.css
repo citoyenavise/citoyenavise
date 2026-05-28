@@ -2,6 +2,8 @@
 @tailwind components;
 @tailwind utilities;
 
+@import './styles/tokens.css';
+
 * {
   margin: 0;
   padding: 0;
@@ -14,20 +16,37 @@ html, body, #root {
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  font-family: var(--font-texte);
+  font-size: var(--texte-base);
+  line-height: var(--hauteur-ligne);
+  color: var(--color-texte);
+  background-color: var(--color-fond);
+  transition: var(--transition-couleur);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background: #f8f9fa;
-  color: #1f2937;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-titre);
+  font-weight: var(--epaisseur-grasse);
+  line-height: var(--hauteur-ligne-titre);
+  color: var(--color-texte);
 }
 
 a {
-  color: #2563eb;
-  text-decoration: none;
+  color: var(--color-vert-sauge);
+  text-decoration: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.2em;
+  transition: var(--transition-couleur);
 }
 
 a:hover {
-  text-decoration: underline;
+  color: var(--color-ocre-laiteux);
+}
+
+code, pre, .data {
+  font-family: var(--font-data);
+  font-size: 0.95em;
+  line-height: var(--hauteur-ligne-data);
 }
