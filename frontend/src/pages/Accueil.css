@@ -1,0 +1,172 @@
+.accueil {
+  width: 100%;
+}
+
+.accueil-hero {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: var(--espacement-24) var(--espacement-6) var(--espacement-16);
+  text-align: center;
+}
+
+.accueil-eyebrow {
+  font-family: var(--font-titre);
+  font-size: var(--texte-sm);
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  color: var(--color-texte-doux);
+  margin: 0 0 var(--espacement-4);
+}
+
+.accueil-slogan {
+  font-family: var(--font-titre);
+  font-weight: var(--epaisseur-tres-grasse);
+  font-size: var(--texte-5xl);
+  line-height: var(--hauteur-ligne-titre);
+  color: var(--color-texte);
+  margin: 0 0 var(--espacement-6);
+  letter-spacing: -0.01em;
+}
+
+.accueil-intro {
+  font-family: var(--font-texte);
+  font-size: var(--texte-lg);
+  line-height: var(--hauteur-ligne);
+  color: var(--color-texte-doux);
+  max-width: 60ch;
+  margin: 0 auto var(--espacement-8);
+}
+
+.accueil-actions-principales {
+  display: flex;
+  justify-content: center;
+  gap: var(--espacement-4);
+  flex-wrap: wrap;
+}
+
+.accueil-action {
+  display: inline-block;
+  font-family: var(--font-texte);
+  font-size: var(--texte-base);
+  font-weight: var(--epaisseur-moyenne);
+  padding: var(--espacement-3) var(--espacement-6);
+  border-radius: var(--rayon-md);
+  text-decoration: none;
+  transition: var(--transition-couleur);
+  border: 1px solid transparent;
+}
+
+.accueil-action-primaire {
+  background-color: var(--color-vert-sauge);
+  color: var(--color-fond);
+  border-color: var(--color-vert-sauge);
+}
+
+.accueil-action-primaire:hover {
+  background-color: var(--color-ocre-laiteux);
+  border-color: var(--color-ocre-laiteux);
+  color: var(--color-fond);
+}
+
+.accueil-action-secondaire {
+  background-color: transparent;
+  color: var(--color-vert-sauge);
+  border-color: var(--color-vert-sauge);
+}
+
+.accueil-action-secondaire:hover {
+  background-color: var(--color-fond-secondaire);
+  color: var(--color-ocre-laiteux);
+  border-color: var(--color-ocre-laiteux);
+}
+
+.accueil-categories {
+  max-width: var(--largeur-conteneur);
+  margin: 0 auto;
+  padding: 0 var(--espacement-6) var(--espacement-16);
+}
+
+.accueil-categories-titre {
+  font-family: var(--font-titre);
+  font-weight: var(--epaisseur-grasse);
+  font-size: var(--texte-2xl);
+  color: var(--color-texte);
+  text-align: center;
+  margin: 0 0 var(--espacement-8);
+  padding-bottom: var(--espacement-4);
+  border-bottom: 1px solid var(--color-bordure);
+}
+
+.accueil-categories-grille {
+  list-style: none;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: var(--espacement-4);
+  padding: 0;
+  margin: 0;
+}
+
+.accueil-categorie {
+  padding: 0;
+}
+
+.accueil-categorie-lien {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: var(--espacement-3);
+  padding: var(--espacement-6);
+  background-color: var(--color-fond-secondaire);
+  border: 1px solid var(--color-bordure);
+  border-radius: var(--rayon-md);
+  color: var(--color-texte);
+  text-decoration: none;
+  height: 100%;
+  min-height: 130px;
+  transition: var(--transition-couleur);
+}
+
+.accueil-categorie-lien:hover {
+  background-color: var(--color-bordure-douce);
+  border-color: var(--color-vert-sauge);
+  color: var(--color-vert-sauge);
+}
+
+.accueil-categorie-titre-carte {
+  font-family: var(--font-titre);
+  font-weight: var(--epaisseur-grasse);
+  font-size: var(--texte-xl);
+  line-height: var(--hauteur-ligne-titre);
+  margin: 0;
+  color: inherit;
+}
+
+.accueil-categorie-meta {
+  font-family: var(--font-texte);
+  font-size: var(--texte-sm);
+  color: var(--color-texte-doux);
+}
+
+.accueil-conclusion {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 0 var(--espacement-6) var(--espacement-16);
+  text-align: center;
+}
+
+.accueil-conclusion-texte {
+  font-family: var(--font-titre);
+  font-style: italic;
+  font-size: var(--texte-lg);
+  color: var(--color-texte-doux);
+  line-height: var(--hauteur-ligne);
+}
+
+@media (max-width: 640px) {
+  .accueil-slogan {
+    font-size: var(--texte-4xl);
+  }
+  .accueil-hero {
+    padding: var(--espacement-16) var(--espacement-6) var(--espacement-12);
+  }
+}

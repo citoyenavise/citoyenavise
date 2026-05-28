@@ -1,0 +1,7 @@
+.route-editoriale-etat {
+  text-align: center;
+  padding: var(--espacement-16) var(--espacement-6);
+  font-family: var(--font-texte);
+  color: var(--color-texte-doux);
+  font-size: var(--texte-base);
+}
