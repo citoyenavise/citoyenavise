@@ -1,0 +1,2117 @@
+{
+  "version": "1.0",
+  "generatedAt": "2026-05-28T11:28:07.882Z",
+  "sourcePath": "C:\\Users\\Dave\\PHOENIX\\03_PROJETS\\CITOYEN_AVISÉ\\CONTENU",
+  "pageCount": 105,
+  "hubCount": 15,
+  "categoryCount": 7,
+  "categories": {
+    "Droits-Libertes": {
+      "slug": "droits-libertes",
+      "hub": {
+        "slug": "_hub",
+        "filename": "_hub",
+        "title": "Droits et libertés",
+        "relativePath": "Droits-Libertes/_hub.md",
+        "statut": [
+          "VÉRIFIÉ",
+          "PUBLIC"
+        ],
+        "aJour": "2026-05-27",
+        "wikilinks": [
+          "Charte-canadienne",
+          "Droits-fondamentaux",
+          "Libertes-fondamentales",
+          "Droits-democratiques",
+          "Liberte-circulation",
+          "Droits-juridiques",
+          "Droit-egalite",
+          "Droits-autochtones",
+          "Droits-linguistiques",
+          "Immigration-citoyennete",
+          "Comprendre-vos-lois",
+          "Charte-des-lois",
+          "Gouvernement/_hub",
+          "Elections/_hub",
+          "Participer/_hub"
+        ]
+      },
+      "pages": [
+        {
+          "slug": "charte-canadienne",
+          "filename": "Charte-canadienne",
+          "title": "La Charte canadienne des droits et libertés expliquée",
+          "relativePath": "Droits-Libertes/Charte-canadienne.md",
+          "statut": [
+            "VÉRIFIÉ",
+            "OFFICIEL"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Droits-fondamentaux",
+            "Libertes-fondamentales",
+            "Droits-democratiques",
+            "Droits-juridiques",
+            "Droit-egalite",
+            "Droits-linguistiques",
+            "Droits-autochtones",
+            "Constitution"
+          ]
+        },
+        {
+          "slug": "comprendre-vos-lois",
+          "filename": "Comprendre-vos-lois",
+          "title": "Comprendre vos lois — méthode pour s'orienter",
+          "relativePath": "Droits-Libertes/Comprendre-vos-lois.md",
+          "statut": [
+            "VÉRIFIÉ",
+            "PUBLIC"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Trois-ordres-gouvernement",
+            "Charte-canadienne",
+            "Charte-des-lois",
+            "Systeme-judiciaire",
+            "Droits-juridiques"
+          ]
+        },
+        {
+          "slug": "droit-egalite",
+          "filename": "Droit-egalite",
+          "title": "Droit à l'égalité (article 15 de la Charte)",
+          "relativePath": "Droits-Libertes/Droit-egalite.md",
+          "statut": [
+            "VÉRIFIÉ",
+            "OFFICIEL"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Charte-canadienne",
+            "Droits-fondamentaux",
+            "Libertes-fondamentales",
+            "Droits-juridiques",
+            "Droits-autochtones"
+          ]
+        },
+        {
+          "slug": "droits-autochtones",
+          "filename": "Droits-autochtones",
+          "title": "Droits autochtones",
+          "relativePath": "Droits-Libertes/Droits-autochtones.md",
+          "statut": [
+            "VÉRIFIÉ",
+            "OFFICIEL"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Organismes-autochtones",
+            "Charte-canadienne",
+            "Droits-fondamentaux",
+            "Constitution",
+            "Relations-autochtones",
+            "Droit-egalite"
+          ]
+        },
+        {
+          "slug": "droits-democratiques",
+          "filename": "Droits-democratiques",
+          "title": "Droits démocratiques (articles 3 à 5 de la Charte)",
+          "relativePath": "Droits-Libertes/Droits-democratiques.md",
+          "statut": [
+            "VÉRIFIÉ",
+            "OFFICIEL"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Comment-etre-eligible",
+            "Charte-canadienne",
+            "Droits-fondamentaux",
+            "Elections/_hub",
+            "Parlement"
+          ]
+        },
+        {
+          "slug": "droits-fondamentaux",
+          "filename": "Droits-fondamentaux",
+          "title": "Droits fondamentaux — notion et statut",
+          "relativePath": "Droits-Libertes/Droits-fondamentaux.md",
+          "statut": [
+            "VÉRIFIÉ",
+            "OFFICIEL"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Libertes-fondamentales",
+            "Droits-democratiques",
+            "Liberte-circulation",
+            "Droits-juridiques",
+            "Droit-egalite",
+            "Droits-linguistiques",
+            "Droits-autochtones",
+            "Charte-canadienne",
+            "Comprendre-vos-lois",
+            "Systeme-judiciaire"
+          ]
+        },
+        {
+          "slug": "droits-juridiques",
+          "filename": "Droits-juridiques",
+          "title": "Droits juridiques (articles 7 à 14 de la Charte)",
+          "relativePath": "Droits-Libertes/Droits-juridiques.md",
+          "statut": [
+            "VÉRIFIÉ",
+            "OFFICIEL"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Charte-canadienne",
+            "Droits-fondamentaux",
+            "Libertes-fondamentales",
+            "Systeme-judiciaire",
+            "Comprendre-vos-lois"
+          ]
+        },
+        {
+          "slug": "droits-linguistiques",
+          "filename": "Droits-linguistiques",
+          "title": "Droits linguistiques (articles 16 à 23 de la Charte)",
+          "relativePath": "Droits-Libertes/Droits-linguistiques.md",
+          "statut": [
+            "VÉRIFIÉ",
+            "OFFICIEL"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Cours-de-francais",
+            "Charte-canadienne",
+            "Droits-fondamentaux",
+            "Immigration-citoyennete",
+            "Constitution"
+          ]
+        },
+        {
+          "slug": "immigration-citoyennete",
+          "filename": "Immigration-citoyennete",
+          "title": "Immigration et citoyenneté",
+          "relativePath": "Droits-Libertes/Immigration-citoyennete.md",
+          "statut": [
+            "VÉRIFIÉ",
+            "OFFICIEL"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Verifier-etat-demande-IRCC",
+            "Cours-de-francais",
+            "Reconnaissance-diplomes-etrangers",
+            "Parrainage-familial",
+            "Permis-travail",
+            "Charte-canadienne",
+            "Droits-fondamentaux",
+            "Liberte-circulation",
+            "Droits-linguistiques",
+            "Immigration/_hub"
+          ]
+        },
+        {
+          "slug": "liberte-circulation",
+          "filename": "Liberte-circulation",
+          "title": "Liberté de circulation (article 6 de la Charte)",
+          "relativePath": "Droits-Libertes/Liberte-circulation.md",
+          "statut": [
+            "VÉRIFIÉ",
+            "OFFICIEL"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Immigration-citoyennete",
+            "Reconnaissance-diplomes-etrangers",
+            "Passeport-canadien",
+            "Charte-canadienne",
+            "Droits-fondamentaux",
+            "Droits-democratiques"
+          ]
+        },
+        {
+          "slug": "libertes-fondamentales",
+          "filename": "Libertes-fondamentales",
+          "title": "Libertés fondamentales (article 2 de la Charte)",
+          "relativePath": "Droits-Libertes/Libertes-fondamentales.md",
+          "statut": [
+            "VÉRIFIÉ",
+            "OFFICIEL"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Droits-fondamentaux",
+            "Charte-canadienne",
+            "Droits-juridiques",
+            "Comprendre-vos-lois"
+          ]
+        }
+      ],
+      "subcategories": {}
+    },
+    "Elections": {
+      "slug": "elections",
+      "hub": {
+        "slug": "_hub",
+        "filename": "_hub",
+        "title": "Élections",
+        "relativePath": "Elections/_hub.md",
+        "statut": [
+          "VÉRIFIÉ",
+          "PUBLIC"
+        ],
+        "aJour": "2026-05-27",
+        "wikilinks": [
+          "Comment-etre-eligible",
+          "Liens-officiels",
+          "Election-federale",
+          "Election-provinciale",
+          "Election-municipale",
+          "Droits-Libertes/_hub",
+          "Gouvernement/_hub",
+          "Participer/_hub"
+        ]
+      },
+      "pages": [
+        {
+          "slug": "comment-etre-eligible",
+          "filename": "Comment-etre-eligible",
+          "title": "Comment être éligible — voter et se présenter",
+          "relativePath": "Elections/Comment-etre-eligible.md",
+          "statut": [
+            "VÉRIFIÉ",
+            "OFFICIEL"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Election-federale",
+            "Election-provinciale",
+            "Election-municipale",
+            "Liens-officiels",
+            "Droits-democratiques"
+          ]
+        },
+        {
+          "slug": "election-federale",
+          "filename": "Election-federale",
+          "title": "Élection fédérale",
+          "relativePath": "Elections/Election-federale.md",
+          "statut": [
+            "VÉRIFIÉ",
+            "OFFICIEL"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Comment-etre-eligible",
+            "Travailler-Elections-Canada",
+            "Suivre-politique-canadienne",
+            "Election-provinciale",
+            "Election-municipale",
+            "Liens-officiels",
+            "Parlement",
+            "Droits-democratiques"
+          ]
+        },
+        {
+          "slug": "election-municipale",
+          "filename": "Election-municipale",
+          "title": "Élection municipale",
+          "relativePath": "Elections/Election-municipale.md",
+          "statut": [
+            "VÉRIFIÉ",
+            "OFFICIEL"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Liens-officiels",
+            "Gouvernements-municipaux",
+            "Comment-etre-eligible",
+            "Election-federale",
+            "Election-provinciale",
+            "Droits-democratiques"
+          ]
+        },
+        {
+          "slug": "election-provinciale",
+          "filename": "Election-provinciale",
+          "title": "Élection provinciale (focus Québec)",
+          "relativePath": "Elections/Election-provinciale.md",
+          "statut": [
+            "VÉRIFIÉ",
+            "OFFICIEL"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Liens-officiels",
+            "Comment-etre-eligible",
+            "Election-federale",
+            "Election-municipale",
+            "Gouvernements-provinciaux",
+            "Droits-democratiques"
+          ]
+        },
+        {
+          "slug": "liens-officiels",
+          "filename": "Liens-officiels",
+          "title": "Liens officiels — élections",
+          "relativePath": "Elections/Liens-officiels.md",
+          "statut": [
+            "VÉRIFIÉ",
+            "OFFICIEL"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "_hub",
+            "Comment-etre-eligible",
+            "Election-federale",
+            "Election-provinciale",
+            "Election-municipale",
+            "Travailler-Elections-Canada"
+          ]
+        }
+      ],
+      "subcategories": {}
+    },
+    "Footer": {
+      "slug": "footer",
+      "hub": null,
+      "pages": [],
+      "subcategories": {
+        "A-propos": {
+          "slug": "a-propos",
+          "hub": null,
+          "pages": [
+            {
+              "slug": "budget-transparent",
+              "filename": "Budget-transparent",
+              "title": "Budget transparent",
+              "relativePath": "Footer/A-propos/Budget-transparent.md",
+              "statut": [
+                "PUBLIC",
+                "À VENIR"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Signaler-erreur",
+                "Contact",
+                "Partenariat-Benevole",
+                "Sources-methodologie",
+                "Protection-donnees",
+                "Mentions-legales"
+              ]
+            },
+            {
+              "slug": "engagements",
+              "filename": "Engagements",
+              "title": "Nos engagements",
+              "relativePath": "Footer/A-propos/Engagements.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Budget-transparent",
+                "Sources-methodologie",
+                "Protection-donnees",
+                "Glossaire",
+                "Valeurs",
+                "Vision",
+                "Mission",
+                "FAQ"
+              ]
+            },
+            {
+              "slug": "protection-donnees",
+              "filename": "Protection-donnees",
+              "title": "Protection des données",
+              "relativePath": "Footer/A-propos/Protection-donnees.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Confidentialite",
+                "Contact",
+                "Signaler-erreur",
+                "Mentions-legales",
+                "Sources-methodologie"
+              ]
+            },
+            {
+              "slug": "sources-methodologie",
+              "filename": "Sources-methodologie",
+              "title": "Sources et méthodologie",
+              "relativePath": "Footer/A-propos/Sources-methodologie.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Budget-transparent",
+                "Signaler-erreur",
+                "Protection-donnees",
+                "Contact",
+                "Partenariat-Benevole",
+                "Mentions-legales"
+              ]
+            }
+          ]
+        },
+        "Aide": {
+          "slug": "aide",
+          "hub": null,
+          "pages": [
+            {
+              "slug": "contact",
+              "filename": "Contact",
+              "title": "Contact",
+              "relativePath": "Footer/Aide/Contact.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Signaler-erreur",
+                "Partenariat-Benevole",
+                "Protection-donnees",
+                "Confidentialite",
+                "Mentions-legales"
+              ]
+            },
+            {
+              "slug": "faq",
+              "filename": "FAQ",
+              "title": "Foire aux questions",
+              "relativePath": "Footer/Aide/FAQ.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Contact",
+                "Vision",
+                "Mission",
+                "Engagements",
+                "Valeurs",
+                "Budget-transparent",
+                "Sources-methodologie",
+                "Signaler-erreur",
+                "Protection-donnees",
+                "Elections/_hub",
+                "Comment-ecrire-depute",
+                "Lettres-modeles",
+                "_hub",
+                "Benevolat",
+                "Organismes-civiques",
+                "Services/_hub",
+                "Partenariat-Benevole"
+              ]
+            },
+            {
+              "slug": "partenariat-benevole",
+              "filename": "Partenariat-Benevole",
+              "title": "Partenariat et bénévolat",
+              "relativePath": "Footer/Aide/Partenariat-Benevole.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Budget-transparent",
+                "Sources-methodologie",
+                "Protection-donnees",
+                "Contact",
+                "Benevolat"
+              ]
+            },
+            {
+              "slug": "signaler-erreur",
+              "filename": "Signaler-erreur",
+              "title": "Signaler une erreur",
+              "relativePath": "Footer/Aide/Signaler-erreur.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Contact",
+                "Protection-donnees",
+                "Mentions-legales",
+                "Sources-methodologie"
+              ]
+            }
+          ]
+        },
+        "Legal": {
+          "slug": "legal",
+          "hub": null,
+          "pages": [
+            {
+              "slug": "confidentialite",
+              "filename": "Confidentialite",
+              "title": "Politique de confidentialité",
+              "relativePath": "Footer/Legal/Confidentialite.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Protection-donnees",
+                "Mentions-legales",
+                "Contact",
+                "Signaler-erreur"
+              ]
+            },
+            {
+              "slug": "mentions-legales",
+              "filename": "Mentions-legales",
+              "title": "Mentions légales",
+              "relativePath": "Footer/Legal/Mentions-legales.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Confidentialite",
+                "Contact",
+                "Signaler-erreur",
+                "Protection-donnees",
+                "Sources-methodologie"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "Gouvernement": {
+      "slug": "gouvernement",
+      "hub": {
+        "slug": "_hub",
+        "filename": "_hub",
+        "title": "Gouvernement",
+        "relativePath": "Gouvernement/_hub.md",
+        "statut": [
+          "VÉRIFIÉ",
+          "PUBLIC"
+        ],
+        "aJour": "2026-05-27",
+        "wikilinks": [
+          "Trois-ordres-gouvernement",
+          "Parlement",
+          "Constitution",
+          "Systeme-judiciaire",
+          "Gouvernements-provinciaux",
+          "Gouvernements-municipaux",
+          "Relations-autochtones",
+          "Droits-Libertes/_hub",
+          "Elections/_hub",
+          "Services/_hub"
+        ]
+      },
+      "pages": [
+        {
+          "slug": "constitution",
+          "filename": "Constitution",
+          "title": "La Constitution canadienne",
+          "relativePath": "Gouvernement/Constitution.md",
+          "statut": [
+            "VÉRIFIÉ",
+            "OFFICIEL"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Charte-canadienne",
+            "Trois-ordres-gouvernement",
+            "Parlement",
+            "Systeme-judiciaire",
+            "Comprendre-vos-lois",
+            "Droits-autochtones"
+          ]
+        },
+        {
+          "slug": "gouvernements-municipaux",
+          "filename": "Gouvernements-municipaux",
+          "title": "Les gouvernements municipaux",
+          "relativePath": "Gouvernement/Gouvernements-municipaux.md",
+          "statut": [
+            "VÉRIFIÉ",
+            "OFFICIEL"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Election-municipale",
+            "Contacter-vos-elus",
+            "Consultations",
+            "Trois-ordres-gouvernement",
+            "Gouvernements-provinciaux",
+            "Constitution"
+          ]
+        },
+        {
+          "slug": "gouvernements-provinciaux",
+          "filename": "Gouvernements-provinciaux",
+          "title": "Les gouvernements provinciaux",
+          "relativePath": "Gouvernement/Gouvernements-provinciaux.md",
+          "statut": [
+            "VÉRIFIÉ",
+            "OFFICIEL"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Droits-linguistiques",
+            "Immigration-citoyennete",
+            "Contacter-vos-elus",
+            "Election-provinciale",
+            "Constitution",
+            "Trois-ordres-gouvernement",
+            "Parlement"
+          ]
+        },
+        {
+          "slug": "parlement",
+          "filename": "Parlement",
+          "title": "Le Parlement du Canada",
+          "relativePath": "Gouvernement/Parlement.md",
+          "statut": [
+            "VÉRIFIÉ",
+            "OFFICIEL"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Contacter-vos-elus",
+            "Trois-ordres-gouvernement",
+            "Constitution",
+            "Systeme-judiciaire",
+            "Election-federale",
+            "Comment-ecrire-depute",
+            "CPAC",
+            "Hansard",
+            "Suivi-projets-loi"
+          ]
+        },
+        {
+          "slug": "relations-autochtones",
+          "filename": "Relations-autochtones",
+          "title": "Relations autochtones — un enjeu transversal",
+          "relativePath": "Gouvernement/Relations-autochtones.md",
+          "statut": [
+            "VÉRIFIÉ",
+            "OFFICIEL"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Droits-autochtones",
+            "Organismes-autochtones",
+            "Trois-ordres-gouvernement",
+            "Constitution",
+            "Charte-canadienne"
+          ]
+        },
+        {
+          "slug": "systeme-judiciaire",
+          "filename": "Systeme-judiciaire",
+          "title": "Le système judiciaire canadien",
+          "relativePath": "Gouvernement/Systeme-judiciaire.md",
+          "statut": [
+            "VÉRIFIÉ",
+            "OFFICIEL"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Constitution",
+            "Charte-canadienne",
+            "Droits-juridiques",
+            "Trois-ordres-gouvernement",
+            "Comprendre-vos-lois"
+          ]
+        },
+        {
+          "slug": "trois-ordres-gouvernement",
+          "filename": "Trois-ordres-gouvernement",
+          "title": "Les 3 ordres de gouvernement au Canada",
+          "relativePath": "Gouvernement/Trois-ordres-gouvernement.md",
+          "statut": [
+            "VÉRIFIÉ",
+            "OFFICIEL"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Parlement",
+            "Constitution",
+            "Gouvernements-provinciaux",
+            "Gouvernements-municipaux",
+            "Relations-autochtones",
+            "Election-federale",
+            "Election-provinciale",
+            "Election-municipale"
+          ]
+        }
+      ],
+      "subcategories": {}
+    },
+    "Participer": {
+      "slug": "participer",
+      "hub": {
+        "slug": "_hub",
+        "filename": "_hub",
+        "title": "Participer",
+        "relativePath": "Participer/_hub.md",
+        "statut": [
+          "VÉRIFIÉ",
+          "PUBLIC"
+        ],
+        "aJour": "2026-05-27",
+        "wikilinks": [
+          "Contacter-vos-elus",
+          "Comment-ecrire-depute",
+          "Lettres-modeles",
+          "Petitions-officielles-Chambre-communes",
+          "Petitions-Assemblee-nationale",
+          "Consultations",
+          "Suivre-politique-canadienne",
+          "CPAC",
+          "Hansard",
+          "Suivi-projets-loi",
+          "Benevolat",
+          "Organismes-civiques",
+          "Organismes-autochtones",
+          "Travailler-Elections-Canada",
+          "Groupes-citoyens-vigilants",
+          "Defense-des-droits",
+          "Elections/_hub",
+          "Gouvernement/_hub",
+          "Droits-Libertes/_hub"
+        ]
+      },
+      "pages": [],
+      "subcategories": {
+        "Agir": {
+          "slug": "agir",
+          "hub": null,
+          "pages": [
+            {
+              "slug": "comment-ecrire-depute",
+              "filename": "Comment-ecrire-depute",
+              "title": "Comment écrire à un député — guide complet",
+              "relativePath": "Participer/Agir/Comment-ecrire-depute.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Contacter-vos-elus",
+                "Lettres-modeles",
+                "Petitions-officielles-Chambre-communes",
+                "Parlement"
+              ]
+            },
+            {
+              "slug": "consultations",
+              "filename": "Consultations",
+              "title": "Consultations publiques",
+              "relativePath": "Participer/Agir/Consultations.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Petitions-officielles-Chambre-communes",
+                "Petitions-Assemblee-nationale",
+                "Suivi-projets-loi",
+                "Comment-ecrire-depute"
+              ]
+            },
+            {
+              "slug": "contacter-vos-elus",
+              "filename": "Contacter-vos-elus",
+              "title": "Contacter vos élus",
+              "relativePath": "Participer/Agir/Contacter-vos-elus.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Elections/_hub",
+                "Comment-ecrire-depute",
+                "Lettres-modeles",
+                "Trois-ordres-gouvernement",
+                "Parlement"
+              ]
+            },
+            {
+              "slug": "lettres-modeles",
+              "filename": "Lettres-modeles",
+              "title": "Lettres modèles personnalisables",
+              "relativePath": "Participer/Agir/Lettres-modeles.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Comment-ecrire-depute",
+                "Contacter-vos-elus",
+                "Petitions-officielles-Chambre-communes"
+              ]
+            },
+            {
+              "slug": "petitions-assemblee-nationale",
+              "filename": "Petitions-Assemblee-nationale",
+              "title": "Pétitions — Assemblée nationale du Québec",
+              "relativePath": "Participer/Agir/Petitions-Assemblee-nationale.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Petitions-officielles-Chambre-communes",
+                "Contacter-vos-elus",
+                "Comment-ecrire-depute",
+                "Suivi-projets-loi"
+              ]
+            },
+            {
+              "slug": "petitions-officielles-chambre-communes",
+              "filename": "Petitions-officielles-Chambre-communes",
+              "title": "Pétitions officielles — Chambre des communes",
+              "relativePath": "Participer/Agir/Petitions-officielles-Chambre-communes.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Contacter-vos-elus",
+                "Petitions-Assemblee-nationale",
+                "Comment-ecrire-depute",
+                "Suivi-projets-loi"
+              ]
+            }
+          ]
+        },
+        "Rejoindre": {
+          "slug": "rejoindre",
+          "hub": null,
+          "pages": [
+            {
+              "slug": "benevolat",
+              "filename": "Benevolat",
+              "title": "Bénévolat civique",
+              "relativePath": "Participer/Rejoindre/Benevolat.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Travailler-Elections-Canada",
+                "Organismes-civiques",
+                "Groupes-citoyens-vigilants",
+                "Organismes-autochtones",
+                "Defense-des-droits"
+              ]
+            },
+            {
+              "slug": "defense-des-droits",
+              "filename": "Defense-des-droits",
+              "title": "Défense des droits",
+              "relativePath": "Participer/Rejoindre/Defense-des-droits.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Organismes-autochtones",
+                "Benevolat",
+                "Organismes-civiques",
+                "Groupes-citoyens-vigilants"
+              ]
+            },
+            {
+              "slug": "groupes-citoyens-vigilants",
+              "filename": "Groupes-citoyens-vigilants",
+              "title": "Groupes citoyens vigilants",
+              "relativePath": "Participer/Rejoindre/Groupes-citoyens-vigilants.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Glossaire",
+                "Benevolat",
+                "Organismes-civiques",
+                "Organismes-autochtones",
+                "Defense-des-droits"
+              ]
+            },
+            {
+              "slug": "organismes-autochtones",
+              "filename": "Organismes-autochtones",
+              "title": "Organismes autochtones",
+              "relativePath": "Participer/Rejoindre/Organismes-autochtones.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Benevolat",
+                "Organismes-civiques",
+                "Defense-des-droits"
+              ]
+            },
+            {
+              "slug": "organismes-civiques",
+              "filename": "Organismes-civiques",
+              "title": "Organismes civiques",
+              "relativePath": "Participer/Rejoindre/Organismes-civiques.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Glossaire",
+                "Benevolat",
+                "Organismes-autochtones",
+                "Groupes-citoyens-vigilants",
+                "Defense-des-droits"
+              ]
+            },
+            {
+              "slug": "travailler-elections-canada",
+              "filename": "Travailler-Elections-Canada",
+              "title": "Travailler pour Élections Canada",
+              "relativePath": "Participer/Rejoindre/Travailler-Elections-Canada.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Benevolat",
+                "Organismes-civiques",
+                "Calendrier"
+              ]
+            }
+          ]
+        },
+        "S-informer-Suivre": {
+          "slug": "s-informer-suivre",
+          "hub": null,
+          "pages": [
+            {
+              "slug": "cpac",
+              "filename": "CPAC",
+              "title": "CPAC — la chaîne parlementaire canadienne",
+              "relativePath": "Participer/S-informer-Suivre/CPAC.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Hansard",
+                "Suivre-politique-canadienne",
+                "Suivi-projets-loi",
+                "Parlement"
+              ]
+            },
+            {
+              "slug": "hansard",
+              "filename": "Hansard",
+              "title": "Hansard — la transcription officielle des débats",
+              "relativePath": "Participer/S-informer-Suivre/Hansard.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "CPAC",
+                "Suivre-politique-canadienne",
+                "Suivi-projets-loi",
+                "Parlement"
+              ]
+            },
+            {
+              "slug": "suivi-projets-loi",
+              "filename": "Suivi-projets-loi",
+              "title": "Suivi des projets de loi",
+              "relativePath": "Participer/S-informer-Suivre/Suivi-projets-loi.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Comment-une-loi-est-adoptee",
+                "Suivre-politique-canadienne",
+                "CPAC",
+                "Hansard",
+                "Petitions-officielles-Chambre-communes",
+                "Contacter-vos-elus"
+              ]
+            },
+            {
+              "slug": "suivre-politique-canadienne",
+              "filename": "Suivre-politique-canadienne",
+              "title": "Suivre la politique canadienne",
+              "relativePath": "Participer/S-informer-Suivre/Suivre-politique-canadienne.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Suivi-projets-loi",
+                "CPAC",
+                "Hansard",
+                "Glossaire",
+                "Calendrier",
+                "Actualite"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    "Ressources": {
+      "slug": "ressources",
+      "hub": null,
+      "pages": [
+        {
+          "slug": "actualite",
+          "filename": "Actualite",
+          "title": "Actualité civique",
+          "relativePath": "Ressources/Actualite.md",
+          "statut": [
+            "PUBLIC",
+            "À VENIR"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Calendrier",
+            "Sources-methodologie",
+            "Signaler-erreur",
+            "Contact",
+            "Suivi-projets-loi",
+            "Suivre-politique-canadienne"
+          ]
+        },
+        {
+          "slug": "calendrier",
+          "filename": "Calendrier",
+          "title": "Calendrier civique",
+          "relativePath": "Ressources/Calendrier.md",
+          "statut": [
+            "PUBLIC",
+            "À VENIR"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Contact",
+            "Actualite",
+            "Suivre-politique-canadienne",
+            "Suivi-projets-loi",
+            "Travailler-Elections-Canada"
+          ]
+        },
+        {
+          "slug": "glossaire",
+          "filename": "Glossaire",
+          "title": "Glossaire civique",
+          "relativePath": "Ressources/Glossaire.md",
+          "statut": [
+            "VÉRIFIÉ",
+            "PUBLIC"
+          ],
+          "aJour": "2026-05-27",
+          "wikilinks": [
+            "Allocation-canadienne-enfants",
+            "Charte-canadienne",
+            "Constitution",
+            "CPAC",
+            "Hansard",
+            "Permis-travail",
+            "Systeme-de-sante",
+            "Parlement",
+            "Petitions-officielles-Chambre-communes",
+            "Carte-assurance-maladie",
+            "Regime-pensions-Canada",
+            "Regime-rentes-Quebec",
+            "Securite-vieillesse",
+            "Supplement-revenu-garanti",
+            "Trois-ordres-gouvernement",
+            "Comprendre-vos-lois"
+          ]
+        }
+      ],
+      "subcategories": {}
+    },
+    "Services": {
+      "slug": "services",
+      "hub": {
+        "slug": "_hub",
+        "filename": "_hub",
+        "title": "Services",
+        "relativePath": "Services/_hub.md",
+        "statut": [
+          "VÉRIFIÉ",
+          "PUBLIC"
+        ],
+        "aJour": "2026-05-27",
+        "wikilinks": [
+          "Sante/_hub",
+          "Famille-enfants/_hub",
+          "Education-formation/_hub",
+          "Retraite-aines/_hub",
+          "Emploi-travail/_hub",
+          "Logement/_hub",
+          "Impots-finances/_hub",
+          "Documents-identite/_hub",
+          "Immigration/_hub",
+          "Securite-publique/_hub",
+          "Gouvernement/_hub",
+          "Droits-Libertes/_hub",
+          "Participer/_hub"
+        ]
+      },
+      "pages": [],
+      "subcategories": {
+        "Documents-identite": {
+          "slug": "documents-identite",
+          "hub": {
+            "slug": "_hub",
+            "filename": "_hub",
+            "title": "Documents et identité",
+            "relativePath": "Services/Documents-identite/_hub.md",
+            "statut": [
+              "VÉRIFIÉ",
+              "PUBLIC"
+            ],
+            "aJour": "2026-05-27",
+            "wikilinks": [
+              "Passeport-canadien",
+              "_hub",
+              "Immigration/_hub",
+              "Famille-enfants/_hub"
+            ]
+          },
+          "pages": [
+            {
+              "slug": "passeport-canadien",
+              "filename": "Passeport-canadien",
+              "title": "Passeport canadien",
+              "relativePath": "Services/Documents-identite/Passeport-canadien.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC",
+                "OFFICIEL"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Acte-de-naissance",
+                "Documents-identite/_hub",
+                "Immigration/_hub"
+              ]
+            }
+          ]
+        },
+        "Education-formation": {
+          "slug": "education-formation",
+          "hub": {
+            "slug": "_hub",
+            "filename": "_hub",
+            "title": "Éducation et formation",
+            "relativePath": "Services/Education-formation/_hub.md",
+            "statut": [
+              "VÉRIFIÉ",
+              "PUBLIC"
+            ],
+            "aJour": "2026-05-27",
+            "wikilinks": [
+              "Systeme-education",
+              "Prets-bourses-etudiants",
+              "Epargne-etudes-REEE",
+              "Reconnaissance-diplomes-etrangers",
+              "Formation-professionnelle",
+              "Cours-de-francais",
+              "Immigration/_hub",
+              "Bibliotheque-Archives-nationales",
+              "Famille-enfants/_hub",
+              "Emploi-travail/_hub",
+              "Trois-ordres-gouvernement"
+            ]
+          },
+          "pages": [
+            {
+              "slug": "bibliotheque-archives-nationales",
+              "filename": "Bibliotheque-Archives-nationales",
+              "title": "Bibliothèque et Archives nationales du Québec (BAnQ)",
+              "relativePath": "Services/Education-formation/Bibliotheque-Archives-nationales.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Systeme-education",
+                "Formation-professionnelle",
+                "Comprendre-vos-lois"
+              ]
+            },
+            {
+              "slug": "cours-de-francais",
+              "filename": "Cours-de-francais",
+              "title": "Cours de français pour personnes immigrantes",
+              "relativePath": "Services/Education-formation/Cours-de-francais.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Reconnaissance-diplomes-etrangers",
+                "Immigration/_hub",
+                "Permis-etudes",
+                "Permis-travail"
+              ]
+            },
+            {
+              "slug": "epargne-etudes-reee",
+              "filename": "Epargne-etudes-REEE",
+              "title": "Régime enregistré d'épargne-études (REEE)",
+              "relativePath": "Services/Education-formation/Epargne-etudes-REEE.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC",
+                "OFFICIEL"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Prets-bourses-etudiants",
+                "Systeme-education",
+                "Impots-federaux",
+                "Allocation-canadienne-enfants"
+              ]
+            },
+            {
+              "slug": "formation-professionnelle",
+              "filename": "Formation-professionnelle",
+              "title": "Formation professionnelle et technique",
+              "relativePath": "Services/Education-formation/Formation-professionnelle.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Systeme-education",
+                "Prets-bourses-etudiants",
+                "Reconnaissance-diplomes-etrangers",
+                "Guichet-emploi"
+              ]
+            },
+            {
+              "slug": "prets-bourses-etudiants",
+              "filename": "Prets-bourses-etudiants",
+              "title": "Prêts et bourses pour étudiants",
+              "relativePath": "Services/Education-formation/Prets-bourses-etudiants.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Systeme-education",
+                "Epargne-etudes-REEE",
+                "Formation-professionnelle",
+                "Reconnaissance-diplomes-etrangers"
+              ]
+            },
+            {
+              "slug": "reconnaissance-diplomes-etrangers",
+              "filename": "Reconnaissance-diplomes-etrangers",
+              "title": "Reconnaissance des diplômes obtenus à l'étranger",
+              "relativePath": "Services/Education-formation/Reconnaissance-diplomes-etrangers.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Systeme-education",
+                "Formation-professionnelle",
+                "Permis-travail",
+                "Cours-de-francais"
+              ]
+            },
+            {
+              "slug": "systeme-education",
+              "filename": "Systeme-education",
+              "title": "Système d'éducation du Québec",
+              "relativePath": "Services/Education-formation/Systeme-education.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Prets-bourses-etudiants",
+                "Epargne-etudes-REEE",
+                "Reconnaissance-diplomes-etrangers",
+                "Formation-professionnelle",
+                "Services-garde-educatifs"
+              ]
+            }
+          ]
+        },
+        "Emploi-travail": {
+          "slug": "emploi-travail",
+          "hub": {
+            "slug": "_hub",
+            "filename": "_hub",
+            "title": "Emploi et travail",
+            "relativePath": "Services/Emploi-travail/_hub.md",
+            "statut": [
+              "VÉRIFIÉ",
+              "PUBLIC"
+            ],
+            "aJour": "2026-05-27",
+            "wikilinks": [
+              "Assurance-emploi",
+              "Aide-sociale",
+              "Guichet-emploi",
+              "Permis-travail",
+              "Education-formation/_hub",
+              "Immigration/_hub",
+              "Retraite-aines/_hub",
+              "Trois-ordres-gouvernement"
+            ]
+          },
+          "pages": [
+            {
+              "slug": "aide-sociale",
+              "filename": "Aide-sociale",
+              "title": "Aide sociale et aide financière de dernier recours",
+              "relativePath": "Services/Emploi-travail/Aide-sociale.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC",
+                "OFFICIEL"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Assurance-emploi",
+                "Guichet-emploi",
+                "Assurance-medicaments",
+                "Logements"
+              ]
+            },
+            {
+              "slug": "assurance-emploi",
+              "filename": "Assurance-emploi",
+              "title": "Assurance-emploi",
+              "relativePath": "Services/Emploi-travail/Assurance-emploi.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC",
+                "OFFICIEL"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Guichet-emploi",
+                "Aide-sociale",
+                "Impots-federaux"
+              ]
+            },
+            {
+              "slug": "guichet-emploi",
+              "filename": "Guichet-emploi",
+              "title": "Guichet-Emplois et services d'aide à l'emploi",
+              "relativePath": "Services/Emploi-travail/Guichet-emploi.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Assurance-emploi",
+                "Formation-professionnelle",
+                "Reconnaissance-diplomes-etrangers",
+                "Aide-sociale",
+                "Permis-travail"
+              ]
+            },
+            {
+              "slug": "permis-travail",
+              "filename": "Permis-travail",
+              "title": "Permis de travail au Canada",
+              "relativePath": "Services/Emploi-travail/Permis-travail.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC",
+                "OFFICIEL"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Immigration/_hub",
+                "Permis-etudes",
+                "Guichet-emploi",
+                "Reconnaissance-diplomes-etrangers",
+                "Verifier-etat-demande-IRCC"
+              ]
+            }
+          ]
+        },
+        "Famille-enfants": {
+          "slug": "famille-enfants",
+          "hub": {
+            "slug": "_hub",
+            "filename": "_hub",
+            "title": "Famille et enfants",
+            "relativePath": "Services/Famille-enfants/_hub.md",
+            "statut": [
+              "VÉRIFIÉ",
+              "PUBLIC"
+            ],
+            "aJour": "2026-05-27",
+            "wikilinks": [
+              "Acte-de-naissance",
+              "Allocation-canadienne-enfants",
+              "Allocation-familiale-QC",
+              "Services-garde-educatifs",
+              "Mariage-union-civile",
+              "Sante/_hub",
+              "Education-formation/_hub",
+              "Trois-ordres-gouvernement"
+            ]
+          },
+          "pages": [
+            {
+              "slug": "acte-de-naissance",
+              "filename": "Acte-de-naissance",
+              "title": "Acte de naissance du Québec",
+              "relativePath": "Services/Famille-enfants/Acte-de-naissance.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC",
+                "OFFICIEL"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Passeport-canadien",
+                "Carte-assurance-maladie",
+                "Mariage-union-civile"
+              ]
+            },
+            {
+              "slug": "allocation-canadienne-enfants",
+              "filename": "Allocation-canadienne-enfants",
+              "title": "Allocation canadienne pour enfants (ACE)",
+              "relativePath": "Services/Famille-enfants/Allocation-canadienne-enfants.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC",
+                "OFFICIEL"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Allocation-familiale-QC",
+                "Acte-de-naissance",
+                "Impots-federaux",
+                "Services-garde-educatifs"
+              ]
+            },
+            {
+              "slug": "allocation-familiale-qc",
+              "filename": "Allocation-familiale-QC",
+              "title": "Allocation famille du Québec",
+              "relativePath": "Services/Famille-enfants/Allocation-familiale-QC.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC",
+                "OFFICIEL"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Allocation-canadienne-enfants",
+                "Acte-de-naissance",
+                "Services-garde-educatifs",
+                "Impots-federaux"
+              ]
+            },
+            {
+              "slug": "mariage-union-civile",
+              "filename": "Mariage-union-civile",
+              "title": "Mariage et union civile au Québec",
+              "relativePath": "Services/Famille-enfants/Mariage-union-civile.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Acte-de-naissance",
+                "Comprendre-vos-lois",
+                "Impots-federaux"
+              ]
+            },
+            {
+              "slug": "services-garde-educatifs",
+              "filename": "Services-garde-educatifs",
+              "title": "Services de garde éducatifs à l'enfance",
+              "relativePath": "Services/Famille-enfants/Services-garde-educatifs.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Allocation-familiale-QC",
+                "Allocation-canadienne-enfants",
+                "Systeme-education"
+              ]
+            }
+          ]
+        },
+        "Immigration": {
+          "slug": "immigration",
+          "hub": {
+            "slug": "_hub",
+            "filename": "_hub",
+            "title": "Immigration",
+            "relativePath": "Services/Immigration/_hub.md",
+            "statut": [
+              "VÉRIFIÉ",
+              "PUBLIC"
+            ],
+            "aJour": "2026-05-27",
+            "wikilinks": [
+              "Permis-etudes",
+              "Parrainage-familial",
+              "Verifier-etat-demande-IRCC",
+              "_hub",
+              "Documents-identite/_hub",
+              "Education-formation/_hub",
+              "Emploi-travail/_hub"
+            ]
+          },
+          "pages": [
+            {
+              "slug": "parrainage-familial",
+              "filename": "Parrainage-familial",
+              "title": "Parrainage familial",
+              "relativePath": "Services/Immigration/Parrainage-familial.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC",
+                "OFFICIEL"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Immigration/_hub",
+                "Verifier-etat-demande-IRCC",
+                "Documents-identite/_hub"
+              ]
+            },
+            {
+              "slug": "permis-etudes",
+              "filename": "Permis-etudes",
+              "title": "Permis d'études au Canada",
+              "relativePath": "Services/Immigration/Permis-etudes.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC",
+                "OFFICIEL"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Immigration/_hub",
+                "Systeme-education",
+                "Permis-travail",
+                "Cours-de-francais",
+                "Verifier-etat-demande-IRCC"
+              ]
+            },
+            {
+              "slug": "verifier-etat-demande-ircc",
+              "filename": "Verifier-etat-demande-IRCC",
+              "title": "Vérifier l'état d'une demande IRCC",
+              "relativePath": "Services/Immigration/Verifier-etat-demande-IRCC.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC",
+                "OFFICIEL"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Immigration/_hub",
+                "Permis-etudes",
+                "Permis-travail",
+                "Parrainage-familial"
+              ]
+            }
+          ]
+        },
+        "Impots-finances": {
+          "slug": "impots-finances",
+          "hub": {
+            "slug": "_hub",
+            "filename": "_hub",
+            "title": "Impôts et finances",
+            "relativePath": "Services/Impots-finances/_hub.md",
+            "statut": [
+              "VÉRIFIÉ",
+              "PUBLIC"
+            ],
+            "aJour": "2026-05-27",
+            "wikilinks": [
+              "Impots-federaux",
+              "_hub",
+              "Famille-enfants/_hub",
+              "Retraite-aines/_hub",
+              "Emploi-travail/_hub"
+            ]
+          },
+          "pages": [
+            {
+              "slug": "impots-federaux",
+              "filename": "Impots-federaux",
+              "title": "Impôts fédéraux",
+              "relativePath": "Services/Impots-finances/Impots-federaux.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "OFFICIEL"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Retraite-aines/_hub",
+                "Famille-enfants/_hub",
+                "Emploi-travail/_hub",
+                "Trois-ordres-gouvernement"
+              ]
+            }
+          ]
+        },
+        "Logement": {
+          "slug": "logement",
+          "hub": {
+            "slug": "_hub",
+            "filename": "_hub",
+            "title": "Logement",
+            "relativePath": "Services/Logement/_hub.md",
+            "statut": [
+              "VÉRIFIÉ",
+              "PUBLIC"
+            ],
+            "aJour": "2026-05-27",
+            "wikilinks": [
+              "Logements",
+              "Aide-federale-logement",
+              "_hub",
+              "Famille-enfants/_hub",
+              "Impots-finances/_hub"
+            ]
+          },
+          "pages": [
+            {
+              "slug": "aide-federale-logement",
+              "filename": "Aide-federale-logement",
+              "title": "Aide fédérale au logement",
+              "relativePath": "Services/Logement/Aide-federale-logement.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Logements",
+                "Impots-federaux",
+                "Programmes-ressources-aines"
+              ]
+            },
+            {
+              "slug": "logements",
+              "filename": "Logements",
+              "title": "Logements — locataires et propriétaires au Québec",
+              "relativePath": "Services/Logement/Logements.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Aide-federale-logement",
+                "Comprendre-vos-lois",
+                "Sante-environnementale"
+              ]
+            }
+          ]
+        },
+        "Retraite-aines": {
+          "slug": "retraite-aines",
+          "hub": {
+            "slug": "_hub",
+            "filename": "_hub",
+            "title": "Retraite et aînés",
+            "relativePath": "Services/Retraite-aines/_hub.md",
+            "statut": [
+              "VÉRIFIÉ",
+              "PUBLIC"
+            ],
+            "aJour": "2026-05-27",
+            "wikilinks": [
+              "Retraite-vue-ensemble",
+              "Securite-vieillesse",
+              "Supplement-revenu-garanti",
+              "Regime-pensions-Canada",
+              "Regime-rentes-Quebec",
+              "Credit-impot-personne-agee",
+              "Programmes-ressources-aines",
+              "Sante/_hub",
+              "Logement/_hub",
+              "Impots-finances/_hub"
+            ]
+          },
+          "pages": [
+            {
+              "slug": "credit-impot-personne-agee",
+              "filename": "Credit-impot-personne-agee",
+              "title": "Crédits d'impôt pour personnes âgées",
+              "relativePath": "Services/Retraite-aines/Credit-impot-personne-agee.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Retraite-vue-ensemble",
+                "Securite-vieillesse",
+                "Supplement-revenu-garanti",
+                "Soutien-domicile",
+                "Impots-federaux"
+              ]
+            },
+            {
+              "slug": "programmes-ressources-aines",
+              "filename": "Programmes-ressources-aines",
+              "title": "Programmes et ressources pour les aînés",
+              "relativePath": "Services/Retraite-aines/Programmes-ressources-aines.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Retraite-vue-ensemble",
+                "Soutien-domicile",
+                "Credit-impot-personne-agee",
+                "Logements"
+              ]
+            },
+            {
+              "slug": "regime-pensions-canada",
+              "filename": "Regime-pensions-Canada",
+              "title": "Régime de pensions du Canada (RPC)",
+              "relativePath": "Services/Retraite-aines/Regime-pensions-Canada.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC",
+                "OFFICIEL"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Retraite-vue-ensemble",
+                "Regime-rentes-Quebec",
+                "Securite-vieillesse",
+                "Supplement-revenu-garanti"
+              ]
+            },
+            {
+              "slug": "regime-rentes-quebec",
+              "filename": "Regime-rentes-Quebec",
+              "title": "Régime de rentes du Québec (RRQ)",
+              "relativePath": "Services/Retraite-aines/Regime-rentes-Quebec.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC",
+                "OFFICIEL"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Retraite-vue-ensemble",
+                "Regime-pensions-Canada",
+                "Securite-vieillesse",
+                "Supplement-revenu-garanti",
+                "Credit-impot-personne-agee"
+              ]
+            },
+            {
+              "slug": "retraite-vue-ensemble",
+              "filename": "Retraite-vue-ensemble",
+              "title": "La retraite au Canada — vue d'ensemble",
+              "relativePath": "Services/Retraite-aines/Retraite-vue-ensemble.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Securite-vieillesse",
+                "Supplement-revenu-garanti",
+                "Regime-pensions-Canada",
+                "Regime-rentes-Quebec",
+                "Credit-impot-personne-agee",
+                "Programmes-ressources-aines"
+              ]
+            },
+            {
+              "slug": "securite-vieillesse",
+              "filename": "Securite-vieillesse",
+              "title": "Sécurité de la vieillesse (SV)",
+              "relativePath": "Services/Retraite-aines/Securite-vieillesse.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC",
+                "OFFICIEL"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Retraite-vue-ensemble",
+                "Supplement-revenu-garanti",
+                "Regime-pensions-Canada",
+                "Regime-rentes-Quebec",
+                "Credit-impot-personne-agee"
+              ]
+            },
+            {
+              "slug": "supplement-revenu-garanti",
+              "filename": "Supplement-revenu-garanti",
+              "title": "Supplément de revenu garanti (SRG)",
+              "relativePath": "Services/Retraite-aines/Supplement-revenu-garanti.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC",
+                "OFFICIEL"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Securite-vieillesse",
+                "Retraite-vue-ensemble",
+                "Credit-impot-personne-agee",
+                "Programmes-ressources-aines"
+              ]
+            }
+          ]
+        },
+        "Sante": {
+          "slug": "sante",
+          "hub": {
+            "slug": "_hub",
+            "filename": "_hub",
+            "title": "Santé",
+            "relativePath": "Services/Sante/_hub.md",
+            "statut": [
+              "VÉRIFIÉ",
+              "PUBLIC"
+            ],
+            "aJour": "2026-05-27",
+            "wikilinks": [
+              "Systeme-de-sante",
+              "Carte-assurance-maladie",
+              "Assurance-medicaments",
+              "Medecin-famille",
+              "Soutien-domicile",
+              "Info-Sante-Info-Social",
+              "Sante-mentale",
+              "Sante-environnementale",
+              "Trois-ordres-gouvernement",
+              "Retraite-aines/_hub",
+              "Famille-enfants/_hub"
+            ]
+          },
+          "pages": [
+            {
+              "slug": "assurance-medicaments",
+              "filename": "Assurance-medicaments",
+              "title": "Assurance médicaments du Québec",
+              "relativePath": "Services/Sante/Assurance-medicaments.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Carte-assurance-maladie",
+                "Systeme-de-sante",
+                "Impots-federaux"
+              ]
+            },
+            {
+              "slug": "carte-assurance-maladie",
+              "filename": "Carte-assurance-maladie",
+              "title": "Carte d'assurance maladie du Québec",
+              "relativePath": "Services/Sante/Carte-assurance-maladie.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Systeme-de-sante",
+                "Assurance-medicaments",
+                "Medecin-famille",
+                "Info-Sante-Info-Social"
+              ]
+            },
+            {
+              "slug": "info-sante-info-social",
+              "filename": "Info-Sante-Info-Social",
+              "title": "Info-Santé et Info-Social (811)",
+              "relativePath": "Services/Sante/Info-Sante-Info-Social.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC",
+                "OFFICIEL"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Medecin-famille",
+                "Systeme-de-sante",
+                "Sante-mentale",
+                "Carte-assurance-maladie"
+              ]
+            },
+            {
+              "slug": "medecin-famille",
+              "filename": "Medecin-famille",
+              "title": "Médecin de famille au Québec",
+              "relativePath": "Services/Sante/Medecin-famille.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Carte-assurance-maladie",
+                "Info-Sante-Info-Social",
+                "Systeme-de-sante",
+                "Sante-mentale"
+              ]
+            },
+            {
+              "slug": "sante-environnementale",
+              "filename": "Sante-environnementale",
+              "title": "Santé environnementale",
+              "relativePath": "Services/Sante/Sante-environnementale.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Systeme-de-sante",
+                "Logements",
+                "Info-Sante-Info-Social"
+              ]
+            },
+            {
+              "slug": "sante-mentale",
+              "filename": "Sante-mentale",
+              "title": "Santé mentale",
+              "relativePath": "Services/Sante/Sante-mentale.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Info-Sante-Info-Social",
+                "Medecin-famille",
+                "Systeme-de-sante",
+                "Soutien-domicile"
+              ]
+            },
+            {
+              "slug": "soutien-domicile",
+              "filename": "Soutien-domicile",
+              "title": "Soutien à domicile au Québec",
+              "relativePath": "Services/Sante/Soutien-domicile.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "PUBLIC"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Systeme-de-sante",
+                "Carte-assurance-maladie",
+                "Retraite-aines/_hub",
+                "Programmes-ressources-aines"
+              ]
+            },
+            {
+              "slug": "systeme-de-sante",
+              "filename": "Systeme-de-sante",
+              "title": "Le système de santé canadien — vue d'ensemble",
+              "relativePath": "Services/Sante/Systeme-de-sante.md",
+              "statut": [
+                "VÉRIFIÉ",
+                "OFFICIEL"
+              ],
+              "aJour": "2026-05-27",
+              "wikilinks": [
+                "Carte-assurance-maladie",
+                "Assurance-medicaments",
+                "Medecin-famille",
+                "Soutien-domicile",
+                "Info-Sante-Info-Social",
+                "Sante-mentale",
+                "Trois-ordres-gouvernement"
+              ]
+            }
+          ]
+        },
+        "Securite-publique": {
+          "slug": "securite-publique",
+          "hub": {
+            "slug": "_hub",
+            "filename": "_hub",
+            "title": "Sécurité publique",
+            "relativePath": "Services/Securite-publique/_hub.md",
+            "statut": [
+              "VÉRIFIÉ",
+              "PUBLIC"
+            ],
+            "aJour": "2026-05-27",
+            "wikilinks": [
+              "_hub",
+              "Documents-identite/_hub",
+              "Immigration/_hub"
+            ]
+          },
+          "pages": []
+        }
+      }
+    }
+  }
+}
