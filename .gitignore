@@ -13,6 +13,11 @@ _ai/snapshot_*.txt
 # Logs de CI/debug temporaires
 _brouillons/*.log
 _brouillons/*.tmp
+_brouillons/*.json
+
+# Docker Compose overrides (config locale - ex: port 5433 pour conflit PG natif)
+docker-compose.override.yml
+docker-compose.override.yaml
 
 node_modules/
 backend/node_modules/
