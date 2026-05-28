@@ -16,8 +16,10 @@ import {
  *   /:categorie
  *   /:categorie/:sousCategorie
  */
-export default function RouteHub() {
-  const { categorie, sousCategorie } = useParams();
+export default function RouteHub({ forceCategorie, forceSousCategorie } = {}) {
+  const params = useParams();
+  const categorie = forceCategorie ?? params.categorie;
+  const sousCategorie = forceSousCategorie ?? params.sousCategorie;
   const [hub, setHub] = useState(null);
   const [pages, setPages] = useState([]);
   const [sousCategories, setSousCategories] = useState([]);

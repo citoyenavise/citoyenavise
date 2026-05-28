@@ -15,8 +15,15 @@ import './RouteEditoriale.css';
  *   /:categorie/:slugPage
  *   /:categorie/:sousCategorie/:slugPage
  */
-export default function RouteEditoriale() {
-  const { categorie, sousCategorie, slugPage } = useParams();
+export default function RouteEditoriale({
+  forceCategorie,
+  forceSousCategorie,
+  forceSlugPage,
+} = {}) {
+  const params = useParams();
+  const categorie = forceCategorie ?? params.categorie;
+  const sousCategorie = forceSousCategorie ?? params.sousCategorie;
+  const slugPage = forceSlugPage ?? params.slugPage;
   const [page, setPage] = useState(null);
   const [chargement, setChargement] = useState(true);
   const [erreur, setErreur] = useState(null);

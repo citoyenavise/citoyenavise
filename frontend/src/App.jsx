@@ -10,6 +10,7 @@ import Accueil from './pages/Accueil';
 import CentreControle from './pages/CentreControle';
 import RouteHub from './pages/editorial/RouteHub';
 import RouteEditoriale from './pages/editorial/RouteEditoriale';
+import RouteAutoDispatch from './pages/editorial/RouteAutoDispatch';
 
 // Pages transactionnelles existantes (code-splitted)
 const PetitionsListPage = React.lazy(() => import('./pages/PetitionsListPage'));
@@ -103,19 +104,16 @@ function App() {
                 )}
               />
 
-              {/* Routes editoriales dynamiques
-                  (matchent par categorie/sous-categorie du manifest) */}
+              {/* Routes editoriales dynamiques.
+                  La forme :categorie/:second est ambigue (sous-categorie
+                  ou page) — un dispatcher tranche au runtime via manifest. */}
               <Route
                 path=":categorie/:sousCategorie/:slugPage"
                 element={<RouteEditoriale />}
               />
               <Route
-                path=":categorie/:sousCategorie"
-                element={<RouteHub />}
-              />
-              <Route
-                path=":categorie/:slugPage"
-                element={<RouteEditoriale />}
+                path=":categorie/:second"
+                element={<RouteAutoDispatch />}
               />
               <Route path=":categorie" element={<RouteHub />} />
 
