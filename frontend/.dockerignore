@@ -1,0 +1,14 @@
+# Dependencies (regenerees par npm ci)
+node_modules
+
+# Build local
+dist
+
+# Environnement local (les vars de prod sont injectees au build via ARG)
+.env
+.env.local
+.env.*.local
+
+# Logs / divers
+*.log
+.DS_Store
