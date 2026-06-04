@@ -1,7 +1,7 @@
 import React, { Suspense, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-  BrowserRouter, Routes, Route, Navigate,
+  BrowserRouter, Routes, Route, Navigate, useLocation,
 } from 'react-router-dom';
 import { AuthProvider } from './contexts/AuthContext';
 import { ProtectedRoute } from './components/ProtectedRoute';
@@ -25,6 +25,16 @@ const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
 const AdminElusPage = React.lazy(() => import('./pages/AdminElusPage'));
 const Login = React.lazy(() => import('./pages/Login'));
 const VerifyPage = React.lazy(() => import('./pages/VerifyPage'));
+
+// Compatibilite : de nombreux composants naviguent encore vers /fr/... ou /en/...
+// (heritage du routage multilingue). Focus FR = routes sans prefixe de langue.
+// On retire le prefixe en preservant le reste du chemin + la query (?token=...),
+// au lieu de rediriger vers l'accueil (ce qui cassait Connexion, magic link, etc.).
+const StripLangRedirect = () => {
+  const { pathname, search } = useLocation();
+  const stripped = pathname.replace(/^\/(fr|en)(?=\/|$)/, '') || '/';
+  return <Navigate to={`${stripped}${search}`} replace />;
+};
 
 const ChargementFallback = () => (
   <div
@@ -121,9 +131,9 @@ function App() {
               <Route path="*" element={<Navigate to="/" replace />} />
             </Route>
 
-            {/* Redirect anciennes routes /fr/* et /en/* vers / */}
-            <Route path="/fr/*" element={<Navigate to="/" replace />} />
-            <Route path="/en/*" element={<Navigate to="/" replace />} />
+            {/* Anciennes routes /fr/* et /en/* : retirer le prefixe, garder la destination */}
+            <Route path="/fr/*" element={<StripLangRedirect />} />
+            <Route path="/en/*" element={<StripLangRedirect />} />
           </Routes>
         </Suspense>
       </AuthProvider>
