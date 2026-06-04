@@ -78,8 +78,8 @@ export function generateMagicLink(email, lang = 'fr') {
   // Expiration: 15 minutes
   const expiresAt = new Date(Date.now() + 15 * 60 * 1000);
 
-  // URL de vérification (utilise la langue fournie)
-  const magicLinkUrl = `${config.FRONTEND_URL}/${lang}/verify?token=${token}`;
+  // URL de vérification (route SPA /verify — Focus FR, pas de prefixe de langue)
+  const magicLinkUrl = `${config.FRONTEND_URL}/verify?token=${token}`;
 
   return {
     token,
