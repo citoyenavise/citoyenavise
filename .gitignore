@@ -28,3 +28,6 @@ frontend/node_modules/
 !**/.env.example
 !**/.env.*.example
 !frontend/.env.production
+
+# Couches géospatiales volumineuses (téléchargées, non versionnées)
+data/geo/
