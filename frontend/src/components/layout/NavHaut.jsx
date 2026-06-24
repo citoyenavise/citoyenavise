@@ -9,6 +9,7 @@ const ELEMENTS_NAV = [
   { to: '/services', label: 'Services' },
   { to: '/participer', label: 'Participer' },
   { to: '/ressources', label: 'Ressources' },
+  { to: '/territoire', label: 'Territoire' },
 ];
 
 export default function NavHaut() {

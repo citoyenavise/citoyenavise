@@ -1,0 +1,75 @@
+.territoire-page {
+  max-width: 820px;
+  margin: 0 auto;
+  padding: 2.5rem 1.5rem 4rem;
+  font-family: var(--font-texte);
+  color: var(--color-texte);
+}
+
+.territoire-page h1 {
+  font-family: var(--font-titre, var(--font-texte));
+}
+
+.territoire-intro {
+  color: var(--color-texte-doux);
+  margin-bottom: 1.5rem;
+}
+
+.territoire-liste {
+  list-style: none;
+  padding: 0;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.territoire-liste a {
+  display: block;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--color-bordure, #ddd);
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--color-texte);
+  font-weight: 600;
+  transition: background 0.15s ease;
+}
+
+.territoire-liste a:hover {
+  background: var(--color-fond-doux, #f5f5f5);
+}
+
+.territoire-fil {
+  margin-bottom: 1.5rem;
+}
+
+.territoire-fil a {
+  color: var(--color-lien, #1a7f5a);
+  text-decoration: none;
+}
+
+.territoire-markdown table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1rem 0;
+}
+
+.territoire-markdown th,
+.territoire-markdown td {
+  border: 1px solid var(--color-bordure, #ddd);
+  padding: 0.5rem 0.75rem;
+  text-align: left;
+}
+
+.territoire-markdown th {
+  background: var(--color-fond-doux, #f5f5f5);
+}
+
+.territoire-markdown h2 {
+  margin-top: 2rem;
+}
+
+.territoire-markdown blockquote {
+  border-left: 3px solid var(--color-lien, #1a7f5a);
+  padding-left: 1rem;
+  color: var(--color-texte-doux);
+  margin: 1rem 0;
+}

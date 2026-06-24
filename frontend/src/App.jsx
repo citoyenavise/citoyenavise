@@ -25,6 +25,7 @@ const AdminDashboard = React.lazy(() => import('./pages/AdminDashboard'));
 const AdminElusPage = React.lazy(() => import('./pages/AdminElusPage'));
 const Login = React.lazy(() => import('./pages/Login'));
 const VerifyPage = React.lazy(() => import('./pages/VerifyPage'));
+const TerritoirePage = React.lazy(() => import('./pages/TerritoirePage'));
 
 // Compatibilite : de nombreux composants naviguent encore vers /fr/... ou /en/...
 // (heritage du routage multilingue). Focus FR = routes sans prefixe de langue.
@@ -113,6 +114,10 @@ function App() {
                   </ProtectedRoute>
                 )}
               />
+
+              {/* Fiches territoire (donnees publiques sourcees) */}
+              <Route path="territoire" element={<TerritoirePage />} />
+              <Route path="territoire/:slug" element={<TerritoirePage />} />
 
               {/* Routes editoriales dynamiques.
                   La forme :categorie/:second est ambigue (sous-categorie
