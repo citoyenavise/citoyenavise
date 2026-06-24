@@ -20,22 +20,10 @@ export default function Accueil() {
   return (
     <div className="accueil">
       <section className="accueil-hero" aria-label="Présentation">
-        <p className="accueil-eyebrow">Plateforme civique canadienne</p>
-        <h1 className="accueil-slogan">
-          Citoyen avisé = plus fort.
-          <br />
-          Unis = inbattable.
-        </h1>
-        <p className="accueil-intro">
-          Toute l’information civique canadienne, rassemblée. Vos droits, vos élus,
-          vos services publics — sources officielles, sans publicité, sans partisanerie.
-        </p>
+        <h1 className="accueil-eyebrow">Plateforme civique canadienne</h1>
         <div className="accueil-actions-principales">
           <Link to="/carte" className="accueil-action accueil-action-primaire">
             Explorer la carte
-          </Link>
-          <Link to="/elus" className="accueil-action accueil-action-secondaire">
-            Trouver mon élu
           </Link>
         </div>
       </section>

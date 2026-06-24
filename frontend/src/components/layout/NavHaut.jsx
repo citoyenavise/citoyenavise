@@ -5,6 +5,7 @@ import './NavHaut.css';
 const ELEMENTS_NAV = [
   { to: '/droits-libertes', label: 'Droits & libertés' },
   { to: '/gouvernement', label: 'Gouvernement' },
+  { to: '/elus', label: 'Élus' },
   { to: '/elections', label: 'Élections' },
   { to: '/services', label: 'Services' },
   { to: '/participer', label: 'Participer' },
