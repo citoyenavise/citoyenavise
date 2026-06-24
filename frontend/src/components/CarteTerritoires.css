@@ -1,0 +1,22 @@
+.carte-territoires {
+  margin: 1.5rem 0 2rem;
+}
+
+.carte-territoires .leaflet-container {
+  border-radius: 10px;
+  border: 1px solid var(--color-bordure, #ddd);
+}
+
+.carte-territoires-info {
+  margin-top: 0.75rem;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--color-bordure, #ddd);
+  border-radius: 8px;
+  background: var(--color-fond-doux, #f5f5f5);
+  font-family: var(--font-texte);
+  color: var(--color-texte);
+}
+
+.carte-territoires-aide {
+  color: var(--color-texte-doux);
+}

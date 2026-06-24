@@ -2,6 +2,7 @@ import { useParams, Link, Navigate } from 'react-router-dom';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
 import { listerTerritoires, chargerTerritoire } from '../lib/territoireLoader';
+import CarteTerritoires from '../components/CarteTerritoires';
 import './TerritoirePage.css';
 
 /**
@@ -21,6 +22,7 @@ export default function TerritoirePage() {
           Fiches civiques par territoire — données publiques officielles,
           sourcées et datées.
         </p>
+        <CarteTerritoires />
         <ul className="territoire-liste">
           {liste.map((t) => (
             <li key={t.slug}>
